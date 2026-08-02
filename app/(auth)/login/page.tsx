@@ -1,0 +1,154 @@
+"use client";
+
+import { z } from "zod";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { LogIn } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { AuthShell } from "../AuthShell";
+import { PasswordInput } from "@/components/ui/password-input";
+
+const loginSchema = z.object({
+  email: z.string().email("Enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
+  remember: z.boolean(),
+});
+
+type LoginValues = z.infer<typeof loginSchema>;
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { control, handleSubmit } = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "", remember: false },
+  });
+
+  async function onSubmit() {
+    setIsLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setIsLoading(false);
+    router.push("/dashboard");
+  }
+
+  return (
+    <AuthShell
+      imageSide="right"
+      illustration={{
+        icon: LogIn,
+        eyebrow: "Welcome back",
+        headline: "Pick up right where you left off.",
+        description:
+          "Track occupancy, restock supply, or manage your stall — your dashboard is one login away.",
+      }}
+    >
+      <div className="mb-8">
+        <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground">
+          Log in to Lapakita
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/register"
+            className="font-medium text-primary hover:underline"
+          >
+            Sign up
+          </Link>
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <FieldGroup>
+          <Controller
+            control={control}
+            name="email"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@business.com"
+                  {...field}
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="password"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <div className="flex items-center justify-between">
+                  <FieldLabel htmlFor="password">Password</FieldLabel>
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs font-medium text-primary hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <PasswordInput
+                  id="password"
+                  placeholder="Enter your password"
+                  {...field}
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="remember"
+            render={({ field }) => (
+              <Field orientation="horizontal">
+                <Checkbox
+                  id="remember"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+                <FieldLabel
+                  htmlFor="remember"
+                  className="font-normal text-muted-foreground"
+                >
+                  Keep me logged in
+                </FieldLabel>
+              </Field>
+            )}
+          />
+
+          <Field>
+            <Button
+              type="submit"
+              isLoading={isLoading}
+              size="lg"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              Log In
+            </Button>
+          </Field>
+        </FieldGroup>
+      </form>
+    </AuthShell>
+  );
+}
