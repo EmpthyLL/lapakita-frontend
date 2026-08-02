@@ -65,7 +65,7 @@ export function HeroSearch() {
           </SelectContent>
         </Select>
 
-        <Button className="h-12 bg-primary px-6 text-primary-foreground hover:bg-primary/90">
+        <Button className="h-12 justify-center bg-primary text-primary-foreground hover:bg-primary/90">
           <Search className="mr-2 h-4 w-4" />
           Search
         </Button>

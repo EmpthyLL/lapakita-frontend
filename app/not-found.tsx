@@ -33,7 +33,7 @@ export default function NotFound() {
           <div className="mt-10 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
             <div className="w-full sm:w-auto">
               <Link href="/">
-                <Button className="w-full justify-center bg-primary text-primary-foreground hover:bg-primary/90">
+                <Button className="inline-flex items-center">
                   <Home className="mr-2 h-4 w-4" />
                   Back to Home
                 </Button>
@@ -41,7 +41,7 @@ export default function NotFound() {
             </div>
             <div className="w-full sm:w-auto">
               <Link href="/stalls">
-                <Button variant="outline" className="w-full justify-center">
+                <Button variant="outline" className="inline-flex items-center">
                   <LayoutGrid className="mr-2 h-4 w-4" />
                   Browse Stalls
                 </Button>

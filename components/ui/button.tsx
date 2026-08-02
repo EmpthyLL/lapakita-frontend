@@ -12,6 +12,7 @@ const buttonVariants = cva(
       variant: {
         /* Default Primary (Tenant/Business Blue) */
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        primary: "bg-primary text-primary-foreground hover:bg-primary/90",
         "primary-secondary":
           "bg-primary-secondary text-primary border border-primary/20 hover:bg-primary/10",
 
