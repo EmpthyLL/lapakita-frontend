@@ -7,9 +7,19 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-heading);
+  --font-sans: var(
+    --font-sans,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif
+  );
+  --font-mono: var(--font-geist-mono, ui-monospace, "SF Mono", monospace);
+  --font-heading: var(
+    --font-heading,
+    var(--font-sans, ui-sans-serif, system-ui, sans-serif)
+  );
 
   /* --- CORE ROLE COLORS --- */
   /* Primary (Tenant / Business - Default) */
@@ -62,6 +72,10 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  --color-gradient-from: var(--primary);
+  --color-gradient-via: var(--supplier);
+  --color-gradient-to: var(--owner);
 }
 
 :root {
@@ -164,5 +178,38 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer utilities {
+  .text-gradient-brand {
+    background-image: linear-gradient(
+      100deg,
+      var(--primary) 0%,
+      var(--supplier) 55%,
+      var(--owner) 100%
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  .bg-gradient-brand {
+    background-image: linear-gradient(
+      100deg,
+      var(--primary) 0%,
+      var(--supplier) 55%,
+      var(--owner) 100%
+    );
+  }
+
+  .border-gradient-brand {
+    border-image: linear-gradient(
+        100deg,
+        var(--primary) 0%,
+        var(--supplier) 55%,
+        var(--owner) 100%
+      )
+      1;
   }
 }
