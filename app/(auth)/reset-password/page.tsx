@@ -53,7 +53,7 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthShell
-      imageSide="left"
+      layout="centered"
       illustration={{
         icon: ShieldCheck,
         eyebrow: "Secure your account",

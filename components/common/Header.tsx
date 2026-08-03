@@ -29,7 +29,7 @@ import { cn } from "@/lib/utils";
 const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Find Stalls", href: "/stalls" },
-  { label: "Features", href: "#features" },
+  { label: "Features", href: "/features" },
   { label: "About Us", href: "/about" },
   { label: "FAQ", href: "/faq" },
   { label: "Contact", href: "/contact" },

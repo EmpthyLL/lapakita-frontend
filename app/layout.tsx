@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import "./globals.css";
-import { SiteHeader } from "@/components/common/Header";
-import { SiteFooter } from "@/components/common/Footer";
+import "@/style/globals.css";
 
 export const metadata: Metadata = {
   title: "Lapakita — Find Stalls, Run Your POS, Scale Your Business",
@@ -16,11 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="flex min-h-screen flex-col antialiased">
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
-      </body>
+      <body className="flex min-h-screen flex-col antialiased">{children}</body>
     </html>
   );
 }

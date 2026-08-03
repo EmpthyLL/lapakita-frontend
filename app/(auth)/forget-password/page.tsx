@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthShell
-      imageSide="left"
+      layout="centered"
       illustration={{
         icon: KeyRound,
         eyebrow: "Account recovery",

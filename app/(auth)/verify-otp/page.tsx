@@ -4,8 +4,8 @@ import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, MailCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -28,22 +28,38 @@ const RESEND_SECONDS = 30;
 export default function VerifyOtpPage() {
   const router = useRouter();
 
-  const flow = "reset"; // This would typically come from search params
-  const email = "johndoe@example.com"; // This would typically come from search params
+  const flow = "reset";
+  const email = "johndoe@example.com";
 
   const [isLoading, setIsLoading] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
+  // guards against double-submit if autofill fires onChange twice
+  const hasAutoSubmitted = useRef(false);
 
-  const { control, handleSubmit } = useForm<OtpValues>({
+  const { control, handleSubmit, watch } = useForm<OtpValues>({
     resolver: zodResolver(otpSchema),
     defaultValues: { code: "" },
   });
+
+  const codeValue = watch("code");
 
   useEffect(() => {
     if (secondsLeft <= 0) return;
     const timer = setInterval(() => setSecondsLeft((s) => s - 1), 1000);
     return () => clearInterval(timer);
   }, [secondsLeft]);
+
+  // Auto-submit once all 6 digits are entered
+  useEffect(() => {
+    if (codeValue?.length === 6 && !hasAutoSubmitted.current && !isLoading) {
+      hasAutoSubmitted.current = true;
+      handleSubmit(onSubmit)();
+    }
+    if (codeValue?.length !== 6) {
+      hasAutoSubmitted.current = false;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [codeValue]);
 
   async function onSubmit() {
     setIsLoading(true);
@@ -60,11 +76,12 @@ export default function VerifyOtpPage() {
   function handleResend() {
     if (secondsLeft > 0) return;
     setSecondsLeft(RESEND_SECONDS);
+    hasAutoSubmitted.current = false;
   }
 
   return (
     <AuthShell
-      imageSide="right"
+      layout="centered"
       illustration={{
         icon: MailCheck,
         eyebrow: "Almost there",
@@ -81,7 +98,7 @@ export default function VerifyOtpPage() {
         Back
       </Link>
 
-      <div className="mb-8">
+      <div className="mb-8 text-center">
         <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground">
           Enter verification code
         </h1>
@@ -103,14 +120,34 @@ export default function VerifyOtpPage() {
                   maxLength={6}
                   value={field.value}
                   onChange={field.onChange}
+                  disabled={isLoading}
+                  containerClassName="justify-center"
                 >
                   <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
+                    <InputOTPSlot
+                      index={0}
+                      className="size-12 text-lg sm:size-14 sm:text-xl"
+                    />
+                    <InputOTPSlot
+                      index={1}
+                      className="size-12 text-lg sm:size-14 sm:text-xl"
+                    />
+                    <InputOTPSlot
+                      index={2}
+                      className="size-12 text-lg sm:size-14 sm:text-xl"
+                    />
+                    <InputOTPSlot
+                      index={3}
+                      className="size-12 text-lg sm:size-14 sm:text-xl"
+                    />
+                    <InputOTPSlot
+                      index={4}
+                      className="size-12 text-lg sm:size-14 sm:text-xl"
+                    />
+                    <InputOTPSlot
+                      index={5}
+                      className="size-12 text-lg sm:size-14 sm:text-xl"
+                    />
                   </InputOTPGroup>
                 </InputOTP>
                 {fieldState.invalid && (
@@ -120,6 +157,8 @@ export default function VerifyOtpPage() {
             )}
           />
 
+          {/* Fallback manual submit — mostly redundant once auto-submit fires,
+              but kept for accessibility and edge cases (paste, autofill quirks). */}
           <Field>
             <Button
               type="submit"

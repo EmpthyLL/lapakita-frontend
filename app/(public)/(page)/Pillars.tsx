@@ -1,6 +1,7 @@
-import { Store, ShieldCheck, Truck, ArrowRight } from "lucide-react";
+import { Store, Building2, Truck, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { RoleColor } from "@/types/roles";
 
 interface Pillar {
   role: string;
@@ -8,52 +9,52 @@ interface Pillar {
   description: string;
   points: string[];
   icon: React.ElementType;
-  colorVar: "primary" | "owner" | "supplier";
+  colorVar: RoleColor;
   href: string;
 }
 
 const PILLARS: Pillar[] = [
   {
     role: "For Tenants",
-    title: "Rent a Stall That Fits Your Business",
+    title: "Run Your Business — On or Off a Stall",
     description:
-      "Filter stalls by footfall, category fit, and turnover forecast before you commit.",
+      "Manage POS, stock, and staff for every business you run — whether you rent a stall through Lapakita or sell from home.",
     points: [
-      "Verified location analytics",
-      "Transparent monthly pricing",
-      "Built-in POS on move-in",
+      "Multi-business POS & inventory in one account",
+      "Smart supplier marketplace matched to your business",
+      "Stall discovery, comparison & revenue simulation",
     ],
     icon: Store,
     colorVar: "primary",
-    href: "/stalls",
+    href: "/features?role=tenant",
   },
   {
     role: "For Stall Owners",
-    title: "List Your Space, Manage It Effortlessly",
+    title: "Manage a Portfolio, Not Just Rent",
     description:
-      "Publish vacant stalls, screen tenants, and track occupancy from one dashboard.",
+      "Review tenant reputation before approving, lock in contract terms, and know exactly what a vacant day costs you.",
     points: [
-      "Automated rent collection",
-      "Tenant screening tools",
-      "Occupancy performance reports",
+      "Tenant vetting with price-locked digital contracts",
+      "Automated billing with transparent late-fee alerts",
+      "Vacancy cost modeling & pricing recommendations",
     ],
-    icon: ShieldCheck,
+    icon: Building2,
     colorVar: "owner",
-    href: "/owner",
+    href: "/features?role=owner",
   },
   {
     role: "For Suppliers",
-    title: "Reach Stalls That Are Ready to Order",
+    title: "Get Matched With UMKM Ready to Order",
     description:
-      "Get discovered by tenants actively stocking up, and manage inventory demand at scale.",
+      "Your catalog shows up directly inside relevant tenant dashboards — no ad spend needed to reach ready buyers.",
     points: [
-      "Direct stall-to-supplier orders",
-      "Demand forecasting",
-      "Bulk order management",
+      "Direct catalog placement in matching tenant dashboards",
+      "Subscriber system with 1-click reorder from tenants",
+      "Demand & opportunity signals across your subscriber base",
     ],
     icon: Truck,
     colorVar: "supplier",
-    href: "/supplier",
+    href: "/features?role=supplier",
   },
 ];
 
@@ -74,69 +75,74 @@ export function EcosystemPillars() {
           </p>
         </div>
 
-        <div className="absolute left-0 right-0 top-13 hidden h-px bg-gradient-brand opacity-30 md:block" />
+        <div className="relative mt-14">
+          <div className="absolute left-0 right-0 top-13 hidden h-px bg-gradient-brand opacity-30 md:block" />
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {PILLARS.map((pillar) => {
-            const Icon = pillar.icon;
-            return (
-              <div
-                key={pillar.role}
-                className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
-              >
-                <span
-                  className="absolute inset-x-0 top-0 h-1.5"
-                  style={{ backgroundColor: `var(--${pillar.colorVar})` }}
-                />
-
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            {PILLARS.map((pillar) => {
+              const Icon = pillar.icon;
+              return (
                 <div
-                  className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl"
-                  style={{
-                    backgroundColor: `var(--${pillar.colorVar}-secondary)`,
-                    color: `var(--${pillar.colorVar})`,
-                  }}
+                  key={pillar.role}
+                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
                 >
-                  <Icon className="h-5 w-5" />
+                  <span
+                    className="absolute inset-x-0 top-0 h-1.5"
+                    style={{ backgroundColor: `var(--${pillar.colorVar})` }}
+                  />
+
+                  <div
+                    className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl"
+                    style={{
+                      backgroundColor: `var(--${pillar.colorVar}-secondary)`,
+                      color: `var(--${pillar.colorVar})`,
+                    }}
+                  >
+                    <Icon className="h-5 w-5" />
+                  </div>
+
+                  <span
+                    className="mb-1 text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: `var(--${pillar.colorVar})` }}
+                  >
+                    {pillar.role}
+                  </span>
+                  <h3 className="text-lg font-semibold text-foreground">
+                    {pillar.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {pillar.description}
+                  </p>
+
+                  <ul className="mt-4 space-y-2 text-sm text-foreground/80">
+                    {pillar.points.map((point) => (
+                      <li key={point} className="flex items-start gap-2">
+                        <span
+                          className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
+                          style={{
+                            backgroundColor: `var(--${pillar.colorVar})`,
+                          }}
+                        />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button
+                    asChild
+                    variant="ghost"
+                    className="mt-6 justify-start px-0 hover:bg-transparent"
+                    style={{ color: `var(--${pillar.colorVar})` }}
+                  >
+                    <Link href={pillar.href}>
+                      Learn more
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                  </Button>
                 </div>
-
-                <span
-                  className="mb-1 text-xs font-semibold uppercase tracking-wide"
-                  style={{ color: `var(--${pillar.colorVar})` }}
-                >
-                  {pillar.role}
-                </span>
-                <h3 className="text-lg font-semibold text-foreground">
-                  {pillar.title}
-                </h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {pillar.description}
-                </p>
-
-                <ul className="mt-4 space-y-2 text-sm text-foreground/80">
-                  {pillar.points.map((point) => (
-                    <li key={point} className="flex items-start gap-2">
-                      <span
-                        className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: `var(--${pillar.colorVar})` }}
-                      />
-                      {point}
-                    </li>
-                  ))}
-                </ul>
-
-                <Button
-                  variant="ghost"
-                  className="mt-6 justify-start px-0 hover:bg-transparent"
-                  style={{ color: `var(--${pillar.colorVar})` }}
-                >
-                  <Link href={pillar.href}>
-                    Learn more
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </Button>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
