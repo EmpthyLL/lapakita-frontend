@@ -38,8 +38,8 @@ export default function NotFound() {
             <div className="mt-10 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
               <div className="w-full sm:w-auto">
                 <Link href="/">
-                  <Button className="inline-flex items-center">
-                    <Home className="mr-2 h-4 w-4" />
+                  <Button className="justify-center flex items-center gap-2">
+                    <Home className="h-4 w-4" />
                     Back to Home
                   </Button>
                 </Link>
@@ -48,7 +48,7 @@ export default function NotFound() {
                 <Link href="/stalls">
                   <Button
                     variant="outline"
-                    className="inline-flex items-center"
+                    className="justify-center flex items-center gap-2"
                   >
                     <LayoutGrid className="mr-2 h-4 w-4" />
                     Browse Stalls

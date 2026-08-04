@@ -92,9 +92,7 @@ export function SiteHeader() {
                 <Button variant="ghost">Login</Button>
               </Link>
               <Link href="/register">
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                  Get Started
-                </Button>
+                <Button>Get Started</Button>
               </Link>
             </>
           ) : (
