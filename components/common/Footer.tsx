@@ -101,7 +101,7 @@ export function SiteFooter() {
 
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
               The data-driven platform connecting tenants, stall owners, and
-              suppliers — with footfall analytics and built-in POS.
+              suppliers — with business analytics and built-in POS.
             </p>
 
             <form onSubmit={handleSubscribe} className="mt-6 max-w-xs">
@@ -109,33 +109,42 @@ export function SiteFooter() {
                 htmlFor="footer-email"
                 className="text-sm font-medium text-foreground"
               >
-                Get updates in your inbox
+                Interested in partnering with Lapakita?
               </label>
+
               <div className="mt-2 flex gap-2">
                 <div className="relative flex-1">
                   <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="footer-email"
                     type="email"
-                    placeholder="you@business.com"
+                    placeholder="your@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="h-10 bg-background pl-9"
                     required
                   />
                 </div>
+
                 <Button
                   type="submit"
                   size="icon"
                   className="h-10 w-10 shrink-0 bg-primary text-primary-foreground hover:bg-primary/90"
-                  aria-label="Subscribe"
+                  aria-label="Contact us"
                 >
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
+
+              <p className="mt-2 text-xs text-muted-foreground">
+                Leave your email and our team will get in touch to discuss
+                partnership opportunities.
+              </p>
+
               {submitted && (
                 <p className="mt-2 text-xs text-primary">
-                  You&apos;re subscribed. Thanks for joining Lapakita.
+                  Thanks! We&rsquo;ve received your inquiry and will contact you
+                  soon.
                 </p>
               )}
             </form>

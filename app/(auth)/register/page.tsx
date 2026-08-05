@@ -81,7 +81,7 @@ export default function RegisterPage() {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="name">Full Name</FieldLabel>
-                <Input id="name" placeholder="e.g. Andi Wijaya" {...field} />
+                <Input id="name" placeholder="e.g. John Doe" {...field} />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}

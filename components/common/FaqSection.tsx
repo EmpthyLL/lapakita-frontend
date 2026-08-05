@@ -9,58 +9,59 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { RoleColor } from "@/types/roles";
 
 interface FaqItem {
   question: string;
   answer: string;
-  roleType?: "primary" | "owner" | "supplier";
+  roleType?: RoleColor;
 }
 
 const FAQS: FaqItem[] = [
   {
     question: "What is Lapakita and how does it work?",
     answer:
-      "Lapakita is a platform that connects three roles in the stall economy: tenants looking for space, stall owners renting them out, and suppliers fulfilling inventory needs. Each role gets its own dashboard, tools, and data — all in one ecosystem.",
+      "Lapakita is an ecosystem platform for local businesses that connects Tenants (SME operators), Stall Owners, and B2B Suppliers. It provides digital contracts, escrow deposit protection, POS tools, and business intelligence — all accessible from a single account.",
   },
   {
     question: "How do I find and rent a stall as a tenant?",
     answer:
-      "Use the search filter on the homepage to narrow down by location, radius, and business category. Every listing shows footfall data and a turnover forecast so you can compare options before contacting the owner or submitting a rental request.",
+      "Search for available stalls on the Find Stalls page using filters like business type, spatial facilities, monthly budget, and radius. Compare options side-by-side or run financial simulations before submitting a digital lease request to the owner.",
     roleType: "primary",
   },
   {
-    question: "Does Lapakita include a point-of-sale (POS) system?",
+    question: "Can I use Lapakita POS if I don't rent a stall?",
     answer:
-      "Yes. Once you rent a stall through Lapakita, a built-in POS is activated automatically — no separate app or setup needed. You get daily sales reports right inside your tenant dashboard.",
+      "Yes! Non-stall businesses are fully welcome. Whether you operate a home-based cloud kitchen, an online store, or rent outside Lapakita, you can use our built-in POS, inventory management, and B2B supplier marketplace freely.",
     roleType: "primary",
   },
   {
-    question: "How do I list my stall as an owner?",
+    question: "How do I list my stall and screen tenants as an owner?",
     answer:
-      "Sign up and switch your role to Stall Owner from the account menu, then publish your listing with photos, pricing, and location. You'll be able to screen tenant applications and track occupancy from the Owner Dashboard.",
+      "Switch your active role to Stall Owner, publish your stall listing with photos, spatial utilities, and pricing. When tenants apply, you can inspect their profile ratings and business compatibility before approving or rejecting contracts.",
     roleType: "owner",
   },
   {
-    question: "Is rent collection handled automatically?",
+    question: "How are rent payments and security deposits handled?",
     answer:
-      "Yes, once a tenant is confirmed, monthly rent collection is automated through the platform, and you'll get occupancy performance reports to help with pricing decisions each period.",
+      "Monthly rent is paid directly via secure online payment gateway. Security deposits are held safely in a neutral escrow account (not in the owner's personal account) to protect both parties against damages or unreturned key replacement costs.",
     roleType: "owner",
   },
   {
-    question: "How does the supplier side of Lapakita work?",
+    question: "How does the B2B Supplier Marketplace work?",
     answer:
-      "Suppliers can register to receive direct orders from tenants who are actively stocking up. Demand forecasting tools help you anticipate restocking needs across the stalls connected to your account.",
+      "Suppliers showcase their wholesale catalogs directly inside the procurement dashboard of relevant SME tenants. When a tenant's POS inventory runs low, they can reorder raw materials from their primary suppliers in a single click.",
     roleType: "supplier",
   },
   {
-    question: "Is there a fee to use Lapakita?",
+    question: "Is Lapakita free to use?",
     answer:
-      "Creating an account and browsing stalls is free for tenants. Owners and suppliers may have service fees depending on the plan — check the Pricing page for current details.",
+      "Creating an account, browsing stalls, using basic POS, and diagnostic analytics are 100% free. Optional Premium Subscriptions (Rp 250,000/month) unlock prescriptive business intelligence co-pilots, vacancy cost modeling, and market demand insights.",
   },
   {
-    question: "Can I switch between roles with one account?",
+    question: "Can I switch between roles with a single account?",
     answer:
-      "Yes. A single account can hold multiple roles. Use the Switch Role option in your profile menu to move between Tenant, Stall Owner, and Supplier dashboards without logging out.",
+      "Yes. A single verified account lets you switch seamlessly between Tenant, Stall Owner, and Supplier roles via the account menu without logging out or creating separate logins.",
   },
 ];
 

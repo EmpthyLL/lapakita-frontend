@@ -26,12 +26,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 
-const NAV_LINKS = [
+export const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Find Stalls", href: "/stalls" },
   { label: "Features", href: "/features" },
-  { label: "About Us", href: "/about" },
   { label: "FAQ", href: "/faq" },
+  { label: "Pricing", href: "/pricing" },
   { label: "Contact", href: "/contact" },
 ];
 

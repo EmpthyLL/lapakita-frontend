@@ -2,14 +2,13 @@ import Link from "next/link";
 import { Store, SearchX, Home, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/common/Logo";
-import { SiteHeader } from "@/components/common/Header";
-import { SiteFooter } from "@/components/common/Footer";
+// import { SiteHeader } from "@/components/common/Header";
+// import { SiteFooter } from "@/components/common/Footer";
 import "@/style/globals.css";
 
 export default function NotFound() {
   return (
     <>
-      <SiteHeader />{" "}
       <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-background px-4 py-10">
         <div className="mx-auto w-full max-w-xl rounded-[2rem] border border-border/70 bg-card/80 p-10 shadow-2xl shadow-black/10 backdrop-blur-xl">
           <div className="flex flex-col items-center text-center">
@@ -59,7 +58,6 @@ export default function NotFound() {
           </div>
         </div>
       </div>
-      <SiteFooter />
     </>
   );
 }
