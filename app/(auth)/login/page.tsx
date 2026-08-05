@@ -1,6 +1,5 @@
 "use client";
 
-import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -19,14 +18,7 @@ import {
 } from "@/components/ui/field";
 import { AuthShell } from "../AuthShell";
 import { PasswordInput } from "@/components/ui/password-input";
-
-const loginSchema = z.object({
-  email: z.string().email("Enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
-  remember: z.boolean(),
-});
-
-type LoginValues = z.infer<typeof loginSchema>;
+import { loginSchema, LoginValues } from "@/lib/data/schema/auth/login";
 
 export default function LoginPage() {
   const router = useRouter();

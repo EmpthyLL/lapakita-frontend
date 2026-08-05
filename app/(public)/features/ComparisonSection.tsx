@@ -8,29 +8,44 @@ interface ComparisonRow {
 
 const ROWS: ComparisonRow[] = [
   {
-    criteria: "Location Selection",
-    traditional: "Speculative & manual scouting",
-    lapakita: "Data-backed & simulated matching",
+    criteria: "Location Decision",
+    traditional: "Pure speculation / informal advice",
+    lapakita: "Data-backed comparison & simulation",
   },
   {
-    criteria: "Contract Security",
-    traditional: "Verbal or loose paper agreements",
-    lapakita: "Digital & price-locked contracts",
+    criteria: "Lease Agreement",
+    traditional: "Loose paper / verbal agreement",
+    lapakita: "Price-locked digital contracts",
   },
   {
-    criteria: "Key Handover & Exit",
-    traditional: "Unregulated, prone to disputes",
-    lapakita: "Photo-verified & audited",
+    criteria: "Deposit Handling",
+    traditional: "Held directly by owner (risk of dispute)",
+    lapakita: "Safe escrow payment gateway hold",
   },
   {
-    criteria: "Business Insights",
-    traditional: "None or manual ledger tracking",
-    lapakita: "Automated BI engine",
+    criteria: "Key Exchange",
+    traditional: "Unverified manual handoff",
+    lapakita: "Photo-verified Request Key Protocol",
   },
   {
-    criteria: "Supply Chain Connection",
-    traditional: "Isolated, middleman-dependent",
-    lapakita: "Integrated B2B supplier hub",
+    criteria: "Overdue Management",
+    traditional: "Sudden lockouts / exploitative daily fees",
+    lapakita: "Clear visual alerts & manual owner control",
+  },
+  {
+    criteria: "Business Operations",
+    traditional: "Separate manual ledgers / third-party apps",
+    lapakita: "Integrated POS, inventory & staff management",
+  },
+  {
+    criteria: "Raw Material Sourcing",
+    traditional: "Unconnected, manual supplier search",
+    lapakita: "In-dashboard B2B supplier matchmaking",
+  },
+  {
+    criteria: "Overdue / Exit Cleanup",
+    traditional: "Unregulated responsibility",
+    lapakita: "Community rating penalties & deposit-backed damage claims",
   },
 ];
 
@@ -43,7 +58,7 @@ export function ComparisonSection() {
             Why Lapakita
           </span>
           <h2 className="font-heading mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Lapakita vs. Traditional Stall Rental
+            Traditional Stall Leasing vs. Lapakita Ecosystem
           </h2>
         </div>
 
@@ -52,10 +67,10 @@ export function ComparisonSection() {
             <thead>
               <tr className="bg-secondary/60">
                 <th className="p-4 text-left font-semibold text-foreground">
-                  Criteria
+                  Feature / Capability
                 </th>
                 <th className="p-4 text-left font-semibold text-muted-foreground">
-                  Traditional Rental
+                  Traditional Stall Leasing
                 </th>
                 <th className="p-4 text-left font-semibold text-primary">
                   Lapakita Ecosystem

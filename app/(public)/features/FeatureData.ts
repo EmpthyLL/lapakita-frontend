@@ -2,33 +2,41 @@ import { Role, RoleColor } from "@/types/roles";
 import type { LucideIcon } from "lucide-react";
 import {
   Building2,
-  Search,
+  Home,
   Layers,
+  Search,
   TrendingUp,
   ShoppingCart,
   PackageSearch,
   Users,
   Store,
   Sparkles,
-  Zap,
   Activity,
   Compass,
   LayoutDashboard,
+  AlertCircle,
   ClipboardCheck,
   UserCheck,
   Lock,
   Receipt,
-  AlertTriangle,
-  DoorOpen,
+  BellRing,
+  Key,
   KeyRound,
+  ShieldAlert,
+  Vault,
   ScanSearch,
-  Radar,
+  Building,
+  Percent,
   Handshake,
   Megaphone,
   Repeat,
+  Zap,
   ClipboardList,
   Truck,
   Package,
+  Layers3,
+  Radar,
+  Sparkle,
 } from "lucide-react";
 
 export interface FeatureItem {
@@ -56,101 +64,113 @@ export interface RoleContent {
 export const ROLE_CONTENT: Record<Role, RoleContent> = {
   tenant: {
     label: "Tenant",
-    badge: "For Tenants",
-    headline: "Run Your Business — On or Off a Stall",
+    badge: "For Business Operators & Tenants",
+    headline: "From Business Idea to Daily Retail Operations",
     color: "primary",
     description:
-      "Tenants aren't just renters — they're business operators. Home-based, cloud kitchen, or off-platform businesses are just as welcome as stall renters: everyone gets POS, stock, staff, and marketplace access.",
+      "Whether you run from a rented stall, a home-based cloud kitchen, or a temporary booth — every business gets its own POS, inventory, staff access, and financial ledger under one account.",
     groups: [
       {
         title: "Multi-Business Management Hub",
-        description:
-          "One tenant account can run multiple business profiles, each with fully separated data, transactions, stock, staff, and financial reports.",
+        description: "Non-stall businesses welcome.",
         items: [
           {
             icon: Building2,
             title: "Multiple Business Profiles",
             description:
-              'Run several businesses under one account (e.g. "Kedai Kopi 90", "Ayam Geprek Express", "Laundry Clean") without mixing their data.',
+              'Run several SME businesses under a single Lapakita account — e.g. "Kedai Kopi 90", "Ayam Geprek Express", "Laundry Clean".',
           },
           {
             icon: Layers,
-            title: "Isolated Data Per Business",
+            title: "Isolated POS & Ledger Per Business",
             description:
-              "Each business keeps its own transactions, stock, staff, and financial reports — nothing bleeds into another.",
+              "Each business gets its own POS, inventory, staff access, and financial ledger — nothing mixes with another.",
+          },
+          {
+            icon: Home,
+            title: "Non-Stall Businesses Accepted",
+            description:
+              "Operate from an offline rented stall, a home-based cloud kitchen, an online-based shop, or a temporary booth — all equally welcome.",
           },
         ],
       },
       {
-        title: "Stall Discovery, Compare & Simulation Engine",
-        description:
-          "Not required for every tenant — but built for anyone looking for a physical stall.",
+        title: "Stall Discovery, Comparison & Simulation",
         items: [
           {
             icon: Search,
-            title: "Location Search & Filter",
+            title: "Data-Backed Location Search & Filter",
             description:
-              "Filter by radius, business type (F&B, Retail, Services), rental price, and supporting facilities.",
+              "Filter stalls by business type compatibility (F&B, Retail, Services), spatial utilities (power, water, ventilation), radius, rent, and deposit budget.",
           },
           {
             icon: Layers,
-            title: "Multi-Stall Compare",
+            title: "Multi-Stall Side-by-Side Comparison",
             description:
-              "Compare 2–3 stalls side-by-side on revenue estimate, break-even speed, competitor density, and buyer demographic fit.",
+              "Compare up to 3 prospective locations on revenue potential, break-even velocity, foot-traffic score, and nearby competition density.",
           },
           {
             icon: TrendingUp,
-            title: "Stall Simulation",
+            title: "Turnover & Performance Simulation",
             description:
-              "Simulate business performance at a given stall under Conservative, Balanced, and Optimistic scenarios.",
+              "Run deterministic financial simulations under Conservative, Balanced, and Optimistic scenarios before committing to a stall.",
           },
         ],
       },
       {
-        title: "Built-in POS & Retail Operations",
+        title: "Built-in POS & Staff Access",
         items: [
           {
             icon: ShoppingCart,
-            title: "Digital Cashier (POS)",
+            title: "Digital Order Processing",
             description:
-              "Take orders, print or send digital receipts, calculate change, and accept QRIS/cash payments.",
+              "Process customer orders, issue digital receipts, and log cash/QRIS payments in real-time.",
           },
           {
             icon: PackageSearch,
-            title: "Stock & Product Records",
+            title: "Real-Time Material Usage Tracking",
             description:
-              "Manage variants, selling price, cost of goods (HPP), and automatic low-stock alerts on raw materials.",
+              "Automatically track raw material consumption as orders come through the POS.",
           },
           {
             icon: Users,
-            title: "Staff Management",
+            title: "Restricted Cashier Accounts",
             description:
-              "Add cashier or staff accounts with restricted access — no visibility into profit/loss reports.",
+              "Assign staff accounts with limited access — no visibility into net profit reports.",
           },
         ],
       },
       {
-        title: "Smart Supplier Marketplace",
-        description:
-          "Context-aware — appears right inside each business's dashboard.",
+        title: "Context-Aware Supplier Marketplace",
         items: [
           {
             icon: Store,
-            title: "Auto-Matched Supplier Tab",
+            title: "In-Dashboard B2B Marketplace",
             description:
-              "Every business dashboard has a Supplier Marketplace tab filtered to that business's needs automatically.",
+              "Access a curated supplier marketplace directly inside your business dashboard.",
           },
           {
             icon: Sparkles,
-            title: "Automatic Recommendations",
+            title: "Automatic Category Matching",
             description:
-              "A coffee business gets matched with coffee bean, cup, and UHT milk suppliers — no manual searching required.",
+              "Get raw material and supply recommendations automatically matched to your specific business category.",
+          },
+        ],
+      },
+      {
+        title: "Lease Alerts & Key Loss Requests",
+        items: [
+          {
+            icon: BellRing,
+            title: "Upcoming Expiry & Payment Countdown",
+            description:
+              "Get clear yellow alerts starting 7 days before lease expiry to help you plan extensions or peaceful move-outs on time.",
           },
           {
-            icon: Zap,
-            title: "Order & Reorder In-App",
+            icon: KeyRound,
+            title: "In-App Replacement Key Request",
             description:
-              "Order raw materials directly from the POS dashboard without switching to another app.",
+              "Lost your physical key? Request a spare key directly from the owner with automated deposit deduction for reproduction fees.",
           },
         ],
       },
@@ -159,16 +179,16 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
         items: [
           {
             icon: Activity,
-            title: "Free Diagnostic Analytics",
+            title: "Diagnostic Business Health Score",
             description:
-              "Daily revenue trend charts, transaction counts, and an overall Business Health Score.",
+              "Objective daily/weekly analytics on revenue trends, peak-hour service delays, and slow-moving menu items.",
             tier: "free",
           },
           {
             icon: Compass,
-            title: "Premium Prescriptive Analytics",
+            title: "Prescriptive Business Co-Pilot",
             description:
-              "Operational recommendations — restock suggestions, optimal opening hours, slow-moving vs high-margin product evaluation.",
+              "Actionable guidance — opening hours expansion, discount strategy for high-margin items, restock alerts based on local demand.",
             tier: "premium",
           },
         ],
@@ -178,89 +198,89 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
 
   owner: {
     label: "Stall Owner",
-    badge: "For Stall Owners",
-    headline: "Manage a Portfolio, Not Just Rent",
+    badge: "For Property & Space Owners",
+    headline: "Transparent Portfolio Management & Dispute-Free Leasing",
     color: "owner",
     description:
       "Owners are portfolio managers first. Lapakita gives certainty of income, minimizes vacancy, and keeps the rental process free of disputes.",
     groups: [
       {
-        title: "Property Portfolio Dashboard",
+        title: "Portfolio Dashboard",
         items: [
           {
             icon: LayoutDashboard,
-            title: "Visual Asset Summary",
+            title: "Real-Time Occupancy Overview",
             description:
-              "See Active stalls, Vacant stalls, and Alerted stalls (awaiting contract or vacancy action) at a glance.",
+              "See Occupied Stalls and Vacant Units across your entire portfolio in one place.",
           },
           {
-            icon: TrendingUp,
-            title: "Payout & Projection Overview",
+            icon: AlertCircle,
+            title: "Alerted Lease Tracking",
             description:
-              "Track total monthly payouts already disbursed alongside projected incoming revenue.",
+              "Get flagged leases that require action or renewal before they lapse unnoticed.",
           },
         ],
       },
       {
-        title: "Pending Contract Review & Tenant Vetting",
+        title: "Tenant Vetting & Contracts",
         items: [
           {
             icon: ClipboardCheck,
-            title: "Rental Application Queue",
+            title: "Application Review & Rating Check",
             description:
-              "Review every incoming rental request from prospective tenants in one list.",
+              "Review incoming lease applications and inspect each tenant's profile rating and business type before deciding.",
           },
           {
             icon: UserCheck,
-            title: "Tenant Reputation Profile",
+            title: "Approve or Reject Workflow",
             description:
-              "See a tenant's rental history and rating before hitting Approve or Reject.",
+              "Approve or reject contracts directly from the application queue — no back-and-forth paperwork.",
           },
           {
             icon: Lock,
-            title: "Price-Locked Contracts",
+            title: "Price-Locked Lease Terms",
             description:
-              "Terms, price, and deposit are locked — no unilateral price speculation later.",
+              "Once approved, monthly rent and deposit terms are locked — preventing mid-lease price disputes.",
           },
         ],
       },
       {
-        title: "Automated Billing & Payment Alerts",
+        title: "Overdue Alerts & Manual Lease Actions",
         items: [
           {
             icon: Receipt,
-            title: "Real-Time Billing Status",
+            title: "Automated Payment Tracking",
             description:
-              "The system automatically manages the daily due-date cycle for every tenant.",
+              "Payment due dates are tracked automatically without cluttering your dashboard with premature alerts.",
           },
           {
-            icon: AlertTriangle,
-            title: "Late Fee Alerts",
+            icon: ShieldAlert,
+            title: "Red Overdue Badges & Manual Termination",
             description:
-              "Transparent notifications when a tenant is late, with a day-based graduated late fee — never a sudden fine.",
-          },
-          {
-            icon: DoorOpen,
-            title: "Graceful Exit & Eviction Management",
-            description:
-              "Automated warnings and workflow for voluntary exits or extreme non-payment leading to contract termination.",
+              "Overdue leases trigger clear red alerts only after deadlines pass, empowering you to manually follow up, review, or terminate leases.",
           },
         ],
       },
       {
-        title: "Photo-Verified Handover & Inspection",
+        title: "Deposit Protection & Key Management",
         items: [
           {
-            icon: KeyRound,
-            title: "Request Key Protocol",
+            icon: Key,
+            title: "Simplified Key Control & Spare Management",
             description:
-              "Physical key handover is verified through timestamped photo evidence, preventing one-sided claims.",
+              "Hand over keys directly to tenants. Issue spares upon request and deduct replacement fees seamlessly from the security deposit.",
+          },
+          {
+            icon: Vault,
+            title: "Escrow-Held Security Deposits",
+            description:
+              "Deposits are held safely in a neutral escrow payment gateway account, protecting both parties until lease completion.",
           },
           {
             icon: ScanSearch,
-            title: "Deposit Resolution",
+            title: "Photo-Evidence Damage Claims",
             description:
-              "Damage claims at check-out require photo evidence before any remaining deposit is returned to the tenant.",
+              "To claim deposit funds for property damage or unreturned key reproduction, simply submit photo evidence for verification.",
           },
         ],
       },
@@ -268,17 +288,18 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
         title: "Stall Strategy Analytics (BI)",
         items: [
           {
-            icon: Building2,
-            title: "Vacancy Cost Modeling",
+            icon: Building,
+            title: "Daily Vacancy Loss Calculation",
             description:
-              "Calculates the exact daily loss from a vacant unit and recommends ideal rent price or contract duration to speed up occupancy.",
+              "See the exact financial loss accumulating during vacant periods, day by day.",
             tier: "premium",
           },
           {
-            icon: Radar,
-            title: "Tenant Mix & Demand Signals",
+            icon: Percent,
+            title: "Pricing & Duration Recommendations",
             description:
-              "See which business categories tenants are searching for most in your property's area.",
+              "Get optimal monthly pricing and lease duration suggestions to maximize occupancy rate.",
+            tier: "premium",
           },
         ],
       },
@@ -287,67 +308,61 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
 
   supplier: {
     label: "Supplier",
-    badge: "For Suppliers",
-    headline: "Get Matched With UMKM Ready to Order",
+    badge: "For B2B Distributors & Wholesalers",
+    headline: "Direct SME Matchmaking & Predictable Recurring Orders",
     color: "supplier",
     description:
       "Supplier features center on direct B2B matchmaking — not just analytics — connecting suppliers with SMEs ready to become loyal, recurring customers.",
     groups: [
       {
-        title: "Direct SME Matchmaking & Marketplace Distribution",
+        title: "Direct SME Marketplace Matchmaking",
         description: "The core feature of the supplier module.",
         items: [
           {
             icon: Handshake,
-            title: "Auto-Placed Catalog",
+            title: "In-Dashboard Catalog Placement",
             description:
-              "Your product catalog appears directly on the Marketplace tab of relevant tenant dashboards.",
+              "Your catalog is showcased directly inside the procurement dashboard of matching SME tenants.",
           },
           {
             icon: Megaphone,
-            title: "No Ad Spend Required",
+            title: "Zero Ad Spend Required",
             description:
-              "The system brings your products to tenants who already need that raw material — no paid ads necessary.",
+              "Skip expensive advertising — the system brings your products to tenants who already need them.",
           },
         ],
       },
       {
-        title: "Subscriber & Recurring Order Engine",
+        title: "Subscriber & Recurring Orders",
         items: [
           {
             icon: Repeat,
-            title: "B2B Subscription System",
+            title: "Primary Supplier Tagging",
             description:
-              'Tenants can mark you as their "Primary Supplier" for a given ingredient or item.',
+              'Tenants can tag you as their "Primary Supplier" for a given ingredient or item.',
           },
           {
             icon: Zap,
-            title: "1-Click Reorder",
+            title: "1-Click Automated Reorder",
             description:
-              "When a tenant's POS stock runs low, they can reorder from their subscribed supplier in one click.",
-          },
-          {
-            icon: TrendingUp,
-            title: "Predictable Recurring Revenue",
-            description:
-              "Subscriber relationships translate into steady, forecastable monthly revenue.",
+              "When a tenant's POS inventory runs low, reordering from you happens in a single click.",
           },
         ],
       },
       {
-        title: "Order Management & Fulfillment Operations",
+        title: "Order Fulfillment & Dispatch",
         items: [
           {
             icon: ClipboardList,
-            title: "Incoming Order List",
+            title: "Pending Order Tracking",
             description:
-              "See recent orders across tenants with item details, business/stall address, and delivery status.",
+              "Track pending B2B purchase orders with full delivery destination details in one list.",
           },
           {
             icon: Truck,
-            title: "B2B Delivery Notes",
+            title: "Digital Delivery Notes",
             description:
-              "Print shipping notes and integrate with delivery fulfillment.",
+              "Issue digital delivery notes and streamline wholesale dispatch routes.",
           },
         ],
       },
@@ -356,26 +371,33 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
         items: [
           {
             icon: Package,
-            title: "Product & Warehouse Management",
+            title: "Catalog & MOQ Management",
             description:
-              "Manage your raw material or equipment catalog, minimum order quantities, tiered pricing, and warehouse stock levels.",
+              "Manage your B2B product catalog and set minimum order quantities (MOQ) per item.",
+          },
+          {
+            icon: Layers3,
+            title: "Tiered Pricing & Stock Monitoring",
+            description:
+              "Configure volume-based tier pricing and monitor warehouse stock levels in real-time.",
           },
         ],
       },
       {
-        title: "Demand & Inventory Intelligence",
+        title: "Demand & Opportunity Intelligence",
         items: [
           {
             icon: Radar,
-            title: "Subscriber Demand Insight",
+            title: "Subscriber Demand Signals",
             description:
-              'Read stock-need trends across your subscriber network — e.g. "your subscribers may need 100kg of coffee beans next week" based on their POS sales volume.',
+              "View aggregated, privacy-safe demand signals from your subscriber base — e.g. predicted weekly coffee bean consumption.",
+            tier: "premium",
           },
           {
-            icon: Sparkles,
-            title: "Opportunity Signals",
+            icon: Sparkle,
+            title: "Market Opportunity Gaps",
             description:
-              "Identify raw materials with surging demand among UMKM tenants that aren't yet in your catalog.",
+              "Discover trending raw materials in demand locally that aren't yet in your catalog.",
             tier: "premium",
           },
         ],

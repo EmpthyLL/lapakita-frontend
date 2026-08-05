@@ -1,6 +1,5 @@
 "use client";
 
-import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -19,23 +18,10 @@ import {
 } from "@/components/ui/field";
 import { AuthShell } from "../AuthShell";
 import { PasswordInput } from "@/components/ui/password-input";
-
-const registerSchema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters"),
-  email: z.string().email("Enter a valid email address"),
-  phone: z
-    .string()
-    .min(9, "Enter a valid phone number")
-    .regex(/^[0-9+ ]+$/, "Phone number can only contain numbers"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Must include at least one uppercase letter")
-    .regex(/[0-9]/, "Must include at least one number"),
-  referralCode: z.string().optional(),
-});
-
-type RegisterValues = z.infer<typeof registerSchema>;
+import {
+  registerSchema,
+  RegisterValues,
+} from "@/lib/data/schema/auth/register";
 
 export default function RegisterPage() {
   const router = useRouter();

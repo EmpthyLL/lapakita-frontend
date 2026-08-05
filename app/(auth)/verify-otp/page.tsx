@@ -1,6 +1,5 @@
 "use client";
 
-import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -16,12 +15,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { AuthShell } from "../AuthShell";
-
-const otpSchema = z.object({
-  code: z.string().length(6, "Enter the 6-digit code"),
-});
-
-type OtpValues = z.infer<typeof otpSchema>;
+import { otpSchema, OtpValues } from "@/lib/data/schema/auth/otp";
 
 const RESEND_SECONDS = 30;
 

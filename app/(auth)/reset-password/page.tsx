@@ -1,6 +1,5 @@
 "use client";
 
-import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -17,22 +16,10 @@ import {
 } from "@/components/ui/field";
 import { AuthShell } from "../AuthShell";
 import { PasswordInput } from "@/components/ui/password-input";
-
-const resetSchema = z
-  .object({
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Must include at least one uppercase letter")
-      .regex(/[0-9]/, "Must include at least one number"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-type ResetValues = z.infer<typeof resetSchema>;
+import {
+  resetSchema,
+  ResetValues,
+} from "@/lib/data/schema/auth/reset_password";
 
 export default function ResetPasswordPage() {
   const router = useRouter();

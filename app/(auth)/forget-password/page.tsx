@@ -1,6 +1,5 @@
 "use client";
 
-import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -17,12 +16,10 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { AuthShell } from "../AuthShell";
-
-const forgotSchema = z.object({
-  email: z.string().email("Enter a valid email address"),
-});
-
-type ForgotValues = z.infer<typeof forgotSchema>;
+import {
+  forgotSchema,
+  ForgotValues,
+} from "@/lib/data/schema/auth/forget_password";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
