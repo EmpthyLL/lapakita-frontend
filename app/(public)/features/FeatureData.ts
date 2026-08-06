@@ -1,4 +1,4 @@
-import { Role, RoleColor } from "@/types/roles";
+import { Role, VariantColor } from "@/types";
 import type { LucideIcon } from "lucide-react";
 import {
   Building2,
@@ -53,7 +53,7 @@ export interface RoleContent {
   headline: string;
   description: string;
   groups: FeatureGroup[];
-  color: RoleColor;
+  color: VariantColor;
 }
 
 export const ROLE_CONTENT: Record<Role, RoleContent> = {
@@ -95,21 +95,21 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
         items: [
           {
             icon: MapPin,
-            title: "Search by Area & Landmark",
+            title: "Landmark & Radius Search",
             description:
-              "Look for stalls by city, street, or radius — or just search near a landmark like a campus, school, or office district.",
+              "Search by city or street, or pair a landmark (campuses, schools, office districts) with a custom radius distance to find nearby stalls.",
           },
           {
             icon: SlidersHorizontal,
-            title: "Filter by Facilities",
+            title: "Multi-Filter Facilities & Price",
             description:
-              "Narrow results down to what you actually need — electrical capacity, water access, a kitchen, AC, or seating.",
+              "Select multiple essential facilities (power, water, kitchen, seating) and set custom min-max ranges for monthly rent and deposit budgets.",
           },
           {
             icon: Target,
-            title: "Budget & ROI Match",
+            title: "Budget & Target ROI Match",
             description:
-              "Tell us your capital, your business type, and how fast you want to break even — say, 6 months — and we'll surface stalls whose rent actually fits that math.",
+              "Input your capital, business preset, and target break-even period — e.g. 6 months — to surface stalls whose rent math fits your goals.",
           },
         ],
       },

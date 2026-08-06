@@ -9,12 +9,12 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { RoleColor } from "@/types/roles";
+import { VariantColor } from "@/types";
 
 interface FaqItem {
   question: string;
   answer: string;
-  roleType?: RoleColor;
+  roleType?: VariantColor;
 }
 
 const FAQS: FaqItem[] = [

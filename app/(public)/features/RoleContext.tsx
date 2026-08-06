@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
-import { Role, VALID_ROLES } from "@/types/roles";
+import { Role, VALID_ROLES } from "@/types";
 
 interface RoleFilterContextValue {
   activeRole: RoleAndAll;

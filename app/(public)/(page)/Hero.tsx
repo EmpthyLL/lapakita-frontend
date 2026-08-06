@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingUp } from "lucide-react";
-import { HeroSearch } from "./HeroSearch";
+import StallSearch from "../../../components/common/Search/StallSearch";
 
 export function Hero() {
   return (
@@ -36,7 +36,7 @@ export function Hero() {
         </p>
 
         <div className="mt-10 w-full max-w-3xl">
-          <HeroSearch />
+          <StallSearch mode="hero" />
         </div>
       </div>
     </section>

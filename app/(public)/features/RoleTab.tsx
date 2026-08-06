@@ -2,12 +2,12 @@
 
 import { cn } from "@/lib/utils";
 import { RoleAndAll, useRoleFilter } from "./RoleContext";
-import { Role, RoleColor } from "@/types/roles";
+import { Role, VariantColor } from "@/types";
 
 const ROLES: {
   value: RoleAndAll;
   label: string;
-  color?: RoleColor;
+  color?: VariantColor;
 }[] = [
   { value: "all", label: "All Features" },
   { value: "tenant", label: "For Tenants", color: "primary" },

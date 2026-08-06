@@ -3,14 +3,14 @@
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRoleFilter } from "./RoleContext";
-import { RoleColor } from "@/types/roles";
+import { VariantColor } from "@/types";
 
 interface FeatureCardProps {
   icon: LucideIcon;
   title: string;
   description: string;
   /** Roles this feature is relevant to. Omit or ["all"] = relevant to everyone. */
-  roles?: (RoleColor | "all")[];
+  roles?: (VariantColor | "all")[];
 }
 
 export function FeatureCard({

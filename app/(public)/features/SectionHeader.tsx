@@ -1,10 +1,10 @@
-import { RoleColor } from "@/types/roles";
+import { VariantColor } from "@/types";
 
 interface SectionHeadingProps {
   badge: string;
   title: string;
   description: string;
-  color?: RoleColor;
+  color?: VariantColor;
 }
 
 export function SectionHeading({

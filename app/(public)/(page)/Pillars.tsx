@@ -1,7 +1,7 @@
 import { Store, Building2, Truck, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { RoleColor } from "@/types/roles";
+import { VariantColor } from "@/types";
 
 interface Pillar {
   role: string;
@@ -9,7 +9,7 @@ interface Pillar {
   description: string;
   points: string[];
   icon: React.ElementType;
-  colorVar: RoleColor;
+  colorVar: VariantColor;
   href: string;
 }
 
