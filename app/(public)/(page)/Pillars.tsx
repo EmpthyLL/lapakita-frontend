@@ -20,9 +20,9 @@ const PILLARS: Pillar[] = [
     description:
       "Manage POS, stock, and staff for every business you run — whether you rent a stall through Lapakita or sell from home.",
     points: [
-      "Multi-business POS & inventory in one account",
-      "Smart supplier marketplace matched to your business",
-      "Stall discovery, comparison & revenue simulation",
+      "Multi-business POS with isolated staff & records",
+      "Budget & ROI match — filter stalls by your break-even target",
+      "3-scenario financial forecast for existing or new businesses",
     ],
     icon: Store,
     colorVar: "primary",
@@ -35,8 +35,8 @@ const PILLARS: Pillar[] = [
       "Review tenant reputation before approving, lock in contract terms, and know exactly what a vacant day costs you.",
     points: [
       "Tenant vetting with price-locked digital contracts",
-      "Automated billing with transparent late-fee alerts",
-      "Vacancy cost modeling & pricing recommendations",
+      "Escrow-held deposits with photo-verified damage claims",
+      "Daily vacancy loss calculation & pricing recommendations",
     ],
     icon: Building2,
     colorVar: "owner",
@@ -48,9 +48,9 @@ const PILLARS: Pillar[] = [
     description:
       "Your catalog shows up directly inside relevant tenant dashboards — no ad spend needed to reach ready buyers.",
     points: [
-      "Direct catalog placement in matching tenant dashboards",
+      "In-dashboard catalog placement, zero ad spend",
       "Subscriber system with 1-click reorder from tenants",
-      "Demand & opportunity signals across your subscriber base",
+      "Order velocity analytics & subscriber demand signals",
     ],
     icon: Truck,
     colorVar: "supplier",
