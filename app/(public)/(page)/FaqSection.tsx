@@ -1,21 +1,9 @@
 "use client";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { FAQAccordion, FaqItem } from "@/components/common/FAQAccordion";
 import { Button } from "@/components/ui/button";
-import { VariantColor } from "@/types";
 import { HelpCircle, MessageCircleQuestion } from "lucide-react";
 import Link from "next/link";
-
-interface FaqItem {
-  question: string;
-  answer: string;
-  roleType?: VariantColor;
-}
 
 const FAQS: FaqItem[] = [
   {
@@ -26,7 +14,7 @@ const FAQS: FaqItem[] = [
   {
     question: "How do I search and rent a stall as a tenant?",
     answer:
-      "Use our discovery filters to search by city, landmark (campuses, schools, office districts), radius, and facilities. You can also filter by your available capital, business category, and target break-even period to surface stalls with matching rent economics.",
+      "Use our discovery filters to search by city, landmark (campuses, schools, office districts), radius, and physical facilities. You can also filter by your available capital, business category, and target break-even period to surface stalls with matching rent economics.",
     roleType: "primary",
   },
   {
@@ -48,15 +36,21 @@ const FAQS: FaqItem[] = [
     roleType: "owner",
   },
   {
+    question: "How to become a supplier on Lapakita?",
+    answer:
+      "Sign up or switch your role to Supplier from your profile menu, complete a quick verification, and upload your B2B product catalog with MOQ rules and tiered pricing. Your items will automatically appear in the procurement dashboards of relevant tenant businesses.",
+    roleType: "supplier",
+  },
+  {
     question: "How does the B2B Supplier marketplace work?",
     answer:
       "Suppliers showcase their wholesale catalogs directly inside the procurement dashboards of matching tenant businesses without paying for ads. Tenants can designate primary suppliers for seamless 1-click inventory reordering.",
     roleType: "supplier",
   },
   {
-    question: "What are the pricing options for Lapakita?",
+    question: "What are the pricing options for Premium features?",
     answer:
-      "Browsing stalls, basic POS, and core diagnostic health analytics are free. Advanced operational features — such as our 3-Scenario Business Forecast, Prescriptive Co-Pilot, Vacancy Loss Tracker, and Demand Intelligence — are available for Rp 125,000/month or Rp 1,125,000/year.",
+      "Browsing stalls, basic POS, and core diagnostic health analytics are free. For advanced features (like 3-Scenario Forecasts, Co-Pilot Insights, or Vacancy Trackers), you can pick a Single-Role Plan at Rp 55,000/month (Rp 495,000/year) or an All-Access Ecosystem Bundle at Rp 125,000/month (Rp 1,125,000/year).",
   },
   {
     question: "Can I switch between roles with a single account?",
@@ -64,16 +58,6 @@ const FAQS: FaqItem[] = [
       "Yes! A single Lapakita account allows you to operate as a Tenant, Stall Owner, and Supplier simultaneously. Simply use the Role Switcher menu in your profile to jump between dashboards without logging out.",
   },
 ];
-
-function RoleDot({ roleType }: { roleType?: FaqItem["roleType"] }) {
-  if (!roleType) return null;
-  return (
-    <span
-      className="h-1.5 w-1.5 shrink-0 rounded-full"
-      style={{ backgroundColor: `var(--${roleType})` }}
-    />
-  );
-}
 
 export function FaqSection() {
   return (
@@ -95,25 +79,7 @@ export function FaqSection() {
           </p>
         </div>
 
-        <Accordion type="single" className="mt-12 w-full">
-          {FAQS.map((faq, index) => (
-            <AccordionItem
-              key={faq.question}
-              value={`item-${index}`}
-              className="border-border"
-            >
-              <AccordionTrigger className="text-left text-sm font-semibold text-foreground hover:no-underline sm:text-base">
-                <span className="flex items-center gap-2.5">
-                  <RoleDot roleType={faq.roleType} />
-                  {faq.question}
-                </span>
-              </AccordionTrigger>
-              <AccordionContent className="text-sm text-muted-foreground">
-                {faq.answer}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+        <FAQAccordion items={FAQS} />
 
         <div className="mt-12 flex flex-col items-center gap-4 rounded-2xl border border-border bg-secondary/40 p-6 text-center sm:flex-row sm:justify-between sm:text-left">
           <div className="flex items-center gap-3">

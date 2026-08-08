@@ -23,12 +23,14 @@ export function StallSearchFooter() {
           const Icon = item.icon;
           return (
             <div
-              key={item.title}
+              key={item.highlight}
               className="flex items-center gap-2 rounded-lg border border-border/60 bg-background/80 px-3 py-1.5 shadow-2xs backdrop-blur-xs"
             >
               <Icon className="h-3.5 w-3.5 text-primary" />
-              <span className="font-medium text-foreground">{item.title}:</span>
-              <span>{item.description}</span>
+              <span className="font-medium text-foreground">
+                {item.highlight}:
+              </span>
+              <span>{item.label}</span>
             </div>
           );
         })}

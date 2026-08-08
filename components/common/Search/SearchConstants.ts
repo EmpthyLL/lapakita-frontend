@@ -1,9 +1,4 @@
-import {
-  SlidersHorizontal,
-  Target,
-  Wallet,
-  type LucideIcon,
-} from "lucide-react";
+import { LucideIcon, MapPin, SlidersHorizontal, Target } from "lucide-react";
 
 export const BEP_PRESETS_MONTHS = [3, 6, 12, 18, 24];
 
@@ -17,26 +12,26 @@ export function formatIDR(value: number) {
   return `Rp ${value.toLocaleString("id-ID")}`;
 }
 
-export interface SearchCapability {
+export interface SearchInfoItem {
   icon: LucideIcon;
-  title: string;
-  description: string;
+  highlight: string;
+  label: string;
 }
 
-export const SEARCH_CAPABILITIES: SearchCapability[] = [
+export const SEARCH_CAPABILITIES: SearchInfoItem[] = [
   {
-    icon: Target,
-    title: "Landmark & Radius",
-    description: "Search near campuses, schools, or office hubs",
+    icon: MapPin,
+    highlight: "Landmark & Radius",
+    label: "Search near campus, schools & offices",
   },
   {
     icon: SlidersHorizontal,
-    title: "Facility Matching",
-    description: "Filter power kVA, water, kitchen & seating",
+    highlight: "Multi-Filter Utility",
+    label: "Power, water, kitchen & rent range",
   },
   {
-    icon: Wallet,
-    title: "Price & Escrow Lock",
-    description: "Transparent rent & deposit min-max budget",
+    icon: Target,
+    highlight: "Budget & ROI Match",
+    label: "Calculate rent fit by capital & BEP target",
   },
 ];

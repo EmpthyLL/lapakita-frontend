@@ -1,9 +1,9 @@
 "use client";
 
-import type { LucideIcon } from "lucide-react";
+import { useRoleFilter } from "@/lib/role_provider";
 import { cn } from "@/lib/utils";
-import { useRoleFilter } from "./RoleContext";
 import { VariantColor } from "@/types";
+import type { LucideIcon } from "lucide-react";
 
 interface FeatureCardProps {
   icon: LucideIcon;

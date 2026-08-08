@@ -1,12 +1,12 @@
 "use client";
 
-import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LocationAutocomplete } from "./LocationAutocomplete";
 import { BUSINESS_CATEGORIES } from "@/lib/data/schema/master/business_type";
 import { LANDMARK_CATEGORIES } from "@/lib/data/schema/master/landmark";
 import { cn } from "@/lib/utils";
+import { Search } from "lucide-react";
 import { Autocomplete } from "../Autocomplete";
+import { LocationAutocomplete } from "./LocationAutocomplete";
 
 // Flatten grouped business categories into a single option list with a `group` field,
 // which is what Autocomplete's groupKey expects.
@@ -64,8 +64,6 @@ export function StallSearchPrimaryRow({
           value={singleLandmark}
           onSelect={(v) => onSingleLandmarkChange(String(v))}
           options={LANDMARK_CATEGORIES}
-          mode="default"
-          showClearButton
           placeholder="Any landmark"
           className="sm:w-45"
         />

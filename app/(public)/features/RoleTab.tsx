@@ -1,8 +1,8 @@
 "use client";
 
+import { useRoleFilter } from "@/lib/role_provider";
 import { cn } from "@/lib/utils";
 import { Role, RoleAndAll, VariantColor } from "@/types";
-import { useRoleFilter } from "./RoleContext";
 
 const ROLES: {
   value: RoleAndAll;

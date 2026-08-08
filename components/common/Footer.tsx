@@ -13,36 +13,36 @@ import {
 } from "../icon/SocialIcon";
 import { Logo } from "./Logo";
 
-const ROLE_LINKS = {
+export const ROLE_LINKS = {
   tenant: {
-    label: "Tenant",
+    label: "For Tenants",
     color: "primary" as const,
     links: [
-      { label: "Find Stalls", href: "/stalls" },
-      { label: "Tenant Dashboard", href: "/dashboard/tenant" },
-      { label: "Tenant Features", href: "/features?role=tenant" },
-      { label: "Tenant Pricing", href: "/pricing?role=tenant" },
-      { label: "Tenant FAQ", href: "/faq?role=tenant" },
+      { label: "Discover Your Ideal Stall", href: "/stalls" },
+      { label: "Learn Tenant Capabilities", href: "/features?role=tenant" },
+      { label: "Establish Business POS", href: "/dashboard/tenant" },
+      { label: "View Tenant Pricing Plans", href: "/pricing?role=tenant" },
+      { label: "Tenant Rental & POS FAQ", href: "/faq?tab=tenant" },
     ],
   },
   owner: {
-    label: "Stall Owner",
+    label: "For Stall Owners",
     color: "owner" as const,
     links: [
-      { label: "Owner Dashboard", href: "/dashboard/owner" },
-      { label: "Owner Features", href: "/features?role=owner" },
-      { label: "Owner Pricing", href: "/pricing?role=owner" },
-      { label: "Owner FAQ", href: "/faq?role=owner" },
+      { label: "Learn Owner Capabilities", href: "/features?role=owner" },
+      { label: "Manage Property Portfolio", href: "/dashboard/owner" },
+      { label: "View Property Plans", href: "/pricing?role=owner" },
+      { label: "Stall Management FAQ", href: "/faq?tab=owner" },
     ],
   },
   supplier: {
-    label: "Supplier",
+    label: "For B2B Suppliers",
     color: "supplier" as const,
     links: [
-      { label: "Become a Supplier", href: "/dashboard/supplier" },
-      { label: "Supplier Features", href: "/features?role=supplier" },
-      { label: "Supplier Pricing", href: "/pricing?role=supplier" },
-      { label: "Supplier FAQ", href: "/faq?role=supplier" },
+      { label: "Learn Supplier Capabilities", href: "/features?role=supplier" },
+      { label: "Access Wholesale Hub", href: "/dashboard/supplier" },
+      { label: "View Supplier Plans", href: "/pricing?role=supplier" },
+      { label: "Supplier Procurement FAQ", href: "/faq?tab=supplier" },
     ],
   },
 };
@@ -87,25 +87,25 @@ export function SiteFooter() {
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    // TODO: wire up to newsletter API
     setSubmitted(true);
     setEmail("");
   };
 
   return (
-    <footer className="border-t border-border bg-secondary/30">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_1fr]">
-          {/* Brand + newsletter */}
-          <div className="lg:pr-6">
+    <footer className="w-full border-t border-border bg-secondary/30">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        {/* Main Grid: Memisahkan bagian Brand & Newsletter dengan kumpulan kolom link */}
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8 items-start">
+          {/* Sisi Kiri: Brand & Newsletter (Mengambil porsi 5 kolom di layar besar) */}
+          <div className="lg:col-span-5 pr-0 xl:pr-6">
             <Logo />
 
-            <p className="mt-4 max-w-xs text-sm text-muted-foreground">
+            <p className="mt-4 max-w-sm text-sm text-muted-foreground">
               The data-driven platform connecting tenants, stall owners, and
               suppliers — with business analytics and built-in POS.
             </p>
 
-            <form onSubmit={handleSubscribe} className="mt-6 max-w-xs">
+            <form onSubmit={handleSubscribe} className="mt-6 max-w-sm">
               <label
                 htmlFor="footer-email"
                 className="text-sm font-medium text-foreground"
@@ -114,7 +114,7 @@ export function SiteFooter() {
               </label>
 
               <div className="mt-2 flex gap-2">
-                <div className="relative flex-1">
+                <div className="relative min-w-0 flex-1">
                   <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="footer-email"
@@ -151,17 +151,39 @@ export function SiteFooter() {
             </form>
           </div>
 
-          {/* Role link columns */}
-          {Object.values(ROLE_LINKS).map((group) => (
-            <div key={group.label}>
-              <h4
-                className="mb-4 text-sm font-semibold uppercase tracking-wide"
-                style={{ color: `var(--${group.color})` }}
-              >
-                {group.label}
+          {/* Sisi Kanan: Sub-grid untuk seluruh Kolom Link (Mengambil porsi 7 kolom sisa) */}
+          <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-8">
+            {/* Role link columns */}
+            {Object.values(ROLE_LINKS).map((group) => (
+              <div key={group.label}>
+                <h4
+                  className="mb-4 text-sm font-semibold uppercase tracking-wide"
+                  style={{ color: `var(--${group.color})` }}
+                >
+                  {group.label}
+                </h4>
+                <ul className="space-y-3">
+                  {group.links.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+
+            {/* Company */}
+            <div>
+              <h4 className="mb-4 text-sm font-semibold uppercase tracking-wide text-foreground">
+                Company
               </h4>
               <ul className="space-y-3">
-                {group.links.map((link) => (
+                {COMPANY_LINKS.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
@@ -173,35 +195,16 @@ export function SiteFooter() {
                 ))}
               </ul>
             </div>
-          ))}
-
-          {/* Company */}
-          <div>
-            <h4 className="mb-4 text-sm font-semibold uppercase tracking-wide text-foreground">
-              Company
-            </h4>
-            <ul className="space-y-3">
-              {COMPANY_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
+        <div className="mt-12 flex flex-col items-center gap-6 border-t border-border pt-8 text-center sm:mt-14">
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} Lapakita. All rights reserved.
           </p>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
             {LEGAL_LINKS.map((link) => (
               <Link
                 key={link.href}
@@ -213,7 +216,7 @@ export function SiteFooter() {
             ))}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center gap-3">
             {SOCIALS.map(({ icon: Icon, href, label }) => (
               <a
                 key={label}

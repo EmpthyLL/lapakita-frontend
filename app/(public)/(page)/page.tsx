@@ -1,4 +1,4 @@
-import { FaqSection } from "@/components/common/FaqSection";
+import { FaqSection } from "@/app/(public)/(page)/FaqSection";
 import { FeaturedStalls } from "./FeatureStall";
 import { Hero } from "./Hero";
 import { EcosystemPillars } from "./Pillars";

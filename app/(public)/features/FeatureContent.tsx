@@ -1,6 +1,6 @@
 "use client";
 
-import { useRoleFilter } from "./RoleContext";
+import { useRoleFilter } from "@/lib/role_provider";
 import { ROLE_CONTENT, ROLE_ORDER } from "./FeatureData";
 import { RoleContentSection } from "./RoleSection";
 
