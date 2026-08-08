@@ -1,8 +1,8 @@
-/* eslint-disable react-hooks/refs */
 /* eslint-disable jsx-a11y/role-has-required-aria-props */
+/* eslint-disable react-hooks/refs */
 "use client";
 
-import { Check, ChevronDown, Loader2, X } from "lucide-react";
+import { Check, ChevronDown, Loader2, X, type LucideIcon } from "lucide-react";
 import * as React from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -25,14 +25,55 @@ import { VariantColor } from "@/types";
 import { useAutocompleteVariant } from "@/hooks/use-autocomplete-variant";
 
 type AutocompleteSize = "sm" | "md" | "lg";
+type IconValue = string | LucideIcon;
+
+function isLucideIcon(icon: unknown): icon is LucideIcon {
+  return (
+    typeof icon === "function" ||
+    (typeof icon === "object" && icon !== null && "render" in (icon as object))
+  );
+}
+
+function OptionIcon({
+  icon,
+  size,
+  alt,
+  className,
+}: {
+  icon: IconValue;
+  size: number;
+  alt: string;
+  className?: string;
+}) {
+  if (isLucideIcon(icon)) {
+    const Icon = icon;
+    return (
+      <Icon
+        className={cn("shrink-0 text-muted-foreground", className)}
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+  return (
+    <Image
+      src={String(icon)}
+      width={size}
+      height={size}
+      className={cn("shrink-0 rounded-full object-cover", className)}
+      alt={alt}
+      unoptimized
+    />
+  );
+}
 
 const SIZE_STYLES: Record<
   AutocompleteSize,
   {
     trigger: string;
     text: string;
-    icon: string;
+    iconSize: number;
     chevron: string;
+    clear: string;
     itemPad: string;
     itemText: string;
   }
@@ -40,24 +81,27 @@ const SIZE_STYLES: Record<
   sm: {
     trigger: "h-9 px-2.5 py-2",
     text: "text-sm",
-    icon: "h-4 w-4",
-    chevron: "h-3.5 w-3.5",
+    iconSize: 18,
+    chevron: "h-5 w-5",
+    clear: "h-4 w-4",
     itemPad: "px-2.5 py-2",
     itemText: "text-sm",
   },
   md: {
     trigger: "h-10 px-3 py-2.5",
     text: "text-sm",
-    icon: "h-5 w-5",
-    chevron: "h-4 w-4",
+    iconSize: 20,
+    chevron: "h-6 w-6",
+    clear: "h-4.5 w-4.5",
     itemPad: "px-3 py-2.5",
     itemText: "text-sm",
   },
   lg: {
     trigger: "h-12 px-3 py-3",
     text: "text-[15px]",
-    icon: "h-6.5 w-6.5",
-    chevron: "h-6 w-6",
+    iconSize: 24,
+    chevron: "h-7 w-7",
+    clear: "h-5 w-5",
     itemPad: "px-3.5 py-3",
     itemText: "text-[15px]",
   },
@@ -72,10 +116,7 @@ export interface AutocompleteProps<T extends Record<string, any>> {
   valueKey?: keyof T;
   labelKey?: keyof T;
   iconKey?: keyof T;
-  /** Field on each option used to group items under a heading (e.g. "group"). */
   groupKey?: keyof T;
-
-  renderItem?: (option: T) => React.ReactNode;
 
   placeholder?: string;
   emptyText?: string;
@@ -98,14 +139,8 @@ export interface AutocompleteProps<T extends Record<string, any>> {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 
-  /** "simple": lighter border/weight (default). "solid": heavier border/weight, bolder text. */
-  uiStyle?: "simple" | "solid";
-  /** Controls trigger height, text size, and icon sizing. Independent of uiStyle. */
+  mode?: "default" | "solid";
   size?: AutocompleteSize;
-  /**
-   * Role color theme. Defaults to "auto", which derives tenant/owner/supplier
-   * from the current pathname via useRoleVariant(). Pass an explicit value to override.
-   */
   variant?: VariantColor | "auto";
 }
 
@@ -118,7 +153,6 @@ export function Autocomplete<T extends Record<string, any>>({
   labelKey = "label" as keyof T,
   iconKey = "icon" as keyof T,
   groupKey,
-  renderItem,
   placeholder = "Select option...",
   emptyText = "No option found.",
   disabled = false,
@@ -135,7 +169,7 @@ export function Autocomplete<T extends Record<string, any>>({
   className,
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
-  uiStyle = "simple",
+  mode = "default",
   size = "md",
   variant = "auto",
 }: AutocompleteProps<T>) {
@@ -165,9 +199,39 @@ export function Autocomplete<T extends Record<string, any>>({
     onOpenChange: controlledOnOpenChange,
   });
 
-  const isSolid = uiStyle === "solid";
+  const isSolid = mode === "solid";
+  const hasValue = selectedOption != null || (value != null && value !== "");
   const roleVar = `var(--${role})`;
   const s = SIZE_STYLES[size];
+
+  // Isolasi scroll internal list
+  React.useEffect(() => {
+    if (!open) return;
+
+    const commandList = refs.commandListRef.current;
+    if (!commandList) return;
+
+    const preventOuterScroll = (e: WheelEvent) => {
+      const { scrollTop, scrollHeight, clientHeight } = commandList;
+      const delta = e.deltaY;
+      const isDeltaDown = delta > 0;
+
+      if (
+        (isDeltaDown && scrollTop + clientHeight >= scrollHeight) ||
+        (!isDeltaDown && scrollTop <= 0)
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    commandList.addEventListener("wheel", preventOuterScroll, {
+      passive: false,
+    });
+
+    return () => {
+      commandList.removeEventListener("wheel", preventOuterScroll);
+    };
+  }, [open, refs.commandListRef]);
 
   const renderOptionRow = (option: T, isGrouped: boolean) => (
     <CommandItem
@@ -181,55 +245,96 @@ export function Autocomplete<T extends Record<string, any>>({
       keywords={[String(option[labelKey])]}
       onSelect={handlers.selectOption}
       className={cn(
-        "relative flex cursor-pointer items-center justify-between rounded-none",
+        "relative flex cursor-pointer items-center justify-between rounded-md",
         s.itemPad,
         isGrouped && "pl-5",
+        String(value) === String(option[valueKey]) && "bg-primary/10",
       )}
       style={
-        String(value) === String(option[valueKey])
+        isSolid && String(value) === String(option[valueKey])
           ? {
               backgroundColor: `color-mix(in oklch, ${roleVar}, transparent 90%)`,
             }
           : undefined
       }
     >
-      {renderItem ? (
-        renderItem(option)
-      ) : (
-        <div className="flex items-center gap-2">
-          {iconKey && option[iconKey] && (
-            <Image
-              src={String(option[iconKey])}
-              width={20}
-              height={20}
-              className="rounded-full object-contain"
-              alt={String(option[labelKey]) || ""}
-              unoptimized
-            />
+      <div className="flex min-w-0 items-center gap-2">
+        {iconKey && option[iconKey] && (
+          <OptionIcon
+            icon={option[iconKey]}
+            size={s.iconSize}
+            alt={String(option[labelKey]) || ""}
+          />
+        )}
+        <span
+          className={cn(
+            s.itemText,
+            "truncate font-medium",
+            isSolid ? "text-foreground/80" : "text-foreground",
           )}
-          <span
-            className={cn(
-              s.itemText,
-              isSolid
-                ? "font-semibold text-foreground/80"
-                : "font-medium text-foreground",
-            )}
-          >
-            {option[labelKey]}
-          </span>
-        </div>
-      )}
+        >
+          {option[labelKey]}
+        </span>
+      </div>
+
       <Check
-        className="h-4 w-4 shrink-0 opacity-0 data-[selected=true]:opacity-100"
-        style={{ color: roleVar }}
-        data-selected={String(value) === String(option[valueKey])}
+        className={cn(
+          "h-4 w-4 shrink-0 opacity-0",
+          String(value) === String(option[valueKey]) && "opacity-100",
+        )}
+        style={isSolid ? { color: roleVar } : undefined}
       />
     </CommandItem>
   );
 
+  const triggerClass = isSolid
+    ? cn(
+        "rounded-md border bg-white text-[16px] font-medium outline-none transition-all duration-150",
+        "hover:bg-white",
+        "border-primary/40",
+        "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
+        "data-[state=open]:border-primary data-[state=open]:ring-2 data-[state=open]:ring-primary/20",
+        disabled &&
+          "pointer-events-none cursor-not-allowed bg-[#F2F6F8] text-[#adb4ba] hover:bg-[#F2F6F8] border-gray-200",
+        hasError &&
+          !disabled &&
+          "border-red-500 focus-within:border-red-500 focus-within:ring-red-500/20",
+      )
+    : cn(
+        "rounded-md border bg-background text-foreground outline-none transition-all duration-150",
+        "hover:bg-background",
+        "border-input",
+        "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
+        "data-[state=open]:border-primary data-[state=open]:ring-2 data-[state=open]:ring-primary/20",
+        hasError &&
+          "border-destructive focus-within:border-destructive focus-within:ring-destructive/20",
+        disabled &&
+          "pointer-events-none cursor-not-allowed bg-muted text-muted-foreground opacity-50",
+      );
+
+  const inputDisplayValue = open
+    ? search
+    : selectedOption
+      ? String(selectedOption[labelKey])
+      : search;
+
+  /* PERBAIKAN: Teks hasil ketikan & value selalu pekat/hitam. 
+     Placeholder saja yang abu-abu. 
+  */
+  const inputClass = isSolid
+    ? cn(
+        "font-semibold outline-none transition-colors duration-150 text-gray-950 placeholder:text-[#9FB1C1] placeholder:font-normal",
+        disabled &&
+          "cursor-not-allowed bg-[#F2F6F8] text-[#adb4ba] placeholder:text-[#adb4ba]",
+      )
+    : cn(
+        "font-medium outline-none transition-colors duration-150 text-foreground placeholder:text-muted-foreground placeholder:font-normal",
+        disabled && "cursor-not-allowed",
+      );
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger>
+      <PopoverTrigger asChild>
         <div
           role="combobox"
           aria-expanded={open}
@@ -239,98 +344,79 @@ export function Autocomplete<T extends Record<string, any>>({
           onClick={() => !disabled && setOpen(!open)}
           onKeyDown={(e) => !disabled && handlers.handleTriggerKeyDown(e)}
           className={cn(
-            "flex w-full cursor-pointer items-center outline-none transition-colors",
+            "flex w-full cursor-pointer items-center gap-2 overflow-hidden",
             s.trigger,
-            isSolid
-              ? "rounded-md border border-border bg-card"
-              : "border border-input bg-background",
-            !disabled && "hover:bg-secondary/40",
-            hasError && "border-destructive",
-            disabled &&
-              "pointer-events-none cursor-not-allowed bg-muted text-muted-foreground opacity-60",
+            triggerClass,
             className,
           )}
           style={
-            !disabled && !hasError
-              ? ({ "--tw-ring-color": roleVar } as React.CSSProperties)
+            isSolid
+              ? ({ "--role-color": roleVar } as React.CSSProperties)
               : undefined
           }
         >
-          <div className="flex flex-1 items-center gap-2 text-start">
+          <div className="flex min-w-0 flex-1 items-center gap-2 text-start">
             {indicatorIcon && !(iconKey && selectedOption?.[iconKey]) && (
-              <div className="flex items-center text-muted-foreground">
+              <div className="flex shrink-0 items-center text-muted-foreground">
                 {indicatorIcon}
               </div>
             )}
 
             {isLoading && (
-              <Loader2
-                className={cn(s.icon, "animate-spin text-muted-foreground")}
-              />
+              <Loader2 className="h-5 w-5 shrink-0 animate-spin text-muted-foreground" />
             )}
 
             {iconKey && selectedOption?.[iconKey] && (
-              <Image
-                src={String(selectedOption[iconKey])}
-                width={isSolid ? 26 : 20}
-                height={isSolid ? 26 : 20}
-                className="rounded-full object-cover"
+              <OptionIcon
+                icon={selectedOption[iconKey]}
+                size={isSolid ? 28 : 20}
                 alt={String(selectedOption?.[labelKey]) || ""}
-                unoptimized
               />
             )}
 
             <input
               ref={refs.inputRef}
               type="text"
-              value={search}
+              value={inputDisplayValue}
               onChange={(e) => !disabled && setSearch(e.target.value)}
               onClick={handlers.handleInputClick}
               onKeyDown={handlers.handleInputKeyDown}
               disabled={disabled}
               tabIndex={-1}
-              placeholder={
-                selectedOption ? String(selectedOption[labelKey]) : placeholder
-              }
+              placeholder={placeholder}
               className={cn(
-                "min-w-0 flex-1 bg-transparent outline-none disabled:cursor-not-allowed",
+                "min-w-0 flex-1 truncate bg-transparent disabled:cursor-not-allowed",
                 s.text,
-                isSolid
-                  ? "font-semibold text-foreground placeholder:font-semibold"
-                  : "font-medium text-foreground",
-                !selectedOption && "placeholder:text-muted-foreground",
+                inputClass,
               )}
             />
           </div>
 
-          <div className="flex items-center gap-1.5">
-            {search && !disabled && (
-              <button
-                type="button"
-                onClick={handlers.handleClearSearch}
-                tabIndex={-1}
-                className="flex items-center justify-center rounded-sm p-1 text-muted-foreground transition-colors hover:bg-secondary"
-              >
-                <X className={s.chevron} />
-              </button>
-            )}
-
-            {showClearButton && value != null && !search && !disabled && (
-              <button
-                type="button"
-                onClick={handlers.handleClearValue}
-                tabIndex={-1}
-                className="flex items-center justify-center rounded-sm p-1 text-muted-foreground transition-colors hover:bg-secondary"
-              >
-                <X className={s.chevron} />
-              </button>
-            )}
+          <div className="flex shrink-0 items-center gap-1.5">
+            {(search !== "" || (showClearButton && value != null)) &&
+              !disabled && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    if (search) {
+                      handlers.handleClearSearch(e);
+                    } else {
+                      handlers.handleClearValue(e);
+                    }
+                  }}
+                  tabIndex={-1}
+                  className="flex items-center justify-center rounded-sm p-0.5 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <X className={isSolid ? "h-6 w-6 stroke-[2.5]" : s.clear} />
+                </button>
+              )}
 
             <ChevronDown
               className={cn(
-                "shrink-0 text-muted-foreground/70 transition-transform duration-200",
-                s.chevron,
+                "shrink-0 transition-all duration-150 text-muted-foreground",
+                isSolid ? "h-8 w-8 stroke-[2.5]" : s.chevron,
                 open && "rotate-180",
+                hasValue ? "opacity-100" : "opacity-40",
               )}
             />
           </div>
@@ -338,11 +424,13 @@ export function Autocomplete<T extends Record<string, any>>({
       </PopoverTrigger>
 
       <PopoverContent
-        className="p-0"
+        className="rounded-md p-0"
         style={{ width: "var(--radix-popover-trigger-width)" }}
-        initialFocus={false}
       >
-        <Command shouldFilter={!onFilterChange}>
+        <Command
+          shouldFilter={!onFilterChange}
+          className="rounded-md flex flex-col"
+        >
           <CommandInput
             ref={refs.commandInputRef}
             value={search}
@@ -362,10 +450,12 @@ export function Autocomplete<T extends Record<string, any>>({
             <>
               <CommandList
                 ref={refs.commandListRef}
-                className="max-h-72 overflow-y-auto overscroll-contain"
+                className="max-h-75 flex-1 overflow-y-auto overscroll-contain"
                 style={{
                   scrollbarWidth: "thin",
-                  scrollbarColor: "var(--border) transparent",
+                  scrollbarColor: isSolid
+                    ? "rgba(0,0,0,0.2) transparent"
+                    : "var(--border) transparent",
                 }}
               >
                 {filteredOptions.length === 0 ? (
@@ -401,7 +491,7 @@ export function Autocomplete<T extends Record<string, any>>({
                     <Button
                       type="button"
                       variant="ghost"
-                      className="w-full text-sm"
+                      className="w-full text-sm rounded-md"
                       onClick={fetchMore}
                       onMouseEnter={fetchMore}
                       disabled={isFetchingMore}

@@ -1,6 +1,5 @@
 "use client";
 
-import { HelpCircle, MessageCircleQuestion } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -8,8 +7,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { VariantColor } from "@/types";
+import { HelpCircle, MessageCircleQuestion } from "lucide-react";
+import Link from "next/link";
 
 interface FaqItem {
   question: string;
@@ -21,47 +21,47 @@ const FAQS: FaqItem[] = [
   {
     question: "What is Lapakita and how does it work?",
     answer:
-      "Lapakita is an ecosystem platform for local businesses that connects Tenants (SME operators), Stall Owners, and B2B Suppliers. It provides digital contracts, escrow deposit protection, POS tools, and business intelligence — all accessible from a single account.",
+      "Lapakita is a digital operating platform for SMEs. It connects tenants looking for spaces, stall owners managing rentals, and B2B suppliers fulfilling raw material needs — providing tailored dashboards for every role in one unified system.",
   },
   {
-    question: "How do I find and rent a stall as a tenant?",
+    question: "How do I search and rent a stall as a tenant?",
     answer:
-      "Search for available stalls on the Find Stalls page using filters like business type, spatial facilities, monthly budget, and radius. Compare options side-by-side or run financial simulations before submitting a digital lease request to the owner.",
+      "Use our discovery filters to search by city, landmark (campuses, schools, office districts), radius, and facilities. You can also filter by your available capital, business category, and target break-even period to surface stalls with matching rent economics.",
     roleType: "primary",
   },
   {
-    question: "Can I use Lapakita POS if I don't rent a stall?",
+    question: "Can I use Lapakita's POS without renting a physical stall?",
     answer:
-      "Yes! Non-stall businesses are fully welcome. Whether you operate a home-based cloud kitchen, an online store, or rent outside Lapakita, you can use our built-in POS, inventory management, and B2B supplier marketplace freely.",
+      "Yes, absolutely! Businesses operating from home, online stores, cloud kitchens, or third-party rentals are completely welcome to use our built-in POS, inventory tracking, staff cashier access, and supplier marketplace.",
     roleType: "primary",
   },
   {
-    question: "How do I list my stall and screen tenants as an owner?",
+    question: "How do I list my stall as a property owner?",
     answer:
-      "Switch your active role to Stall Owner, publish your stall listing with photos, spatial utilities, and pricing. When tenants apply, you can inspect their profile ratings and business compatibility before approving or rejecting contracts.",
+      "Register an account, open the Owner Dashboard, and publish your stall listing with photos, rent prices, and available facilities. You can review tenant applications and profile ratings before approving any lease contract.",
     roleType: "owner",
   },
   {
-    question: "How are rent payments and security deposits handled?",
+    question: "How are rent payments and security deposits managed?",
     answer:
-      "Monthly rent is paid directly via secure online payment gateway. Security deposits are held safely in a neutral escrow account (not in the owner's personal account) to protect both parties against damages or unreturned key replacement costs.",
+      "Rent collection is tracked automatically with clear visual due-date alerts. Security deposits are held safely in a neutral Escrow Payment Gateway account and are strictly reserved for verified physical property damage or lost key reproductions upon exit.",
     roleType: "owner",
   },
   {
-    question: "How does the B2B Supplier Marketplace work?",
+    question: "How does the B2B Supplier marketplace work?",
     answer:
-      "Suppliers showcase their wholesale catalogs directly inside the procurement dashboard of relevant SME tenants. When a tenant's POS inventory runs low, they can reorder raw materials from their primary suppliers in a single click.",
+      "Suppliers showcase their wholesale catalogs directly inside the procurement dashboards of matching tenant businesses without paying for ads. Tenants can designate primary suppliers for seamless 1-click inventory reordering.",
     roleType: "supplier",
   },
   {
-    question: "Is Lapakita free to use?",
+    question: "What are the pricing options for Lapakita?",
     answer:
-      "Creating an account, browsing stalls, using basic POS, and diagnostic analytics are 100% free. Optional Premium Subscriptions (Rp 250,000/month) unlock prescriptive business intelligence co-pilots, vacancy cost modeling, and market demand insights.",
+      "Browsing stalls, basic POS, and core diagnostic health analytics are free. Advanced operational features — such as our 3-Scenario Business Forecast, Prescriptive Co-Pilot, Vacancy Loss Tracker, and Demand Intelligence — are available for Rp 125,000/month or Rp 1,125,000/year.",
   },
   {
     question: "Can I switch between roles with a single account?",
     answer:
-      "Yes. A single verified account lets you switch seamlessly between Tenant, Stall Owner, and Supplier roles via the account menu without logging out or creating separate logins.",
+      "Yes! A single Lapakita account allows you to operate as a Tenant, Stall Owner, and Supplier simultaneously. Simply use the Role Switcher menu in your profile to jump between dashboards without logging out.",
   },
 ];
 
@@ -95,7 +95,7 @@ export function FaqSection() {
           </p>
         </div>
 
-        <Accordion className="mt-12 w-full">
+        <Accordion type="single" className="mt-12 w-full">
           {FAQS.map((faq, index) => (
             <AccordionItem
               key={faq.question}

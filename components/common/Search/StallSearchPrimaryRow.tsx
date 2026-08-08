@@ -56,7 +56,6 @@ export function StallSearchPrimaryRow({
           onSelect={(v) => onBusinessTypeChange(String(v))}
           options={BUSINESS_TYPE_OPTIONS}
           groupKey="group"
-          uiStyle="solid"
           placeholder="Business type"
           className="lg:w-60"
         />
@@ -65,7 +64,8 @@ export function StallSearchPrimaryRow({
           value={singleLandmark}
           onSelect={(v) => onSingleLandmarkChange(String(v))}
           options={LANDMARK_CATEGORIES}
-          uiStyle="solid"
+          mode="default"
+          showClearButton
           placeholder="Any landmark"
           className="sm:w-45"
         />

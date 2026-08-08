@@ -1,16 +1,16 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ArrowRight, Mail } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { Mail, ArrowRight } from "lucide-react";
 import {
   InstagramIcon,
-  XIcon,
   LinkedinIcon,
+  XIcon,
   YoutubeIcon,
 } from "../icon/SocialIcon";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Logo } from "./Logo";
 
 const ROLE_LINKS = {

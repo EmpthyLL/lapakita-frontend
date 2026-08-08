@@ -1,15 +1,13 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { Role, RoleAndAll, VALID_ROLES } from "@/types";
 import { useSearchParams } from "next/navigation";
-import { Role, VALID_ROLES } from "@/types";
+import { createContext, useContext, useState, type ReactNode } from "react";
 
 interface RoleFilterContextValue {
   activeRole: RoleAndAll;
   setActiveRole: (role: Role) => void;
 }
-
-export type RoleAndAll = Role | "all";
 
 const RoleFilterContext = createContext<RoleFilterContextValue | null>(null);
 

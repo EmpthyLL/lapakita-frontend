@@ -1,4 +1,9 @@
-import { Store, Building2, Users, type LucideIcon } from "lucide-react";
+import {
+  ShieldCheck,
+  ShoppingCart,
+  Store,
+  type LucideIcon,
+} from "lucide-react";
 
 export const BEP_PRESETS_MONTHS = [3, 6, 12, 18, 24];
 
@@ -19,7 +24,7 @@ export interface TrustStat {
 }
 
 export const TRUST_STATS: TrustStat[] = [
-  { icon: Store, value: "500+", label: "active stalls" },
-  { icon: Building2, value: "40+", label: "cities" },
-  { icon: Users, value: "1,200+", label: "tenants matched" },
+  { icon: Store, value: "100%", label: "price-locked stalls" },
+  { icon: ShieldCheck, value: "Escrow", label: "protected deposits" },
+  { icon: ShoppingCart, value: "Free POS", label: "for all businesses" },
 ];
