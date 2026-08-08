@@ -1,7 +1,7 @@
 import {
-  ShieldCheck,
-  ShoppingCart,
-  Store,
+  SlidersHorizontal,
+  Target,
+  Wallet,
   type LucideIcon,
 } from "lucide-react";
 
@@ -17,14 +17,26 @@ export function formatIDR(value: number) {
   return `Rp ${value.toLocaleString("id-ID")}`;
 }
 
-export interface TrustStat {
+export interface SearchCapability {
   icon: LucideIcon;
-  value: string;
-  label: string;
+  title: string;
+  description: string;
 }
 
-export const TRUST_STATS: TrustStat[] = [
-  { icon: Store, value: "100%", label: "price-locked stalls" },
-  { icon: ShieldCheck, value: "Escrow", label: "protected deposits" },
-  { icon: ShoppingCart, value: "Free POS", label: "for all businesses" },
+export const SEARCH_CAPABILITIES: SearchCapability[] = [
+  {
+    icon: Target,
+    title: "Landmark & Radius",
+    description: "Search near campuses, schools, or office hubs",
+  },
+  {
+    icon: SlidersHorizontal,
+    title: "Facility Matching",
+    description: "Filter power kVA, water, kitchen & seating",
+  },
+  {
+    icon: Wallet,
+    title: "Price & Escrow Lock",
+    description: "Transparent rent & deposit min-max budget",
+  },
 ];

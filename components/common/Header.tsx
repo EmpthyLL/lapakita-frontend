@@ -1,15 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import {
-  ChevronDown,
-  User,
-  Wallet,
-  LogOut,
-  LayoutDashboard,
-  Repeat,
-} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,9 +13,18 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
+import {
+  ChevronDown,
+  LayoutDashboard,
+  LogOut,
+  Repeat,
+  User,
+  Wallet,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Logo } from "./Logo";
 
 export const NAV_LINKS = [
   { label: "Home", href: "/" },

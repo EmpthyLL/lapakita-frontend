@@ -7,7 +7,6 @@ export interface PaginationMeta {
   totalPages: number;
   hasNextPage: boolean;
   hasPrevPage: boolean;
-  nextCursor?: string;
 }
 
 export interface PaginatedResponse<T> {

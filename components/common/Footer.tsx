@@ -19,39 +19,40 @@ const ROLE_LINKS = {
     color: "primary" as const,
     links: [
       { label: "Find Stalls", href: "/stalls" },
-      { label: "How Renting Works", href: "/how-it-works/tenant" },
-      { label: "Built-in POS", href: "/features/pos" },
-      { label: "Pricing", href: "/pricing" },
+      { label: "Tenant Dashboard", href: "/dashboard/tenant" },
+      { label: "Tenant Features", href: "/features?role=tenant" },
+      { label: "Tenant Pricing", href: "/pricing?role=tenant" },
+      { label: "Tenant FAQ", href: "/faq?role=tenant" },
     ],
   },
   owner: {
     label: "Stall Owner",
     color: "owner" as const,
     links: [
-      { label: "List Your Stall", href: "/owner/list" },
       { label: "Owner Dashboard", href: "/dashboard/owner" },
-      { label: "Rent Collection", href: "/features/rent-collection" },
-      { label: "Occupancy Reports", href: "/features/reports" },
+      { label: "Owner Features", href: "/features?role=owner" },
+      { label: "Owner Pricing", href: "/pricing?role=owner" },
+      { label: "Owner FAQ", href: "/faq?role=owner" },
     ],
   },
   supplier: {
     label: "Supplier",
     color: "supplier" as const,
     links: [
-      { label: "Become a Supplier", href: "/supplier/join" },
-      { label: "Order Management", href: "/features/orders" },
-      { label: "Demand Forecasting", href: "/features/forecasting" },
-      { label: "Supplier Dashboard", href: "/dashboard/supplier" },
+      { label: "Become a Supplier", href: "/dashboard/supplier" },
+      { label: "Supplier Features", href: "/features?role=supplier" },
+      { label: "Supplier Pricing", href: "/pricing?role=supplier" },
+      { label: "Supplier FAQ", href: "/faq?role=supplier" },
     ],
   },
 };
 
 const COMPANY_LINKS = [
   { label: "About Us", href: "/about" },
-  { label: "FAQ", href: "/faq" },
-  { label: "Contact", href: "/contact" },
-  { label: "Careers", href: "/careers" },
-  { label: "Blog", href: "/blog" },
+  { label: "Pricing & Plans", href: "/pricing" },
+  { label: "FAQ Center", href: "/faq" },
+  { label: "Contact Support", href: "/contact" },
+  { label: "Jobs Application", href: "/career" },
 ];
 
 const LEGAL_LINKS = [
