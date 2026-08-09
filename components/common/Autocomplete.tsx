@@ -2,9 +2,6 @@
 /* eslint-disable react-hooks/refs */
 "use client";
 
-import { Check, ChevronDown, Loader2, X, type LucideIcon } from "lucide-react";
-import * as React from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -19,10 +16,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
 import { useAutocomplete } from "@/hooks/use-autocomplete";
-import { VariantColor } from "@/types";
 import { useAutocompleteVariant } from "@/hooks/use-autocomplete-variant";
+import { cn } from "@/lib/utils";
+import { VariantColor } from "@/types";
+import { Check, ChevronDown, Loader2, X, type LucideIcon } from "lucide-react";
+import Image from "next/image";
+import * as React from "react";
 
 type AutocompleteSize = "sm" | "md" | "lg";
 type IconValue = string | LucideIcon;
@@ -139,6 +139,13 @@ export interface AutocompleteProps<T extends Record<string, any>> {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 
+  /**
+   * "default": bg-background, lighter weight.
+   * "solid": bg-white, bigger icon/chevron/clear sizing.
+   * Both now share the same rounded-md, border-input (gray) border, and
+   * font-semibold / placeholder styling — the two modes only differ in
+   * background color and control sizing now, not in border color or weight.
+   */
   mode?: "default" | "solid";
   size?: AutocompleteSize;
   variant?: VariantColor | "auto";
@@ -200,11 +207,10 @@ export function Autocomplete<T extends Record<string, any>>({
   });
 
   const isSolid = mode === "solid";
-  const hasValue = selectedOption != null || (value != null && value !== "");
+  const hasValue = selectedOption != null;
   const roleVar = `var(--${role})`;
   const s = SIZE_STYLES[size];
 
-  // Isolasi scroll internal list
   React.useEffect(() => {
     if (!open) return;
 
@@ -266,12 +272,10 @@ export function Autocomplete<T extends Record<string, any>>({
             alt={String(option[labelKey]) || ""}
           />
         )}
+        {/* Weight unified to font-semibold for both modes — previously
+            "default" used font-medium while "solid" used font-semibold. */}
         <span
-          className={cn(
-            s.itemText,
-            "truncate font-medium",
-            isSolid ? "text-foreground/80" : "text-foreground",
-          )}
+          className={cn(s.itemText, "truncate font-semibold text-foreground")}
         >
           {option[labelKey]}
         </span>
@@ -287,23 +291,23 @@ export function Autocomplete<T extends Record<string, any>>({
     </CommandItem>
   );
 
+  /* Both modes now share rounded-md and border-input (gray) — they only
+     differ in background color and hover background. */
   const triggerClass = isSolid
     ? cn(
-        "rounded-md border bg-white text-[16px] font-medium outline-none transition-all duration-150",
+        "rounded-md border border-input bg-white font-semibold outline-none transition-all duration-150",
         "hover:bg-white",
-        "border-primary/40",
         "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
         "data-[state=open]:border-primary data-[state=open]:ring-2 data-[state=open]:ring-primary/20",
         disabled &&
-          "pointer-events-none cursor-not-allowed bg-[#F2F6F8] text-[#adb4ba] hover:bg-[#F2F6F8] border-gray-200",
+          "pointer-events-none cursor-not-allowed border-gray-200 bg-[#F2F6F8] text-[#adb4ba] hover:bg-[#F2F6F8]",
         hasError &&
           !disabled &&
-          "border-red-500 focus-within:border-red-500 focus-within:ring-red-500/20",
+          "border-destructive focus-within:ring-destructive/20",
       )
     : cn(
-        "rounded-md border bg-background text-foreground outline-none transition-all duration-150",
+        "rounded-md border border-input bg-background font-semibold text-foreground outline-none transition-all duration-150",
         "hover:bg-background",
-        "border-input",
         "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
         "data-[state=open]:border-primary data-[state=open]:ring-2 data-[state=open]:ring-primary/20",
         hasError &&
@@ -312,25 +316,17 @@ export function Autocomplete<T extends Record<string, any>>({
           "pointer-events-none cursor-not-allowed bg-muted text-muted-foreground opacity-50",
       );
 
-  const inputDisplayValue = open
-    ? search
-    : selectedOption
-      ? String(selectedOption[labelKey])
-      : search;
-
-  /* PERBAIKAN: Teks hasil ketikan & value selalu pekat/hitam. 
-     Placeholder saja yang abu-abu. 
-  */
-  const inputClass = isSolid
-    ? cn(
-        "font-semibold outline-none transition-colors duration-150 text-gray-950 placeholder:text-[#9FB1C1] placeholder:font-normal",
-        disabled &&
-          "cursor-not-allowed bg-[#F2F6F8] text-[#adb4ba] placeholder:text-[#adb4ba]",
-      )
-    : cn(
-        "font-medium outline-none transition-colors duration-150 text-foreground placeholder:text-muted-foreground placeholder:font-normal",
-        disabled && "cursor-not-allowed",
-      );
+  /* Placeholder styling now matches the Input component exactly, and no
+     longer differs based on hasValue or between modes:
+       placeholder:text-muted-foreground/70 placeholder:font-normal placeholder:transition-opacity */
+  const inputClass = cn(
+    "font-semibold text-foreground outline-none transition-colors duration-150",
+    "placeholder:text-muted-foreground/70 placeholder:font-normal placeholder:transition-opacity",
+    disabled &&
+      (isSolid
+        ? "cursor-not-allowed bg-[#F2F6F8] text-[#adb4ba]"
+        : "cursor-not-allowed"),
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -349,11 +345,6 @@ export function Autocomplete<T extends Record<string, any>>({
             triggerClass,
             className,
           )}
-          style={
-            isSolid
-              ? ({ "--role-color": roleVar } as React.CSSProperties)
-              : undefined
-          }
         >
           <div className="flex min-w-0 flex-1 items-center gap-2 text-start">
             {indicatorIcon && !(iconKey && selectedOption?.[iconKey]) && (
@@ -377,13 +368,15 @@ export function Autocomplete<T extends Record<string, any>>({
             <input
               ref={refs.inputRef}
               type="text"
-              value={inputDisplayValue}
+              value={search}
               onChange={(e) => !disabled && setSearch(e.target.value)}
               onClick={handlers.handleInputClick}
               onKeyDown={handlers.handleInputKeyDown}
               disabled={disabled}
               tabIndex={-1}
-              placeholder={placeholder}
+              placeholder={
+                selectedOption ? String(selectedOption[labelKey]) : placeholder
+              }
               className={cn(
                 "min-w-0 flex-1 truncate bg-transparent disabled:cursor-not-allowed",
                 s.text,
@@ -393,30 +386,34 @@ export function Autocomplete<T extends Record<string, any>>({
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5">
-            {(search !== "" || (showClearButton && value != null)) &&
-              !disabled && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    if (search) {
-                      handlers.handleClearSearch(e);
-                    } else {
-                      handlers.handleClearValue(e);
-                    }
-                  }}
-                  tabIndex={-1}
-                  className="flex items-center justify-center rounded-sm p-0.5 text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  <X className={isSolid ? "h-6 w-6 stroke-[2.5]" : s.clear} />
-                </button>
-              )}
+            {(search !== "" || (showClearButton && hasValue)) && !disabled && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  if (search) {
+                    handlers.handleClearSearch(e);
+                  } else {
+                    handlers.handleClearValue(e);
+                  }
+                }}
+                tabIndex={-1}
+                className="flex items-center justify-center rounded-sm p-0.5 text-muted-foreground transition-all duration-150 hover:text-foreground"
+              >
+                <X
+                  className={cn(
+                    isSolid ? "h-6 w-6 stroke-[2.5]" : s.clear,
+                    hasValue ? "opacity-80" : "opacity-20",
+                  )}
+                />
+              </button>
+            )}
 
             <ChevronDown
               className={cn(
-                "shrink-0 transition-all duration-150 text-muted-foreground",
+                "shrink-0 text-muted-foreground transition-all duration-150",
                 isSolid ? "h-8 w-8 stroke-[2.5]" : s.chevron,
                 open && "rotate-180",
-                hasValue ? "opacity-100" : "opacity-40",
+                hasValue ? "opacity-80" : "opacity-20",
               )}
             />
           </div>
@@ -429,7 +426,7 @@ export function Autocomplete<T extends Record<string, any>>({
       >
         <Command
           shouldFilter={!onFilterChange}
-          className="rounded-md flex flex-col"
+          className="flex flex-col rounded-md"
         >
           <CommandInput
             ref={refs.commandInputRef}
@@ -491,7 +488,7 @@ export function Autocomplete<T extends Record<string, any>>({
                     <Button
                       type="button"
                       variant="ghost"
-                      className="w-full text-sm rounded-md"
+                      className="w-full rounded-md text-sm"
                       onClick={fetchMore}
                       onMouseEnter={fetchMore}
                       disabled={isFetchingMore}

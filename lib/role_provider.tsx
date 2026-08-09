@@ -1,7 +1,7 @@
 "use client";
 
 import { Role, RoleAndAll, VALID_ROLES } from "@/types";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createContext, useContext, useState, type ReactNode } from "react";
 
 interface RoleFilterContextValue {
@@ -21,38 +21,17 @@ function getInitialRole(param: string | null): RoleAndAll {
 interface RoleFilterProviderProps {
   children: ReactNode;
   paramKey: string;
-  syncUrl?: boolean;
 }
 
 export function RoleFilterProvider({
   children,
   paramKey,
-  syncUrl = false,
 }: RoleFilterProviderProps) {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [activeRole, setActiveRoleState] = useState<RoleAndAll>(() =>
+  const [activeRole, setActiveRole] = useState<RoleAndAll>(() =>
     getInitialRole(searchParams.get(paramKey)),
   );
-
-  function setActiveRole(role: RoleAndAll) {
-    setActiveRoleState(role);
-
-    if (!syncUrl) return;
-
-    const params = new URLSearchParams(searchParams.toString());
-    if (role === "all") {
-      params.delete(paramKey);
-    } else {
-      params.set(paramKey, role);
-    }
-    const query = params.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname, {
-      scroll: false,
-    });
-  }
 
   return (
     <RoleFilterContext.Provider value={{ activeRole, setActiveRole }}>

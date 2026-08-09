@@ -1,4 +1,4 @@
-import { RoleFilterTabs } from "./RoleTab";
+import { RoleTab } from "@/components/common/RoleTab";
 
 export function FeaturesHero() {
   return (
@@ -24,7 +24,7 @@ export function FeaturesHero() {
           hardware, hidden fees, or black-box algorithms.
         </p>
         <div className="mt-10">
-          <RoleFilterTabs />
+          <RoleTab />
         </div>
       </div>
     </section>

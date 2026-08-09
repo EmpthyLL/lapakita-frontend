@@ -34,9 +34,9 @@ export const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Find Stalls", href: "/stalls" },
   { label: "Features", href: "/features" },
-  { label: "FAQ", href: "/faq" },
+  { label: "About Us", href: "/about" },
   { label: "Pricing", href: "/pricing" },
-  { label: "Contact", href: "/contact" },
+  { label: "Contact Us", href: "/contact" },
 ];
 
 function isNavLinkActive(pathname: string, href: string) {

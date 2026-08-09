@@ -1,8 +1,8 @@
 import { FaqItem } from "@/components/common/FAQAccordion";
+import { TocItem } from "@/components/common/TOCList";
 import { RoleAndAll } from "@/types";
 
-export interface FaqSubTopic {
-  title: string;
+export interface FaqSubTopic extends TocItem {
   items: FaqItem[];
 }
 

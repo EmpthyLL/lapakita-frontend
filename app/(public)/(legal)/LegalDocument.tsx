@@ -1,6 +1,6 @@
+import { TocList } from "@/components/common/TOCList";
 import { LegalDocument } from "@/lib/data/schema/public/get_legal";
 import { LegalNav } from "./LegalNav";
-import { LegalToc } from "./LegalTOC";
 
 export function LegalDocumentView({ document }: { document: LegalDocument }) {
   return (
@@ -55,7 +55,7 @@ export function LegalDocumentView({ document }: { document: LegalDocument }) {
 
           {/* Table of contents */}
           <aside className="hidden lg:sticky lg:top-24 lg:block lg:h-fit">
-            <LegalToc sections={document.sections} />
+            <TocList items={document.sections} />
           </aside>
         </div>
       </div>

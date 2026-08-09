@@ -65,6 +65,7 @@ export function StallSearchPrimaryRow({
           onSelect={(v) => onSingleLandmarkChange(String(v))}
           options={LANDMARK_CATEGORIES}
           placeholder="Any landmark"
+          mode="solid"
           className="sm:w-45"
         />
       )}
