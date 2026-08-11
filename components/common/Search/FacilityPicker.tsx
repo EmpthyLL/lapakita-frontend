@@ -8,7 +8,7 @@ import { isLucideIcon, OptionIcon } from "../OptionIcon";
 interface FacilityPickerProps {
   selected: string[];
   onToggle: (value: string) => void;
-  size?: "default" | "compact";
+  size?: "default" | "compact" | "sidebar";
 }
 
 export function FacilityPicker({
@@ -20,9 +20,9 @@ export function FacilityPicker({
     <div
       className={cn(
         "grid gap-3",
-        size === "compact"
-          ? "grid-cols-3 sm:grid-cols-4 lg:grid-cols-5"
-          : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5",
+        size === "sidebar" && "grid-cols-2",
+        size === "compact" && "grid-cols-3 sm:grid-cols-4 lg:grid-cols-5",
+        size === "default" && "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5",
       )}
     >
       {FACILITIES.map((facility) => {

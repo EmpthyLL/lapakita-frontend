@@ -99,13 +99,6 @@ export interface AutocompleteProps<T extends Record<string, any>> {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 
-  /**
-   * "default": bg-background, lighter weight.
-   * "solid": bg-white, bigger icon/chevron/clear sizing.
-   * Both now share the same rounded-md, border-input (gray) border, and
-   * font-semibold / placeholder styling — the two modes only differ in
-   * background color and control sizing now, not in border color or weight.
-   */
   mode?: "default" | "solid";
   size?: AutocompleteSize;
   variant?: VariantColor | "auto";
@@ -232,8 +225,6 @@ export function Autocomplete<T extends Record<string, any>>({
             alt={String(option[labelKey]) || ""}
           />
         )}
-        {/* Weight unified to font-semibold for both modes — previously
-            "default" used font-medium while "solid" used font-semibold. */}
         <span
           className={cn(s.itemText, "truncate font-semibold text-foreground")}
         >
@@ -251,8 +242,6 @@ export function Autocomplete<T extends Record<string, any>>({
     </CommandItem>
   );
 
-  /* Both modes now share rounded-md and border-input (gray) — they only
-     differ in background color and hover background. */
   const triggerClass = isSolid
     ? cn(
         "rounded-md border border-input bg-white font-semibold outline-none transition-all duration-150",
@@ -276,9 +265,6 @@ export function Autocomplete<T extends Record<string, any>>({
           "pointer-events-none cursor-not-allowed bg-muted text-muted-foreground opacity-50",
       );
 
-  /* Placeholder styling now matches the Input component exactly, and no
-     longer differs based on hasValue or between modes:
-       placeholder:text-muted-foreground/70 placeholder:font-normal placeholder:transition-opacity */
   const inputClass = cn(
     "font-semibold text-foreground outline-none transition-colors duration-150",
     "placeholder:text-muted-foreground/70 placeholder:font-normal placeholder:transition-opacity",
@@ -287,6 +273,27 @@ export function Autocomplete<T extends Record<string, any>>({
         ? "cursor-not-allowed bg-[#F2F6F8] text-[#adb4ba]"
         : "cursor-not-allowed"),
   );
+
+  /**
+   * LOGIKA VALUE & PLACEHOLDER DIBERSIHKAN:
+   * 1. Jika popover terbuka:
+   *    - Input value murni memakai kata kunci pencarian (`search`).
+   *    - Nilai terpilih (`selectedOption`) dialihkan menjadi placeholder sementara.
+   * 2. Jika popover tertutup:
+   *    - Jika ada `selectedOption`, tampilkan sebagai teks value biasa (sehingga warnanya hitam pekat).
+   *    - Jika tidak ada `selectedOption`, input kosong dan menampilkan placeholder bawaan.
+   */
+  const inputDisplayValue = open
+    ? search
+    : selectedOption
+      ? String(selectedOption[labelKey])
+      : search;
+
+  const activePlaceholder = open
+    ? selectedOption
+      ? String(selectedOption[labelKey])
+      : placeholder
+    : placeholder;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -328,15 +335,13 @@ export function Autocomplete<T extends Record<string, any>>({
             <input
               ref={refs.inputRef}
               type="text"
-              value={search}
+              value={inputDisplayValue}
               onChange={(e) => !disabled && setSearch(e.target.value)}
               onClick={handlers.handleInputClick}
               onKeyDown={handlers.handleInputKeyDown}
               disabled={disabled}
               tabIndex={-1}
-              placeholder={
-                selectedOption ? String(selectedOption[labelKey]) : placeholder
-              }
+              placeholder={activePlaceholder}
               className={cn(
                 "min-w-0 flex-1 truncate bg-transparent disabled:cursor-not-allowed",
                 s.text,

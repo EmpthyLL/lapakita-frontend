@@ -1,39 +1,69 @@
 "use client";
 
-import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { LandmarkRadiusPicker, RADIUS_PRESETS } from "./LandmarkRadiusPicker";
+import { ReactNode, useState } from "react";
 import { FacilityPicker } from "./FacilityPicker";
 import {
-  RENT_RANGE,
-  DEPOSIT_RANGE,
+  createLandmarkRadiusEntry,
+  LandmarkRadiusPicker,
+  type LandmarkRadiusEntry,
+} from "./LandmarkRadiusPicker";
+import { LeaseTermsPicker } from "./LeaseTermsPicker";
+import {
   BEP_PRESETS_MONTHS,
+  DEPOSIT_RANGE,
+  PaymentCycle,
+  RADIUS_PRESETS,
+  RENT_RANGE,
 } from "./SearchConstants";
-import { StallSearchPrimaryRow } from "./StallSearchPrimaryRow";
-import { StallSearchAdvancedFilters } from "./StallSearchAdvancedFilters";
 import { StallSearchFooter } from "./SearchFooter";
+import { StallSearchBudgetFilters } from "./StallSearchBudgetFilters";
+import { StallSearchPrimaryRow } from "./StallSearchPrimaryRow";
 
 export interface StallSearchProps {
-  /** "hero": lightweight bar for the landing page. "full": all filters, for /stalls. */
   mode?: "hero" | "full";
+  /**
+   * Full mode only: rendered in the left column, below the search bar —
+   * this is where the caller puts the stall listing / results grid.
+   * If omitted, a placeholder hint is shown instead.
+   */
+  children?: ReactNode;
 }
 
-export default function StallSearch({ mode = "full" }: StallSearchProps) {
+function FilterBlock({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="border-t border-border pt-5 first:border-t-0 first:pt-0">
+      <h3 className="mb-3 text-xs font-bold uppercase tracking-wide text-foreground">
+        {title}
+      </h3>
+      {children}
+    </section>
+  );
+}
+
+export default function StallSearch({
+  mode = "full",
+  children,
+}: StallSearchProps) {
   const isFull = mode === "full";
 
-  // shared
   const [location, setLocation] = useState("");
   const [radius, setRadius] = useState(RADIUS_PRESETS[1]);
-
-  // hero-only
   const [singleLandmark, setSingleLandmark] = useState("any");
 
-  // full-only
-  const [landmarks, setLandmarks] = useState<string[]>([]);
+  const [landmarkEntries, setLandmarkEntries] = useState<LandmarkRadiusEntry[]>(
+    [createLandmarkRadiusEntry()],
+  );
   const [businessType, setBusinessType] = useState("");
   const [facilities, setFacilities] = useState<string[]>([]);
   const [bepMonths, setBepMonths] = useState<number>(BEP_PRESETS_MONTHS[1]);
-  const [capital, setCapital] = useState("");
+  const [capital, setCapital] = useState<number | null>(null);
   const [rentRange, setRentRange] = useState<[number, number]>([
     RENT_RANGE.min,
     RENT_RANGE.max,
@@ -42,13 +72,12 @@ export default function StallSearch({ mode = "full" }: StallSearchProps) {
     DEPOSIT_RANGE.min,
     DEPOSIT_RANGE.max,
   ]);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
 
-  function toggleLandmark(value: string) {
-    setLandmarks((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
-    );
-  }
+  const [startDate, setStartDate] = useState("");
+  const [customStartDay, setCustomStartDay] = useState("");
+  const [minLeasePeriod, setMinLeasePeriod] = useState("");
+  const [customLeaseMonths, setCustomLeaseMonths] = useState("");
+  const [paymentCycle, setPaymentCycle] = useState<PaymentCycle | "">("");
 
   function toggleFacility(value: string) {
     setFacilities((prev) =>
@@ -60,14 +89,18 @@ export default function StallSearch({ mode = "full" }: StallSearchProps) {
     if (isFull) {
       console.log({
         location,
-        landmarks,
-        radius,
+        landmarkEntries,
         businessType,
         facilities,
         bepMonths,
         capital,
         rentRange,
         depositRange,
+        startDate,
+        customStartDay,
+        minLeasePeriod,
+        customLeaseMonths,
+        paymentCycle,
       });
     } else {
       console.log({ location, landmark: singleLandmark, radius });
@@ -76,6 +109,7 @@ export default function StallSearch({ mode = "full" }: StallSearchProps) {
 
   return (
     <div className="w-full">
+      {/* Top: search bar, full width */}
       <div
         className={cn(
           "rounded-2xl border border-border bg-card shadow-sm",
@@ -117,43 +151,67 @@ export default function StallSearch({ mode = "full" }: StallSearchProps) {
             </div>
           </div>
         )}
-
-        {isFull && (
-          <>
-            <div className="mt-6 border-t border-border pt-6">
-              <LandmarkRadiusPicker
-                selectedLandmarks={landmarks}
-                onToggleLandmark={toggleLandmark}
-                radius={radius}
-                onRadiusChange={setRadius}
-              />
-            </div>
-
-            <div className="mt-6 border-t border-border pt-6">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Facilities{" "}
-                <span className="normal-case text-muted-foreground/70">
-                  (select all that you need)
-                </span>
-              </p>
-              <FacilityPicker selected={facilities} onToggle={toggleFacility} />
-            </div>
-
-            <StallSearchAdvancedFilters
-              open={advancedOpen}
-              onOpenChange={setAdvancedOpen}
-              bepMonths={bepMonths}
-              onBepMonthsChange={setBepMonths}
-              capital={capital}
-              onCapitalChange={setCapital}
-              rentRange={rentRange}
-              onRentRangeChange={setRentRange}
-              depositRange={depositRange}
-              onDepositRangeChange={setDepositRange}
-            />
-          </>
-        )}
       </div>
+
+      {/* Below: left = listing/results, right = filters sidebar */}
+      {isFull && (
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            {children ?? (
+              <div className="flex h-full min-h-40 items-center justify-center rounded-2xl border border-dashed border-border text-sm text-muted-foreground">
+                Stall listing goes here
+              </div>
+            )}
+          </div>
+
+          <aside className="lg:col-span-1">
+            <div className="space-y-5 rounded-2xl border border-border bg-secondary/20 p-4 lg:sticky lg:top-4">
+              <FilterBlock title="Location & Landmarks">
+                <LandmarkRadiusPicker
+                  entries={landmarkEntries}
+                  onChange={setLandmarkEntries}
+                />
+              </FilterBlock>
+
+              <FilterBlock title="Budget & Financial">
+                <StallSearchBudgetFilters
+                  bepMonths={bepMonths}
+                  onBepMonthsChange={setBepMonths}
+                  capital={capital}
+                  onCapitalChange={setCapital}
+                  rentRange={rentRange}
+                  onRentRangeChange={setRentRange}
+                  depositRange={depositRange}
+                  onDepositRangeChange={setDepositRange}
+                />
+              </FilterBlock>
+
+              <FilterBlock title="Availability & Lease Terms">
+                <LeaseTermsPicker
+                  startDate={startDate}
+                  onStartDateChange={setStartDate}
+                  customStartDay={customStartDay}
+                  onCustomStartDayChange={setCustomStartDay}
+                  minLeasePeriod={minLeasePeriod}
+                  onMinLeasePeriodChange={setMinLeasePeriod}
+                  customLeaseMonths={customLeaseMonths}
+                  onCustomLeaseMonthsChange={setCustomLeaseMonths}
+                  paymentCycle={paymentCycle}
+                  onPaymentCycleChange={setPaymentCycle}
+                />
+              </FilterBlock>
+
+              <FilterBlock title="Facilities">
+                <FacilityPicker
+                  selected={facilities}
+                  onToggle={toggleFacility}
+                  size="sidebar"
+                />
+              </FilterBlock>
+            </div>
+          </aside>
+        </div>
+      )}
 
       {!isFull && <StallSearchFooter />}
     </div>

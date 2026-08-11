@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingUp } from "lucide-react";
-import StallSearch from "../../../components/common/Search/StallSearch";
+import StallSearch from "../../../components/common/search/StallSearch";
 
 export function Hero() {
   return (

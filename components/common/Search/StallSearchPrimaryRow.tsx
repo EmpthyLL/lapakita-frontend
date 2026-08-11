@@ -57,6 +57,7 @@ export function StallSearchPrimaryRow({
           options={BUSINESS_TYPE_OPTIONS}
           groupKey="group"
           placeholder="Business type"
+          mode="solid"
           className="lg:w-60"
         />
       ) : (
