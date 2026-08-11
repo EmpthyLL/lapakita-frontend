@@ -2,9 +2,12 @@
 
 import { RoleTab } from "@/components/common/RoleTab";
 import { TocList } from "@/components/common/TOCList";
+import {
+  RoleFilterProvider,
+  useRoleFilter,
+} from "@/components/providers/role_provider";
 import { Button } from "@/components/ui/button";
 import { COMPREHENSIVE_FAQS } from "@/lib/data/schema/public/get_faq";
-import { RoleFilterProvider, useRoleFilter } from "@/lib/role_provider";
 import { HelpCircle, MessageCircleQuestion } from "lucide-react";
 import Link from "next/link";
 import { FaqCategoryContent } from "./FaqCategoryContent";

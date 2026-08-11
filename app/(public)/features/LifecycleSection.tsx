@@ -1,41 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { cn } from "@/lib/utils";
 import {
   CheckCircle2,
   FileSignature,
-  KeyRound,
-  Percent,
-  ScanSearch,
+  Key,
+  ShieldAlert,
+  Vault,
 } from "lucide-react";
-import { SectionHeading } from "./SectionHeader";
+import { useState } from "react";
 import { FeatureCard } from "./FeatureCard";
-import { cn } from "@/lib/utils";
+import { SectionHeading } from "./SectionHeader";
 
 const LIFECYCLE_STEPS = [
   {
     label: "Active",
     description:
-      "Tenant is operating under a signed, price-locked digital contract.",
+      "Tenant operates under a signed, price-locked digital contract with automated billing schedules.",
   },
   {
     label: "Extend Pending",
     description:
-      "Tenant requests renewal; owner reviews terms without unilateral price changes.",
+      "Tenant requests a lease renewal; owner reviews terms without mid-lease price surges.",
   },
   {
     label: "Emptying",
-    description: "Tenant vacates the stall within the agreed notice period.",
+    description:
+      "Tenant vacates the stall and clears out all personal inventory within the agreed notice period.",
   },
   {
     label: "Inspection",
     description:
-      "Both parties submit photo evidence for a fair, dispute-proof deposit review.",
+      "Owner inspects physical conditions and submits photo evidence for damage or missing key deposit claims.",
   },
   {
-    label: "Available",
+    label: "Manual Relist",
     description:
-      "Stall is re-listed and ready for the next data-matched tenant.",
+      "Once cleaned and prepped, owner manually reactivates the listing to make it visible to new tenants again.",
   },
 ];
 
@@ -49,7 +50,7 @@ export function LifecycleSection() {
         <SectionHeading
           badge="2 · Legal & Operational Security"
           title="Transparent Rental Lifecycle & Protection Engine"
-          description="Replacing informal, risky verbal agreements with legally-binding digital contracts, photo-verified inspections, and automated escrow billing."
+          description="Replacing informal, risky verbal agreements with legally-binding digital contracts, escrow-held security deposits, and owner-controlled relisting."
           color="primary"
         />
 
@@ -118,26 +119,26 @@ export function LifecycleSection() {
         <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <FeatureCard
             icon={FileSignature}
-            title="Digital Contracts & Locked Terms"
-            description="Contracts signed digitally with explicit price freeze. Terms cannot be changed unilaterally by stall owners mid-lease."
+            title="Digital Contracts & Price Freeze"
+            description="Contracts signed digitally with explicit price freeze. Monthly rent and deposit terms cannot be changed unilaterally mid-lease."
             roles={["primary", "owner"]}
           />
           <FeatureCard
-            icon={KeyRound}
-            title="Request Key Protocol"
-            description="Photo-verified key handover protocol. Owners upload timestamped photos upon handover; the platform auto-verifies to protect tenant entry rights."
+            icon={ShieldAlert}
+            title="Red Overdue Badges"
+            description="Clear visual alerts show up only once a payment deadline passes — empowering owners to issue manual reminders or terminate leases."
             roles={["primary", "owner"]}
           />
           <FeatureCard
-            icon={Percent}
-            title="Gradual Late Payment System"
-            description="No sudden heavy fines. Grace periods with transparent, daily-capped late fees, preventing sudden evictions or locked stalls without notice."
-            roles={["primary"]}
+            icon={Vault}
+            title="Escrow Security Deposit"
+            description="Deposits sit safely in a neutral escrow gateway account during the lease — strictly used as a guarantee against property damage or key loss."
+            roles={["primary", "owner"]}
           />
           <FeatureCard
-            icon={ScanSearch}
-            title="Photo-Based Audit & Exit Inspections"
-            description="Move-out and security deposit refunds are strictly governed by photo evidence from both parties, preventing unfair deposit withholding."
+            icon={Key}
+            title="Flexible Key Management"
+            description="Keys are handed over directly. Lost keys or duplication requests are handled seamlessly with clear deposit deduction rules."
             roles={["primary", "owner"]}
           />
         </div>

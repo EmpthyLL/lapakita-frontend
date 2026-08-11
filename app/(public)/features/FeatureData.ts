@@ -1,37 +1,40 @@
 import { Role, VariantColor } from "@/types";
 import type { LucideIcon } from "lucide-react";
 import {
-  Building2,
-  ShoppingCart,
-  Users,
-  MapPin,
-  SlidersHorizontal,
-  Target,
-  Store,
-  Sparkles,
   Activity,
-  Calculator,
-  Compass,
-  LayoutDashboard,
-  CalendarClock,
-  UserCheck,
-  ClipboardCheck,
-  Lock,
   BadgeAlert,
-  Vault,
-  ScanSearch,
   Building,
-  Percent,
-  Handshake,
-  Megaphone,
-  Repeat,
-  Zap,
+  Building2,
+  Calculator,
+  CalendarClock,
+  CalendarDays,
+  ClipboardCheck,
   ClipboardList,
-  Truck,
-  Package,
+  Compass,
+  EyeOff,
   Gauge,
+  Handshake,
+  LayoutDashboard,
+  Lock,
+  MapPin,
+  Megaphone,
+  Package,
+  Percent,
   Radar,
+  Repeat,
+  ScanSearch,
+  ShieldCheck,
+  ShoppingCart,
+  SlidersHorizontal,
   Sparkle,
+  Sparkles,
+  Store,
+  Target,
+  Truck,
+  UserCheck,
+  Users,
+  Vault,
+  Zap,
 } from "lucide-react";
 
 export interface FeatureItem {
@@ -111,6 +114,12 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             description:
               "Input your capital, business preset, and target break-even period — e.g. 6 months — to surface stalls whose rent math fits your goals.",
           },
+          {
+            icon: CalendarDays,
+            title: "Lease Schedule & Timeline Filters",
+            description:
+              "Filter stalls by desired start dates (1st, 15th, End of Month, or 1-28), minimum lease periods, and payment cycles (Monthly, Quarterly, Semesterly, Yearly).",
+          },
         ],
       },
       {
@@ -182,6 +191,12 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             description:
               "Get a heads-up as a tenant's lease approaches its end date, so nothing lapses unnoticed.",
           },
+          {
+            icon: EyeOff,
+            title: "Manual Relisting Control",
+            description:
+              "No inaccurate 'available soon' status. Active stalls remain hidden until you personally inspect, clean, and manually republish them.",
+          },
         ],
       },
       {
@@ -204,6 +219,12 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             title: "Price-Locked Lease Terms",
             description:
               "Once you approve, rent and deposit are locked into the contract — no changing terms mid-lease.",
+          },
+          {
+            icon: ShieldCheck,
+            title: "Custom Lease Rules & Anti-Spam",
+            description:
+              "Set flexible start dates, minimum lease terms, and payment cycles. Serial ghosters are required to place a 35% refundable deposit commitment when applying.",
           },
         ],
       },

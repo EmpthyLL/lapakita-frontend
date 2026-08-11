@@ -1,6 +1,6 @@
 "use client";
 
-import { useRoleFilter } from "@/lib/role_provider";
+import { useRoleFilter } from "@/components/providers/role_provider";
 import { cn } from "@/lib/utils";
 import { VariantColor } from "@/types";
 import type { LucideIcon } from "lucide-react";

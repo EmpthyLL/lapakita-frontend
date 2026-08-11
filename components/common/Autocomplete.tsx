@@ -20,51 +20,11 @@ import { useAutocomplete } from "@/hooks/use-autocomplete";
 import { useAutocompleteVariant } from "@/hooks/use-autocomplete-variant";
 import { cn } from "@/lib/utils";
 import { VariantColor } from "@/types";
-import { Check, ChevronDown, Loader2, X, type LucideIcon } from "lucide-react";
-import Image from "next/image";
+import { Check, ChevronDown, Loader2, X } from "lucide-react";
 import * as React from "react";
+import { OptionIcon } from "./OptionIcon";
 
 type AutocompleteSize = "sm" | "md" | "lg";
-type IconValue = string | LucideIcon;
-
-function isLucideIcon(icon: unknown): icon is LucideIcon {
-  return (
-    typeof icon === "function" ||
-    (typeof icon === "object" && icon !== null && "render" in (icon as object))
-  );
-}
-
-function OptionIcon({
-  icon,
-  size,
-  alt,
-  className,
-}: {
-  icon: IconValue;
-  size: number;
-  alt: string;
-  className?: string;
-}) {
-  if (isLucideIcon(icon)) {
-    const Icon = icon;
-    return (
-      <Icon
-        className={cn("shrink-0 text-muted-foreground", className)}
-        style={{ width: size, height: size }}
-      />
-    );
-  }
-  return (
-    <Image
-      src={String(icon)}
-      width={size}
-      height={size}
-      className={cn("shrink-0 rounded-full object-cover", className)}
-      alt={alt}
-      unoptimized
-    />
-  );
-}
 
 const SIZE_STYLES: Record<
   AutocompleteSize,

@@ -19,7 +19,6 @@ export interface LegalDocument {
   intro: string;
   sections: LegalSection[];
 }
-
 export const LEGAL_DOCUMENTS: LegalDocument[] = [
   {
     slug: "terms",
@@ -51,19 +50,23 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
       {
         id: "leasing-contracts",
         number: "3",
-        title: "Stall Leasing, Contracts & Price-Lock",
+        title: "Stall Leasing, Contracts & Payment Timelines",
         subsections: [
           {
-            title: "Digital Lease Agreement",
-            body: "When a Tenant applies for a stall and the Owner approves, a digital lease contract is formed.",
+            title: "Digital Lease Agreement & Owner Configurations",
+            body: "Stall Owners configure specific lease rules for their listings, including Start Date options (1st, 15th, End of Month, or custom dates between 1-28), Minimum Lease Durations, and Payment Cycles (Monthly, Quarterly, Semesterly, Yearly). Tenants use search filters to find stalls matching their preferred timeline.",
           },
           {
-            title: "Price Freeze",
-            body: "Listed monthly rent and security deposits are locked upon contract creation and cannot be altered unilaterally during the active lease term.",
+            title: "Approval Lock & Payment Deadline",
+            body: "Upon Owner approval, the stall is temporarily locked and removed from public search. The Tenant must complete the initial rent and security deposit payment via the Payment Gateway on or before the selected Start Date.",
           },
           {
-            title: "Overdue & Grace Period",
-            body: "Rent payments are due on specified billing dates. Overdue statuses are displayed on dashboards as visual alerts. Owners retain the sole discretion to grant grace periods, terminate leases, or initiate manual tenant evictions for non-payment.",
+            title: "Ghosting Penalty & Contract Cancellation",
+            body: "If a Tenant fails to complete payment by the Start Date deadline, the Owner holds the right to immediately cancel the contract and issue a 1-star public review for breach of commitment.",
+          },
+          {
+            title: "Refundable Anti-Spam Commitment Fee",
+            body: "To protect Owners from application spam, Tenants with two (2) or more unpaid or cancelled approved applications within a 30-day window are flagged. Flagged Tenants are required to submit a temporary 35% commitment deposit when applying. This deposit is 100% REFUNDABLE and non-punitive: if the lease becomes active, 100% of the deposit is applied directly toward the Tenant's initial rent and security deposit balance. If the application is cancelled or fails to proceed before the Start Date, the commitment deposit is fully refunded back to the Tenant's account. Account flag status and public star ratings remain the primary disciplinary measures for non-completion.",
           },
         ],
       },
@@ -118,8 +121,27 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
         ],
       },
       {
-        id: "cleanliness-eviction",
+        id: "utilities-electricity",
         number: "6",
+        title: "Utilities, Electricity & Operational Expenses",
+        subsections: [
+          {
+            title: "Owner Provision",
+            body: "Stall Owners are responsible for providing basic operational utility infrastructure, including electrical power capacity (kVA), water meters, or plumbing connections as advertised in the listing.",
+          },
+          {
+            title: "Tenant Usage & Billing Responsibility",
+            body: "Ongoing consumption of electricity, water, internet, trash disposal, or local market maintenance fees during the active lease term is the sole responsibility of the Tenant. Tenants must top up prepaid electricity tokens (PLN) or pay monthly utility bills directly.",
+          },
+          {
+            title: "Utility Arrears Upon Exit",
+            body: "If a Tenant vacates a stall with unpaid post-paid utility bills or unpaid local maintenance fees, the Owner is entitled to deduct the exact outstanding arrears amount from the Tenant's escrow security deposit upon exit.",
+          },
+        ],
+      },
+      {
+        id: "cleanliness-eviction",
+        number: "7",
         title: "Stall Cleanliness, Abandoned Items & Evictions",
         subsections: [
           {
@@ -127,18 +149,18 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
             body: "Tenants are fully responsible for removing all personal items and inventory upon exit. Owners are responsible for presenting a clean space to incoming tenants.",
           },
           {
-            title: "Abandoned Goods",
-            body: "Items left behind by an evicted or departed tenant after lease termination may be disposed of, kept, or cleared by the Stall Owner at their sole discretion. Lapakita bears no liability for abandoned property.",
+            title: "Manual Listing Reactivation",
+            body: "Active or pending stalls are automatically hidden from the marketplace. Upon a tenant's exit or contract cancellation, the stall does NOT automatically reappear. It is the Owner's sole responsibility to manually reactivate/publish the listing once the physical space is clean and ready for new viewings.",
           },
           {
-            title: "Rating Penalties",
-            body: "Leaving a stall severely damaged or filthy, or misrepresenting property conditions, will result in direct negative user reviews and low star ratings on the offender's profile.",
+            title: "Abandoned Goods",
+            body: "Items left behind by an evicted or departed tenant after lease termination may be disposed of, kept, or cleared by the Stall Owner at their sole discretion. Lapakita bears no liability for abandoned property.",
           },
         ],
       },
       {
         id: "supplier-disputes",
-        number: "7",
+        number: "8",
         title: "Supplier Marketplace & B2B Disputes",
         subsections: [
           {
@@ -153,7 +175,7 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
       },
       {
         id: "payouts",
-        number: "8",
+        number: "9",
         title: "Payouts & Bank Account Requirements",
         subsections: [
           {

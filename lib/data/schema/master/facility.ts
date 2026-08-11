@@ -1,18 +1,16 @@
-import type { LucideIcon } from "lucide-react";
+import { IconValue } from "@/components/common/OptionIcon";
 import {
-  Zap,
-  Droplets,
-  Waves,
-  Flame,
-  Wind,
   Armchair,
   Car,
-  ToiletIcon,
+  Droplets,
+  Flame,
   ShieldCheck,
+  ToiletIcon,
   Warehouse,
+  Waves,
+  Wind,
+  Zap,
 } from "lucide-react";
-
-
 
 /* ---------------------------------------------------------------------- */
 /* 3. Facilities                                                           */
@@ -21,7 +19,7 @@ import {
 export interface Facility {
   value: string;
   label: string;
-  icon: LucideIcon;
+  icon: IconValue;
 }
 
 export const FACILITIES: Facility[] = [
@@ -36,4 +34,3 @@ export const FACILITIES: Facility[] = [
   { value: "security", label: "24/7 Security & CCTV", icon: ShieldCheck },
   { value: "storage", label: "Storage / Stock Room", icon: Warehouse },
 ];
-

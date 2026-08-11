@@ -8,44 +8,46 @@ interface ComparisonRow {
 
 const ROWS: ComparisonRow[] = [
   {
-    criteria: "Location Decision",
-    traditional: "Pure speculation / informal advice",
-    lapakita: "Data-backed comparison & simulation",
+    criteria: "Location Discovery",
+    traditional: "Pure speculation, street hunting & informal advice",
+    lapakita: "Landmark, radius & budget/target ROI matching",
   },
   {
-    criteria: "Lease Agreement",
-    traditional: "Loose paper / verbal agreement",
-    lapakita: "Price-locked digital contracts",
+    criteria: "Lease Contract Terms",
+    traditional: "Loose paper agreements & unannounced price surges",
+    lapakita: "Price-locked digital contracts with custom start dates",
   },
   {
-    criteria: "Deposit Handling",
-    traditional: "Held directly by owner (risk of dispute)",
-    lapakita: "Safe escrow payment gateway hold",
+    criteria: "Security Deposit Handling",
+    traditional: "Held directly by owner (high risk of dispute)",
+    lapakita: "Safely stored in a neutral payment gateway escrow account",
   },
   {
-    criteria: "Key Exchange",
-    traditional: "Unverified manual handoff",
-    lapakita: "Photo-verified Request Key Protocol",
+    criteria: "Key Exchange & Lock Access",
+    traditional: "Unregulated handoffs & unclear lost key rules",
+    lapakita: "Direct handoff with deposit-backed key loss protection",
   },
   {
     criteria: "Overdue Management",
-    traditional: "Sudden lockouts / exploitative daily fees",
-    lapakita: "Clear visual alerts & manual owner control",
+    traditional: "Arbitrary daily fines & sudden lockouts without notice",
+    lapakita: "Red overdue badges & manual owner discretion",
   },
   {
     criteria: "Business Operations",
-    traditional: "Separate manual ledgers / third-party apps",
-    lapakita: "Integrated POS, inventory & staff management",
+    traditional: "Manual ledgers or separate third-party POS apps",
+    lapakita: "Integrated POS, multi-timeline forecast & cashier access",
   },
   {
     criteria: "Raw Material Sourcing",
-    traditional: "Unconnected, manual supplier search",
-    lapakita: "In-dashboard B2B supplier matchmaking",
+    traditional: "Unconnected, manual supplier hunting",
+    lapakita: "In-dashboard B2B supplier matchmaking & 1-click reorders",
   },
   {
-    criteria: "Overdue / Exit Cleanup",
-    traditional: "Unregulated responsibility",
-    lapakita: "Community rating penalties & deposit-backed damage claims",
+    criteria: "Move-Out & Relisting",
+    traditional:
+      "Automatic or premature relisting regardless of space condition",
+    lapakita:
+      "Photo-backed escrow claims, review ratings & manual owner relisting",
   },
 ];
 

@@ -1,4 +1,4 @@
-import { RoleFilterProvider } from "@/lib/role_provider";
+import { RoleFilterProvider } from "@/components/providers/role_provider";
 import { Suspense } from "react";
 import { ComparisonSection } from "./ComparisonSection";
 import { FeaturesContent } from "./FeatureContent";

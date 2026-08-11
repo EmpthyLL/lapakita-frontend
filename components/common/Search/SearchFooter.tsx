@@ -7,7 +7,7 @@ export function StallSearchFooter() {
     <div className="mt-6 flex flex-col items-center justify-center gap-4">
       {/* Primary CTA Link for ROI/Budget Search */}
       <Link
-        href="/stalls?mode=budget-match"
+        href="/stalls"
         className="group inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-semibold text-primary transition-all hover:border-primary/40 hover:bg-primary/10 hover:shadow-xs"
       >
         <Sparkles className="h-4 w-4 shrink-0 text-primary animate-pulse" />
