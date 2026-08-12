@@ -35,16 +35,17 @@ export function FacilityPicker({
             type="button"
             onClick={() => onToggle(facility.value)}
             className={cn(
-              "group relative flex flex-col items-center gap-2 overflow-hidden rounded-2xl border text-center transition-all",
+              "group relative flex flex-col items-center gap-2 overflow-hidden rounded-2xl border text-center transition-all outline-none",
               isPhoto ? "p-0" : "p-4",
               active
-                ? "border-primary bg-primary-secondary shadow-sm"
-                : "border-border bg-card hover:border-primary/40 hover:bg-secondary/50",
+                ? "border-primary bg-primary-secondary/40 ring-1 ring-primary shadow-xs"
+                : "border-border bg-card hover:border-primary/40 hover:bg-muted/50",
             )}
           >
+            {/* Check Badge Icon */}
             {active && (
-              <span className="absolute right-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white">
-                <Check className="h-3 w-3" />
+              <span className="absolute right-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs">
+                <Check className="h-3 w-3 stroke-[2.5]" />
               </span>
             )}
 
@@ -64,14 +65,14 @@ export function FacilityPicker({
                     className={cn(
                       "absolute inset-0 transition-colors",
                       active
-                        ? "bg-primary/20"
+                        ? "bg-primary/15"
                         : "bg-black/0 group-hover:bg-black/10",
                     )}
                   />
                 </div>
                 <span
                   className={cn(
-                    "pb-3 text-xs font-medium leading-tight",
+                    "pb-3 text-xs font-semibold leading-tight transition-colors",
                     active ? "text-primary" : "text-foreground",
                   )}
                 >
@@ -80,23 +81,25 @@ export function FacilityPicker({
               </>
             ) : (
               <>
+                {/* Non-Photo Icon Container */}
                 <span
                   className={cn(
-                    "flex h-14 w-14 items-center justify-center rounded-xl transition-colors",
+                    "flex h-12 w-12 items-center justify-center rounded-xl transition-colors",
                     active
-                      ? "bg-primary text-white"
-                      : "bg-secondary text-muted-foreground group-hover:text-primary",
+                      ? "bg-primary/20 text-primary-foreground"
+                      : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
                   )}
                 >
                   <OptionIcon
                     icon={facility.icon}
-                    size={28}
+                    size={24}
                     alt={facility.label}
+                    className={active ? "text-primary" : ""}
                   />
                 </span>
                 <span
                   className={cn(
-                    "text-xs font-medium leading-tight",
+                    "text-xs font-semibold leading-tight transition-colors",
                     active ? "text-primary" : "text-foreground",
                   )}
                 >
