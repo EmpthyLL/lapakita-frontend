@@ -97,14 +97,12 @@ export function DatePicker({
       </div>
       <PopoverContent align="start" className="w-auto p-0">
         <Calendar
-          initialFocus
+          autoFocus
           mode="single"
           captionLayout="dropdown"
-          fromYear={resolvedMin.getFullYear()}
-          toYear={resolvedMax.getFullYear()}
-          fromDate={resolvedMin}
+          startMonth={resolvedMin}
+          endMonth={resolvedMax}
           defaultMonth={parsedValue ?? resolvedMax}
-          toDate={resolvedMax}
           selected={parsedValue}
           onSelect={(val) => {
             setIsOpen(false);

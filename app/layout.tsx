@@ -1,4 +1,4 @@
-import { ThemeProvider } from "@/components/providers/theme_provider";
+import { Providers } from "@/components/providers/provider";
 import "@/style/globals.css";
 import type { Metadata } from "next";
 
@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="flex min-h-screen flex-col antialiased">
-        <ThemeProvider>{children}</ThemeProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
