@@ -50,6 +50,7 @@ import {
   Calendar as CalendarIcon,
   Inbox,
   ListFilter,
+  Loader2,
   LucideIcon,
   Plus,
   SlidersHorizontal,
@@ -680,19 +681,46 @@ export function DisplayTable<TData, TParams extends BasePaginationQuery>({
       {/* Footer: load-more or pagination */}
       {isPagination ? (
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-          <span className="text-muted-foreground">
-            {paginated.meta
-              ? `Showing ${rows.length} of ${paginated.meta.totalItems} rows`
-              : `Showing ${rows.length} rows`}
-          </span>
+          {/* Status Indicator & Row Count Badge */}
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2.5 w-2.5 items-center justify-center">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/40 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+            </span>
 
+            <span className="text-muted-foreground font-medium">
+              Showing{" "}
+              <span className="font-semibold text-foreground">
+                {rows.length}
+              </span>
+              {paginated.meta && (
+                <>
+                  {" "}
+                  of{" "}
+                  <span className="font-semibold text-foreground">
+                    {paginated.meta.totalItems}
+                  </span>
+                </>
+              )}{" "}
+              rows
+            </span>
+
+            {isRefetching && (
+              <span className="bg-primary/10 text-primary flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium animate-in fade-in zoom-in-95">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Updating...
+              </span>
+            )}
+          </div>
+
+          {/* Pagination Component */}
           {paginated.meta && paginated.meta.totalPages > 1 && (
             <Pagination className="mx-0 w-auto">
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
                     className={cn(
-                      "rounded-full",
+                      "rounded-full transition-transform active:scale-95",
                       !paginated.meta.hasPrevPage &&
                         "pointer-events-none opacity-40",
                     )}
@@ -712,7 +740,7 @@ export function DisplayTable<TData, TParams extends BasePaginationQuery>({
                 <PaginationItem>
                   <PaginationNext
                     className={cn(
-                      "rounded-full",
+                      "rounded-full transition-transform active:scale-95",
                       !paginated.meta.hasNextPage &&
                         "pointer-events-none opacity-40",
                     )}
@@ -727,17 +755,40 @@ export function DisplayTable<TData, TParams extends BasePaginationQuery>({
           )}
         </div>
       ) : (
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>Showing {rows.length} rows</span>
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+          {/* Status Indicator & Row Count Badge (Infinite Scroll Mode) */}
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2.5 w-2.5 items-center justify-center">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/40 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+            </span>
+
+            <span className="text-muted-foreground font-medium">
+              Showing{" "}
+              <span className="font-semibold text-foreground">
+                {rows.length}
+              </span>{" "}
+              rows
+            </span>
+          </div>
+
+          {/* Load More Button dengan Spinner halus */}
           {infinite.hasNextPage && (
             <Button
               variant="outline"
               size="sm"
               disabled={infinite.isFetchingNextPage}
               onClick={() => infinite.fetchNextPage()}
-              className="rounded-full border-primary/30 text-primary hover:bg-primary/5 hover:text-primary"
+              className="border-primary/30 text-primary hover:bg-primary/10 hover:text-primary rounded-full px-4 font-semibold shadow-xs transition-all active:scale-95"
             >
-              {infinite.isFetchingNextPage ? "Loading..." : "Load more"}
+              {infinite.isFetchingNextPage ? (
+                <>
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                "Load more"
+              )}
             </Button>
           )}
         </div>
