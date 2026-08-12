@@ -1,4 +1,4 @@
-import { IconValue } from "@/components/common/OptionIcon";
+import { IconValue } from "@/components/common/input/OptionIcon";
 import {
   Armchair,
   Car,

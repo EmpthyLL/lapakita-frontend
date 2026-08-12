@@ -3,7 +3,7 @@
 import { FACILITIES } from "@/lib/data/schema/master/facility";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
-import { isLucideIcon, OptionIcon } from "../OptionIcon";
+import { isLucideIcon, OptionIcon } from "../input/OptionIcon";
 
 interface FacilityPickerProps {
   selected: string[];

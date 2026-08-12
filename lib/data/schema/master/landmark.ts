@@ -1,12 +1,12 @@
 import type { LucideIcon } from "lucide-react";
 import {
-  GraduationCap,
-  School,
   Building2,
-  ShoppingBag,
-  Home,
-  TrainFront,
+  GraduationCap,
   HeartPulse,
+  Home,
+  School,
+  ShoppingBag,
+  TrainFront,
 } from "lucide-react";
 
 /* ---------------------------------------------------------------------- */
@@ -26,5 +26,9 @@ export const LANDMARK_CATEGORIES: LandmarkCategory[] = [
   { value: "market", label: "Market & Shopping Area", icon: ShoppingBag },
   { value: "residential", label: "Residential & Housing Complex", icon: Home },
   { value: "transit", label: "Transit & Station Area", icon: TrainFront },
-  { value: "healthcare", label: "Hospital & Healthcare Area", icon: HeartPulse },
+  {
+    value: "healthcare",
+    label: "Hospital & Healthcare Area",
+    icon: HeartPulse,
+  },
 ];

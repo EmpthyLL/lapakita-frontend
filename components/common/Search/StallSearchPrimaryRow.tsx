@@ -5,7 +5,7 @@ import { BUSINESS_CATEGORIES } from "@/lib/data/schema/master/business_type";
 import { LANDMARK_CATEGORIES } from "@/lib/data/schema/master/landmark";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
-import { Autocomplete } from "../Autocomplete";
+import { Autocomplete } from "../input/Autocomplete";
 import { LocationAutocomplete } from "./LocationAutocomplete";
 
 // Flatten grouped business categories into a single option list with a `group` field,

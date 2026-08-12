@@ -1,21 +1,21 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import {
-  MapPin,
-  Loader2,
-  Building,
-  Map as MapIcon,
-  MapPinned,
-} from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { useDebounce } from "@/hooks/use-bounce";
 import {
   LocationSuggestion,
   searchLocations,
 } from "@/lib/data/schema/master/location";
-import { useDebounce } from "@/hooks/use-bounce";
+import { cn } from "@/lib/utils";
+import {
+  Building,
+  Loader2,
+  Map as MapIcon,
+  MapPin,
+  MapPinned,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 const TYPE_ICON = {
   street: MapPinned,
@@ -43,25 +43,36 @@ export function LocationAutocomplete({
 }: LocationAutocompleteProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [fetchingMore, setFetchingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(1);
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
   const [activeIndex, setActiveIndex] = useState(-1);
+
   const containerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const debouncedValue = useDebounce(value, 300);
 
+  // Initial Fetch saat query pencarian berubah
   useEffect(() => {
     let cancelled = false;
 
     if (!debouncedValue.trim()) {
       setSuggestions([]);
       setLoading(false);
+      setHasMore(false);
+      setPage(1);
       return;
     }
 
     setLoading(true);
-    searchLocations(debouncedValue).then((results) => {
+    setPage(1);
+
+    searchLocations(debouncedValue, 1).then((res) => {
       if (!cancelled) {
-        setSuggestions(results);
+        setSuggestions(res.results);
+        setHasMore(res.hasMore);
         setLoading(false);
       }
     });
@@ -70,6 +81,33 @@ export function LocationAutocomplete({
       cancelled = true;
     };
   }, [debouncedValue]);
+
+  // Handle Fetch More (Page lanjutan)
+  async function loadMore() {
+    if (fetchingMore || !hasMore) return;
+
+    setFetchingMore(true);
+    const nextPage = page + 1;
+
+    try {
+      const res = await searchLocations(debouncedValue, nextPage);
+      setSuggestions((prev) => [...prev, ...res.results]);
+      setHasMore(res.hasMore);
+      setPage(nextPage);
+    } finally {
+      setFetchingMore(false);
+    }
+  }
+
+  // Listener Scroll untuk Otomatis Infinite Scroll
+  function handleScroll(e: React.UIEvent<HTMLDivElement>) {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+
+    // Jika scroll sudah mendekati dasar (sisa <= 20px)
+    if (scrollHeight - scrollTop - clientHeight <= 20) {
+      loadMore();
+    }
+  }
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -140,12 +178,16 @@ export function LocationAutocomplete({
       )}
 
       {open && suggestions.length > 0 && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-72 overflow-y-auto rounded-xl border border-border bg-card p-1.5 shadow-lg">
+        <div
+          ref={dropdownRef}
+          onScroll={handleScroll}
+          className="absolute left-0 right-0 top-full z-50 mt-2 max-h-72 overflow-y-auto rounded-xl border border-border bg-card p-1.5 shadow-lg"
+        >
           {suggestions.map((s, i) => {
             const Icon = TYPE_ICON[s.type];
             return (
               <button
-                key={s.id}
+                key={`${s.id}-${i}`}
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => selectSuggestion(s)}
@@ -168,6 +210,13 @@ export function LocationAutocomplete({
               </button>
             );
           })}
+
+          {/* Indicator Loading halus di bagian paling bawah saat fetching page berikutnya */}
+          {fetchingMore && (
+            <div className="flex items-center justify-center p-2 text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+            </div>
+          )}
         </div>
       )}
     </div>

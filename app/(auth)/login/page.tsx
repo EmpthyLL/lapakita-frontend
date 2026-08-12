@@ -1,14 +1,14 @@
 "use client";
 
-import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LogIn } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { LogIn } from "lucide-react";
+import { Controller, useForm } from "react-hook-form";
 
+import { PasswordInput } from "@/components/common/input/PasswordInput";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
@@ -16,9 +16,9 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { AuthShell } from "../AuthShell";
-import { PasswordInput } from "@/components/ui/password-input";
+import { Input } from "@/components/ui/input";
 import { loginSchema, LoginValues } from "@/lib/data/schema/auth/login";
+import { AuthShell } from "../AuthShell";
 
 export default function LoginPage() {
   const router = useRouter();

@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import { ThemeProvider } from "@/components/providers/theme_provider";
 import "@/style/globals.css";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Lapakita — Find Stalls, Run Your POS, Scale Your Business",
@@ -14,7 +15,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="flex min-h-screen flex-col antialiased">{children}</body>
+      <body className="flex min-h-screen flex-col antialiased">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

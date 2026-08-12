@@ -1,5 +1,7 @@
 "use client";
 
+import { BUSINESS_PRESETS } from "@/lib/data/schema/analysis/business_preset";
+import { BUSINESS_CATEGORIES } from "@/lib/data/schema/master/business_type";
 import { cn } from "@/lib/utils";
 import { ReactNode, useState } from "react";
 import { FacilityPicker } from "./FacilityPicker";
@@ -10,7 +12,8 @@ import {
 } from "./LandmarkRadiusPicker";
 import { LeaseTermsPicker } from "./LeaseTermsPicker";
 import {
-  BEP_PRESETS_MONTHS,
+  DEFAULT_ASSUMED_CAPITAL,
+  DEFAULT_BEP_MONTHS,
   DEPOSIT_RANGE,
   PaymentCycle,
   RADIUS_PRESETS,
@@ -20,13 +23,12 @@ import { StallSearchFooter } from "./SearchFooter";
 import { StallSearchBudgetFilters } from "./StallSearchBudgetFilters";
 import { StallSearchPrimaryRow } from "./StallSearchPrimaryRow";
 
+const BUSINESS_TYPE_LABELS: Record<string, string> = Object.fromEntries(
+  BUSINESS_CATEGORIES.flatMap((g) => g.types.map((t) => [t.value, t.label])),
+);
+
 export interface StallSearchProps {
   mode?: "hero" | "full";
-  /**
-   * Full mode only: rendered in the left column, below the search bar —
-   * this is where the caller puts the stall listing / results grid.
-   * If omitted, a placeholder hint is shown instead.
-   */
   children?: ReactNode;
 }
 
@@ -47,6 +49,10 @@ function FilterBlock({
   );
 }
 
+function isUntouchedLandmarkEntries(entries: LandmarkRadiusEntry[]) {
+  return entries.length === 1 && !entries[0].landmark;
+}
+
 export default function StallSearch({
   mode = "full",
   children,
@@ -62,8 +68,11 @@ export default function StallSearch({
   );
   const [businessType, setBusinessType] = useState("");
   const [facilities, setFacilities] = useState<string[]>([]);
-  const [bepMonths, setBepMonths] = useState<number>(BEP_PRESETS_MONTHS[1]);
-  const [capital, setCapital] = useState<number | null>(null);
+  const [bepMonths, setBepMonths] = useState<string>(
+    String(DEFAULT_BEP_MONTHS),
+  );
+  const [customBepMonths, setCustomBepMonths] = useState<number | null>(null);
+  const [capital, setCapital] = useState<number>(DEFAULT_ASSUMED_CAPITAL);
   const [rentRange, setRentRange] = useState<[number, number]>([
     RENT_RANGE.min,
     RENT_RANGE.max,
@@ -85,6 +94,37 @@ export default function StallSearch({
     );
   }
 
+  // Business type is the entry point for the ROI recommendation: picking one
+  // fills in BEP, capital, rent/deposit range, facilities & landmarks based
+  // on what typically works for that kind of business. Everything stays editable.
+  function handleBusinessTypeChange(value: string) {
+    setBusinessType(value);
+
+    const preset = BUSINESS_PRESETS[value];
+    if (!preset) return; // cleared / unknown value — leave current numbers as-is
+
+    setBepMonths(String(preset.bepMonths));
+    setCustomBepMonths(null);
+    setCapital(preset.capital);
+    setRentRange(preset.rentRange);
+    setDepositRange(preset.depositRange);
+
+    // Merge, don't replace — keep whatever the user already checked
+    setFacilities((prev) =>
+      Array.from(new Set([...prev, ...preset.facilities])),
+    );
+
+    // Only auto-fill landmarks if the user hasn't started customizing that section yet
+    setLandmarkEntries((prev) =>
+      isUntouchedLandmarkEntries(prev)
+        ? preset.landmarks.map((landmark) => ({
+            ...createLandmarkRadiusEntry(),
+            landmark,
+          }))
+        : prev,
+    );
+  }
+
   function handleSearch() {
     if (isFull) {
       console.log({
@@ -92,7 +132,7 @@ export default function StallSearch({
         landmarkEntries,
         businessType,
         facilities,
-        bepMonths,
+        bepMonths: bepMonths === "custom" ? customBepMonths : Number(bepMonths),
         capital,
         rentRange,
         depositRange,
@@ -109,7 +149,6 @@ export default function StallSearch({
 
   return (
     <div className="w-full">
-      {/* Top: search bar, full width */}
       <div
         className={cn(
           "rounded-2xl border border-border bg-card shadow-sm",
@@ -121,7 +160,7 @@ export default function StallSearch({
           location={location}
           onLocationChange={setLocation}
           businessType={businessType}
-          onBusinessTypeChange={setBusinessType}
+          onBusinessTypeChange={handleBusinessTypeChange}
           singleLandmark={singleLandmark}
           onSingleLandmarkChange={setSingleLandmark}
           onSearch={handleSearch}
@@ -153,7 +192,6 @@ export default function StallSearch({
         )}
       </div>
 
-      {/* Below: left = listing/results, right = filters sidebar */}
       {isFull && (
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2">
@@ -173,10 +211,13 @@ export default function StallSearch({
                 />
               </FilterBlock>
 
-              <FilterBlock title="Budget & Financial">
+              <FilterBlock title="Budget & ROI">
                 <StallSearchBudgetFilters
+                  businessTypeLabel={BUSINESS_TYPE_LABELS[businessType] ?? null}
                   bepMonths={bepMonths}
                   onBepMonthsChange={setBepMonths}
+                  customBepMonths={customBepMonths}
+                  onCustomBepMonthsChange={setCustomBepMonths}
                   capital={capital}
                   onCapitalChange={setCapital}
                   rentRange={rentRange}
@@ -186,7 +227,7 @@ export default function StallSearch({
                 />
               </FilterBlock>
 
-              <FilterBlock title="Availability & Lease Terms">
+              <FilterBlock title="Move-in & Payment Terms">
                 <LeaseTermsPicker
                   startDate={startDate}
                   onStartDateChange={setStartDate}

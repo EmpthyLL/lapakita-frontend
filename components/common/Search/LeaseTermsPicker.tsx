@@ -1,7 +1,7 @@
 "use client";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Autocomplete } from "../Autocomplete";
+import { Autocomplete } from "../input/Autocomplete";
 import {
   DAY_OF_MONTH_OPTIONS,
   LEASE_MONTHS_OPTIONS,

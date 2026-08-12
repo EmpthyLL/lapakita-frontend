@@ -21,6 +21,8 @@ export const basePaginationQuerySchema = z.object({
   page: z.number().optional(),
 });
 
+export type BasePaginationQuery = z.infer<typeof basePaginationQuerySchema>;
+
 export type ResponseData<T> = {
   statusCode: number;
   status: string;

@@ -1,9 +1,9 @@
 "use client";
 
-import { NumberInput } from "@/components/ui/number-input";
 import { Slider } from "@/components/ui/slider";
-import { Target } from "lucide-react";
-import { Autocomplete } from "../Autocomplete";
+import { Sparkles, Target } from "lucide-react";
+import { Autocomplete } from "../input/Autocomplete";
+import { NumberInput } from "../input/NumberInput";
 import {
   BEP_PRESETS_MONTHS,
   DEPOSIT_RANGE,
@@ -11,23 +11,29 @@ import {
   RENT_RANGE,
 } from "./SearchConstants";
 
-const BEP_OPTIONS = BEP_PRESETS_MONTHS.map((m) => ({
-  value: String(m),
-  label: `${m} months`,
-}));
+const BEP_OPTIONS = [
+  ...BEP_PRESETS_MONTHS.map((m) => ({
+    value: String(m),
+    label: `${m} months`,
+  })),
+  { value: "custom", label: "Custom" },
+];
 
 interface StallSearchBudgetFiltersProps {
-  bepMonths: number;
-  onBepMonthsChange: (value: number) => void;
-  capital: number | null;
-  onCapitalChange: (value: number | null) => void;
+  /** null when no business type is selected — shows "General assumption" instead */
+  businessTypeLabel: string | null;
+  bepMonths: string;
+  onBepMonthsChange: (value: string) => void;
+  customBepMonths: number | null;
+  onCustomBepMonthsChange: (value: number | null) => void;
+  capital: number;
+  onCapitalChange: (value: number) => void;
   rentRange: [number, number];
   onRentRangeChange: (value: [number, number]) => void;
   depositRange: [number, number];
   onDepositRangeChange: (value: [number, number]) => void;
 }
 
-// Dipakai buat rent & deposit — sama pattern, sama validasi min ≤ max
 function MinMaxInput({
   label,
   min,
@@ -70,7 +76,6 @@ function MinMaxInput({
       <div className="flex items-center gap-2">
         <NumberInput
           prefix="Rp "
-          noSeparated={false}
           decimalScale={0}
           placeholder="Min"
           value={value[0]}
@@ -80,7 +85,6 @@ function MinMaxInput({
         <span className="text-muted-foreground">–</span>
         <NumberInput
           prefix="Rp "
-          noSeparated={false}
           decimalScale={0}
           placeholder="Max"
           value={value[1]}
@@ -93,8 +97,11 @@ function MinMaxInput({
 }
 
 export function StallSearchBudgetFilters({
+  businessTypeLabel,
   bepMonths,
   onBepMonthsChange,
+  customBepMonths,
+  onCustomBepMonthsChange,
   capital,
   onCapitalChange,
   rentRange,
@@ -104,6 +111,28 @@ export function StallSearchBudgetFilters({
 }: StallSearchBudgetFiltersProps) {
   return (
     <div className="space-y-5">
+      {/* Context banner — tells the user where these numbers come from */}
+      <div
+        className={
+          businessTypeLabel
+            ? "flex items-start gap-2 rounded-lg bg-primary/10 px-3 py-2 text-[11px] font-medium text-primary"
+            : "flex items-start gap-2 rounded-lg bg-secondary/50 px-3 py-2 text-[11px] text-muted-foreground"
+        }
+      >
+        <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+        {businessTypeLabel ? (
+          <span>
+            Recommendations tailored for {businessTypeLabel} — adjust anything
+            below.
+          </span>
+        ) : (
+          <span>
+            Showing general assumptions. Pick a business type above for tailored
+            numbers.
+          </span>
+        )}
+      </div>
+
       {/* BEP ditonjolkan karena fitur paling penting */}
       <div className="rounded-2xl border-2 border-primary/30 bg-linear-to-br from-primary/10 via-primary/5 to-transparent p-3">
         <div className="mb-2 flex items-center gap-2">
@@ -120,13 +149,24 @@ export function StallSearchBudgetFilters({
           </div>
         </div>
         <Autocomplete
-          value={String(bepMonths)}
-          onSelect={(v) => onBepMonthsChange(Number(v))}
+          value={bepMonths}
+          onSelect={(v) => onBepMonthsChange(String(v))}
           options={BEP_OPTIONS}
           placeholder="Pick a target BEP"
           mode="solid"
           className="mt-2"
         />
+
+        {bepMonths === "custom" && (
+          <NumberInput
+            suffix=" months"
+            decimalScale={0}
+            placeholder="e.g. 9 months"
+            value={customBepMonths ?? ""}
+            onValueChange={(v) => onCustomBepMonthsChange(v.floatValue ?? null)}
+            className="mt-2 h-9 py-2 text-sm"
+          />
+        )}
       </div>
 
       <div>
@@ -137,8 +177,8 @@ export function StallSearchBudgetFilters({
           prefix="Rp "
           decimalScale={0}
           placeholder="e.g. Rp 15,000,000"
-          value={capital ?? ""}
-          onValueChange={(v) => onCapitalChange(v.floatValue ?? null)}
+          value={capital}
+          onValueChange={(v) => onCapitalChange(v.floatValue ?? 0)}
           className="h-10"
         />
       </div>

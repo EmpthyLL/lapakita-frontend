@@ -3,8 +3,11 @@ import { LucideIcon, MapPin, SlidersHorizontal, Target } from "lucide-react";
 export const BEP_PRESETS_MONTHS = [3, 6, 12, 18, 24];
 
 export const RENT_RANGE = { min: 500_000, max: 20_000_000, step: 100_000 };
-// deposit minimum sekarang 500rb, bukan 0
 export const DEPOSIT_RANGE = { min: 500_000, max: 10_000_000, step: 100_000 };
+
+// General assumptions — dipakai selama business type belum dipilih
+export const DEFAULT_ASSUMED_CAPITAL = 20_000_000;
+export const DEFAULT_BEP_MONTHS = BEP_PRESETS_MONTHS[1]; // 6 months
 
 export const RADIUS_PRESETS = ["1 km", "3 km", "5 km", "10 km"];
 export const RADIUS_RANGE = { min: 0.5, max: 50, step: 0.5 };
@@ -54,7 +57,7 @@ export const START_DATE_PRESETS: StartDateOption[] = [
 export interface LeasePeriodOption {
   value: string;
   label: string;
-  months: number | null; // null = custom
+  months: number | null;
 }
 
 export const MIN_LEASE_PERIOD_PRESETS: LeasePeriodOption[] = [
@@ -79,7 +82,6 @@ export const PAYMENT_CYCLE_OPTIONS: PaymentCycleOption[] = [
   { value: "yearly", label: "Yearly" },
 ];
 
-// English labels, dipakai lewat Autocomplete
 export const DAY_OF_MONTH_OPTIONS: { value: string; label: string }[] =
   Array.from({ length: 28 }, (_, i) => {
     const day = i + 1;

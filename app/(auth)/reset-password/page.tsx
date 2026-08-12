@@ -1,11 +1,12 @@
 "use client";
 
-import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ShieldCheck } from "lucide-react";
+import { Controller, useForm } from "react-hook-form";
 
+import { PasswordInput } from "@/components/common/input/PasswordInput";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -14,12 +15,11 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { AuthShell } from "../AuthShell";
-import { PasswordInput } from "@/components/ui/password-input";
 import {
   resetSchema,
   ResetValues,
 } from "@/lib/data/schema/auth/reset_password";
+import { AuthShell } from "../AuthShell";
 
 export default function ResetPasswordPage() {
   const router = useRouter();

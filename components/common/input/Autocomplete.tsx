@@ -2,7 +2,6 @@
 /* eslint-disable react-hooks/refs */
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -17,9 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useAutocomplete } from "@/hooks/use-autocomplete";
-import { useAutocompleteVariant } from "@/hooks/use-autocomplete-variant";
 import { cn } from "@/lib/utils";
-import { VariantColor } from "@/types";
 import { Check, ChevronDown, Loader2, X } from "lucide-react";
 import * as React from "react";
 import { OptionIcon } from "./OptionIcon";
@@ -101,7 +98,6 @@ export interface AutocompleteProps<T extends Record<string, any>> {
 
   mode?: "default" | "solid";
   size?: AutocompleteSize;
-  variant?: VariantColor | "auto";
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -131,11 +127,7 @@ export function Autocomplete<T extends Record<string, any>>({
   onOpenChange: controlledOnOpenChange,
   mode = "default",
   size = "md",
-  variant = "auto",
 }: AutocompleteProps<T>) {
-  const autoRole = useAutocompleteVariant();
-  const role: VariantColor = variant === "auto" ? autoRole : variant;
-
   const {
     open,
     setOpen,
@@ -161,8 +153,25 @@ export function Autocomplete<T extends Record<string, any>>({
 
   const isSolid = mode === "solid";
   const hasValue = selectedOption != null;
-  const roleVar = `var(--${role})`;
   const s = SIZE_STYLES[size];
+
+  // Lock scroll event handling + infinite scroll detection
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+
+    // Prevent outer scroll overflow
+    const { scrollTop, scrollHeight, clientHeight } = el;
+
+    // Detect bottom edge for auto fetchMore
+    if (
+      hasMore &&
+      fetchMore &&
+      !isFetchingMore &&
+      scrollHeight - scrollTop - clientHeight <= 20
+    ) {
+      fetchMore();
+    }
+  };
 
   React.useEffect(() => {
     if (!open) return;
@@ -192,55 +201,51 @@ export function Autocomplete<T extends Record<string, any>>({
     };
   }, [open, refs.commandListRef]);
 
-  const renderOptionRow = (option: T, isGrouped: boolean) => (
-    <CommandItem
-      key={String(option[valueKey])}
-      ref={
-        String(option[valueKey]) === String(value)
-          ? refs.selectedItemRef
-          : undefined
-      }
-      value={String(option[valueKey])}
-      keywords={[String(option[labelKey])]}
-      onSelect={handlers.selectOption}
-      className={cn(
-        "relative flex cursor-pointer items-center justify-between rounded-md",
-        s.itemPad,
-        isGrouped && "pl-5",
-        String(value) === String(option[valueKey]) && "bg-primary/10",
-      )}
-      style={
-        isSolid && String(value) === String(option[valueKey])
-          ? {
-              backgroundColor: `color-mix(in oklch, ${roleVar}, transparent 90%)`,
-            }
-          : undefined
-      }
-    >
-      <div className="flex min-w-0 items-center gap-2">
-        {iconKey && option[iconKey] && (
-          <OptionIcon
-            icon={option[iconKey]}
-            size={s.iconSize}
-            alt={String(option[labelKey]) || ""}
-          />
-        )}
-        <span
-          className={cn(s.itemText, "truncate font-semibold text-foreground")}
-        >
-          {option[labelKey]}
-        </span>
-      </div>
+  const renderOptionRow = (option: T, isGrouped: boolean) => {
+    const isSelected = String(value) === String(option[valueKey]);
 
-      <Check
+    return (
+      <CommandItem
+        key={String(option[valueKey])}
+        ref={isSelected ? refs.selectedItemRef : undefined}
+        value={String(option[valueKey])}
+        keywords={[String(option[labelKey])]}
+        onSelect={handlers.selectOption}
         className={cn(
-          "h-4 w-4 shrink-0 opacity-0",
-          String(value) === String(option[valueKey]) && "opacity-100",
+          "relative flex cursor-pointer items-center justify-between rounded-md transition-colors",
+          s.itemPad,
+          isGrouped && "pl-5",
+          isSelected && "bg-primary/10 text-primary font-semibold",
         )}
-        style={isSolid ? { color: roleVar } : undefined}
-      />
-    </CommandItem>
-  );
+      >
+        <div className="flex min-w-0 items-center gap-2">
+          {iconKey && option[iconKey] && (
+            <OptionIcon
+              icon={option[iconKey]}
+              size={s.iconSize}
+              alt={String(option[labelKey]) || ""}
+            />
+          )}
+          <span
+            className={cn(
+              s.itemText,
+              "truncate font-semibold",
+              isSelected ? "text-primary" : "text-foreground",
+            )}
+          >
+            {option[labelKey]}
+          </span>
+        </div>
+
+        <Check
+          className={cn(
+            "h-4 w-4 shrink-0 text-primary opacity-0 transition-opacity",
+            isSelected && "opacity-100",
+          )}
+        />
+      </CommandItem>
+    );
+  };
 
   const triggerClass = isSolid
     ? cn(
@@ -274,15 +279,6 @@ export function Autocomplete<T extends Record<string, any>>({
         : "cursor-not-allowed"),
   );
 
-  /**
-   * LOGIKA VALUE & PLACEHOLDER DIBERSIHKAN:
-   * 1. Jika popover terbuka:
-   *    - Input value murni memakai kata kunci pencarian (`search`).
-   *    - Nilai terpilih (`selectedOption`) dialihkan menjadi placeholder sementara.
-   * 2. Jika popover tertutup:
-   *    - Jika ada `selectedOption`, tampilkan sebagai teks value biasa (sehingga warnanya hitam pekat).
-   *    - Jika tidak ada `selectedOption`, input kosong dan menampilkan placeholder bawaan.
-   */
   const inputDisplayValue = open
     ? search
     : selectedOption
@@ -403,15 +399,13 @@ export function Autocomplete<T extends Record<string, any>>({
 
           {isLoading ? (
             <div className="flex w-full items-center justify-center p-2 py-6">
-              <Loader2
-                className="h-6 w-6 animate-spin"
-                style={{ color: roleVar }}
-              />
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
           ) : (
             <>
               <CommandList
                 ref={refs.commandListRef}
+                onScroll={handleScroll}
                 className="max-h-75 flex-1 overflow-y-auto overscroll-contain"
                 style={{
                   scrollbarWidth: "thin",
@@ -448,25 +442,10 @@ export function Autocomplete<T extends Record<string, any>>({
                   </CommandGroup>
                 )}
 
-                {hasMore && (
-                  <div className="border-t border-border p-2">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className="w-full rounded-md text-sm"
-                      onClick={fetchMore}
-                      onMouseEnter={fetchMore}
-                      disabled={isFetchingMore}
-                    >
-                      {isFetchingMore ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Loading...
-                        </>
-                      ) : (
-                        "Load more..."
-                      )}
-                    </Button>
+                {/* Loading indicator halus di bagian paling bawah list */}
+                {isFetchingMore && (
+                  <div className="flex items-center justify-center p-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
                   </div>
                 )}
               </CommandList>
