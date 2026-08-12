@@ -1,124 +1,164 @@
 "use client";
 
-import { DatePicker } from "@/components/common/input/DatePicker";
-import { DateRangePicker } from "@/components/common/input/DateRangePicker";
 import {
   ColumnDef,
-  ManualTable,
-  ManualTableQuery,
-} from "@/components/common/ManualTable";
+  DisplayTable,
+  DisplayTableQuery,
+} from "@/components/common/DisplayTable";
+import { DatePicker } from "@/components/common/input/DatePicker";
+import { DateRangePicker } from "@/components/common/input/DateRangePicker";
 import { PaginatedResponse } from "@/lib/data/schema/base";
+import {
+  Building,
+  Calendar,
+  CheckCircle2,
+  ShieldCheck,
+  User,
+} from "lucide-react";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
 
-// ─── 1. Dummy Data & API Mock untuk ManualTable ───────────────────────────────
+// ─── 1. Dummy Data & API Mock ───────────────────────────────────────────────
 
-interface UserDummy {
+interface StallOwnerDummy {
   id: string;
-  name: string;
-  role: string;
+  stallName: string;
+  ownerName: string;
+  category: string;
+  status: "verified" | "pending" | "rejected";
   createdAt: Date;
-  status: "active" | "inactive";
 }
 
-const MOCK_USERS: UserDummy[] = Array.from({ length: 45 }, (_, i) => ({
-  id: `usr-${i + 1}`,
-  name: `User ${i + 1}`,
-  role: i % 3 === 0 ? "Owner" : i % 3 === 1 ? "Supplier" : "Tenant",
+const MOCK_STALLS: StallOwnerDummy[] = Array.from({ length: 65 }, (_, i) => ({
+  id: `stl-${i + 1}`,
+  stallName: `Lapak Kuliner #${i + 1}`,
+  ownerName: `Mitra ${i + 1}`,
+  category: i % 3 === 0 ? "F&B" : i % 3 === 1 ? "Retail" : "Services",
+  status: i % 4 === 0 ? "pending" : i % 4 === 3 ? "rejected" : "verified",
   createdAt: new Date(2026, 0, (i % 28) + 1),
-  status: i % 2 === 0 ? "active" : "inactive",
 }));
 
-interface UserQueryParams {
+interface StallQueryParams {
   page?: number;
   limit?: number;
   search?: string;
-  role?: string;
+  category?: string;
   status?: string;
   createdAt?: Date;
 }
 
-// Simulated API Call
-const fetchUsersApi = async (
-  params: UserQueryParams,
-): Promise<PaginatedResponse<UserDummy>> => {
-  await new Promise((resolve) => setTimeout(resolve, 600));
+// Simulated API Call dengan metadata standar PaginatedResponse
+const fetchStallsApi = async (
+  params: StallQueryParams,
+): Promise<PaginatedResponse<StallOwnerDummy>> => {
+  await new Promise((resolve) => setTimeout(resolve, 500)); // Latency simulasi
 
-  let filtered = [...MOCK_USERS];
+  let filtered = [...MOCK_STALLS];
 
-  if (params.role) {
+  if (params.category) {
     filtered = filtered.filter(
-      (u) => u.role.toLowerCase() === String(params.role).toLowerCase(),
+      (s) => s.category.toLowerCase() === String(params.category).toLowerCase(),
     );
   }
 
   if (params.status) {
-    filtered = filtered.filter((u) => u.status === params.status);
+    filtered = filtered.filter((s) => s.status === params.status);
   }
 
   const limit = params.limit ?? 10;
   const page = params.page ?? 1;
-  const totalPages = Math.ceil(filtered.length / limit) || 0;
   const start = (page - 1) * limit;
   const paginated = filtered.slice(start, start + limit);
+  const totalPages = Math.ceil(filtered.length / limit);
 
   return {
     status: true,
-    message: "Users fetched successfully",
+    message: "Data retrieved successfully",
     data: paginated,
     meta: {
       currentPage: page,
-      perPage: limit,
-      totalItems: filtered.length,
       totalPages,
+      totalItems: filtered.length,
+      perPage: limit,
       hasNextPage: page < totalPages,
       hasPrevPage: page > 1,
     },
   };
 };
 
-// Config Table Column
-const columns: ColumnDef<UserDummy>[] = [
-  { key: "id", header: "ID", className: "w-24 font-mono text-xs" },
-  { key: "name", header: "Name", className: "font-semibold" },
-  { key: "role", header: "Role" },
+// Config Columns
+const columns: ColumnDef<StallOwnerDummy>[] = [
   {
-    key: "status",
-    header: "Status",
+    key: "stallName",
+    header: "Stall Name",
+    icon: Building,
+    className: "font-semibold text-foreground",
+  },
+  {
+    key: "ownerName",
+    header: "Owner",
+    icon: User,
+  },
+  {
+    key: "category",
+    header: "Category",
     render: (val) => (
-      <span
-        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
-          val === "active"
-            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-            : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-        }`}
-      >
+      <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
         {String(val)}
       </span>
     ),
   },
   {
+    key: "status",
+    header: "Status",
+    icon: ShieldCheck,
+    render: (val) => {
+      const status = String(val);
+      const isVerified = status === "verified";
+      const isPending = status === "pending";
+
+      return (
+        <span
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+            isVerified
+              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+              : isPending
+                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                : "bg-rose-500/10 text-rose-600 dark:text-rose-400"
+          }`}
+        >
+          <CheckCircle2 className="h-3 w-3" />
+          {status}
+        </span>
+      );
+    },
+  },
+  {
     key: "createdAt",
-    header: "Created At",
+    header: "Registered",
+    icon: Calendar,
     render: (val) =>
       val instanceof Date ? val.toLocaleDateString("id-ID") : "-",
   },
 ];
 
-// Config Table Query & Filters
-const tableQueryConfig: ManualTableQuery<UserDummy, UserQueryParams> = {
-  queryFn: fetchUsersApi,
-  queryKey: (params) => ["test-users", params],
+// Query Config & Filters
+const displayTableQueryConfig: DisplayTableQuery<
+  StallOwnerDummy,
+  StallQueryParams
+> = {
+  queryFn: fetchStallsApi,
+  queryKey: (params) => ["stalls-list", params],
   defaultParams: { page: 1 },
   filterOptions: [
     {
-      id: "role",
-      title: "Role",
+      id: "category",
+      title: "Category",
       type: "select",
       options: [
-        { label: "Owner", value: "Owner" },
-        { label: "Supplier", value: "Supplier" },
-        { label: "Tenant", value: "Tenant" },
+        { label: "F&B", value: "F&B" },
+        { label: "Retail", value: "Retail" },
+        { label: "Services", value: "Services" },
       ],
     },
     {
@@ -126,80 +166,88 @@ const tableQueryConfig: ManualTableQuery<UserDummy, UserQueryParams> = {
       title: "Status",
       type: "select",
       options: [
-        { label: "Active", value: "active" },
-        { label: "Inactive", value: "inactive" },
+        { label: "Verified", value: "verified" },
+        { label: "Pending", value: "pending" },
+        { label: "Rejected", value: "rejected" },
       ],
     },
     {
       id: "createdAt",
-      title: "Created Date",
+      title: "Registration Date",
       type: "date",
     },
   ],
   filterToParamKey: {
-    role: "role",
+    category: "category",
     status: "status",
     createdAt: "createdAt",
   },
 };
 
-// ─── 2. Halaman Utama Testing ──────────────────────────────────────────────────
+// ─── 2. Halaman Sandbox Utama ───────────────────────────────────────────────
 
-export default function ComponentTestingPage() {
-  // State DatePicker Standar
+export default function ComponentSandboxPage() {
+  // Single DatePicker State
   const [singleDate, setSingleDate] = useState<Date | null | undefined>(
     new Date(),
   );
 
-  // State DateRangePicker
+  // DateRangePicker State
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(2026, 7, 1),
-    to: new Date(2026, 7, 12),
+    to: new Date(2026, 7, 15),
   });
 
   return (
-    <div className="container mx-auto max-w-5xl space-y-10 p-6">
-      <div>
+    <div className="container mx-auto max-w-6xl space-y-10 p-6">
+      {/* Header */}
+      <div className="border-b border-border pb-5">
         <h1 className="text-2xl font-bold tracking-tight">Component Sandbox</h1>
         <p className="text-sm text-muted-foreground">
-          Pengujian integrasi DatePicker, DateRangePicker, dan ManualTable.
+          Pengujian integrasi DatePicker, DateRangePicker, dan DisplayTable (2
+          Mode Pagination).
         </p>
       </div>
 
+      {/* Date Pickers Section */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Testing 1: DatePicker */}
-        <section className="space-y-3 rounded-xl border border-border p-5 bg-card">
-          <h2 className="text-base font-semibold">1. Single DatePicker</h2>
+        {/* DatePicker */}
+        <section className="space-y-3 rounded-2xl border border-border bg-card p-5 shadow-xs">
+          <h2 className="text-base font-semibold text-foreground">
+            1. DatePicker (Single Date)
+          </h2>
           <div className="max-w-xs space-y-2">
             <DatePicker
               value={singleDate}
               onChange={(date) => setSingleDate(date)}
-              placeholder="Pilih tanggal..."
+              placeholder="Pick a date..."
             />
             <p className="text-xs text-muted-foreground">
-              Selected:{" "}
-              <span className="font-mono text-foreground">
+              Selected Value:{" "}
+              <span className="font-mono text-foreground font-medium">
                 {singleDate ? singleDate.toISOString().split("T")[0] : "null"}
               </span>
             </p>
           </div>
         </section>
 
-        {/* Testing 2: DateRangePicker */}
-        <section className="space-y-3 rounded-xl border border-border p-5 bg-card">
-          <h2 className="text-base font-semibold">2. DateRangePicker</h2>
+        {/* DateRangePicker */}
+        <section className="space-y-3 rounded-2xl border border-border bg-card p-5 shadow-xs">
+          <h2 className="text-base font-semibold text-foreground">
+            2. DateRangePicker (Range)
+          </h2>
           <div className="space-y-2">
             <DateRangePicker
               value={dateRange}
               onUpdate={(range) => setDateRange(range)}
             />
             <p className="text-xs text-muted-foreground">
-              Range:{" "}
-              <span className="font-mono text-foreground">
+              Selected Range:{" "}
+              <span className="font-mono text-foreground font-medium">
                 {dateRange?.from
                   ? dateRange.from.toISOString().split("T")[0]
                   : "null"}{" "}
-                -{" "}
+                —{" "}
                 {dateRange?.to
                   ? dateRange.to.toISOString().split("T")[0]
                   : "null"}
@@ -209,15 +257,47 @@ export default function ComponentTestingPage() {
         </section>
       </div>
 
-      {/* Testing 3: ManualTable */}
-      <section className="space-y-4 rounded-xl border border-border p-5 bg-card">
-        <h2 className="text-base font-semibold">
-          3. ManualTable dengan Infinite Scroll & Filter
-        </h2>
-        <ManualTable
+      {/* DisplayTable Mode 1: Load More */}
+      <section className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-xs">
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">
+            3. DisplayTable (Mode:{" "}
+            <code className="text-primary font-mono text-sm">load-more</code>)
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Akumulasi data secara bertahap saat menekan tombol &quot;Load
+            more&quot;.
+          </p>
+        </div>
+
+        <DisplayTable
           columns={columns}
-          query={tableQueryConfig}
+          query={displayTableQueryConfig}
           rowKey="id"
+          paginationMode="load-more"
+          showFilter
+          showCount
+        />
+      </section>
+
+      {/* DisplayTable Mode 2: Pagination */}
+      <section className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-xs">
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">
+            4. DisplayTable (Mode:{" "}
+            <code className="text-primary font-mono text-sm">pagination</code>)
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Menampilkan halaman per halaman dengan bilah angka halaman dan
+            navigasi Previous/Next.
+          </p>
+        </div>
+
+        <DisplayTable
+          columns={columns}
+          query={displayTableQueryConfig}
+          rowKey="id"
+          paginationMode="pagination"
           showFilter
           showCount
         />
