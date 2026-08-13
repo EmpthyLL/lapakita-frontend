@@ -12,13 +12,6 @@ export const DEFAULT_BEP_MONTHS = BEP_PRESETS_MONTHS[1]; // 6 months
 export const RADIUS_PRESETS = ["1 km", "3 km", "5 km", "10 km"];
 export const RADIUS_RANGE = { min: 0.5, max: 50, step: 0.5 };
 
-export function formatIDR(value: number) {
-  if (value >= 1_000_000) {
-    return `Rp ${(value / 1_000_000).toFixed(value % 1_000_000 === 0 ? 0 : 1)}jt`;
-  }
-  return `Rp ${value.toLocaleString("id-ID")}`;
-}
-
 export interface SearchInfoItem {
   icon: LucideIcon;
   highlight: string;

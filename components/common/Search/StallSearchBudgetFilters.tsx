@@ -1,13 +1,13 @@
 "use client";
 
 import { Slider } from "@/components/ui/slider";
+import { formatCurrency } from "@/lib/utils";
 import { Sparkles, Target } from "lucide-react";
 import { Autocomplete } from "../input/Autocomplete";
 import { NumberInput } from "../input/NumberInput";
 import {
   BEP_PRESETS_MONTHS,
   DEPOSIT_RANGE,
-  formatIDR,
   RENT_RANGE,
 } from "./SearchConstants";
 
@@ -62,7 +62,7 @@ function MinMaxInput({
       <div className="mb-2 flex items-center justify-between">
         <p className="text-xs font-semibold text-muted-foreground">{label}</p>
         <span className="text-[11px] text-muted-foreground">
-          {formatIDR(value[0])} – {formatIDR(value[1])}
+          {formatCurrency(value[0], "Rp ")} – {formatCurrency(value[1], "Rp ")}
         </span>
       </div>
       <Slider
@@ -143,9 +143,7 @@ export function StallSearchBudgetFilters({
             <p className="text-xs font-bold text-foreground">
               Target Break-Even Period
             </p>
-            <p className="text-[10px] font-medium text-primary">
-              Most-used filter
-            </p>
+            <p className="text-[10px] font-medium text-primary">Quick filter</p>
           </div>
         </div>
         <Autocomplete

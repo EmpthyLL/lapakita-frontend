@@ -13,3 +13,18 @@ export function generateSlug(title: string) {
     trim: true,
   });
 }
+
+export const formatCurrency = (
+  amount: number,
+  prefix: string = "",
+  maxDigits: number = 2,
+  locale: string = "en-US",
+) => {
+  return (
+    prefix +
+    new Intl.NumberFormat(locale, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: maxDigits,
+    }).format(amount)
+  );
+};

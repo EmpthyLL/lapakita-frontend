@@ -87,6 +87,10 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
             title: "Damage Claim & Appeal Process",
             body: "Upon tenant exit, the Owner may submit a damage claim with itemized costs and timestamped photo evidence. The Tenant has a designated window to Accept or Appeal the claim. If Accepted, funds are disbursed to the Owner's payout bank account, and the remainder is returned to the Tenant's registered bank account. If Appealed, Lapakita Platform Support acts as a neutral administrative reviewer to inspect initial vs. final photo records and make a final binding deposit adjustment.",
           },
+          {
+            title: "Deposit Limits & Major Property Damage",
+            body: "The Security Deposit set by the Owner represents the maximum escrow guarantee recoverable directly through the platform. Lapakita is not liable for repair costs exceeding the deposited amount. In cases of severe property destruction or vandalism exceeding the deposit, Lapakita will disburse 100% of the available deposit to the Owner and provide verified KYC evidence to assist the Owner in formal legal proceedings. The offending Tenant's account will be permanently blacklisted.",
+          },
         ],
       },
       {
