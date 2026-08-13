@@ -104,9 +104,9 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
           },
           {
             icon: SlidersHorizontal,
-            title: "Multi-Filter Facilities & Price",
+            title: "Multi-Filter Specs, Size & Placement",
             description:
-              "Select multiple essential facilities (power, water, kitchen, seating) and set custom min-max ranges for monthly rent and deposit budgets.",
+              "Filter spaces by property type (Mall Island, Ruko, Market Stall, Food Court), placement (Indoor, Semi-Outdoor, Outdoor), exact floor size (sqm), and essential facilities.",
           },
           {
             icon: Target,

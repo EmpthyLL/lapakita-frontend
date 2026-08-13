@@ -18,10 +18,13 @@ import {
   PaymentCycle,
   RADIUS_PRESETS,
   RENT_RANGE,
+  STALL_SIZE_RANGE,
+  StallType,
 } from "./SearchConstants";
 import { StallSearchFooter } from "./SearchFooter";
 import { StallSearchBudgetFilters } from "./StallSearchBudgetFilters";
 import { StallSearchPrimaryRow } from "./StallSearchPrimaryRow";
+import { StallSpaceFilters } from "./StallSpaceFilters.";
 
 const BUSINESS_TYPE_LABELS: Record<string, string> = Object.fromEntries(
   BUSINESS_CATEGORIES.flatMap((g) => g.types.map((t) => [t.value, t.label])),
@@ -66,6 +69,11 @@ export default function StallSearch({
   const [landmarkEntries, setLandmarkEntries] = useState<LandmarkRadiusEntry[]>(
     [createLandmarkRadiusEntry()],
   );
+  const [stallType, setStallType] = useState<StallType | "">("");
+  const [sizeRange, setSizeRange] = useState<[number, number]>([
+    STALL_SIZE_RANGE.min,
+    STALL_SIZE_RANGE.max,
+  ]);
   const [businessType, setBusinessType] = useState("");
   const [facilities, setFacilities] = useState<string[]>([]);
   const [bepMonths, setBepMonths] = useState<string>(
@@ -208,6 +216,15 @@ export default function StallSearch({
                 <LandmarkRadiusPicker
                   entries={landmarkEntries}
                   onChange={setLandmarkEntries}
+                />
+              </FilterBlock>
+
+              <FilterBlock title="Space & Type">
+                <StallSpaceFilters
+                  stallType={stallType}
+                  onStallTypeChange={setStallType}
+                  sizeRange={sizeRange}
+                  onSizeRangeChange={setSizeRange}
                 />
               </FilterBlock>
 

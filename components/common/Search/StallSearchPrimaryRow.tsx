@@ -2,11 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { BUSINESS_CATEGORIES } from "@/lib/data/schema/master/business_type";
-import { LANDMARK_CATEGORIES } from "@/lib/data/schema/master/landmark";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 import { Autocomplete } from "../input/Autocomplete";
 import { LocationAutocomplete } from "./LocationAutocomplete";
+import { LANDMARK_CATEGORIES } from "./SearchConstants";
 
 // Flatten grouped business categories into a single option list with a `group` field,
 // which is what Autocomplete's groupKey expects.

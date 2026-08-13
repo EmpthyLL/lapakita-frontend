@@ -1,12 +1,11 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { LANDMARK_CATEGORIES } from "@/lib/data/schema/master/landmark";
 import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
 import { useMemo } from "react";
 import { Autocomplete } from "../input/Autocomplete";
-import { RADIUS_PRESETS } from "./SearchConstants";
+import { LANDMARK_CATEGORIES, RADIUS_PRESETS } from "./SearchConstants";
 
 export interface LandmarkRadiusEntry {
   id: string;
