@@ -1,11 +1,13 @@
 import {
   AirVent,
   Armchair,
+  Building,
   Building2,
   Bus,
   Car,
   Cctv,
   ConciergeBell,
+  Container,
   Cylinder,
   Droplets,
   Flame,
@@ -25,9 +27,11 @@ import {
   Sparkles,
   Store,
   Target,
+  Tent,
   ToiletIcon,
   TrainFront,
   Trash2,
+  Truck,
   Tv,
   Utensils,
   Warehouse,
@@ -156,20 +160,81 @@ export const LANDMARK_CATEGORIES: LandmarkCategory[] = [
   { value: "airport", label: "Airport / Logistics Hub", icon: Plane },
 ];
 
-export type StallType = "indoor" | "semi-outdoor" | "outdoor";
+export type StallPlacement = "indoor" | "semi-outdoor" | "outdoor";
 
-export interface StallTypeOption {
-  value: StallType;
+export interface StallPlacementOption {
+  value: StallPlacement;
   label: string;
 }
 
-export const STALL_TYPE_OPTIONS: StallTypeOption[] = [
-  { value: "indoor", label: "Indoor" },
-  { value: "semi-outdoor", label: "Semi-outdoor" },
-  { value: "outdoor", label: "Outdoor" },
+export const STALL_PLACEMENT_OPTIONS: StallPlacementOption[] = [
+  { value: "indoor", label: "Indoor (Fully Enclosed / Air-Conditioned)" },
+  { value: "semi-outdoor", label: "Semi-Outdoor (Covered / Canopy)" },
+  { value: "outdoor", label: "Outdoor (Open Air / Courtyard)" },
 ];
 
-export const STALL_SIZE_RANGE = { min: 2, max: 100, step: 1 };
+export interface StallPropertyType {
+  value: string;
+  label: string;
+  description: string;
+  icon: LucideIcon;
+}
+
+export const STALL_PROPERTY_TYPES: StallPropertyType[] = [
+  {
+    value: "mall-island",
+    label: "Mall Island / Kiosk Corridor",
+    description: "Open 360-degree booth in high-footfall mall corridors.",
+    icon: ShoppingBag,
+  },
+  {
+    value: "mall-shop",
+    label: "Enclosed Mall Shop / Retail Unit",
+    description: "Private shopfront with glass doors inside a shopping center.",
+    icon: Building2,
+  },
+  {
+    value: "shophouse",
+    label: "Shophouse / Ruko (Full or Shared Floor)",
+    description: "Ground floor or shared space in a multi-story shophouse.",
+    icon: Building,
+  },
+  {
+    value: "traditional-market",
+    label: "Traditional Market Stall (Lapak / Los Pasar)",
+    description:
+      "Open counter or enclosed stall inside wet/dry traditional markets.",
+    icon: Store,
+  },
+  {
+    value: "food-court-counter",
+    label: "Food Court & Culinary Hub Counter",
+    description: "Dedicated kitchen counter with shared customer seating area.",
+    icon: Tent,
+  },
+  {
+    value: "street-kiosk",
+    label: "Street Kiosk / Container Stall",
+    description:
+      "Standalone booth, container, or mini shop facing primary roads.",
+    icon: Container,
+  },
+  {
+    value: "garage-driveway",
+    label: "Home Garage / Front Yard Space",
+    description:
+      "Converted residential garage or private front yard for quiet SME ops.",
+    icon: Warehouse,
+  },
+  {
+    value: "food-truck-spot",
+    label: "Food Truck / Mobile Unit Parking",
+    description: "Designated parking bay with dedicated utility hookups.",
+    icon: Truck,
+  },
+];
+
+export const STALL_SIZE_RANGE = { min: 2, max: 100, step: 1 }; // in sqm (m²)
 
 export interface Facility {
   value: string;
