@@ -1,4 +1,5 @@
 import { Providers } from "@/components/providers/provider";
+import { Toaster } from "@/components/ui/toast";
 import "@/style/globals.css";
 import type { Metadata } from "next";
 
@@ -16,7 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="flex min-h-screen flex-col antialiased">
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );

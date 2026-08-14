@@ -7,7 +7,9 @@ import {
 } from "@/components/common/DisplayTable";
 import { DatePicker } from "@/components/common/input/DatePicker";
 import { DateRangePicker } from "@/components/common/input/DateRangePicker";
+import { Button } from "@/components/ui/button";
 import { PaginatedResponse } from "@/lib/data/schema/base";
+import { showToast } from "@/lib/toast";
 import {
   Building,
   Calendar,
@@ -302,6 +304,61 @@ export default function ComponentSandboxPage() {
           showCount
         />
       </section>
+
+      <div className="flex flex-wrap gap-3">
+        {/* Success */}
+        <Button
+          variant="outline"
+          onClick={() =>
+            showToast.success("Lapak berhasil ditambahkan!", {
+              description: "Data lapak baru telah tersimpan di sistem.",
+            })
+          }
+        >
+          Test Success
+        </Button>
+
+        {/* Error */}
+        <Button
+          variant="outline"
+          onClick={() =>
+            showToast.error("Gagal menyimpan data", {
+              description: "Terjadi kesalahan pada koneksi jaringan server.",
+            })
+          }
+        >
+          Test Error
+        </Button>
+
+        {/* Info */}
+        <Button
+          variant="outline"
+          onClick={() =>
+            showToast.info("Pembaruan Sistem", {
+              description:
+                "Fitur analytics footfall akan diperbarui malam ini.",
+            })
+          }
+        >
+          Test Info
+        </Button>
+
+        {/* Warning */}
+        <Button
+          variant="outline"
+          onClick={() =>
+            showToast.warning("Masa sewa hampir habis", {
+              description: "Sisa masa sewa lapak Anda tinggal 3 hari lagi.",
+              action: {
+                label: "Perpanjang",
+                onClick: () => console.log("Perpanjang diklik"),
+              },
+            })
+          }
+        >
+          Test Warning
+        </Button>
+      </div>
     </div>
   );
 }

@@ -4,10 +4,38 @@ import {
   PaymentCycle,
   StallPlacement,
   StallPropertyTypeValue,
-  StartDate,
+  StartDateValue,
 } from "@/components/common/search/SearchConstants";
 
-type DayRange = number;
+type DayRange =
+  | "1"
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "7"
+  | "8"
+  | "9"
+  | "10"
+  | "11"
+  | "12"
+  | "13"
+  | "14"
+  | "15"
+  | "16"
+  | "17"
+  | "18"
+  | "19"
+  | "20"
+  | "21"
+  | "22"
+  | "23"
+  | "24"
+  | "25"
+  | "26"
+  | "27"
+  | "28";
 
 export interface MultiPeriodPricing {
   monthlyRate?: number;
@@ -27,6 +55,7 @@ export interface NearbyLandmark {
 export interface OwnerProfileSummary {
   id: string;
   name: string;
+  contact: string;
   avatarUrl: string;
   rating: number;
   reviewCount: number;
@@ -84,11 +113,7 @@ export interface StallDetail {
   // Lease Rules & Timelines
   leaseRules: {
     minimumLeaseMonths: number;
-    startDateOptions: (StartDate | DayRange | "custom")[];
-    customStartDateRange?: {
-      minDay: number;
-      maxDay: number;
-    };
+    startDateOptions: (StartDateValue | DayRange)[];
     utilityTerms: string;
   };
 
@@ -185,11 +210,7 @@ export const MOCK_STALL_DETAIL: StallDetail = {
 
   leaseRules: {
     minimumLeaseMonths: 3,
-    startDateOptions: [1, 15, "eom"],
-    customStartDateRange: {
-      minDay: 1,
-      maxDay: 28,
-    },
+    startDateOptions: [1, 15, "eom", "2", "3"],
     utilityTerms:
       "Token listrik PLN prabayar diisi mandiri oleh tenant. Tagihan pemeliharaan kebersihan koridor mall dikelola oleh pengelola Plaza.",
   },
@@ -222,6 +243,7 @@ export const MOCK_STALL_DETAIL: StallDetail = {
   owner: {
     id: "usr_owner_budi_01",
     name: "Budi Santoso",
+    contact: "+62 812-3456-7890",
     avatarUrl:
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
     rating: 4.9,

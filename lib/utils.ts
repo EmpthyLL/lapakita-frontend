@@ -28,3 +28,10 @@ export const formatCurrency = (
     }).format(amount)
   );
 };
+
+export function toWhatsAppLink(phone: string, message?: string) {
+  let digits = phone.replace(/[^\d]/g, "");
+  if (digits.startsWith("0")) digits = `62${digits.slice(1)}`;
+  const base = `https://wa.me/${digits}`;
+  return message ? `${base}?text=${encodeURIComponent(message)}` : base;
+}

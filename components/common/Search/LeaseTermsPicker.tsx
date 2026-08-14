@@ -75,8 +75,7 @@ export function LeaseTermsPicker({
         <Autocomplete
           value={minLeasePeriod}
           onSelect={(v) => onMinLeasePeriodChange(String(v))}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          options={MIN_LEASE_PERIOD_PRESETS as any}
+          options={MIN_LEASE_PERIOD_PRESETS}
           placeholder="Any lease period"
           mode="solid"
         />

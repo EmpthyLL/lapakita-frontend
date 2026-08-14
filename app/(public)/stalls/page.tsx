@@ -1,12 +1,8 @@
 import StallSearch from "@/components/common/search/StallSearch";
-import { StallCard } from "@/components/common/StallCard";
-import { MOCK_STALL_LIST } from "@/lib/data/schema/stall/get_stall";
 import { LayoutGrid } from "lucide-react";
-import { StallResultsToolbar } from "./StallResultsToolbar";
+import { StallInfiniteList } from "./StallInfiniteList";
 
-export default async function StallsPage() {
-  const stalls = MOCK_STALL_LIST;
-
+export default function StallsPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:py-10">
       {/* Header */}
@@ -25,16 +21,7 @@ export default async function StallsPage() {
       </div>
 
       <StallSearch mode="full">
-        <div className="space-y-4">
-          <StallResultsToolbar count={stalls.length} />
-
-          {/* List Card Memanjang (1 Kolom Vertikal) */}
-          <div className="flex flex-col gap-4">
-            {stalls.map((stall) => (
-              <StallCard key={stall.id} stall={stall} />
-            ))}
-          </div>
-        </div>
+        <StallInfiniteList />
       </StallSearch>
     </div>
   );
