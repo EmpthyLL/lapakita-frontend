@@ -189,16 +189,14 @@ export function PricingCards({ billingCycle }: { billingCycle: BillingCycle }) {
               asChild
               size="lg"
               className={cn(
-                "relative mt-8 w-full",
+                "relative mt-8 w-full font-bold transition-colors",
                 isFeatured
-                  ? "bg-white text-primary hover:bg-white/90"
+                  ? "border border-white/40 bg-white/10 text-white backdrop-blur-xs hover:bg-white hover:text-primary"
                   : card.variant === "role"
                     ? "bg-primary text-primary-foreground hover:bg-primary/90"
                     : "border border-border bg-transparent text-foreground hover:bg-secondary",
               )}
-              variant={
-                isFeatured || card.variant === "role" ? "default" : "outline"
-              }
+              variant={card.variant === "role" ? "default" : "outline"}
             >
               <Link href={card.href}>
                 {isFeatured && <Sparkles className="mr-1.5 h-4 w-4" />}

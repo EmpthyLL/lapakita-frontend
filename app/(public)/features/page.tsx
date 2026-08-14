@@ -1,6 +1,5 @@
 import { RoleFilterProvider } from "@/components/providers/role_provider";
 import { Suspense } from "react";
-import { ComparisonSection } from "./ComparisonSection";
 import { FeaturesContent } from "./FeatureContent";
 import { FeaturesCta } from "./FeatureCTA";
 import { FeaturesHero } from "./FeatureHero";
@@ -13,7 +12,6 @@ export default function FeaturesPage() {
         <FeaturesHero />
         <FeaturesContent />
         <LifecycleSection />
-        <ComparisonSection />
         <FeaturesCta />
       </RoleFilterProvider>
     </Suspense>

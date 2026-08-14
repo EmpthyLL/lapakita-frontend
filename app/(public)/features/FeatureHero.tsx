@@ -13,7 +13,7 @@ export function FeaturesHero() {
       />
       <div className="relative mx-auto flex max-w-4xl flex-col items-center px-4 py-20 text-center sm:px-6 sm:py-28 lg:px-8">
         <span className="inline-flex items-center rounded-full bg-primary-secondary px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
-          Lapakita Core Capabilities
+          1. Lapakita Core Capabilities
         </span>
         <h1 className="font-heading mt-5 max-w-3xl text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
           Data-Backed Stall Operations. Built on Absolute Transparency.

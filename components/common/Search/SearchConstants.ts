@@ -41,18 +41,30 @@ import {
   Zap,
 } from "lucide-react";
 
-export const BEP_PRESETS_MONTHS = [3, 6, 12, 18, 24];
+/* ─── Ranges & Constants ─── */
+export const BEP_PRESETS_MONTHS = [3, 6, 12, 18, 24] as const;
+export type BEPMonths = (typeof BEP_PRESETS_MONTHS)[number];
 
-export const RENT_RANGE = { min: 500_000, max: 20_000_000, step: 100_000 };
-export const DEPOSIT_RANGE = { min: 500_000, max: 10_000_000, step: 100_000 };
+export const RENT_RANGE = {
+  min: 500_000,
+  max: 20_000_000,
+  step: 100_000,
+} as const;
+export const DEPOSIT_RANGE = {
+  min: 500_000,
+  max: 10_000_000,
+  step: 100_000,
+} as const;
 
-// General assumptions — dipakai selama business type belum dipilih
 export const DEFAULT_ASSUMED_CAPITAL = 20_000_000;
-export const DEFAULT_BEP_MONTHS = BEP_PRESETS_MONTHS[1]; // 6 months
+export const DEFAULT_BEP_MONTHS = BEP_PRESETS_MONTHS[1]; // 6
 
-export const RADIUS_PRESETS = ["1 km", "3 km", "5 km", "10 km"];
-export const RADIUS_RANGE = { min: 0.5, max: 50, step: 0.5 };
+export const RADIUS_PRESETS = ["1 km", "3 km", "5 km", "10 km"] as const;
+export type RadiusPreset = (typeof RADIUS_PRESETS)[number];
 
+export const RADIUS_RANGE = { min: 0.5, max: 50, step: 0.5 } as const;
+
+/* ─── Capabilities Info ─── */
 export interface SearchInfoItem {
   icon: LucideIcon;
   highlight: string;
@@ -77,67 +89,71 @@ export const SEARCH_CAPABILITIES: SearchInfoItem[] = [
   },
 ];
 
-export interface StartDateOption {
-  value: string;
-  label: string;
-}
-
-export const START_DATE_PRESETS: StartDateOption[] = [
-  { value: "1", label: "1st of the month" },
-  { value: "15", label: "15th of the month" },
+/* ─── Start Date Options ─── */
+export const START_DATE_PRESETS = [
+  { value: 1, label: "1st of the month" },
+  { value: 15, label: "15th of the month" },
   { value: "eom", label: "End of month" },
-];
+] as const;
 
-export interface LeasePeriodOption {
-  value: string;
+export type StartDate = (typeof START_DATE_PRESETS)[number]["value"];
+
+export interface StartDateOption {
+  value: StartDate;
   label: string;
-  months: number | null;
 }
 
-export const MIN_LEASE_PERIOD_PRESETS: LeasePeriodOption[] = [
+/* ─── Lease Period Options ─── */
+export const MIN_LEASE_PERIOD_PRESETS = [
   { value: "1m", label: "1 month", months: 1 },
   { value: "3m", label: "3 months", months: 3 },
   { value: "6m", label: "6 months", months: 6 },
   { value: "12m", label: "12 months", months: 12 },
   { value: "custom", label: "Custom", months: null },
-];
+] as const;
 
-export type PaymentCycle = "monthly" | "quarterly" | "semesterly" | "yearly";
+export type LeasePeriodValue =
+  (typeof MIN_LEASE_PERIOD_PRESETS)[number]["value"];
+
+export interface LeasePeriodOption {
+  value: LeasePeriodValue;
+  label: string;
+  months: number | null;
+}
+
+/* ─── Payment Cycle ─── */
+export const PAYMENT_CYCLE_OPTIONS = [
+  { value: "month", label: "Monthly" },
+  { value: "quarter", label: "Quarterly" },
+  { value: "semester", label: "Semesterly" },
+  { value: "year", label: "Yearly" },
+] as const;
+
+export type PaymentCycle = (typeof PAYMENT_CYCLE_OPTIONS)[number]["value"];
 
 export interface PaymentCycleOption {
   value: PaymentCycle;
   label: string;
 }
 
-export const PAYMENT_CYCLE_OPTIONS: PaymentCycleOption[] = [
-  { value: "monthly", label: "Monthly" },
-  { value: "quarterly", label: "Quarterly" },
-  { value: "semesterly", label: "Semesterly" },
-  { value: "yearly", label: "Yearly" },
-];
+/* ─── Days & Months Dropdown Options (Numbers) ─── */
+export const DAY_OF_MONTH_OPTIONS = Array.from({ length: 28 }, (_, i) => {
+  const day = i + 1;
+  return { value: day, label: `Day ${day}` };
+});
+export type DayOfMonthValue = number;
 
-export const DAY_OF_MONTH_OPTIONS: { value: string; label: string }[] =
-  Array.from({ length: 28 }, (_, i) => {
-    const day = i + 1;
-    return { value: String(day), label: `Day ${day}` };
-  });
+export const LEASE_MONTHS_OPTIONS = Array.from({ length: 12 }, (_, i) => {
+  const month = i + 1;
+  return {
+    value: month,
+    label: `${month} month${month > 1 ? "s" : ""}`,
+  };
+});
+export type LeaseMonthsValue = number;
 
-export const LEASE_MONTHS_OPTIONS: { value: string; label: string }[] =
-  Array.from({ length: 12 }, (_, i) => {
-    const month = i + 1;
-    return {
-      value: String(month),
-      label: `${month} month${month > 1 ? "s" : ""}`,
-    };
-  });
-
-export interface LandmarkCategory {
-  value: string;
-  label: string;
-  icon: LucideIcon;
-}
-
-export const LANDMARK_CATEGORIES: LandmarkCategory[] = [
+/* ─── Landmark Categories ─── */
+export const LANDMARK_CATEGORIES = [
   { value: "campus", label: "Campus & University Area", icon: GraduationCap },
   { value: "school", label: "School District (SD/SMP/SMA)", icon: School },
   { value: "office", label: "Office & Commercial District", icon: Building2 },
@@ -158,29 +174,33 @@ export const LANDMARK_CATEGORIES: LandmarkCategory[] = [
   { value: "government", label: "Government & Public Office", icon: Landmark },
   { value: "gas-station", label: "Gas Station (SPBU) Area", icon: Fuel },
   { value: "airport", label: "Airport / Logistics Hub", icon: Plane },
-];
+] as const;
 
-export type StallPlacement = "indoor" | "semi-outdoor" | "outdoor";
+export type LandmarkCategoryValue =
+  (typeof LANDMARK_CATEGORIES)[number]["value"];
+
+export interface LandmarkCategory {
+  value: LandmarkCategoryValue;
+  label: string;
+  icon: LucideIcon;
+}
+
+/* ─── Stall Placement ─── */
+export const STALL_PLACEMENT_OPTIONS = [
+  { value: "indoor", label: "Indoor (Fully Enclosed / Air-Conditioned)" },
+  { value: "semi-outdoor", label: "Semi-Outdoor (Covered / Canopy)" },
+  { value: "outdoor", label: "Outdoor (Open Air / Courtyard)" },
+] as const;
+
+export type StallPlacement = (typeof STALL_PLACEMENT_OPTIONS)[number]["value"];
 
 export interface StallPlacementOption {
   value: StallPlacement;
   label: string;
 }
 
-export const STALL_PLACEMENT_OPTIONS: StallPlacementOption[] = [
-  { value: "indoor", label: "Indoor (Fully Enclosed / Air-Conditioned)" },
-  { value: "semi-outdoor", label: "Semi-Outdoor (Covered / Canopy)" },
-  { value: "outdoor", label: "Outdoor (Open Air / Courtyard)" },
-];
-
-export interface StallPropertyType {
-  value: string;
-  label: string;
-  description: string;
-  icon: LucideIcon;
-}
-
-export const STALL_PROPERTY_TYPES: StallPropertyType[] = [
+/* ─── Stall Property Type ─── */
+export const STALL_PROPERTY_TYPES = [
   {
     value: "mall-island",
     label: "Mall Island / Kiosk Corridor",
@@ -232,22 +252,22 @@ export const STALL_PROPERTY_TYPES: StallPropertyType[] = [
     description: "Designated parking bay with dedicated utility hookups.",
     icon: Truck,
   },
-];
+] as const;
 
-export const STALL_SIZE_RANGE = { min: 2, max: 100, step: 1 }; // in sqm (m²)
+export type StallPropertyTypeValue =
+  (typeof STALL_PROPERTY_TYPES)[number]["value"];
 
-export interface Facility {
-  value: string;
+export interface StallPropertyType {
+  value: StallPropertyTypeValue;
   label: string;
+  description: string;
   icon: LucideIcon;
 }
 
-export interface FacilityGroup {
-  group: string;
-  items: Facility[];
-}
+export const STALL_SIZE_RANGE = { min: 2, max: 100, step: 1 } as const;
 
-export const FACILITY_GROUPS: FacilityGroup[] = [
+/* ─── Facility & Facility Groups ─── */
+export const FACILITY_GROUPS = [
   {
     group: "Utility & Hardware",
     items: [
@@ -307,7 +327,18 @@ export const FACILITY_GROUPS: FacilityGroup[] = [
       { value: "tv-display", label: "Digital Signage / TV Area", icon: Tv },
     ],
   },
-];
+] as const;
 
-// flat list, kept for anywhere that still needs a plain array (e.g. lookups by value)
-export const FACILITIES: Facility[] = FACILITY_GROUPS.flatMap((g) => g.items);
+export type FacilityValue =
+  (typeof FACILITY_GROUPS)[number]["items"][number]["value"];
+
+export interface Facility {
+  value: FacilityValue;
+  label: string;
+  icon: LucideIcon;
+}
+
+export interface FacilityGroup {
+  group: string;
+  items: readonly Facility[];
+}

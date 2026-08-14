@@ -1,12 +1,23 @@
+import {
+  PaymentCycle,
+  StallPropertyTypeValue,
+} from "@/components/common/search/SearchConstants";
+
+export interface StallLocationSummary {
+  area: string; // e.g. "Margonda" or "Orchard"
+  city: string; // e.g. "Depok" or "Central Singapore"
+  countryCode?: string; // e.g. "ID", "SG"
+}
+
 export interface Stall {
   id: string;
   title: string;
   imageUrl: string;
-  city: string;
-  area: string;
-  propertyType: string;
+  location: StallLocationSummary; // Lokasi ringkas khusus Card
+  propertyType: StallPropertyTypeValue; // e.g. "mall-island", "shophouse"
   sizeSqm: number;
-  pricePerMonth: string;
+  cheapestPriceFormatted: string;
+  cheapestPricePeriod: PaymentCycle; // "month" | "quarter" | "semester" | "year"
   rating: number;
   reviewCount: number;
 }
@@ -17,11 +28,15 @@ export const MOCK_STALL_LIST: Stall[] = [
     title: "Kios Ground Floor Plaza Margonda - Main Corridor",
     imageUrl:
       "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&h=400&fit=crop",
-    city: "Depok",
-    area: "Margonda",
-    propertyType: "Mall Island",
+    location: {
+      area: "Margonda",
+      city: "Depok",
+      countryCode: "ID",
+    },
+    propertyType: "mall-island",
     sizeSqm: 12,
-    pricePerMonth: "Rp 3.500.000",
+    cheapestPriceFormatted: "Rp 2.500.000",
+    cheapestPricePeriod: "month",
     rating: 4.8,
     reviewCount: 14,
   },
@@ -30,11 +45,15 @@ export const MOCK_STALL_LIST: Stall[] = [
     title: "Lapak Busana Blok B Pasar Tanah Abang",
     imageUrl:
       "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&h=400&fit=crop",
-    city: "Central Jakarta",
-    area: "Tanah Abang",
-    propertyType: "Market Stall",
+    location: {
+      area: "Tanah Abang",
+      city: "Central Jakarta",
+      countryCode: "ID",
+    },
+    propertyType: "traditional-market",
     sizeSqm: 8,
-    pricePerMonth: "Rp 4.200.000",
+    cheapestPriceFormatted: "Rp 22.000.000",
+    cheapestPricePeriod: "year",
     rating: 4.9,
     reviewCount: 28,
   },
@@ -43,11 +62,15 @@ export const MOCK_STALL_LIST: Stall[] = [
     title: "Space Ruko Lantai 1 Akses Utama Kampus ITB Dago",
     imageUrl:
       "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&h=400&fit=crop",
-    city: "Bandung",
-    area: "Dago",
-    propertyType: "Ruko / Shophouse",
+    location: {
+      area: "Dago",
+      city: "Bandung",
+      countryCode: "ID",
+    },
+    propertyType: "shophouse",
     sizeSqm: 36,
-    pricePerMonth: "Rp 6.800.000",
+    cheapestPriceFormatted: "Rp 18.000.000",
+    cheapestPricePeriod: "semester",
     rating: 4.7,
     reviewCount: 9,
   },
@@ -56,11 +79,15 @@ export const MOCK_STALL_LIST: Stall[] = [
     title: "Container Booth Street Food Kuliner Pasar Minggu",
     imageUrl:
       "https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=600&h=400&fit=crop",
-    city: "South Jakarta",
-    area: "Pasar Minggu",
-    propertyType: "Street Kiosk",
+    location: {
+      area: "Pasar Minggu",
+      city: "South Jakarta",
+      countryCode: "ID",
+    },
+    propertyType: "street-kiosk",
     sizeSqm: 6,
-    pricePerMonth: "Rp 1.800.000",
+    cheapestPriceFormatted: "Rp 5.000.000",
+    cheapestPricePeriod: "quarter",
     rating: 4.6,
     reviewCount: 19,
   },
@@ -69,11 +96,15 @@ export const MOCK_STALL_LIST: Stall[] = [
     title: "Counter Food Court Area Utama Tunjungan Plaza",
     imageUrl:
       "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&h=400&fit=crop",
-    city: "Surabaya",
-    area: "Tunjungan",
-    propertyType: "Food Court Counter",
+    location: {
+      area: "Tunjungan",
+      city: "Surabaya",
+      countryCode: "ID",
+    },
+    propertyType: "food-court-counter",
     sizeSqm: 15,
-    pricePerMonth: "Rp 5.500.000",
+    cheapestPriceFormatted: "Rp 5.500.000",
+    cheapestPricePeriod: "month",
     rating: 5.0,
     reviewCount: 31,
   },
@@ -82,11 +113,15 @@ export const MOCK_STALL_LIST: Stall[] = [
     title: "Kios Toko Sembako & Kelontong Kompleks Depsos",
     imageUrl:
       "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=600&h=400&fit=crop",
-    city: "Bekasi",
-    area: "Bekasi Timur",
-    propertyType: "Traditional Market",
+    location: {
+      area: "Bekasi Timur",
+      city: "Bekasi",
+      countryCode: "ID",
+    },
+    propertyType: "traditional-market",
     sizeSqm: 18,
-    pricePerMonth: "Rp 2.200.000",
+    cheapestPriceFormatted: "Rp 2.200.000",
+    cheapestPricePeriod: "month",
     rating: 4.5,
     reviewCount: 6,
   },
@@ -95,11 +130,15 @@ export const MOCK_STALL_LIST: Stall[] = [
     title: "Outdoor Courtyard Spot Food Truck Breeze BSD",
     imageUrl:
       "https://images.unsplash.com/photo-1565123409695-7b5ef63a2efb?w=600&h=400&fit=crop",
-    city: "Tangerang Selatan",
-    area: "BSD City",
-    propertyType: "Food Truck Spot",
+    location: {
+      area: "BSD City",
+      city: "Tangerang Selatan",
+      countryCode: "ID",
+    },
+    propertyType: "food-truck-spot",
     sizeSqm: 20,
-    pricePerMonth: "Rp 3.000.000",
+    cheapestPriceFormatted: "Rp 3.000.000",
+    cheapestPricePeriod: "month",
     rating: 4.8,
     reviewCount: 15,
   },
@@ -108,11 +147,15 @@ export const MOCK_STALL_LIST: Stall[] = [
     title: "Kios Garasi Komersial Jalan Kaliurang KM 5",
     imageUrl:
       "https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=600&h=400&fit=crop",
-    city: "Sleman",
-    area: "Jakal / UGM",
-    propertyType: "Garage / Yard Space",
+    location: {
+      area: "Jakal / UGM",
+      city: "Sleman",
+      countryCode: "ID",
+    },
+    propertyType: "garage-driveway",
     sizeSqm: 24,
-    pricePerMonth: "Rp 2.700.000",
+    cheapestPriceFormatted: "Rp 7.500.000",
+    cheapestPricePeriod: "quarter",
     rating: 4.9,
     reviewCount: 22,
   },
