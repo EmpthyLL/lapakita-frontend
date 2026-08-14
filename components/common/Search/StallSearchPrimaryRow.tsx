@@ -64,7 +64,8 @@ export function StallSearchPrimaryRow({
         <Autocomplete
           value={singleLandmark}
           onSelect={(v) => onSingleLandmarkChange(String(v))}
-          options={LANDMARK_CATEGORIES}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          options={LANDMARK_CATEGORIES as any}
           placeholder="Any landmark"
           mode="solid"
           className="sm:w-45"

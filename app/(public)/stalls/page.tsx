@@ -1,40 +1,11 @@
 import StallSearch from "@/components/common/search/StallSearch";
-import { BasePaginationQuery, PaginatedResponse } from "@/lib/data/schema/base";
-import { MOCK_STALL_LIST, Stall } from "@/lib/data/schema/stall/get_stall";
+import { StallCard } from "@/components/common/StallCard";
+import { MOCK_STALL_LIST } from "@/lib/data/schema/stall/get_stall";
 import { LayoutGrid } from "lucide-react";
-import { StallInfiniteList } from "./StallInfiniteList";
 import { StallResultsToolbar } from "./StallResultsToolbar";
 
-// Mock Query Function (Ganti ini dengan API call backend kamu nantinya)
-async function fetchStallsApi(
-  params: BasePaginationQuery,
-): Promise<PaginatedResponse<Stall>> {
-  // Simulasi latency jaringan
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
-  const page = params.page ?? 1;
-  const limit = params.limit ?? 10;
-  const start = (page - 1) * limit;
-  const paginated = MOCK_STALL_LIST.slice(start, start + limit);
-  const totalPages = Math.ceil(MOCK_STALL_LIST.length / limit);
-
-  return {
-    status: true,
-    message: "Success",
-    data: paginated,
-    meta: {
-      currentPage: page,
-      perPage: limit,
-      totalItems: MOCK_STALL_LIST.length,
-      totalPages,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1,
-    },
-  };
-}
-
 export default async function StallsPage() {
-  const initialStalls = MOCK_STALL_LIST.slice(0, 10);
+  const stalls = MOCK_STALL_LIST;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:py-10">
@@ -55,13 +26,14 @@ export default async function StallsPage() {
 
       <StallSearch mode="full">
         <div className="space-y-4">
-          <StallResultsToolbar count={MOCK_STALL_LIST.length} />
+          <StallResultsToolbar count={stalls.length} />
 
-          {/* Infinite Scroll List */}
-          <StallInfiniteList
-            queryFn={fetchStallsApi}
-            initialData={initialStalls}
-          />
+          {/* List Card Memanjang (1 Kolom Vertikal) */}
+          <div className="flex flex-col gap-4">
+            {stalls.map((stall) => (
+              <StallCard key={stall.id} stall={stall} />
+            ))}
+          </div>
         </div>
       </StallSearch>
     </div>

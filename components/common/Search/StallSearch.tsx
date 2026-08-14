@@ -329,7 +329,7 @@ export default function StallSearch({
                 <button
                   key={r}
                   type="button"
-                  onClick={() => setRadius(r)}
+                  onClick={() => {}}
                   className={cn(
                     "rounded-full px-3 py-1 text-xs font-medium transition-colors outline-none",
                     radius === r
