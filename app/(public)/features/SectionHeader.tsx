@@ -1,17 +1,17 @@
-import { VariantColor } from "@/types";
+import { Role } from "@/types";
 
 interface SectionHeadingProps {
   badge: string;
   title: string;
   description: string;
-  color?: VariantColor;
+  color?: Role;
 }
 
 export function SectionHeading({
   badge,
   title,
   description,
-  color = "primary",
+  color = "tenant",
 }: SectionHeadingProps) {
   return (
     <div className="mx-auto max-w-2xl text-center">

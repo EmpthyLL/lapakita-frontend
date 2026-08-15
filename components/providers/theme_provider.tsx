@@ -3,19 +3,32 @@
 import { usePathname } from "next/navigation";
 import * as React from "react";
 
+export type AppRole = "tenant" | "owner" | "supplier";
+
+interface RoleThemeContextType {
+  role: AppRole;
+  roleColor: string;
+  roleForeground: string;
+  roleSecondary: string;
+}
+
+const RoleThemeContext = React.createContext<RoleThemeContextType>({
+  role: "tenant",
+  roleColor: "var(--tenant)",
+  roleForeground: "var(--tenant-foreground)",
+  roleSecondary: "var(--tenant-secondary)",
+});
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? "";
 
-  const role = React.useMemo(() => {
+  const role: AppRole = React.useMemo(() => {
     if (pathname.includes("/owner")) return "owner";
     if (pathname.includes("/supplier")) return "supplier";
-    return "primary";
+    return "tenant";
   }, [pathname]);
 
-  // Jika role primary (default), kembalikan style kosong agar menggunakan nilai asli dari globals.css
   const dynamicStyles = React.useMemo(() => {
-    if (role === "primary") return undefined;
-
     return {
       "--primary": `var(--${role})`,
       "--primary-foreground": `var(--${role}-foreground)`,
@@ -24,9 +37,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } as React.CSSProperties;
   }, [role]);
 
-  return (
-    <div data-role={role} className="contents" style={dynamicStyles}>
-      {children}
-    </div>
+  const contextValue = React.useMemo<RoleThemeContextType>(
+    () => ({
+      role,
+      roleColor: `var(--${role})`,
+      roleForeground: `var(--${role}-foreground)`,
+      roleSecondary: `var(--${role}-secondary)`,
+    }),
+    [role],
   );
+
+  return (
+    <RoleThemeContext.Provider value={contextValue}>
+      <div data-role={role} className="contents" style={dynamicStyles}>
+        {children}
+      </div>
+    </RoleThemeContext.Provider>
+  );
+}
+
+export function useRoleTheme() {
+  return React.useContext(RoleThemeContext);
 }

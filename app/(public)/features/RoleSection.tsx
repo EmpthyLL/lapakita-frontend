@@ -1,8 +1,9 @@
 "use client";
 
-import { Lock } from "lucide-react";
-import type { RoleContent, FeatureItem, FeatureGroup } from "./FeatureData";
 import { cn } from "@/lib/utils";
+import { Role } from "@/types";
+import { Lock } from "lucide-react";
+import type { FeatureGroup, FeatureItem, RoleContent } from "./FeatureData";
 
 function PremiumBadge() {
   return (
@@ -178,9 +179,9 @@ function FeatureGroupLayout({
   color,
 }: {
   group: FeatureGroup;
-  color: string;
+  color: Role;
 }) {
-  if (color === "primary") return <TenantGroup group={group} color={color} />;
+  if (color === "tenant") return <TenantGroup group={group} color={color} />;
   if (color === "owner") return <OwnerGroup group={group} color={color} />;
   return <SupplierGroup group={group} color={color} />;
 }

@@ -1,7 +1,6 @@
-import { Store, Building2, Truck, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ArrowRight, Building2, Store, Truck } from "lucide-react";
 import Link from "next/link";
-import { VariantColor } from "@/types";
 
 interface Pillar {
   role: string;
@@ -9,7 +8,6 @@ interface Pillar {
   description: string;
   points: string[];
   icon: React.ElementType;
-  colorVar: VariantColor;
   href: string;
 }
 
@@ -25,7 +23,6 @@ const PILLARS: Pillar[] = [
       "3-scenario financial forecast for existing or new businesses",
     ],
     icon: Store,
-    colorVar: "primary",
     href: "/features?role=tenant",
   },
   {
@@ -39,7 +36,6 @@ const PILLARS: Pillar[] = [
       "Daily vacancy loss calculation & pricing recommendations",
     ],
     icon: Building2,
-    colorVar: "owner",
     href: "/features?role=owner",
   },
   {
@@ -53,7 +49,6 @@ const PILLARS: Pillar[] = [
       "Order velocity analytics & subscriber demand signals",
     ],
     icon: Truck,
-    colorVar: "supplier",
     href: "/features?role=supplier",
   },
 ];
@@ -88,14 +83,14 @@ export function EcosystemPillars() {
                 >
                   <span
                     className="absolute inset-x-0 top-0 h-1.5"
-                    style={{ backgroundColor: `var(--${pillar.colorVar})` }}
+                    style={{ backgroundColor: `var(--${pillar.role})` }}
                   />
 
                   <div
                     className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl"
                     style={{
-                      backgroundColor: `var(--${pillar.colorVar}-secondary)`,
-                      color: `var(--${pillar.colorVar})`,
+                      backgroundColor: `var(--${pillar.role}-secondary)`,
+                      color: `var(--${pillar.role})`,
                     }}
                   >
                     <Icon className="h-5 w-5" />
@@ -103,7 +98,7 @@ export function EcosystemPillars() {
 
                   <span
                     className="mb-1 text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: `var(--${pillar.colorVar})` }}
+                    style={{ color: `var(--${pillar.role})` }}
                   >
                     {pillar.role}
                   </span>
@@ -120,7 +115,7 @@ export function EcosystemPillars() {
                         <span
                           className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
                           style={{
-                            backgroundColor: `var(--${pillar.colorVar})`,
+                            backgroundColor: `var(--${pillar.role})`,
                           }}
                         />
                         {point}
@@ -132,7 +127,7 @@ export function EcosystemPillars() {
                     asChild
                     variant="ghost"
                     className="mt-6 justify-start px-0 hover:bg-transparent"
-                    style={{ color: `var(--${pillar.colorVar})` }}
+                    style={{ color: `var(--${pillar.role})` }}
                   >
                     <Link href={pillar.href}>
                       Learn more

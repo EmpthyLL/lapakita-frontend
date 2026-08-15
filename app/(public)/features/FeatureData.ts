@@ -1,4 +1,4 @@
-import { Role, VariantColor } from "@/types";
+import { Role } from "@/types";
 import type { LucideIcon } from "lucide-react";
 import {
   Activity,
@@ -56,7 +56,7 @@ export interface RoleContent {
   headline: string;
   description: string;
   groups: FeatureGroup[];
-  color: VariantColor;
+  color: Role;
 }
 
 export const ROLE_CONTENT: Record<Role, RoleContent> = {
@@ -64,7 +64,7 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
     label: "Tenant",
     badge: "For Business Operators & Tenants",
     headline: "From Business Idea to Daily Retail Operations",
-    color: "primary",
+    color: "tenant",
     description:
       "Tenants are business operators first, stall renters second. Whether you're running a physical stall or a home-based, cloud kitchen, or online business, you get the same tools.",
     groups: [

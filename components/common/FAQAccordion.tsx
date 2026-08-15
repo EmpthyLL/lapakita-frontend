@@ -6,12 +6,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { VariantColor } from "@/types";
+import { Role } from "@/types";
 
 export interface FaqItem {
   question: string;
   answer: string;
-  roleType?: VariantColor;
+  roleType?: Role;
 }
 
 interface FaqAccordionSectionProps {

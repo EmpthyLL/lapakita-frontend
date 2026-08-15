@@ -1,14 +1,11 @@
 "use client";
 
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Autocomplete } from "../input/Autocomplete";
 import {
   DAY_OF_MONTH_OPTIONS,
   LEASE_MONTHS_OPTIONS,
   MIN_LEASE_PERIOD_PRESETS,
-  PAYMENT_CYCLE_OPTIONS,
   START_DATE_PRESETS,
-  type PaymentCycle,
 } from "./SearchConstants";
 
 const START_DATE_OPTIONS = [
@@ -26,9 +23,6 @@ interface LeaseTermsPickerProps {
   onMinLeasePeriodChange: (value: string) => void;
   customLeaseMonths: string;
   onCustomLeaseMonthsChange: (value: string) => void;
-
-  paymentCycle: PaymentCycle | "";
-  onPaymentCycleChange: (value: PaymentCycle) => void;
 }
 
 export function LeaseTermsPicker({
@@ -40,8 +34,6 @@ export function LeaseTermsPicker({
   onMinLeasePeriodChange,
   customLeaseMonths,
   onCustomLeaseMonthsChange,
-  paymentCycle,
-  onPaymentCycleChange,
 }: LeaseTermsPickerProps) {
   return (
     <div className="space-y-5">
@@ -89,28 +81,6 @@ export function LeaseTermsPicker({
             className="mt-2"
           />
         )}
-      </div>
-
-      <div>
-        <p className="mb-2 text-xs font-semibold text-muted-foreground">
-          Payment Cycle
-        </p>
-        <ToggleGroup
-          type="single"
-          value={paymentCycle}
-          onValueChange={(v) => v && onPaymentCycleChange(v as PaymentCycle)}
-          className="flex w-full flex-wrap rounded-lg border border-border bg-secondary/40 p-1"
-        >
-          {PAYMENT_CYCLE_OPTIONS.map((opt) => (
-            <ToggleGroupItem
-              key={opt.value}
-              value={opt.value}
-              className="flex-1 rounded-md px-3 py-1.5 text-xs font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-            >
-              {opt.label}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
       </div>
     </div>
   );

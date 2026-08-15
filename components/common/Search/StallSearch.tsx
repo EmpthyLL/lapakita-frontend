@@ -14,22 +14,22 @@ import {
   type LandmarkRadiusEntry,
 } from "./LandmarkRadiusPicker";
 import { LeaseTermsPicker } from "./LeaseTermsPicker";
-import { PlacementPicker } from "./PlacementPicker";
 import { PropertyTypePicker } from "./PropertyTypePicker";
 import {
   DEFAULT_ASSUMED_CAPITAL,
   DEFAULT_BEP_MONTHS,
   DEPOSIT_RANGE,
+  FLOOR_COUNT_RANGE,
+  GENERAL_RENT_RANGE,
   PaymentCycle,
   RADIUS_PRESETS,
-  RENT_RANGE,
   STALL_SIZE_RANGE,
   StallPlacement,
 } from "./SearchConstants";
 import { StallSearchFooter } from "./SearchFooter";
 import { StallSearchBudgetFilters } from "./StallSearchBudgetFilters";
 import { StallSearchPrimaryRow } from "./StallSearchPrimaryRow";
-import { StallSizeFilter } from "./StallSpaceFilters.";
+import { StallSpaceFilter } from "./StallSpaceFilter";
 
 const BUSINESS_TYPE_LABELS: Record<string, string> = Object.fromEntries(
   BUSINESS_CATEGORIES.flatMap((g) => g.types.map((t) => [t.value, t.label])),
@@ -111,7 +111,7 @@ export default function StallSearch({
 
   // Filter States
   const [location, setLocation] = useState("");
-  const [radius, setRadius] = useState(RADIUS_PRESETS[1]);
+  const radius = RADIUS_PRESETS[1];
   const [singleLandmark, setSingleLandmark] = useState("any");
 
   const [landmarkEntries, setLandmarkEntries] = useState<LandmarkRadiusEntry[]>(
@@ -124,6 +124,10 @@ export default function StallSearch({
     STALL_SIZE_RANGE.min,
     STALL_SIZE_RANGE.max,
   ]);
+  const [floorCountRange, setFloorCountRange] = useState<[number, number]>([
+    FLOOR_COUNT_RANGE.min,
+    FLOOR_COUNT_RANGE.min, // default: 1 floor, bukan langsung 1–4
+  ]);
 
   const [businessType, setBusinessType] = useState("");
   const [facilities, setFacilities] = useState<string[]>([]);
@@ -133,8 +137,8 @@ export default function StallSearch({
   const [customBepMonths, setCustomBepMonths] = useState<number | null>(null);
   const [capital, setCapital] = useState<number>(DEFAULT_ASSUMED_CAPITAL);
   const [rentRange, setRentRange] = useState<[number, number]>([
-    RENT_RANGE.min,
-    RENT_RANGE.max,
+    GENERAL_RENT_RANGE.min,
+    GENERAL_RENT_RANGE.max,
   ]);
   const [depositRange, setDepositRange] = useState<[number, number]>([
     DEPOSIT_RANGE.min,
@@ -212,7 +216,7 @@ export default function StallSearch({
     setSizeRange([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]);
     setBusinessType("");
     setFacilities([]);
-    setRentRange([RENT_RANGE.min, RENT_RANGE.max]);
+    setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
     setDepositRange([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]);
     setStartDate("");
     setMinLeasePeriod("");
@@ -239,15 +243,21 @@ export default function StallSearch({
         />
       </FilterAccordionSection>
 
-      <FilterAccordionSection title="Property Type">
-        <PropertyTypePicker value={propertyType} onChange={setPropertyType} />
-      </FilterAccordionSection>
-
       <FilterAccordionSection title="Placement & Size">
         <div className="space-y-4">
-          <PlacementPicker value={placement} onChange={setPlacement} />
-          <StallSizeFilter value={sizeRange} onChange={setSizeRange} />
+          <StallSpaceFilter
+            placement={placement}
+            onPlacementChange={setPlacement}
+            floorCount={floorCountRange}
+            onFloorCountChange={setFloorCountRange}
+            stallSize={sizeRange}
+            onStallSizeChange={setSizeRange}
+          />
         </div>
+      </FilterAccordionSection>
+
+      <FilterAccordionSection title="Property Type">
+        <PropertyTypePicker value={propertyType} onChange={setPropertyType} />
       </FilterAccordionSection>
     </>
   );
@@ -264,6 +274,8 @@ export default function StallSearch({
           onCustomBepMonthsChange={setCustomBepMonths}
           capital={capital}
           onCapitalChange={setCapital}
+          paymentCycle={paymentCycle}
+          onPaymentCycleChange={setPaymentCycle}
           rentRange={rentRange}
           onRentRangeChange={setRentRange}
           depositRange={depositRange}
@@ -281,8 +293,6 @@ export default function StallSearch({
           onMinLeasePeriodChange={setMinLeasePeriod}
           customLeaseMonths={customLeaseMonths}
           onCustomLeaseMonthsChange={setCustomLeaseMonths}
-          paymentCycle={paymentCycle}
-          onPaymentCycleChange={setPaymentCycle}
         />
       </FilterAccordionSection>
 

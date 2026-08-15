@@ -2,19 +2,18 @@
 
 import { useRoleFilter } from "@/components/providers/role_provider";
 import { cn } from "@/lib/utils";
-import type { RoleAndAll, VariantColor } from "@/types";
+import type { RoleAndAll } from "@/types";
 
 interface RoleTabItem {
   value: RoleAndAll;
   label: string;
-  color?: VariantColor;
 }
 
 const TABS: RoleTabItem[] = [
   { value: "all", label: "All" },
-  { value: "tenant", label: "Tenant", color: "primary" },
-  { value: "owner", label: "Stall Owner", color: "owner" },
-  { value: "supplier", label: "Supplier", color: "supplier" },
+  { value: "tenant", label: "Tenant" },
+  { value: "owner", label: "Stall Owner" },
+  { value: "supplier", label: "Supplier" },
 ];
 
 export function RoleTab() {
@@ -27,6 +26,8 @@ export function RoleTab() {
     >
       {TABS.map((tab) => {
         const active = activeRole === tab.value;
+        const isAll = tab.value === "all";
+
         return (
           <button
             key={tab.value}
@@ -35,14 +36,19 @@ export function RoleTab() {
             aria-selected={active}
             onClick={() => setActiveRole(tab.value)}
             className={cn(
-              "rounded-xl px-4 py-2 text-sm font-medium transition-all",
+              "rounded-xl px-4 py-2 text-sm font-medium transition-all select-none",
               active
-                ? "text-white shadow-sm"
-                : "text-muted-foreground hover:text-foreground",
+                ? isAll
+                  ? "bg-foreground text-background shadow-xs font-semibold"
+                  : "shadow-xs font-semibold"
+                : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
             )}
             style={
-              active
-                ? { backgroundColor: `var(--${tab.color ?? "foreground"})` }
+              active && !isAll
+                ? {
+                    backgroundColor: `var(--${tab.value})`,
+                    color: `var(--${tab.value}-foreground)`,
+                  }
                 : undefined
             }
           >

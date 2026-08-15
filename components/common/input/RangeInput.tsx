@@ -2,45 +2,64 @@
 
 import { Slider } from "@/components/ui/slider";
 import { NumberInput } from "../input/NumberInput";
-import { STALL_SIZE_RANGE } from "./SearchConstants";
 
-interface StallSizeFilterProps {
+interface RangeInputProps {
+  label: string;
+  min: number;
+  max: number;
+  step: number;
   value: [number, number];
   onChange: (value: [number, number]) => void;
+  formatValue: (n: number) => string;
+  prefix?: string;
+  suffix?: string;
 }
 
-export function StallSizeFilter({ value, onChange }: StallSizeFilterProps) {
+export function RangeInput({
+  label,
+  min,
+  max,
+  step,
+  value,
+  onChange,
+  formatValue,
+  prefix,
+  suffix,
+}: RangeInputProps) {
+  // Slider visually extends past its default max once the typed value exceeds it
+  const sliderMax = Math.max(max, value[1]);
+
   function handleMinChange(next: number | undefined) {
-    const parsed = Math.max(STALL_SIZE_RANGE.min, next ?? STALL_SIZE_RANGE.min);
+    const parsed = Math.max(min, next ?? min);
     onChange([Math.min(parsed, value[1]), value[1]]);
   }
 
   function handleMaxChange(next: number | undefined) {
-    const parsed = Math.min(STALL_SIZE_RANGE.max, next ?? STALL_SIZE_RANGE.max);
+    // No upper clamp here on purpose — only floor it against min/current min
+    const parsed = Math.max(min, next ?? max);
     onChange([value[0], Math.max(parsed, value[0])]);
   }
 
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-xs font-semibold text-muted-foreground">
-          Stall Size
-        </p>
+        <p className="text-xs font-semibold text-muted-foreground">{label}</p>
         <span className="text-[11px] text-muted-foreground">
-          {value[0]} – {value[1]} m²
+          {formatValue(value[0])} – {formatValue(value[1])}
         </span>
       </div>
       <Slider
-        min={STALL_SIZE_RANGE.min}
-        max={STALL_SIZE_RANGE.max}
-        step={STALL_SIZE_RANGE.step}
+        min={min}
+        max={sliderMax}
+        step={step}
         value={value}
         onValueChange={(v) => onChange(v as [number, number])}
         className="mb-3"
       />
       <div className="flex items-center gap-2">
         <NumberInput
-          suffix=" m²"
+          prefix={prefix}
+          suffix={suffix}
           decimalScale={0}
           placeholder="Min"
           value={value[0]}
@@ -49,7 +68,8 @@ export function StallSizeFilter({ value, onChange }: StallSizeFilterProps) {
         />
         <span className="text-muted-foreground">–</span>
         <NumberInput
-          suffix=" m²"
+          prefix={prefix}
+          suffix={suffix}
           decimalScale={0}
           placeholder="Max"
           value={value[1]}

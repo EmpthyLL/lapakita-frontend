@@ -2,7 +2,7 @@
 
 import { useRoleFilter } from "@/components/providers/role_provider";
 import { cn } from "@/lib/utils";
-import { VariantColor } from "@/types";
+import { Role } from "@/types";
 import type { LucideIcon } from "lucide-react";
 
 interface FeatureCardProps {
@@ -10,7 +10,7 @@ interface FeatureCardProps {
   title: string;
   description: string;
   /** Roles this feature is relevant to. Omit or ["all"] = relevant to everyone. */
-  roles?: (VariantColor | "all")[];
+  roles?: (Role | "all")[];
 }
 
 export function FeatureCard({
@@ -23,7 +23,7 @@ export function FeatureCard({
   const isDimmed =
     activeRole !== "all" &&
     !roles.includes("all") &&
-    !roles.includes(activeRole === "tenant" ? "primary" : activeRole);
+    !roles.includes(activeRole);
   const singleRole = roles.length === 1 && roles[0] !== "all" ? roles[0] : null;
 
   return (

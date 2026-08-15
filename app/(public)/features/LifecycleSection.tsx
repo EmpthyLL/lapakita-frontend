@@ -210,7 +210,7 @@ export function LifecycleSection() {
           badge={flow.badge}
           title={flow.title}
           description={flow.description}
-          color="primary"
+          color="tenant"
         />
 
         {/* Flow tab switcher */}

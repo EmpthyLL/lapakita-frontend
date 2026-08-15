@@ -154,11 +154,18 @@ export interface FacilityGroup {
 
 export const BEP_PRESETS_MONTHS: readonly BEPMonths[] = [3, 6, 12, 18, 24];
 
-export const RENT_RANGE = {
-  min: 500_000,
-  max: 20_000_000,
-  step: 100_000,
-} as const;
+export const RENT_RANGE_BY_CYCLE: Record<
+  PaymentCycle,
+  { min: number; max: number; step: number }
+> = {
+  month: { min: 500_000, max: 20_000_000, step: 100_000 },
+  quarter: { min: 1_500_000, max: 60_000_000, step: 500_000 },
+  semester: { min: 3_000_000, max: 120_000_000, step: 1_000_000 },
+  year: { min: 6_000_000, max: 250_000_000, step: 5_000_000 },
+};
+
+// Used when no payment cycle is selected yet — a general, unlabeled assumption
+export const GENERAL_RENT_RANGE = RENT_RANGE_BY_CYCLE.month;
 
 export const DEPOSIT_RANGE = {
   min: 500_000,
@@ -214,8 +221,8 @@ export const MIN_LEASE_PERIOD_PRESETS: LeasePeriodOption[] = [
 
 export const PAYMENT_CYCLE_OPTIONS: PaymentCycleOption[] = [
   { value: "month", label: "Monthly" },
-  { value: "quarter", label: "Quarterly" },
-  { value: "semester", label: "Semesterly" },
+  { value: "quarter", label: "Quarter" },
+  { value: "semester", label: "Semester" },
   { value: "year", label: "Yearly" },
 ];
 
@@ -318,6 +325,8 @@ export const STALL_PROPERTY_TYPES: StallPropertyType[] = [
     icon: Truck,
   },
 ];
+
+export const FLOOR_COUNT_RANGE = { min: 1, max: 4, step: 1 } as const;
 
 export const STALL_SIZE_RANGE = { min: 2, max: 100, step: 1 } as const;
 

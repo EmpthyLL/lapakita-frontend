@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Role, VariantColor } from "@/types";
+import { Role } from "@/types";
 import type { LucideIcon } from "lucide-react";
 import {
   Building2,
@@ -26,7 +26,6 @@ interface StepItem {
 interface RoleWorkflow {
   role: Role;
   label: string;
-  color: VariantColor;
   steps: StepItem[];
 }
 
@@ -34,7 +33,6 @@ const WORKFLOWS: Record<Role, RoleWorkflow> = {
   tenant: {
     role: "tenant",
     label: "For Tenants / Business Operators",
-    color: "primary",
     steps: [
       {
         number: "01",
@@ -62,7 +60,6 @@ const WORKFLOWS: Record<Role, RoleWorkflow> = {
   owner: {
     role: "owner",
     label: "For Stall Owners",
-    color: "owner",
     steps: [
       {
         number: "01",
@@ -90,7 +87,6 @@ const WORKFLOWS: Record<Role, RoleWorkflow> = {
   supplier: {
     role: "supplier",
     label: "For B2B Suppliers",
-    color: "supplier",
     steps: [
       {
         number: "01",
@@ -140,7 +136,7 @@ export function HowItWorks() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-border bg-muted/60 p-1.5">
             {(["tenant", "owner", "supplier"] as Role[]).map((role) => {
               const isActive = activeRole === role;
-              const color = WORKFLOWS[role].color;
+              const color = WORKFLOWS[role].role;
               return (
                 <button
                   key={role}
@@ -178,7 +174,7 @@ export function HowItWorks() {
                 {/* Top accent bar in the active role's color */}
                 <span
                   className="absolute inset-x-0 top-0 h-1"
-                  style={{ backgroundColor: `var(--${currentWorkflow.color})` }}
+                  style={{ backgroundColor: `var(--${currentWorkflow.role})` }}
                 />
 
                 <div>
@@ -186,8 +182,8 @@ export function HowItWorks() {
                     <span
                       className="flex h-12 w-12 items-center justify-center rounded-2xl"
                       style={{
-                        backgroundColor: `var(--${currentWorkflow.color}-secondary)`,
-                        color: `var(--${currentWorkflow.color})`,
+                        backgroundColor: `var(--${currentWorkflow.role}-secondary)`,
+                        color: `var(--${currentWorkflow.role})`,
                       }}
                     >
                       <Icon className="h-6 w-6" />

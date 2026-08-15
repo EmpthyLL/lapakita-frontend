@@ -1,14 +1,18 @@
 "use client";
 
-import { Slider } from "@/components/ui/slider";
 import { formatCurrency } from "@/lib/utils";
 import { Sparkles, Target } from "lucide-react";
 import { Autocomplete } from "../input/Autocomplete";
 import { NumberInput } from "../input/NumberInput";
+import { RangeInput } from "../input/RangeInput";
+import { SegmentedToggle } from "../input/SegmentedToggle";
 import {
   BEP_PRESETS_MONTHS,
   DEPOSIT_RANGE,
-  RENT_RANGE,
+  GENERAL_RENT_RANGE,
+  PAYMENT_CYCLE_OPTIONS,
+  RENT_RANGE_BY_CYCLE,
+  type PaymentCycle,
 } from "./SearchConstants";
 
 const BEP_OPTIONS = [
@@ -20,7 +24,6 @@ const BEP_OPTIONS = [
 ];
 
 interface StallSearchBudgetFiltersProps {
-  /** null when no business type is selected — shows "General assumption" instead */
   businessTypeLabel: string | null;
   bepMonths: string;
   onBepMonthsChange: (value: string) => void;
@@ -28,72 +31,14 @@ interface StallSearchBudgetFiltersProps {
   onCustomBepMonthsChange: (value: number | null) => void;
   capital: number;
   onCapitalChange: (value: number) => void;
+
+  paymentCycle: PaymentCycle | "";
+  onPaymentCycleChange: (value: PaymentCycle | "") => void;
   rentRange: [number, number];
   onRentRangeChange: (value: [number, number]) => void;
+
   depositRange: [number, number];
   onDepositRangeChange: (value: [number, number]) => void;
-}
-
-function MinMaxInput({
-  label,
-  min,
-  max,
-  value,
-  onChange,
-}: {
-  label: string;
-  min: number;
-  max: number;
-  value: [number, number];
-  onChange: (value: [number, number]) => void;
-}) {
-  function handleMinChange(next: number | undefined) {
-    const parsed = Math.max(min, next ?? min);
-    onChange([Math.min(parsed, value[1]), value[1]]);
-  }
-
-  function handleMaxChange(next: number | undefined) {
-    const parsed = Math.min(max, next ?? max);
-    onChange([value[0], Math.max(parsed, value[0])]);
-  }
-
-  return (
-    <div>
-      <div className="mb-2 flex items-center justify-between">
-        <p className="text-xs font-semibold text-muted-foreground">{label}</p>
-        <span className="text-[11px] text-muted-foreground">
-          {formatCurrency(value[0], "Rp ")} – {formatCurrency(value[1], "Rp ")}
-        </span>
-      </div>
-      <Slider
-        min={min}
-        max={max}
-        step={RENT_RANGE.step}
-        value={value}
-        onValueChange={(v) => onChange(v as [number, number])}
-        className="mb-3"
-      />
-      <div className="flex items-center gap-2">
-        <NumberInput
-          prefix="Rp "
-          decimalScale={0}
-          placeholder="Min"
-          value={value[0]}
-          onValueChange={(v) => handleMinChange(v.floatValue)}
-          className="h-9 py-2 text-sm"
-        />
-        <span className="text-muted-foreground">–</span>
-        <NumberInput
-          prefix="Rp "
-          decimalScale={0}
-          placeholder="Max"
-          value={value[1]}
-          onValueChange={(v) => handleMaxChange(v.floatValue)}
-          className="h-9 py-2 text-sm"
-        />
-      </div>
-    </div>
-  );
 }
 
 export function StallSearchBudgetFilters({
@@ -104,14 +49,26 @@ export function StallSearchBudgetFilters({
   onCustomBepMonthsChange,
   capital,
   onCapitalChange,
+  paymentCycle,
+  onPaymentCycleChange,
   rentRange,
   onRentRangeChange,
   depositRange,
   onDepositRangeChange,
 }: StallSearchBudgetFiltersProps) {
+  const activeRange = paymentCycle
+    ? RENT_RANGE_BY_CYCLE[paymentCycle]
+    : GENERAL_RENT_RANGE;
+
+  function handleCycleChange(next: string) {
+    const cycle = (next as PaymentCycle) || "";
+    onPaymentCycleChange(cycle);
+    const range = cycle ? RENT_RANGE_BY_CYCLE[cycle] : GENERAL_RENT_RANGE;
+    onRentRangeChange([range.min, range.max]);
+  }
+
   return (
     <div className="space-y-5">
-      {/* Context banner — tells the user where these numbers come from */}
       <div
         className={
           businessTypeLabel
@@ -133,7 +90,7 @@ export function StallSearchBudgetFilters({
         )}
       </div>
 
-      {/* BEP ditonjolkan karena fitur paling penting */}
+      {/* Target BEP Filter */}
       <div className="rounded-2xl border-2 border-primary/30 bg-linear-to-br from-primary/10 via-primary/5 to-transparent p-3">
         <div className="mb-2 flex items-center gap-2">
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-white">
@@ -154,7 +111,6 @@ export function StallSearchBudgetFilters({
           mode="solid"
           className="mt-2"
         />
-
         {bepMonths === "custom" && (
           <NumberInput
             suffix=" months"
@@ -181,20 +137,43 @@ export function StallSearchBudgetFilters({
         />
       </div>
 
-      <MinMaxInput
-        label="Monthly Rent"
-        min={RENT_RANGE.min}
-        max={RENT_RANGE.max}
+      {/* Payment Cycle — Explicit Active Color Fix */}
+      <div>
+        <p className="mb-2 text-xs font-semibold text-muted-foreground">
+          Payment Cycle
+        </p>
+        <SegmentedToggle
+          value={paymentCycle}
+          onChange={handleCycleChange}
+          options={PAYMENT_CYCLE_OPTIONS}
+        />
+        {!paymentCycle && (
+          <p className="mt-1.5 text-[11px] text-muted-foreground">
+            No cycle picked yet — showing a general rent range.
+          </p>
+        )}
+      </div>
+
+      <RangeInput
+        label="Rent Budget"
+        min={activeRange.min}
+        max={activeRange.max}
+        step={activeRange.step}
         value={rentRange}
         onChange={onRentRangeChange}
+        formatValue={(n) => formatCurrency(n, "Rp ")}
+        prefix="Rp "
       />
 
-      <MinMaxInput
-        label="Security Deposit"
+      <RangeInput
+        label="Deposit"
         min={DEPOSIT_RANGE.min}
         max={DEPOSIT_RANGE.max}
+        step={DEPOSIT_RANGE.step}
         value={depositRange}
         onChange={onDepositRangeChange}
+        formatValue={(n) => formatCurrency(n, "Rp ")}
+        prefix="Rp "
       />
     </div>
   );

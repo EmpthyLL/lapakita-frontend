@@ -11,6 +11,7 @@ import { StallLeaseRules } from "./StallLeaseRules";
 import { StallMap } from "./StallMap";
 import { StallOwnerCard } from "./StallOwnerCard";
 import { StallPricingCard } from "./StallPricingCard";
+import { StallReviewsSection } from "./review/StallReviewsSection";
 
 export const metadata: Metadata = {
   title: `${MOCK_STALL_DETAIL.title} — Lapakita`,
@@ -66,6 +67,10 @@ export default function StallDetailPage() {
               </h2>
               <StallOwnerCard owner={stall.owner} />
             </div>
+
+            <Separator />
+
+            <StallReviewsSection stallId={stall.id} />
           </div>
 
           <div>

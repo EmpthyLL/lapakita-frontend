@@ -15,13 +15,13 @@ const FAQS: FaqItem[] = [
     question: "How do I search and rent a stall as a tenant?",
     answer:
       "Use our discovery filters to search by city, landmark (campuses, schools, office districts), radius, and physical facilities. You can also filter by your available capital, business category, and target break-even period to surface stalls with matching rent economics.",
-    roleType: "primary",
+    roleType: "tenant",
   },
   {
     question: "Can I use Lapakita's POS without renting a physical stall?",
     answer:
       "Yes, absolutely! Businesses operating from home, online stores, cloud kitchens, or third-party rentals are completely welcome to use our built-in POS, inventory tracking, staff cashier access, and supplier marketplace.",
-    roleType: "primary",
+    roleType: "tenant",
   },
   {
     question: "How do I list my stall as a property owner?",
