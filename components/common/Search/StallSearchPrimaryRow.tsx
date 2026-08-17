@@ -8,10 +8,12 @@ import { Autocomplete } from "../input/Autocomplete";
 import { LocationAutocomplete } from "./LocationAutocomplete";
 import { LANDMARK_CATEGORIES } from "./SearchConstants";
 
-// Flatten grouped business categories into a single option list with a `group` field,
-// which is what Autocomplete's groupKey expects.
 const BUSINESS_TYPE_OPTIONS = BUSINESS_CATEGORIES.flatMap((g) =>
-  g.types.map((t) => ({ ...t, group: g.group })),
+  g.types.map((t) => ({
+    value: t.slug,
+    label: t.label,
+    group: g.group,
+  })),
 );
 
 interface StallSearchPrimaryRowProps {
@@ -55,6 +57,8 @@ export function StallSearchPrimaryRow({
           value={businessType}
           onSelect={(v) => onBusinessTypeChange(String(v))}
           options={BUSINESS_TYPE_OPTIONS}
+          valueKey="value"
+          labelKey="label"
           groupKey="group"
           placeholder="Business type"
           mode="solid"

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowRight, Mail } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { LanguageSwitcher } from "../common/LanguageSwitcher";
 import {
   InstagramIcon,
   LinkedinIcon,
@@ -94,9 +95,9 @@ export function SiteFooter() {
   return (
     <footer className="w-full border-t border-border bg-secondary/30">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-        {/* Main Grid: Memisahkan bagian Brand & Newsletter dengan kumpulan kolom link */}
+        {/* Main Grid */}
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8 items-start">
-          {/* Sisi Kiri: Brand & Newsletter (Mengambil porsi 5 kolom di layar besar) */}
+          {/* Brand & Newsletter */}
           <div className="lg:col-span-5 pr-0 xl:pr-6">
             <Logo />
 
@@ -151,9 +152,8 @@ export function SiteFooter() {
             </form>
           </div>
 
-          {/* Sisi Kanan: Sub-grid untuk seluruh Kolom Link (Mengambil porsi 7 kolom sisa) */}
+          {/* Links Grid */}
           <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-8">
-            {/* Role link columns */}
             {Object.values(ROLE_LINKS).map((group) => (
               <div key={group.label}>
                 <h4
@@ -177,7 +177,6 @@ export function SiteFooter() {
               </div>
             ))}
 
-            {/* Company */}
             <div>
               <h4 className="mb-4 text-sm font-semibold uppercase tracking-wide text-foreground">
                 Company
@@ -199,7 +198,7 @@ export function SiteFooter() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 flex flex-col items-center gap-6 border-t border-border pt-8 text-center sm:mt-14">
+        <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-border pt-8 text-center sm:text-left sm:mt-14">
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} Lapakita. All rights reserved.
           </p>
@@ -216,19 +215,23 @@ export function SiteFooter() {
             ))}
           </div>
 
-          <div className="flex items-center justify-center gap-3">
-            {SOCIALS.map(({ icon: Icon, href, label }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-              >
-                <Icon className="h-4 w-4" />
-              </a>
-            ))}
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher variant="outline" />
+
+            <div className="flex items-center justify-center gap-2">
+              {SOCIALS.map(({ icon: Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </div>

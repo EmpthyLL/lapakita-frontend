@@ -245,12 +245,18 @@
   }
 }
 
-/* ─── Sonner Toast Progress Bar Animation ─── */
+/* ─── Sonner Toast Progress Bar Fix ─── */
 [data-sonner-toast] {
   position: relative;
+  isolation: isolate;
 }
 
-/* Progress Bar Container di Bawah Toast */
+/* Matikan overlay hover bawaan Sonner */
+[data-sonner-toast]::before {
+  display: none !important;
+}
+
+/* Progress Bar Container (Menggunakan Putih Transparan Soft agar Tidak Terlalu Menyalas/Terang) */
 [data-sonner-toast]::after {
   content: "";
   position: absolute;
@@ -260,33 +266,36 @@
   width: 100%;
   border-bottom-left-radius: 1rem;
   border-bottom-right-radius: 1rem;
-  background-color: oklch(0.92 0.05 255); /* Ice/Sky Blue Pucat */
-  opacity: 0.9;
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.45
+  ); /* Progress putih pucat transparan universal */
+  opacity: 0.8;
   transform-origin: left;
+  z-index: 10;
   animation: toast-progress var(--toast-duration, 4000ms) linear forwards;
 }
 
-/* Warna Progress Bar Pucat / Pastel Soft */
+/* Penyesuaian Warna Progress Bar Mengikuti Variant Token Global (Soft Tint) */
 [data-sonner-toast][data-type="success"]::after {
-  background-color: oklch(0.93 0.07 150); /* Mint Pucat */
+  background-color: color-mix(in oklch, var(--success), white 45%);
 }
 
 [data-sonner-toast][data-type="error"]::after {
-  background-color: oklch(0.9 0.07 22); /* Peach / Rose Pucat */
+  background-color: color-mix(in oklch, var(--destructive), white 45%);
 }
 
 [data-sonner-toast][data-type="info"]::after {
-  background-color: oklch(0.92 0.05 255); /* Sky Blue Pucat */
+  background-color: color-mix(in oklch, var(--primary), white 45%);
 }
 
 [data-sonner-toast][data-type="warning"]::after {
-  background-color: oklch(0.94 0.08 85); /* Soft Yellow Pucat */
+  background-color: color-mix(in oklch, var(--warning), white 45%);
 }
 
-.dark [data-sonner-toast]::after {
-  opacity: 0.85;
-}
-
+/* Saat Hover: Hentikan Animasi Tanpa Mengubah Warna/Brightness */
 [data-sonner-toast]:hover::after {
   animation-play-state: paused;
 }

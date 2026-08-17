@@ -323,8 +323,9 @@ export function Autocomplete<T extends Record<string, any>>({
             {iconKey && selectedOption?.[iconKey] && (
               <OptionIcon
                 icon={selectedOption[iconKey]}
-                size={isSolid ? 28 : 20}
+                size={20}
                 alt={String(selectedOption?.[labelKey]) || ""}
+                className={hasValue ? "opacity-60" : "opacity-20"}
               />
             )}
 
@@ -363,7 +364,7 @@ export function Autocomplete<T extends Record<string, any>>({
                 <X
                   className={cn(
                     isSolid ? "h-6 w-6 stroke-[2.5]" : s.clear,
-                    hasValue ? "opacity-80" : "opacity-20",
+                    hasValue ? "opacity-60" : "opacity-20",
                   )}
                 />
               </button>
@@ -374,7 +375,7 @@ export function Autocomplete<T extends Record<string, any>>({
                 "shrink-0 text-muted-foreground transition-all duration-150",
                 isSolid ? "h-8 w-8 stroke-[2.5]" : s.chevron,
                 open && "rotate-180",
-                hasValue ? "opacity-80" : "opacity-20",
+                hasValue ? "opacity-60" : "opacity-20",
               )}
             />
           </div>

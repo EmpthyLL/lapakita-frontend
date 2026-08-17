@@ -14,7 +14,7 @@ export function PropertyTypePicker({
   onChange,
 }: PropertyTypePickerProps) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 px-2">
       {STALL_PROPERTY_TYPES.map((type) => {
         const Icon = type.icon;
         const active = value === type.value;

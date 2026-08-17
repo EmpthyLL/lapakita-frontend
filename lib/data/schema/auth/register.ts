@@ -12,7 +12,6 @@ export const registerSchema = z.object({
     .min(8, "Password must be at least 8 characters")
     .regex(/[A-Z]/, "Must include at least one uppercase letter")
     .regex(/[0-9]/, "Must include at least one number"),
-  referralCode: z.string().optional(),
 });
 
 export type RegisterValues = z.infer<typeof registerSchema>;

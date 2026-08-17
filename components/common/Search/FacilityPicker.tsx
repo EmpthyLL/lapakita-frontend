@@ -16,7 +16,7 @@ export function FacilityPicker({
   size = "default",
 }: FacilityPickerProps) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 px-2">
       {FACILITY_GROUPS.map((group) => (
         <div key={group.group}>
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">

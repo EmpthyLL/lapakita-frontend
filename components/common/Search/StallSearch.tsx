@@ -2,11 +2,14 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BUSINESS_PRESETS } from "@/lib/data/schema/analysis/business_preset";
-import { BUSINESS_CATEGORIES } from "@/lib/data/schema/master/business_type";
+import {
+  BUSINESS_CATEGORIES,
+  BUSINESS_TYPE_MAP,
+} from "@/lib/data/schema/master/business_type";
 import { cn } from "@/lib/utils";
 import { ChevronDown, RotateCcw, SlidersHorizontal, X } from "lucide-react";
 import { ReactNode, useState } from "react";
+import { calculateMultiCycleRanges } from "./BusinessTypeCalc";
 import { FacilityPicker } from "./FacilityPicker";
 import {
   createLandmarkRadiusEntry,
@@ -32,15 +35,13 @@ import { StallSearchPrimaryRow } from "./StallSearchPrimaryRow";
 import { StallSpaceFilter } from "./StallSpaceFilter";
 
 const BUSINESS_TYPE_LABELS: Record<string, string> = Object.fromEntries(
-  BUSINESS_CATEGORIES.flatMap((g) => g.types.map((t) => [t.value, t.label])),
+  BUSINESS_CATEGORIES.flatMap((g) => g.types.map((t) => [t.slug, t.label])),
 );
 
 export interface StallSearchProps {
   mode?: "hero" | "full";
   children?: ReactNode;
 }
-
-// ─── Animated Collapsible Section ───────────────────────────────────────────
 
 function FilterAccordionSection({
   title,
@@ -126,7 +127,7 @@ export default function StallSearch({
   ]);
   const [floorCountRange, setFloorCountRange] = useState<[number, number]>([
     FLOOR_COUNT_RANGE.min,
-    FLOOR_COUNT_RANGE.min, // default: 1 floor, bukan langsung 1–4
+    FLOOR_COUNT_RANGE.min,
   ]);
 
   const [businessType, setBusinessType] = useState("");
@@ -151,7 +152,6 @@ export default function StallSearch({
   const [customLeaseMonths, setCustomLeaseMonths] = useState("");
   const [paymentCycle, setPaymentCycle] = useState<PaymentCycle | "">("");
 
-  // Mobile Filter Panel Toggle
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   function toggleFacility(value: string) {
@@ -162,15 +162,69 @@ export default function StallSearch({
 
   function handleBusinessTypeChange(value: string) {
     setBusinessType(value);
-    const preset = BUSINESS_PRESETS[value];
-    if (!preset) return;
+    const preset = BUSINESS_TYPE_MAP[value];
 
-    setBepMonths(String(preset.bepMonths));
+    // Jika Business Type di-reset / kosong
+    if (!preset) {
+      setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
+      setDepositRange([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]);
+      setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);
+      return;
+    }
+
+    // 1. Finansial Defaults
+    setBepMonths(String(preset.defaultBEPMonths));
     setCustomBepMonths(null);
-    setCapital(preset.capital);
-    setRentRange(preset.rentRange);
-    setDepositRange(preset.depositRange);
+    setCapital(preset.defaultCapital);
 
+    // 2. Multi-Cycle Range Calculation
+    const calculatedRanges = calculateMultiCycleRanges(
+      preset.defaultCapital,
+      preset.defaultBEPMonths,
+    );
+
+    if (paymentCycle && calculatedRanges[paymentCycle]) {
+      const selectedRange = calculatedRanges[paymentCycle];
+      setRentRange([selectedRange.minRent, selectedRange.maxRent]);
+      setDepositRange([selectedRange.minDeposit, selectedRange.maxDeposit]);
+    } else {
+      setRentRange([
+        calculatedRanges["month"].minRent,
+        calculatedRanges["year"].maxRent,
+      ]);
+      setDepositRange([
+        calculatedRanges["month"].minDeposit,
+        calculatedRanges["year"].maxDeposit,
+      ]);
+    }
+
+    // 3. Recommended Property Type
+    if (preset.recommendedPropertyTypes?.length) {
+      setPropertyType(preset.recommendedPropertyTypes[0]);
+    }
+
+    // 4. Recommended Placement (Indoor / Semi-Outdoor / Outdoor)
+    if (preset.recommendedPlacement) {
+      setPlacement(preset.recommendedPlacement);
+    }
+
+    // 5. Recommended Stall Size (Sqm)
+    if (preset.recommendedSizeSqm) {
+      setSizeRange([
+        preset.recommendedSizeSqm.min,
+        preset.recommendedSizeSqm.max,
+      ]);
+    }
+
+    // 6. Recommended Floor Count (Lantai Min & Max)
+    if (preset.recommendedFloors) {
+      setFloorCountRange([
+        preset.recommendedFloors.min,
+        preset.recommendedFloors.max,
+      ]);
+    }
+
+    // 7. Facilities & Landmarks Defaults
     setFacilities((prev) =>
       Array.from(new Set([...prev, ...preset.facilities])),
     );
@@ -214,6 +268,7 @@ export default function StallSearch({
     setPropertyType("");
     setPlacement("");
     setSizeRange([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]);
+    setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);
     setBusinessType("");
     setFacilities([]);
     setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
@@ -223,17 +278,19 @@ export default function StallSearch({
     setPaymentCycle("");
   }
 
-  // Hitung berapa filter opsional yang aktif
   const activeFilterCount =
     (propertyType ? 1 : 0) +
     (placement ? 1 : 0) +
+    (floorCountRange[0] > FLOOR_COUNT_RANGE.min ||
+    floorCountRange[1] > FLOOR_COUNT_RANGE.min
+      ? 1
+      : 0) +
     (businessType ? 1 : 0) +
     facilities.length +
     (startDate ? 1 : 0) +
     (minLeasePeriod ? 1 : 0) +
     (paymentCycle ? 1 : 0);
 
-  // Komponen Konten Filter Kiri (Space Properties)
   const renderSpaceFilters = () => (
     <>
       <FilterAccordionSection title="Landmarks & Radius">
@@ -262,7 +319,6 @@ export default function StallSearch({
     </>
   );
 
-  // Komponen Konten Filter Kanan (Budget & Terms)
   const renderBudgetTermsFilters = () => (
     <>
       <FilterAccordionSection title="Budget & ROI">
@@ -311,7 +367,6 @@ export default function StallSearch({
 
   return (
     <div className="w-full space-y-6">
-      {/* ─── Main Bar Search Input ─── */}
       <div
         className={cn(
           "rounded-2xl border border-border bg-card shadow-xs",
@@ -355,7 +410,6 @@ export default function StallSearch({
         )}
       </div>
 
-      {/* ─── Mobile Filter Toggle Button (Hanya Muncul di Mobile) ─── */}
       {isFull && (
         <div className="flex items-center justify-between gap-3 lg:hidden">
           <Button
@@ -392,7 +446,6 @@ export default function StallSearch({
         </div>
       )}
 
-      {/* ─── Mobile Accordion Panel Filter (Diletakkan SEBELUM Listing) ─── */}
       {isFull && showMobileFilters && (
         <div className="rounded-2xl border border-border bg-card p-4 shadow-sm lg:hidden animate-in fade-in zoom-in-95">
           <div className="mb-3 flex items-center justify-between border-b border-border pb-3">
@@ -416,10 +469,8 @@ export default function StallSearch({
         </div>
       )}
 
-      {/* ─── Layout Full Mode untuk Desktop (3-Columns Grid) ─── */}
       {isFull && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_minmax(0,1fr)_280px]">
-          {/* Left Sidebar Desktop: Space Properties */}
           <aside className="hidden lg:block">
             <div className="space-y-1 rounded-2xl border border-border bg-card p-4 shadow-xs sticky top-4">
               <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
@@ -439,7 +490,6 @@ export default function StallSearch({
             </div>
           </aside>
 
-          {/* Center Column: Listing (Selalu Berada di Tengah) */}
           <main className="min-w-0">
             {children ?? (
               <div className="flex h-full min-h-60 items-center justify-center rounded-2xl border border-dashed border-border text-sm text-muted-foreground">
@@ -448,7 +498,6 @@ export default function StallSearch({
             )}
           </main>
 
-          {/* Right Sidebar Desktop: Budget & Terms */}
           <aside className="hidden lg:block">
             <div className="space-y-1 rounded-2xl border border-border bg-card p-4 shadow-xs sticky top-4">
               <div className="mb-2 flex items-center justify-between border-b border-border pb-2">

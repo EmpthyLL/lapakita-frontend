@@ -19,6 +19,7 @@ export interface LegalDocument {
   intro: string;
   sections: LegalSection[];
 }
+
 export const LEGAL_DOCUMENTS: LegalDocument[] = [
   {
     slug: "terms",

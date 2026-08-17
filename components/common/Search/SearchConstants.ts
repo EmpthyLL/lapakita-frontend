@@ -154,18 +154,33 @@ export interface FacilityGroup {
 
 export const BEP_PRESETS_MONTHS: readonly BEPMonths[] = [3, 6, 12, 18, 24];
 
-export const RENT_RANGE_BY_CYCLE: Record<
-  PaymentCycle,
-  { min: number; max: number; step: number }
-> = {
+export interface RentRangeConfig {
+  min: number;
+  max: number;
+  step: number;
+}
+
+// Rentang Umum jika pengurus/pencari belum memilih Payment Cycle khusus
+export const GENERAL_RENT_RANGE: RentRangeConfig = {
+  min: 500_000,
+  max: 250_000_000,
+  step: 500_000,
+};
+
+export const RENT_RANGE_BY_CYCLE: Record<PaymentCycle, RentRangeConfig> = {
   month: { min: 500_000, max: 20_000_000, step: 100_000 },
   quarter: { min: 1_500_000, max: 60_000_000, step: 500_000 },
   semester: { min: 3_000_000, max: 120_000_000, step: 1_000_000 },
   year: { min: 6_000_000, max: 250_000_000, step: 5_000_000 },
 };
 
-// Used when no payment cycle is selected yet — a general, unlabeled assumption
-export const GENERAL_RENT_RANGE = RENT_RANGE_BY_CYCLE.month;
+/**
+ * Helper untuk mendapatkan range yang sesuai berdasarkan cycle yang dipilih
+ */
+export function getRentRangeConfig(cycle: PaymentCycle | ""): RentRangeConfig {
+  if (!cycle) return GENERAL_RENT_RANGE;
+  return RENT_RANGE_BY_CYCLE[cycle];
+}
 
 export const DEPOSIT_RANGE = {
   min: 500_000,
@@ -173,7 +188,7 @@ export const DEPOSIT_RANGE = {
   step: 100_000,
 } as const;
 
-export const DEFAULT_ASSUMED_CAPITAL = 20_000_000;
+export const DEFAULT_ASSUMED_CAPITAL = 40_000_000;
 export const DEFAULT_BEP_MONTHS: BEPMonths = 6;
 
 export const RADIUS_PRESETS: readonly RadiusPreset[] = [

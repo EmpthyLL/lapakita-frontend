@@ -2,10 +2,12 @@
 
 import { formatCurrency } from "@/lib/utils";
 import { Sparkles, Target } from "lucide-react";
+import * as React from "react";
 import { Autocomplete } from "../input/Autocomplete";
 import { NumberInput } from "../input/NumberInput";
 import { RangeInput } from "../input/RangeInput";
 import { SegmentedToggle } from "../input/SegmentedToggle";
+import { getCalculatedRangesForFilters } from "./BusinessTypeCalc";
 import {
   BEP_PRESETS_MONTHS,
   DEPOSIT_RANGE,
@@ -14,6 +16,8 @@ import {
   RENT_RANGE_BY_CYCLE,
   type PaymentCycle,
 } from "./SearchConstants";
+
+const PRESET_VALUES = BEP_PRESETS_MONTHS.map(String);
 
 const BEP_OPTIONS = [
   ...BEP_PRESETS_MONTHS.map((m) => ({
@@ -56,15 +60,53 @@ export function StallSearchBudgetFilters({
   depositRange,
   onDepositRangeChange,
 }: StallSearchBudgetFiltersProps) {
-  const activeRange = paymentCycle
+  // Sync otomatis jika nilai bepMonths dari luar merupakan angka custom (bukan opsi preset)
+  React.useEffect(() => {
+    if (
+      bepMonths &&
+      bepMonths !== "custom" &&
+      !PRESET_VALUES.includes(bepMonths)
+    ) {
+      const numVal = Number(bepMonths);
+      if (!isNaN(numVal)) {
+        onCustomBepMonthsChange(numVal);
+        onBepMonthsChange("custom");
+      }
+    }
+  }, [bepMonths, onBepMonthsChange, onCustomBepMonthsChange]);
+
+  // 1. INITIAL & ON-CHANGE RECALCULATION:
+  // Menghitung & merekomendasikan range ideal saat Capital, BEP, atau Payment Cycle berubah
+  React.useEffect(() => {
+    const { rentRange: newRent, depositRange: newDeposit } =
+      getCalculatedRangesForFilters(
+        capital,
+        bepMonths,
+        customBepMonths,
+        paymentCycle,
+      );
+
+    onRentRangeChange(newRent);
+    onDepositRangeChange(newDeposit);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [capital, bepMonths, customBepMonths, paymentCycle]);
+
+  // Batas slider fisik (min/max/step) tetap menggunakan konstanta terikat cycle
+  const activeRentLimit = paymentCycle
     ? RENT_RANGE_BY_CYCLE[paymentCycle]
     : GENERAL_RENT_RANGE;
 
   function handleCycleChange(next: string) {
-    const cycle = (next as PaymentCycle) || "";
-    onPaymentCycleChange(cycle);
-    const range = cycle ? RENT_RANGE_BY_CYCLE[cycle] : GENERAL_RENT_RANGE;
-    onRentRangeChange([range.min, range.max]);
+    onPaymentCycleChange((next as PaymentCycle) || "");
+  }
+
+  function handleBepSelect(selectedVal: string) {
+    if (selectedVal === "custom") {
+      onBepMonthsChange("custom");
+    } else {
+      onBepMonthsChange(selectedVal);
+      onCustomBepMonthsChange(null);
+    }
   }
 
   return (
@@ -105,7 +147,7 @@ export function StallSearchBudgetFilters({
         </div>
         <Autocomplete
           value={bepMonths}
-          onSelect={(v) => onBepMonthsChange(String(v))}
+          onSelect={(v) => handleBepSelect(String(v))}
           options={BEP_OPTIONS}
           placeholder="Pick a target BEP"
           mode="solid"
@@ -123,6 +165,7 @@ export function StallSearchBudgetFilters({
         )}
       </div>
 
+      {/* Capital Input */}
       <div>
         <p className="mb-2 text-xs font-semibold text-muted-foreground">
           Available Capital
@@ -137,7 +180,7 @@ export function StallSearchBudgetFilters({
         />
       </div>
 
-      {/* Payment Cycle — Explicit Active Color Fix */}
+      {/* Payment Cycle */}
       <div>
         <p className="mb-2 text-xs font-semibold text-muted-foreground">
           Payment Cycle
@@ -147,24 +190,21 @@ export function StallSearchBudgetFilters({
           onChange={handleCycleChange}
           options={PAYMENT_CYCLE_OPTIONS}
         />
-        {!paymentCycle && (
-          <p className="mt-1.5 text-[11px] text-muted-foreground">
-            No cycle picked yet — showing a general rent range.
-          </p>
-        )}
       </div>
 
+      {/* Slider Rent Range — Pengguna bebas menggeser tanpa ter-reset otomatis */}
       <RangeInput
         label="Rent Budget"
-        min={activeRange.min}
-        max={activeRange.max}
-        step={activeRange.step}
+        min={activeRentLimit.min}
+        max={activeRentLimit.max}
+        step={activeRentLimit.step}
         value={rentRange}
         onChange={onRentRangeChange}
         formatValue={(n) => formatCurrency(n, "Rp ")}
         prefix="Rp "
       />
 
+      {/* Slider Deposit Range — Pengguna bebas menggeser */}
       <RangeInput
         label="Deposit"
         min={DEPOSIT_RANGE.min}

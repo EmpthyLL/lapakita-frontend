@@ -51,7 +51,6 @@ export function StallReviewCard({ review }: { review: StallReview }) {
               />
             ))}
           </div>
-          # stars
         </div>
       </div>
 
@@ -86,7 +85,7 @@ export function StallReviewCard({ review }: { review: StallReview }) {
             <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
               <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                 {review.ownerResponse.ownerName}
-                <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                <span className="rounded-full bg-owner-secondary px-1.5 py-0.5 text-[10px] font-medium text-owner">
                   Owner
                 </span>
               </p>

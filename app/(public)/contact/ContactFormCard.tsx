@@ -11,34 +11,21 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  contactSchema,
+  ContactValues,
+} from "@/lib/data/schema/public/post_contact";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2, MessageSquare, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { z } from "zod";
 import {
   INQUIRY_OPTIONS_BY_PERSONA,
   PERSONA_OPTIONS,
   type PersonaValue,
 } from "./ContactData";
 
-const contactSchema = z.object({
-  name: z.string().min(2, "Enter your full name"),
-  email: z.string().email("Enter a valid email address"),
-  whatsapp: z.string().optional(),
-  persona: z.string().min(1, "Select who you are"),
-  inquiryType: z.string().min(1, "Select an inquiry type"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
-});
-
-type ContactValues = z.infer<typeof contactSchema>;
-
-interface ContactFormCardProps {
-  /** Optional — pre-select persona (e.g. when linking in from /features?role=owner). */
-  defaultPersona?: PersonaValue;
-}
-
-export function ContactFormCard({ defaultPersona }: ContactFormCardProps) {
+export function ContactFormCard() {
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -48,7 +35,7 @@ export function ContactFormCard({ defaultPersona }: ContactFormCardProps) {
       name: "",
       email: "",
       whatsapp: "",
-      persona: defaultPersona ?? "",
+      persona: "",
       inquiryType: "",
       message: "",
     },
@@ -57,9 +44,6 @@ export function ContactFormCard({ defaultPersona }: ContactFormCardProps) {
   const persona = useWatch({ control, name: "persona" }) as PersonaValue | "";
   const inquiryOptions = persona ? INQUIRY_OPTIONS_BY_PERSONA[persona] : [];
 
-  // Whenever persona changes, the previously selected inquiry type may no
-  // longer be valid for the new persona's option set — clear it so the user
-  // can't submit a mismatched combination.
   useEffect(() => {
     setValue("inquiryType", "");
   }, [persona, setValue]);
@@ -178,6 +162,7 @@ export function ContactFormCard({ defaultPersona }: ContactFormCardProps) {
                     value={field.value}
                     onSelect={(v) => field.onChange(String(v))}
                     options={PERSONA_OPTIONS}
+                    mode="solid"
                     placeholder="Select your role"
                   />
                   {fieldState.invalid && (
@@ -203,6 +188,7 @@ export function ContactFormCard({ defaultPersona }: ContactFormCardProps) {
                   placeholder={
                     persona ? "What's this about?" : "Select your role first"
                   }
+                  mode="solid"
                   disabled={!persona}
                 />
                 <FieldDescription>
@@ -242,7 +228,7 @@ export function ContactFormCard({ defaultPersona }: ContactFormCardProps) {
               type="submit"
               isLoading={isLoading}
               size="lg"
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+              variant={"success"}
             >
               Send Message
               <Send className="ml-1.5 h-4 w-4" />

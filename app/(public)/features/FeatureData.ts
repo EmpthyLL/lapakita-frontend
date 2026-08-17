@@ -112,7 +112,7 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: Target,
             title: "Budget & Target ROI Match",
             description:
-              "Input your capital, business type, and target break-even period — e.g. 6 months — to surface stalls whose rent math fits your goals.",
+              "Input your business type, capital, and target break-even period — e.g. 6 months — to surface stalls whose rent math fits your goals.",
           },
           {
             icon: CalendarDays,

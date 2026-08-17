@@ -28,13 +28,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return "tenant";
   }, [pathname]);
 
-  const dynamicStyles = React.useMemo(() => {
-    return {
-      "--primary": `var(--${role})`,
-      "--primary-foreground": `var(--${role}-foreground)`,
-      "--primary-secondary": `var(--${role}-secondary)`,
-      "--ring": `var(--${role})`,
-    } as React.CSSProperties;
+  // Otomatis pasang style ke document.body agar Portaled UI (Popover, Modal, Dropdown) ikut berubah
+  React.useEffect(() => {
+    const body = document.body;
+    body.setAttribute("data-role", role);
+    body.style.setProperty("--primary", `var(--${role})`);
+    body.style.setProperty("--primary-foreground", `var(--${role}-foreground)`);
+    body.style.setProperty("--primary-secondary", `var(--${role}-secondary)`);
+    body.style.setProperty("--ring", `var(--${role})`);
   }, [role]);
 
   const contextValue = React.useMemo<RoleThemeContextType>(
@@ -49,9 +50,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <RoleThemeContext.Provider value={contextValue}>
-      <div data-role={role} className="contents" style={dynamicStyles}>
-        {children}
-      </div>
+      {children}
     </RoleThemeContext.Provider>
   );
 }

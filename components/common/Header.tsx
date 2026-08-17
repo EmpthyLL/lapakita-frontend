@@ -28,6 +28,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { LanguageSwitcher } from "../common/LanguageSwitcher";
 import { Logo } from "./Logo";
 
 export const NAV_LINKS = [
@@ -91,8 +92,12 @@ export function SiteHeader() {
           })}
         </nav>
 
-        {/* Desktop auth state */}
-        <div className="hidden items-center gap-3 lg:flex">
+        {/* Desktop auth state & Language Switcher */}
+        <div className="hidden items-center gap-2 lg:flex">
+          <LanguageSwitcher showLabel={false} />
+
+          <div className="h-4 w-px bg-border mx-1" />
+
           {!isLoggedIn ? (
             <>
               <Link href="/login">
@@ -185,130 +190,134 @@ export function SiteHeader() {
           )}
         </div>
 
-        {/* Mobile hamburger trigger */}
-        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetTrigger asChild>
-            <button
-              aria-label={mobileOpen ? "Close menu" : "Open menu"}
-              className="relative flex h-10 w-10 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-secondary lg:hidden"
+        {/* Mobile Hamburger & Sheet */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <LanguageSwitcher showLabel={false} />
+
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger asChild>
+              <button
+                aria-label={mobileOpen ? "Close menu" : "Open menu"}
+                className="relative flex h-10 w-10 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-secondary"
+              >
+                <Menu
+                  className={cn(
+                    "absolute h-5 w-5 transition-all duration-300",
+                    mobileOpen
+                      ? "rotate-90 scale-0 opacity-0"
+                      : "rotate-0 scale-100 opacity-100",
+                  )}
+                />
+                <X
+                  className={cn(
+                    "absolute h-5 w-5 transition-all duration-300",
+                    mobileOpen
+                      ? "rotate-0 scale-100 opacity-100"
+                      : "-rotate-90 scale-0 opacity-0",
+                  )}
+                />
+              </button>
+            </SheetTrigger>
+
+            <SheetContent
+              side="right"
+              className="w-full max-w-xs p-0 sm:max-w-sm"
             >
-              <Menu
-                className={cn(
-                  "absolute h-5 w-5 transition-all duration-300",
-                  mobileOpen
-                    ? "rotate-90 scale-0 opacity-0"
-                    : "rotate-0 scale-100 opacity-100",
-                )}
-              />
-              <X
-                className={cn(
-                  "absolute h-5 w-5 transition-all duration-300",
-                  mobileOpen
-                    ? "rotate-0 scale-100 opacity-100"
-                    : "-rotate-90 scale-0 opacity-0",
-                )}
-              />
-            </button>
-          </SheetTrigger>
+              <div className="flex h-16 items-center border-b border-border px-4">
+                <Logo variant="full" />
+              </div>
 
-          <SheetContent
-            side="right"
-            className="w-full max-w-xs p-0 sm:max-w-sm"
-          >
-            <div className="flex h-16 items-center border-b border-border px-4">
-              <Logo variant="full" />
-            </div>
+              <div className="flex flex-col gap-1 p-4">
+                {NAV_LINKS.map((link) => {
+                  const active = isNavLinkActive(pathname, link.href);
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={cn(
+                        "rounded-lg px-3 py-2.5 text-base font-medium transition-colors",
+                        active
+                          ? "bg-primary-secondary text-primary"
+                          : "text-foreground hover:bg-secondary",
+                      )}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
+              </div>
 
-            <div className="flex flex-col gap-1 p-4">
-              {NAV_LINKS.map((link) => {
-                const active = isNavLinkActive(pathname, link.href);
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMobileOpen(false)}
-                    className={cn(
-                      "rounded-lg px-3 py-2.5 text-base font-medium transition-colors",
-                      active
-                        ? "bg-primary-secondary text-primary"
-                        : "text-foreground hover:bg-secondary",
-                    )}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </div>
+              <div className="mt-auto space-y-3 border-t border-border p-4">
+                {!isLoggedIn ? (
+                  <>
+                    <Link
+                      href="/register"
+                      onClick={() => setMobileOpen(false)}
+                      className="block"
+                    >
+                      <Button className="w-full">Get Started</Button>
+                    </Link>
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileOpen(false)}
+                      className="block"
+                    >
+                      <Button variant="outline" className="w-full">
+                        Login
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setMobileOpen(false)}
+                      className="block"
+                    >
+                      <Button className="w-full">
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        Go to Dashboard
+                      </Button>
+                    </Link>
 
-            <div className="mt-auto space-y-3 border-t border-border p-4">
-              {!isLoggedIn ? (
-                <>
-                  <Link
-                    href="/register"
-                    onClick={() => setMobileOpen(false)}
-                    className="block"
-                  >
-                    <Button className="w-full">Get Started</Button>
-                  </Link>
-                  <Link
-                    href="/login"
-                    onClick={() => setMobileOpen(false)}
-                    className="block"
-                  >
-                    <Button variant="outline" className="w-full">
-                      Login
-                    </Button>
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setMobileOpen(false)}
-                    className="block"
-                  >
-                    <Button className="w-full">
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
-                      Go to Dashboard
-                    </Button>
-                  </Link>
-
-                  <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage src={userAvatarUrl} alt={userName} />
-                      <AvatarFallback className="bg-primary-secondary text-primary">
-                        {userName
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-foreground">
-                        {userName}
-                      </p>
-                      <Link
-                        href="/profile"
-                        onClick={() => setMobileOpen(false)}
-                        className="text-xs text-muted-foreground hover:text-foreground"
-                      >
-                        View profile
-                      </Link>
+                    <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+                      <Avatar className="h-9 w-9">
+                        <AvatarImage src={userAvatarUrl} alt={userName} />
+                        <AvatarFallback className="bg-primary-secondary text-primary">
+                          {userName
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-foreground">
+                          {userName}
+                        </p>
+                        <Link
+                          href="/profile"
+                          onClick={() => setMobileOpen(false)}
+                          className="text-xs text-muted-foreground hover:text-foreground"
+                        >
+                          View profile
+                        </Link>
+                      </div>
                     </div>
-                  </div>
 
-                  <button
-                    type="button"
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sign Out
-                  </button>
-                </>
-              )}
-            </div>
-          </SheetContent>
-        </Sheet>
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign Out
+                    </button>
+                  </>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
       <div className="h-0.5 w-full bg-gradient-brand opacity-70" />
     </header>

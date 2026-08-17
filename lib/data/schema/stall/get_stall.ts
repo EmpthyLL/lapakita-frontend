@@ -1,7 +1,117 @@
 import {
+  DEPOSIT_RANGE,
+  FLOOR_COUNT_RANGE,
+  GENERAL_RENT_RANGE,
   PaymentCycle,
+  RADIUS_PRESETS,
+  STALL_PLACEMENT_OPTIONS,
+  STALL_PROPERTY_TYPES,
+  STALL_SIZE_RANGE,
+  StallPlacement,
   StallPropertyTypeValue,
 } from "@/components/common/search/SearchConstants";
+import z from "zod";
+
+// Array nilai enum dari SearchConstants untuk validasi Zod
+const PROPERTY_TYPE_VALUES = STALL_PROPERTY_TYPES.map((t) => t.value) as [
+  StallPropertyTypeValue,
+  ...StallPropertyTypeValue[],
+];
+
+const PLACEMENT_VALUES = STALL_PLACEMENT_OPTIONS.map((p) => p.value) as [
+  StallPlacement,
+  ...StallPlacement[],
+];
+
+// ─── 1. Landmark & Radius Schema ─────────────────────────────────────────────
+export const landmarkRadiusEntrySchema = z.object({
+  id: z.string(),
+  landmark: z.string().nullable().optional(),
+  radius: z.string().default(RADIUS_PRESETS[1]),
+});
+
+export type LandmarkRadiusEntryValue = z.infer<
+  typeof landmarkRadiusEntrySchema
+>;
+
+// ─── 2. Full Search Filter Schema ────────────────────────────────────────────
+export const stallSearchFilterSchema = z.object({
+  // Main Bar
+  location: z.string().optional().default(""),
+  businessType: z.string().optional().default(""),
+
+  // Mode Hero Specific
+  singleLandmark: z.string().optional().default("any"),
+  radius: z.string().optional().default(RADIUS_PRESETS[1]),
+
+  // Space Filters (Left Sidebar)
+  landmarkEntries: z
+    .array(landmarkRadiusEntrySchema)
+    .default([{ id: "default", landmark: null, radius: RADIUS_PRESETS[1] }]),
+  propertyType: z.enum([...PROPERTY_TYPE_VALUES, ""]).default(""),
+  placement: z.enum([...PLACEMENT_VALUES, ""]).default(""),
+  floorCountRange: z
+    .tuple([z.number(), z.number()])
+    .default([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]),
+  sizeRange: z
+    .tuple([z.number(), z.number()])
+    .default([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]),
+
+  // Budget & ROI Filters (Right Sidebar)
+  bepMonths: z.string().default("12"),
+  customBepMonths: z.number().nullable().optional().default(null),
+  capital: z.number().nonnegative().default(15000000),
+  paymentCycle: z
+    .enum(["month", "quarter", "semester", "year", ""])
+    .default(""),
+  rentRange: z
+    .tuple([z.number(), z.number()])
+    .default([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]),
+  depositRange: z
+    .tuple([z.number(), z.number()])
+    .default([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]),
+
+  // Terms & Facilities Filters (Right Sidebar)
+  startDate: z.string().optional().default(""),
+  customStartDay: z.string().optional().default(""),
+  minLeasePeriod: z.string().optional().default(""),
+  customLeaseMonths: z.string().optional().default(""),
+  facilities: z.array(z.string()).default([]),
+});
+
+export type StallSearchFilterValues = z.infer<typeof stallSearchFilterSchema>;
+
+// ─── 3. Clean Payload Output Schema (Siap dikirim ke API/URL Params) ─────────
+export const stallSearchApiPayloadSchema = z.object({
+  location: z.string().optional(),
+  businessType: z.string().optional(),
+  propertyType: z.enum(PROPERTY_TYPE_VALUES).optional(),
+  placement: z.enum(PLACEMENT_VALUES).optional(),
+  minFloors: z.number().optional(),
+  maxFloors: z.number().optional(),
+  minSize: z.number().optional(),
+  maxSize: z.number().optional(),
+  bepMonths: z.number().optional(),
+  capital: z.number().optional(),
+  paymentCycle: z.enum(["month", "quarter", "semester", "year"]).optional(),
+  minRent: z.number().optional(),
+  maxRent: z.number().optional(),
+  minDeposit: z.number().optional(),
+  maxDeposit: z.number().optional(),
+  startDate: z.string().optional(),
+  minLeasePeriod: z.string().optional(),
+  facilities: z.array(z.string()).optional(),
+  landmarks: z
+    .array(
+      z.object({
+        name: z.string(),
+        radiusKm: z.number(),
+      }),
+    )
+    .optional(),
+});
+
+export type StallSearchApiPayload = z.infer<typeof stallSearchApiPayloadSchema>;
 
 export interface StallLocationSummary {
   area: string; // e.g. "Margonda" or "Orchard"

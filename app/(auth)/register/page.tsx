@@ -34,7 +34,6 @@ export default function RegisterPage() {
       email: "",
       phone: "",
       password: "",
-      referralCode: "",
     },
   });
 
@@ -75,6 +74,7 @@ export default function RegisterPage() {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <FieldGroup>
+          {/* 1. Full Name */}
           <Controller
             control={control}
             name="name"
@@ -89,6 +89,7 @@ export default function RegisterPage() {
             )}
           />
 
+          {/* 2. Email */}
           <Controller
             control={control}
             name="email"
@@ -108,6 +109,7 @@ export default function RegisterPage() {
             )}
           />
 
+          {/* 3. Phone Number */}
           <Controller
             control={control}
             name="phone"
@@ -127,6 +129,7 @@ export default function RegisterPage() {
             )}
           />
 
+          {/* 4. Password */}
           <Controller
             control={control}
             name="password"
@@ -141,27 +144,6 @@ export default function RegisterPage() {
                 <FieldDescription>
                   At least 8 characters, with 1 uppercase letter and 1 number.
                 </FieldDescription>
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="referralCode"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="referralCode">
-                  Referral Code{" "}
-                  <span className="text-muted-foreground">(optional)</span>
-                </FieldLabel>
-                <Input
-                  id="referralCode"
-                  placeholder="e.g. LAPAK2026"
-                  {...field}
-                />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}
