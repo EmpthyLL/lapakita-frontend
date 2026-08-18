@@ -28,6 +28,7 @@ import {
   RADIUS_PRESETS,
   STALL_SIZE_RANGE,
   StallPlacement,
+  StallPropertyTypeValue,
 } from "./SearchConstants";
 import { StallSearchFooter } from "./SearchFooter";
 import { StallSearchBudgetFilters } from "./StallSearchBudgetFilters";
@@ -119,7 +120,9 @@ export default function StallSearch({
     [createLandmarkRadiusEntry()],
   );
 
-  const [propertyType, setPropertyType] = useState("");
+  const [propertyType, setPropertyType] = useState<StallPropertyTypeValue[]>(
+    [],
+  );
   const [placement, setPlacement] = useState<StallPlacement | "">("");
   const [sizeRange, setSizeRange] = useState<[number, number]>([
     STALL_SIZE_RANGE.min,
@@ -200,7 +203,7 @@ export default function StallSearch({
 
     // 3. Recommended Property Type
     if (preset.recommendedPropertyTypes?.length) {
-      setPropertyType(preset.recommendedPropertyTypes[0]);
+      setPropertyType(preset.recommendedPropertyTypes);
     }
 
     // 4. Recommended Placement (Indoor / Semi-Outdoor / Outdoor)
@@ -265,7 +268,7 @@ export default function StallSearch({
   }
 
   function resetAllFilters() {
-    setPropertyType("");
+    setPropertyType([]);
     setPlacement("");
     setSizeRange([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]);
     setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);

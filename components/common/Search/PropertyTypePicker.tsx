@@ -2,28 +2,41 @@
 
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
-import { STALL_PROPERTY_TYPES } from "./SearchConstants";
+import {
+  STALL_PROPERTY_TYPES,
+  StallPropertyTypeValue,
+} from "./SearchConstants";
 
 interface PropertyTypePickerProps {
-  value: string;
-  onChange: (value: string) => void;
+  value: StallPropertyTypeValue[];
+  onChange: (value: StallPropertyTypeValue[]) => void;
 }
 
 export function PropertyTypePicker({
   value,
   onChange,
 }: PropertyTypePickerProps) {
+  function handleToggle(typeValue: StallPropertyTypeValue) {
+    if (value.includes(typeValue)) {
+      // Hapus jika sudah terpilih
+      onChange(value.filter((v) => v !== typeValue));
+    } else {
+      // Tambahkan jika belum terpilih
+      onChange([...value, typeValue]);
+    }
+  }
+
   return (
-    <div className="space-y-2 px-2">
+    <div className="space-y-2 p-2">
       {STALL_PROPERTY_TYPES.map((type) => {
         const Icon = type.icon;
-        const active = value === type.value;
+        const active = value.includes(type.value);
 
         return (
           <button
             key={type.value}
             type="button"
-            onClick={() => onChange(active ? "" : type.value)}
+            onClick={() => handleToggle(type.value)}
             className={cn(
               "group relative flex w-full items-start gap-3 rounded-2xl border p-3.5 text-left transition-all outline-none",
               active

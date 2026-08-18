@@ -97,9 +97,11 @@ export interface StallDetail {
   // Location & Navigation
   address: {
     street: string;
-    neighborhood: string;
+    suburb: string;
     district: string;
     city: string;
+    country: string;
+    countryCode: string;
     province: string;
     postalCode: string;
     mapUrl: string;
@@ -171,9 +173,11 @@ export const MOCK_STALL_DETAIL: StallDetail = {
 
   address: {
     street: "Jl. Margonda Raya No. 188, Ground Floor Blok G-05",
-    neighborhood: "Pondok Cina",
+    suburb: "Pondok Cina",
     district: "Beji",
     city: "Depok",
+    country: "Indonesia",
+    countryCode: "ID",
     province: "Jawa Barat",
     postalCode: "16424",
     mapUrl: "https://maps.google.com/?q=-6.3732,106.8329",

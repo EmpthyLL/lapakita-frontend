@@ -21,8 +21,16 @@ export function StallHeader({ stall }: { stall: StallDetail }) {
       <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <MapPin className="h-4 w-4 text-primary" />
-          {stall.address.neighborhood}, {stall.address.city},{" "}
-          {stall.address.province}
+          {stall.address.countryCode && (
+            <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-primary">
+              {stall.address.countryCode}
+            </span>
+          )}
+          <span>
+            {stall.address.suburb}, {stall.address.city},{" "}
+            {stall.address.province}
+            {stall.address.country ? `, ${stall.address.country}` : ""}
+          </span>
         </span>
         <span className="flex items-center gap-1.5">
           <Maximize2 className="h-4 w-4" />

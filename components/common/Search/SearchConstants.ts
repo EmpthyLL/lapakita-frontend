@@ -188,7 +188,7 @@ export const DEPOSIT_RANGE = {
   step: 100_000,
 } as const;
 
-export const DEFAULT_ASSUMED_CAPITAL = 40_000_000;
+export const DEFAULT_ASSUMED_CAPITAL = 25_000_000;
 export const DEFAULT_BEP_MONTHS: BEPMonths = 6;
 
 export const RADIUS_PRESETS: readonly RadiusPreset[] = [

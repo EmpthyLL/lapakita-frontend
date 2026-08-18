@@ -114,7 +114,7 @@ export const stallSearchApiPayloadSchema = z.object({
 export type StallSearchApiPayload = z.infer<typeof stallSearchApiPayloadSchema>;
 
 export interface StallLocationSummary {
-  area: string; // e.g. "Margonda" or "Orchard"
+  area: string; // e.g. "Margonda" or "Orchard" (suburb atau district)
   city: string; // e.g. "Depok" or "Central Singapore"
   countryCode?: string; // e.g. "ID", "SG"
 }
