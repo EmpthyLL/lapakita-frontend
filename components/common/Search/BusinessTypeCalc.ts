@@ -2,6 +2,17 @@ import {
   DEFAULT_ASSUMED_CAPITAL,
   PaymentCycle,
 } from "@/components/common/search/SearchConstants";
+import { BUSINESS_TYPE_MAP } from "@/lib/data/schema/master/business_type";
+
+export interface IndustryFinancialProfile {
+  grossMarginRatio: number;
+  rentToRevenueRatio: number;
+}
+
+export const DEFAULT_INDUSTRY_PROFILE: IndustryFinancialProfile = {
+  grossMarginRatio: 0.55,
+  rentToRevenueRatio: 0.15,
+};
 
 export interface CycleRange {
   minRent: number;
@@ -12,53 +23,43 @@ export interface CycleRange {
 
 export type MultiCycleRanges = Record<PaymentCycle, CycleRange>;
 
-/**
- * Persentase alokasi modal yang disanggupi untuk sewa per bulan.
- * - BEP Cepat (1-3 bln): Budget sewa bulanan harus MURAH (5% - 10% dari modal) agar tidak membebani operasional.
- * - BEP Lama (>12 bln): Budget sewa bulanan bisa LEBIH MAHAL (20% - 35% dari modal) karena modal diputar jangka panjang.
- */
-export function getDynamicRentRatio(bepMonths: number): {
-  minRatio: number;
-  maxRatio: number;
-} {
-  const safeBep = Math.max(1, bepMonths);
+const ABSOLUTE_MIN_MONTHLY_RENT = 300_000;
+const ABSOLUTE_MIN_DEPOSIT = 300_000;
 
-  // 1-3 Bulan BEP: Harus murah per bulan agar cepat balik modal (5% - 10%)
-  if (safeBep <= 3) return { minRatio: 0.05, maxRatio: 0.1 };
-
-  // 4-6 Bulan BEP: Moderate (10% - 15%)
-  if (safeBep <= 6) return { minRatio: 0.1, maxRatio: 0.15 };
-
-  // 7-12 Bulan BEP: Standard (15% - 25%)
-  if (safeBep <= 12) return { minRatio: 0.15, maxRatio: 0.25 };
-
-  // > 12 Bulan BEP: Bisa sewa tempat lebih mahal / kelas atas (20% - 35%)
-  return { minRatio: 0.2, maxRatio: 0.35 };
-}
-
-// Helper pembulatan ke kelipatan Rp 50.000 terdekat agar angka di UI rapi
 function roundToNearest50k(val: number): number {
   return Math.round(val / 50_000) * 50_000;
+}
+
+function ensureMinGap(
+  min: number,
+  max: number,
+  gap = 50_000,
+): [number, number] {
+  if (max - min < gap) {
+    return [min, min + gap];
+  }
+  return [min, max];
 }
 
 export function calculateMultiCycleRanges(
   capital: number,
   bepMonths: number,
+  profile: IndustryFinancialProfile = DEFAULT_INDUSTRY_PROFILE,
 ): MultiCycleRanges {
   const safeCapital = capital > 0 ? capital : DEFAULT_ASSUMED_CAPITAL;
   const safeBep = bepMonths > 0 ? bepMonths : 6;
 
-  const { minRatio, maxRatio } = getDynamicRentRatio(safeBep);
+  const estimatedMonthlyRevenueNeeded =
+    safeCapital / (safeBep * profile.grossMarginRatio);
 
-  // Biaya sewa bulanan dasar murni dari persentase alokasi modal
-  const baseMonthlyMin = safeCapital * minRatio;
-  const baseMonthlyMax = safeCapital * maxRatio;
+  let baseMonthlyMin =
+    estimatedMonthlyRevenueNeeded * (profile.rentToRevenueRatio * 0.75);
+  let baseMonthlyMax =
+    estimatedMonthlyRevenueNeeded * (profile.rentToRevenueRatio * 1.25);
 
-  // Deposit murni dihitung dari 1x s/d 1.5x sewa bulanan dasar (dibayar sekali di awal, tanpa diskon)
-  const minDeposit = roundToNearest50k(baseMonthlyMin * 1.0);
-  const maxDeposit = roundToNearest50k(baseMonthlyMax * 1.5);
+  baseMonthlyMin = Math.max(baseMonthlyMin, ABSOLUTE_MIN_MONTHLY_RENT);
+  baseMonthlyMax = Math.max(baseMonthlyMax, baseMonthlyMin * 1.2);
 
-  // Konfigurasi Diskon Sewa Jangka Panjang (Hanya berlaku untuk nilai sewa nominal)
   const cycleConfig: Record<
     PaymentCycle,
     { months: number; discount: number }
@@ -71,33 +72,38 @@ export function calculateMultiCycleRanges(
 
   const result = {} as MultiCycleRanges;
 
+  const rawMinDeposit = Math.max(baseMonthlyMin * 1.0, ABSOLUTE_MIN_DEPOSIT);
+  const rawMaxDeposit = Math.max(baseMonthlyMax * 1.25, rawMinDeposit * 1.2);
+  const [minDeposit, maxDeposit] = ensureMinGap(
+    roundToNearest50k(rawMinDeposit),
+    roundToNearest50k(rawMaxDeposit),
+  );
+
   (Object.keys(cycleConfig) as PaymentCycle[]).forEach((cycle) => {
     const { months, discount } = cycleConfig[cycle];
     const discountMultiplier = 1 - discount;
 
-    // Total sewa nominal untuk periode tersebut (sudah termasuk diskon komitmen)
     const rawMinRent = baseMonthlyMin * months * discountMultiplier;
     const rawMaxRent = baseMonthlyMax * months * discountMultiplier;
 
-    result[cycle] = {
-      minRent: roundToNearest50k(rawMinRent),
-      maxRent: roundToNearest50k(rawMaxRent),
-      minDeposit, // Deposit konsisten untuk semua cycle
-      maxDeposit,
-    };
+    const [minRent, maxRent] = ensureMinGap(
+      roundToNearest50k(rawMinRent),
+      roundToNearest50k(rawMaxRent),
+      roundToNearest50k(50_000 * months),
+    );
+
+    result[cycle] = { minRent, maxRent, minDeposit, maxDeposit };
   });
 
   return result;
 }
 
-/**
- * Helper terpusat untuk menentukan [rentRange] & [depositRange] hasil kalkulasi.
- */
 export function getCalculatedRangesForFilters(
   capital: number,
   bepMonths: number | string,
   customBepMonths: number | null,
   paymentCycle: PaymentCycle | "",
+  businessType?: string,
 ): {
   rentRange: [number, number];
   depositRange: [number, number];
@@ -105,7 +111,15 @@ export function getCalculatedRangesForFilters(
   const activeBep =
     bepMonths === "custom" ? (customBepMonths ?? 6) : Number(bepMonths) || 6;
 
-  const calculated = calculateMultiCycleRanges(capital, activeBep);
+  const preset = businessType ? BUSINESS_TYPE_MAP[businessType] : null;
+  const profile = preset
+    ? {
+        grossMarginRatio: preset.avgGrossMarginRatio,
+        rentToRevenueRatio: preset.industryRentToRevenueRatio,
+      }
+    : undefined;
+
+  const calculated = calculateMultiCycleRanges(capital, activeBep, profile);
 
   if (paymentCycle && calculated[paymentCycle]) {
     const data = calculated[paymentCycle];
@@ -115,9 +129,31 @@ export function getCalculatedRangesForFilters(
     };
   }
 
-  // Jika Payment Cycle belum dipilih, gunakan acuan bulanan (month)
   return {
     rentRange: [calculated.month.minRent, calculated.month.maxRent],
     depositRange: [calculated.month.minDeposit, calculated.month.maxDeposit],
   };
+}
+
+export function getPresetWithCalculatedRanges(
+  typeId: string,
+  capital?: number,
+  bepMonths?: number,
+) {
+  const typeDef = BUSINESS_TYPE_MAP[typeId];
+  if (!typeDef) return null;
+
+  const activeCapital = capital ?? typeDef.defaultCapital;
+  const activeBEP = bepMonths ?? typeDef.defaultBEPMonths;
+
+  const cycleRanges: MultiCycleRanges = calculateMultiCycleRanges(
+    activeCapital,
+    activeBEP,
+    {
+      grossMarginRatio: typeDef.avgGrossMarginRatio,
+      rentToRevenueRatio: typeDef.industryRentToRevenueRatio,
+    },
+  );
+
+  return { ...typeDef, activeCapital, activeBEP, cycleRanges };
 }

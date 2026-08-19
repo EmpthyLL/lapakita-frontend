@@ -67,6 +67,8 @@ export type LandmarkCategoryValue =
 
 export type StallPlacement = "indoor" | "semi-outdoor" | "outdoor";
 
+export type StallPermanenceType = "permanent" | "semi-permanent" | "temporary";
+
 export type StallPropertyTypeValue =
   | "mall-island"
   | "mall-shop"
@@ -132,6 +134,12 @@ export interface StallPlacementOption {
   label: string;
 }
 
+export interface StallPermanenceOption {
+  value: StallPermanenceType;
+  label: string;
+  description: string;
+}
+
 export interface StallPropertyType {
   value: StallPropertyTypeValue;
   label: string;
@@ -160,23 +168,37 @@ export interface RentRangeConfig {
   step: number;
 }
 
-// Rentang Umum jika pengurus/pencari belum memilih Payment Cycle khusus
+// Rentang Umum saat user belum memilih Payment Cycle khusus (Default fallback)
 export const GENERAL_RENT_RANGE: RentRangeConfig = {
-  min: 500_000,
-  max: 250_000_000,
-  step: 500_000,
+  min: 300_000,
+  max: 50_000_000,
+  step: 250_000,
 };
 
+// Rentang Sewa Realistis per Payment Cycle
 export const RENT_RANGE_BY_CYCLE: Record<PaymentCycle, RentRangeConfig> = {
-  month: { min: 500_000, max: 20_000_000, step: 100_000 },
-  quarter: { min: 1_500_000, max: 60_000_000, step: 500_000 },
-  semester: { min: 3_000_000, max: 120_000_000, step: 1_000_000 },
-  year: { min: 6_000_000, max: 250_000_000, step: 5_000_000 },
+  month: {
+    min: 300_000,
+    max: 10_000_000,
+    step: 50_000,
+  },
+  quarter: {
+    min: 900_000,
+    max: 25_000_000,
+    step: 250_000,
+  },
+  semester: {
+    min: 1_800_000,
+    max: 45_000_000,
+    step: 500_000,
+  },
+  year: {
+    min: 3_500_000,
+    max: 80_000_000,
+    step: 1_000_000,
+  },
 };
 
-/**
- * Helper untuk mendapatkan range yang sesuai berdasarkan cycle yang dipilih
- */
 export function getRentRangeConfig(cycle: PaymentCycle | ""): RentRangeConfig {
   if (!cycle) return GENERAL_RENT_RANGE;
   return RENT_RANGE_BY_CYCLE[cycle];
@@ -188,7 +210,7 @@ export const DEPOSIT_RANGE = {
   step: 100_000,
 } as const;
 
-export const DEFAULT_ASSUMED_CAPITAL = 25_000_000;
+export const DEFAULT_ASSUMED_CAPITAL = 35_000_000;
 export const DEFAULT_BEP_MONTHS: BEPMonths = 6;
 
 export const RADIUS_PRESETS: readonly RadiusPreset[] = [
@@ -236,8 +258,8 @@ export const MIN_LEASE_PERIOD_PRESETS: LeasePeriodOption[] = [
 
 export const PAYMENT_CYCLE_OPTIONS: PaymentCycleOption[] = [
   { value: "month", label: "Monthly" },
-  { value: "quarter", label: "Quarter" },
-  { value: "semester", label: "Semester" },
+  { value: "quarter", label: "Quarterly" },
+  { value: "semester", label: "Semesterly" },
   { value: "year", label: "Yearly" },
 ];
 
@@ -285,6 +307,27 @@ export const STALL_PLACEMENT_OPTIONS: StallPlacementOption[] = [
   { value: "indoor", label: "Indoor (Fully Enclosed / Air-Conditioned)" },
   { value: "semi-outdoor", label: "Semi-Outdoor (Covered / Canopy)" },
   { value: "outdoor", label: "Outdoor (Open Air / Courtyard)" },
+];
+
+/* ─── PERMANENCE LEVEL (NEW) ─── */
+export const STALL_PERMANENCE_OPTIONS: StallPermanenceOption[] = [
+  {
+    value: "permanent",
+    label: "Permanent Structure",
+    description: "Solid brick/concrete shop, shophouse, or enclosed mall unit.",
+  },
+  {
+    value: "semi-permanent",
+    label: "Semi-Permanent / Modular",
+    description:
+      "Container booth, kiosk, prefabricated wooden booth, or canopy stall.",
+  },
+  {
+    value: "temporary",
+    label: "Non-Permanent / Event / Pop-Up",
+    description:
+      "Event tent, food truck spot, seasonal bazaar booth, or open ground lot.",
+  },
 ];
 
 export const STALL_PROPERTY_TYPES: StallPropertyType[] = [

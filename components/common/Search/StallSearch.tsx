@@ -9,7 +9,6 @@ import {
 import { cn } from "@/lib/utils";
 import { ChevronDown, RotateCcw, SlidersHorizontal, X } from "lucide-react";
 import { ReactNode, useState } from "react";
-import { calculateMultiCycleRanges } from "./BusinessTypeCalc";
 import { FacilityPicker } from "./FacilityPicker";
 import {
   createLandmarkRadiusEntry,
@@ -35,8 +34,9 @@ import { StallSearchBudgetFilters } from "./StallSearchBudgetFilters";
 import { StallSearchPrimaryRow } from "./StallSearchPrimaryRow";
 import { StallSpaceFilter } from "./StallSpaceFilter";
 
+// Menggunakan `t.id` sebagai pengganti `t.slug`
 const BUSINESS_TYPE_LABELS: Record<string, string> = Object.fromEntries(
-  BUSINESS_CATEGORIES.flatMap((g) => g.types.map((t) => [t.slug, t.label])),
+  BUSINESS_CATEGORIES.flatMap((g) => g.types.map((t) => [t.id, t.label])),
 );
 
 export interface StallSearchProps {
@@ -167,51 +167,31 @@ export default function StallSearch({
     setBusinessType(value);
     const preset = BUSINESS_TYPE_MAP[value];
 
-    // Jika Business Type di-reset / kosong
     if (!preset) {
+      setPropertyType([]);
+      setPlacement("");
+      setSizeRange([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]);
+      setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);
       setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
       setDepositRange([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]);
-      setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);
       return;
     }
 
-    // 1. Finansial Defaults
     setBepMonths(String(preset.defaultBEPMonths));
     setCustomBepMonths(null);
     setCapital(preset.defaultCapital);
 
-    // 2. Multi-Cycle Range Calculation
-    const calculatedRanges = calculateMultiCycleRanges(
-      preset.defaultCapital,
-      preset.defaultBEPMonths,
-    );
-
-    if (paymentCycle && calculatedRanges[paymentCycle]) {
-      const selectedRange = calculatedRanges[paymentCycle];
-      setRentRange([selectedRange.minRent, selectedRange.maxRent]);
-      setDepositRange([selectedRange.minDeposit, selectedRange.maxDeposit]);
-    } else {
-      setRentRange([
-        calculatedRanges["month"].minRent,
-        calculatedRanges["year"].maxRent,
-      ]);
-      setDepositRange([
-        calculatedRanges["month"].minDeposit,
-        calculatedRanges["year"].maxDeposit,
-      ]);
-    }
-
-    // 3. Recommended Property Type
+    // Physical Property Presets
     if (preset.recommendedPropertyTypes?.length) {
       setPropertyType(preset.recommendedPropertyTypes);
+    } else {
+      setPropertyType([]);
     }
 
-    // 4. Recommended Placement (Indoor / Semi-Outdoor / Outdoor)
     if (preset.recommendedPlacement) {
       setPlacement(preset.recommendedPlacement);
     }
 
-    // 5. Recommended Stall Size (Sqm)
     if (preset.recommendedSizeSqm) {
       setSizeRange([
         preset.recommendedSizeSqm.min,
@@ -219,7 +199,6 @@ export default function StallSearch({
       ]);
     }
 
-    // 6. Recommended Floor Count (Lantai Min & Max)
     if (preset.recommendedFloors) {
       setFloorCountRange([
         preset.recommendedFloors.min,
@@ -227,7 +206,7 @@ export default function StallSearch({
       ]);
     }
 
-    // 7. Facilities & Landmarks Defaults
+    // Facilities & Landmarks Defaults
     setFacilities((prev) =>
       Array.from(new Set([...prev, ...preset.facilities])),
     );
@@ -282,7 +261,7 @@ export default function StallSearch({
   }
 
   const activeFilterCount =
-    (propertyType ? 1 : 0) +
+    (propertyType.length > 0 ? 1 : 0) +
     (placement ? 1 : 0) +
     (floorCountRange[0] > FLOOR_COUNT_RANGE.min ||
     floorCountRange[1] > FLOOR_COUNT_RANGE.min

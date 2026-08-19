@@ -2,7 +2,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { useDebounce } from "@/hooks/use-bounce";
+import { useDebounce } from "@/hooks/use-debounce";
 import {
   LocationSuggestion,
   searchLocations,

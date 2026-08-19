@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { useDebounce } from "./use-bounce";
+import { useDebounce } from "./use-debounce";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface UseAutocompleteParams<T extends Record<string, any>> {
@@ -119,7 +119,12 @@ export function useAutocomplete<T extends Record<string, any>>({
 
   function forwardKeyToCommand(key: string, code: string) {
     commandInputRef.current?.dispatchEvent(
-      new KeyboardEvent("keydown", { key, code, bubbles: true, cancelable: true }),
+      new KeyboardEvent("keydown", {
+        key,
+        code,
+        bubbles: true,
+        cancelable: true,
+      }),
     );
   }
 
@@ -135,7 +140,10 @@ export function useAutocomplete<T extends Record<string, any>>({
   React.useEffect(() => {
     if (!open || value == null) return;
     const timer = setTimeout(() => {
-      selectedItemRef.current?.scrollIntoView({ block: "center", behavior: "instant" });
+      selectedItemRef.current?.scrollIntoView({
+        block: "center",
+        behavior: "instant",
+      });
     }, 100);
     return () => clearTimeout(timer);
   }, [open, value]);

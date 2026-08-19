@@ -10,7 +10,7 @@ import { LANDMARK_CATEGORIES } from "./SearchConstants";
 
 const BUSINESS_TYPE_OPTIONS = BUSINESS_CATEGORIES.flatMap((g) =>
   g.types.map((t) => ({
-    value: t.slug,
+    value: t.id,
     label: t.label,
     group: g.group,
   })),

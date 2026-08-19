@@ -1,5 +1,6 @@
 "use client";
 
+import { useDebounce } from "@/hooks/use-debounce";
 import { formatCurrency } from "@/lib/utils";
 import { Sparkles, Target } from "lucide-react";
 import * as React from "react";
@@ -28,6 +29,7 @@ const BEP_OPTIONS = [
 ];
 
 interface StallSearchBudgetFiltersProps {
+  businessType?: string; // Tambahkan businessType
   businessTypeLabel: string | null;
   bepMonths: string;
   onBepMonthsChange: (value: string) => void;
@@ -46,6 +48,7 @@ interface StallSearchBudgetFiltersProps {
 }
 
 export function StallSearchBudgetFilters({
+  businessType = "",
   businessTypeLabel,
   bepMonths,
   onBepMonthsChange,
@@ -60,7 +63,6 @@ export function StallSearchBudgetFilters({
   depositRange,
   onDepositRangeChange,
 }: StallSearchBudgetFiltersProps) {
-  // Sync otomatis jika nilai bepMonths dari luar merupakan angka custom (bukan opsi preset)
   React.useEffect(() => {
     if (
       bepMonths &&
@@ -75,23 +77,32 @@ export function StallSearchBudgetFilters({
     }
   }, [bepMonths, onBepMonthsChange, onCustomBepMonthsChange]);
 
-  // 1. INITIAL & ON-CHANGE RECALCULATION:
-  // Menghitung & merekomendasikan range ideal saat Capital, BEP, atau Payment Cycle berubah
+  const debouncedCapital = useDebounce(capital, 450);
+  const debouncedCustomBepMonths = useDebounce(customBepMonths, 450);
+
+  // SINGLE SOURCE OF TRUTH:
+  // Terintegrasi penuh dengan businessType, debouncedCapital, BEP, & paymentCycle
   React.useEffect(() => {
     const { rentRange: newRent, depositRange: newDeposit } =
       getCalculatedRangesForFilters(
-        capital,
+        debouncedCapital,
         bepMonths,
-        customBepMonths,
+        debouncedCustomBepMonths,
         paymentCycle,
+        businessType,
       );
 
     onRentRangeChange(newRent);
     onDepositRangeChange(newDeposit);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [capital, bepMonths, customBepMonths, paymentCycle]);
+  }, [
+    debouncedCapital,
+    bepMonths,
+    debouncedCustomBepMonths,
+    paymentCycle,
+    businessType,
+  ]);
 
-  // Batas slider fisik (min/max/step) tetap menggunakan konstanta terikat cycle
   const activeRentLimit = paymentCycle
     ? RENT_RANGE_BY_CYCLE[paymentCycle]
     : GENERAL_RENT_RANGE;
@@ -132,7 +143,6 @@ export function StallSearchBudgetFilters({
         )}
       </div>
 
-      {/* Target BEP Filter */}
       <div className="rounded-2xl border-2 border-primary/30 bg-linear-to-br from-primary/10 via-primary/5 to-transparent p-3">
         <div className="mb-2 flex items-center gap-2">
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-white">
@@ -165,7 +175,6 @@ export function StallSearchBudgetFilters({
         )}
       </div>
 
-      {/* Capital Input */}
       <div>
         <p className="mb-2 text-xs font-semibold text-muted-foreground">
           Available Capital
@@ -180,7 +189,6 @@ export function StallSearchBudgetFilters({
         />
       </div>
 
-      {/* Payment Cycle */}
       <div>
         <p className="mb-2 text-xs font-semibold text-muted-foreground">
           Payment Cycle
@@ -192,9 +200,8 @@ export function StallSearchBudgetFilters({
         />
       </div>
 
-      {/* Slider Rent Range — Pengguna bebas menggeser tanpa ter-reset otomatis */}
       <RangeInput
-        label="Rent Budget"
+        label="Rent"
         min={activeRentLimit.min}
         max={activeRentLimit.max}
         step={activeRentLimit.step}
@@ -204,7 +211,6 @@ export function StallSearchBudgetFilters({
         prefix="Rp "
       />
 
-      {/* Slider Deposit Range — Pengguna bebas menggeser */}
       <RangeInput
         label="Deposit"
         min={DEPOSIT_RANGE.min}
