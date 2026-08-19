@@ -6,13 +6,13 @@ import { ArrowRight, Mail } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { LanguageSwitcher } from "../common/LanguageSwitcher";
+import { Logo } from "../common/Logo";
 import {
   InstagramIcon,
   LinkedinIcon,
   XIcon,
   YoutubeIcon,
 } from "../icon/SocialIcon";
-import { Logo } from "./Logo";
 
 export const ROLE_LINKS = {
   tenant: {

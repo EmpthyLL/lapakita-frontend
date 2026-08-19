@@ -1,5 +1,5 @@
-import { SiteFooter } from "@/components/common/Footer";
-import { SiteHeader } from "@/components/common/Header";
+import { SiteFooter } from "@/components/layout/Footer";
+import { SiteHeader } from "@/components/layout/Header";
 
 export default function PublicLayout({
   children,
