@@ -6,15 +6,10 @@ import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 import { Autocomplete } from "../input/Autocomplete";
 import { LocationAutocomplete } from "./LocationAutocomplete";
-import { LANDMARK_CATEGORIES } from "./SearchConstants";
-
-const BUSINESS_TYPE_OPTIONS = BUSINESS_CATEGORIES.flatMap((g) =>
-  g.types.map((t) => ({
-    value: t.id,
-    label: t.label,
-    group: g.group,
-  })),
-);
+import {
+  LANDMARK_CATEGORIES,
+  type StallPermanenceType,
+} from "./SearchConstants";
 
 interface StallSearchPrimaryRowProps {
   isFull: boolean;
@@ -22,6 +17,7 @@ interface StallSearchPrimaryRowProps {
   onLocationChange: (value: string) => void;
   businessType: string;
   onBusinessTypeChange: (value: string) => void;
+  permanenceType: StallPermanenceType;
   singleLandmark: string;
   onSingleLandmarkChange: (value: string) => void;
   onSearch: () => void;
@@ -33,10 +29,17 @@ export function StallSearchPrimaryRow({
   onLocationChange,
   businessType,
   onBusinessTypeChange,
+  permanenceType,
   singleLandmark,
   onSingleLandmarkChange,
   onSearch,
 }: StallSearchPrimaryRowProps) {
+  const businessTypeOptions = BUSINESS_CATEGORIES.flatMap((g) =>
+    g.types
+      .filter((t) => t.permanencePresets[permanenceType]?.isAllowed)
+      .map((t) => ({ value: t.slug, label: t.label, group: g.group })),
+  );
+
   return (
     <div
       className={cn(
@@ -56,7 +59,7 @@ export function StallSearchPrimaryRow({
         <Autocomplete
           value={businessType}
           onSelect={(v) => onBusinessTypeChange(String(v))}
-          options={BUSINESS_TYPE_OPTIONS}
+          options={businessTypeOptions}
           valueKey="value"
           labelKey="label"
           groupKey="group"

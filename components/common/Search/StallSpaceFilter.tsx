@@ -4,12 +4,17 @@ import { RangeInput } from "../input/RangeInput";
 import { SegmentedToggle } from "../input/SegmentedToggle";
 import {
   FLOOR_COUNT_RANGE,
+  getAllowedPlacements,
   STALL_PLACEMENT_OPTIONS,
   STALL_SIZE_RANGE,
-  StallPlacement,
+  type StallPermanenceType,
+  type StallPlacement,
+  type StallPropertyTypeValue,
 } from "./SearchConstants";
 
 interface StallSpaceFilterProps {
+  permanenceType: StallPermanenceType;
+  selectedPropertyTypes: StallPropertyTypeValue[];
   placement: StallPlacement | "";
   onPlacementChange: (value: StallPlacement | "") => void;
   floorCount: [number, number];
@@ -25,6 +30,8 @@ const SHORT_LABEL: Record<StallPlacement, string> = {
 };
 
 export function StallSpaceFilter({
+  permanenceType,
+  selectedPropertyTypes,
   placement,
   onPlacementChange,
   floorCount,
@@ -32,27 +39,37 @@ export function StallSpaceFilter({
   stallSize,
   onStallSizeChange,
 }: StallSpaceFilterProps) {
-  const placementOptions = STALL_PLACEMENT_OPTIONS.map((opt) => ({
-    value: opt.value as StallPlacement,
+  const allowedPlacements = getAllowedPlacements(
+    selectedPropertyTypes,
+    permanenceType,
+  );
+  const placementOptions = STALL_PLACEMENT_OPTIONS.filter((opt) =>
+    allowedPlacements.includes(opt.value),
+  ).map((opt) => ({
+    value: opt.value,
     label: opt.label,
-    shortLabel: SHORT_LABEL[opt.value as StallPlacement],
+    shortLabel: SHORT_LABEL[opt.value],
   }));
 
   return (
     <div className="flex flex-col gap-5">
-      {/* 1. Filter Placement */}
       <div>
         <p className="mb-2 text-xs font-semibold text-muted-foreground">
           Stall Placement
         </p>
-        <SegmentedToggle
-          value={placement}
-          onChange={onPlacementChange}
-          options={placementOptions}
-        />
+        {placementOptions.length > 0 ? (
+          <SegmentedToggle
+            value={placement}
+            onChange={onPlacementChange}
+            options={placementOptions}
+          />
+        ) : (
+          <p className="rounded-lg border border-dashed border-border p-3 text-center text-[11px] text-muted-foreground">
+            Pick a property type to see placement options.
+          </p>
+        )}
       </div>
 
-      {/* 2. Filter Number of Floors */}
       <RangeInput
         label="Number of Floors"
         min={FLOOR_COUNT_RANGE.min}
@@ -64,7 +81,6 @@ export function StallSpaceFilter({
         suffix=" floor"
       />
 
-      {/* 3. Filter Stall Size */}
       <RangeInput
         label="Stall Size"
         min={STALL_SIZE_RANGE.min}

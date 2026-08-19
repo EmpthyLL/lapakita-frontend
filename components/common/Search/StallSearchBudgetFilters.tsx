@@ -45,6 +45,7 @@ interface StallSearchBudgetFiltersProps {
 
   depositRange: [number, number];
   onDepositRangeChange: (value: [number, number]) => void;
+  allowedPaymentCycles: PaymentCycle[];
 }
 
 export function StallSearchBudgetFilters({
@@ -62,6 +63,7 @@ export function StallSearchBudgetFilters({
   onRentRangeChange,
   depositRange,
   onDepositRangeChange,
+  allowedPaymentCycles,
 }: StallSearchBudgetFiltersProps) {
   React.useEffect(() => {
     if (
@@ -102,6 +104,10 @@ export function StallSearchBudgetFilters({
     paymentCycle,
     businessType,
   ]);
+
+  const cycleOptions = PAYMENT_CYCLE_OPTIONS.filter((opt) =>
+    allowedPaymentCycles.includes(opt.value),
+  );
 
   const activeRentLimit = paymentCycle
     ? RENT_RANGE_BY_CYCLE[paymentCycle]
@@ -196,7 +202,7 @@ export function StallSearchBudgetFilters({
         <SegmentedToggle
           value={paymentCycle}
           onChange={handleCycleChange}
-          options={PAYMENT_CYCLE_OPTIONS}
+          options={cycleOptions}
         />
       </div>
 

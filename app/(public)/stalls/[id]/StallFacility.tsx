@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  FACILITY_GROUPS,
+  MASTER_FACILITIES,
   type FacilityValue,
 } from "@/components/common/search/SearchConstants";
 
@@ -10,9 +10,9 @@ export function StallFacilities({
 }: {
   facilityValues: FacilityValue[];
 }) {
-  const matchedFacilities = FACILITY_GROUPS.flatMap(
-    (group) => group.items,
-  ).filter((facility) => facilityValues.includes(facility.value));
+  const matchedFacilities = facilityValues
+    .map((val) => MASTER_FACILITIES[val])
+    .filter(Boolean);
 
   if (matchedFacilities.length === 0) return null;
 

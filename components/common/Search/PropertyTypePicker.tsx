@@ -3,32 +3,43 @@
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 import {
-  STALL_PROPERTY_TYPES,
-  StallPropertyTypeValue,
+  getPropertyTypesForPermanence,
+  type StallPermanenceType,
+  type StallPropertyTypeValue,
 } from "./SearchConstants";
 
 interface PropertyTypePickerProps {
   value: StallPropertyTypeValue[];
   onChange: (value: StallPropertyTypeValue[]) => void;
+  permanenceType: StallPermanenceType;
 }
 
 export function PropertyTypePicker({
   value,
   onChange,
+  permanenceType,
 }: PropertyTypePickerProps) {
+  const options = getPropertyTypesForPermanence(permanenceType);
+
   function handleToggle(typeValue: StallPropertyTypeValue) {
-    if (value.includes(typeValue)) {
-      // Hapus jika sudah terpilih
-      onChange(value.filter((v) => v !== typeValue));
-    } else {
-      // Tambahkan jika belum terpilih
-      onChange([...value, typeValue]);
-    }
+    onChange(
+      value.includes(typeValue)
+        ? value.filter((v) => v !== typeValue)
+        : [...value, typeValue],
+    );
+  }
+
+  if (options.length === 0) {
+    return (
+      <p className="rounded-xl border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
+        No property types configured for this tab yet.
+      </p>
+    );
   }
 
   return (
     <div className="space-y-2 p-2">
-      {STALL_PROPERTY_TYPES.map((type) => {
+      {options.map((type) => {
         const Icon = type.icon;
         const active = value.includes(type.value);
 
@@ -44,7 +55,6 @@ export function PropertyTypePicker({
                 : "border-border bg-card hover:border-primary/40 hover:bg-muted/50",
             )}
           >
-            {/* Icon Container */}
             <span
               className={cn(
                 "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors",
@@ -56,7 +66,6 @@ export function PropertyTypePicker({
               <Icon className="h-5 w-5" />
             </span>
 
-            {/* Label & Description */}
             <span className="min-w-0 flex-1">
               <span
                 className={cn(
@@ -71,7 +80,6 @@ export function PropertyTypePicker({
               </span>
             </span>
 
-            {/* Check Badge Icon */}
             {active && (
               <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs">
                 <Check className="h-3 w-3 stroke-[2.5]" />

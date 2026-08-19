@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,7 @@ import {
 } from "@/lib/data/schema/master/business_type";
 import { cn } from "@/lib/utils";
 import { ChevronDown, RotateCcw, SlidersHorizontal, X } from "lucide-react";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { FacilityPicker } from "./FacilityPicker";
 import {
   createLandmarkRadiusEntry,
@@ -23,20 +24,23 @@ import {
   DEPOSIT_RANGE,
   FLOOR_COUNT_RANGE,
   GENERAL_RENT_RANGE,
-  PaymentCycle,
+  getAllowedPlacements,
   RADIUS_PRESETS,
+  STALL_PERMANENCE_TABS,
   STALL_SIZE_RANGE,
-  StallPlacement,
-  StallPropertyTypeValue,
+  type PaymentCycle,
+  type StallPermanenceType,
+  type StallPlacement,
+  type StallPropertyTypeValue,
 } from "./SearchConstants";
 import { StallSearchFooter } from "./SearchFooter";
+import { StallPermanenceTabs } from "./StallPermanenceTabs";
 import { StallSearchBudgetFilters } from "./StallSearchBudgetFilters";
 import { StallSearchPrimaryRow } from "./StallSearchPrimaryRow";
 import { StallSpaceFilter } from "./StallSpaceFilter";
 
-// Menggunakan `t.id` sebagai pengganti `t.slug`
 const BUSINESS_TYPE_LABELS: Record<string, string> = Object.fromEntries(
-  BUSINESS_CATEGORIES.flatMap((g) => g.types.map((t) => [t.id, t.label])),
+  BUSINESS_CATEGORIES.flatMap((g) => g.types.map((t) => [t.slug, t.label])),
 );
 
 export interface StallSearchProps {
@@ -111,10 +115,13 @@ export default function StallSearch({
 }: StallSearchProps) {
   const isFull = mode === "full";
 
-  // Filter States
   const [location, setLocation] = useState("");
   const radius = RADIUS_PRESETS[1];
   const [singleLandmark, setSingleLandmark] = useState("any");
+
+  // NEW: the tab everything else is scoped to
+  const [permanenceType, setPermanenceType] =
+    useState<StallPermanenceType>("permanent");
 
   const [landmarkEntries, setLandmarkEntries] = useState<LandmarkRadiusEntry[]>(
     [createLandmarkRadiusEntry()],
@@ -157,63 +164,68 @@ export default function StallSearch({
 
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
+  const activeTabConfig = STALL_PERMANENCE_TABS.find(
+    (t) => t.value === permanenceType,
+  )!;
+
   function toggleFacility(value: string) {
     setFacilities((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
     );
   }
 
+  // Switching tabs resets everything that was scoped to the old tab —
+  // an "Indoor mall shop" selection means nothing on the Temporary tab.
+  function handlePermanenceChange(next: StallPermanenceType) {
+    setPermanenceType(next);
+    setPropertyType([]);
+    setPlacement("");
+    setSizeRange([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]);
+    setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);
+    setFacilities([]);
+    setPaymentCycle("");
+    setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
+    setDepositRange([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]);
+
+    // Keep the business type only if it's actually offered on the new tab
+    const typeDef = BUSINESS_TYPE_MAP[businessType];
+    if (typeDef && !typeDef.permanencePresets[next]?.isAllowed) {
+      setBusinessType("");
+    }
+  }
+
   function handleBusinessTypeChange(value: string) {
     setBusinessType(value);
-    const preset = BUSINESS_TYPE_MAP[value];
+    const typeDef = BUSINESS_TYPE_MAP[value];
+    if (!typeDef) return;
 
-    if (!preset) {
-      setPropertyType([]);
-      setPlacement("");
-      setSizeRange([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]);
-      setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);
-      setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
-      setDepositRange([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]);
-      return;
-    }
-
-    setBepMonths(String(preset.defaultBEPMonths));
+    // Financial defaults (BEP, capital) are industry-wide, independent of tab
+    setBepMonths(String(typeDef.defaultBEPMonths));
     setCustomBepMonths(null);
-    setCapital(preset.defaultCapital);
+    setCapital(typeDef.defaultCapital);
 
-    // Physical Property Presets
-    if (preset.recommendedPropertyTypes?.length) {
-      setPropertyType(preset.recommendedPropertyTypes);
-    } else {
-      setPropertyType([]);
+    const preset = typeDef.permanencePresets[permanenceType];
+    if (!preset || !preset.isAllowed) return; // e.g. restaurant has no "temporary" preset
+
+    if (preset.allowedPropertyTypes.length) {
+      setPropertyType(preset.allowedPropertyTypes);
     }
-
-    if (preset.recommendedPlacement) {
-      setPlacement(preset.recommendedPlacement);
-    }
-
-    if (preset.recommendedSizeSqm) {
-      setSizeRange([
-        preset.recommendedSizeSqm.min,
-        preset.recommendedSizeSqm.max,
-      ]);
-    }
-
-    if (preset.recommendedFloors) {
-      setFloorCountRange([
-        preset.recommendedFloors.min,
-        preset.recommendedFloors.max,
-      ]);
-    }
-
-    // Facilities & Landmarks Defaults
+    setPlacement(preset.defaultPlacement);
+    setSizeRange([
+      preset.recommendedSizeSqm.min,
+      preset.recommendedSizeSqm.max,
+    ]);
+    setFloorCountRange([
+      preset.recommendedFloors.min,
+      preset.recommendedFloors.max,
+    ]);
     setFacilities((prev) =>
       Array.from(new Set([...prev, ...preset.facilities])),
     );
 
     setLandmarkEntries((prev) =>
       isUntouchedLandmarkEntries(prev)
-        ? preset.landmarks.map((landmark) => ({
+        ? typeDef.landmarks.map((landmark) => ({
             ...createLandmarkRadiusEntry(),
             landmark,
           }))
@@ -221,14 +233,37 @@ export default function StallSearch({
     );
   }
 
+  // Keep placement valid whenever the property-type selection (or tab)
+  // narrows what's actually allowed.
+  useEffect(() => {
+    const allowed = getAllowedPlacements(propertyType, permanenceType);
+    if (placement && !allowed.includes(placement)) {
+      setPlacement("");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propertyType, permanenceType]);
+
+  // Keep payment cycle valid whenever the tab changes its allowed cycles.
+  useEffect(() => {
+    if (
+      paymentCycle &&
+      !activeTabConfig.allowedPaymentCycles.includes(paymentCycle)
+    ) {
+      setPaymentCycle("");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [permanenceType]);
+
   function handleSearch() {
     if (isFull) {
       console.log({
         location,
+        permanenceType,
         landmarkEntries,
         propertyType,
         placement,
         sizeRange,
+        floorCountRange,
         businessType,
         facilities,
         bepMonths: bepMonths === "custom" ? customBepMonths : Number(bepMonths),
@@ -283,20 +318,24 @@ export default function StallSearch({
       </FilterAccordionSection>
 
       <FilterAccordionSection title="Placement & Size">
-        <div className="space-y-4">
-          <StallSpaceFilter
-            placement={placement}
-            onPlacementChange={setPlacement}
-            floorCount={floorCountRange}
-            onFloorCountChange={setFloorCountRange}
-            stallSize={sizeRange}
-            onStallSizeChange={setSizeRange}
-          />
-        </div>
+        <StallSpaceFilter
+          permanenceType={permanenceType}
+          selectedPropertyTypes={propertyType}
+          placement={placement}
+          onPlacementChange={setPlacement}
+          floorCount={floorCountRange}
+          onFloorCountChange={setFloorCountRange}
+          stallSize={sizeRange}
+          onStallSizeChange={setSizeRange}
+        />
       </FilterAccordionSection>
 
       <FilterAccordionSection title="Property Type">
-        <PropertyTypePicker value={propertyType} onChange={setPropertyType} />
+        <PropertyTypePicker
+          value={propertyType}
+          onChange={setPropertyType}
+          permanenceType={permanenceType}
+        />
       </FilterAccordionSection>
     </>
   );
@@ -314,6 +353,7 @@ export default function StallSearch({
           onCapitalChange={setCapital}
           paymentCycle={paymentCycle}
           onPaymentCycleChange={setPaymentCycle}
+          allowedPaymentCycles={activeTabConfig.allowedPaymentCycles}
           rentRange={rentRange}
           onRentRangeChange={setRentRange}
           depositRange={depositRange}
@@ -341,6 +381,8 @@ export default function StallSearch({
         <FacilityPicker
           selected={facilities}
           onToggle={toggleFacility}
+          selectedPropertyTypes={propertyType}
+          permanenceType={permanenceType}
           size="sidebar"
         />
       </FilterAccordionSection>
@@ -361,6 +403,7 @@ export default function StallSearch({
           onLocationChange={setLocation}
           businessType={businessType}
           onBusinessTypeChange={handleBusinessTypeChange}
+          permanenceType={permanenceType}
           singleLandmark={singleLandmark}
           onSingleLandmarkChange={setSingleLandmark}
           onSearch={handleSearch}
@@ -393,6 +436,13 @@ export default function StallSearch({
       </div>
 
       {isFull && (
+        <StallPermanenceTabs
+          value={permanenceType}
+          onChange={handlePermanenceChange}
+        />
+      )}
+
+      {isFull && (
         <div className="flex items-center justify-between gap-3 lg:hidden">
           <Button
             variant="outline"
@@ -403,9 +453,7 @@ export default function StallSearch({
               <SlidersHorizontal className="h-4 w-4" />
               {showMobileFilters
                 ? "Hide Filters"
-                : `Filter Search Options ${
-                    activeFilterCount > 0 ? `(${activeFilterCount})` : ""
-                  }`}
+                : `Filter Search Options ${activeFilterCount > 0 ? `(${activeFilterCount})` : ""}`}
             </span>
             {showMobileFilters ? (
               <X className="h-4 w-4" />
@@ -467,7 +515,6 @@ export default function StallSearch({
                   Reset
                 </button>
               </div>
-
               {renderSpaceFilters()}
             </div>
           </aside>
@@ -494,7 +541,6 @@ export default function StallSearch({
                   Reset
                 </button>
               </div>
-
               {renderBudgetTermsFilters()}
             </div>
           </aside>
