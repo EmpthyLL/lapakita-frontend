@@ -3,10 +3,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  BUSINESS_CATEGORIES,
-  BUSINESS_TYPE_MAP,
-} from "@/lib/data/schema/master/business_type";
+import { BUSINESS_TYPE_MAP } from "@/lib/data/schema/master/business_type";
 import { cn } from "@/lib/utils";
 import { ChevronDown, RotateCcw, SlidersHorizontal, X } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
@@ -18,6 +15,11 @@ import {
 } from "./LandmarkRadiusPicker";
 import { LeaseTermsPicker } from "./LeaseTermsPicker";
 import { PropertyTypePicker } from "./PropertyTypePicker";
+import { StallSearchFooter } from "./SearchFooter";
+import { StallSpaceFilter } from "./space";
+import { StallPermanenceTabs } from "./StallPermanenceTabs";
+import { StallSearchBudgetFilters } from "./StallSearchBudgetFilters";
+import { StallSearchPrimaryRow } from "./StallSearchPrimaryRow";
 import {
   DEFAULT_ASSUMED_CAPITAL,
   DEFAULT_BEP_MONTHS,
@@ -25,6 +27,8 @@ import {
   FLOOR_COUNT_RANGE,
   GENERAL_RENT_RANGE,
   getAllowedPlacements,
+  getContextualFacilities,
+  getPropertyTypesForPermanence,
   RADIUS_PRESETS,
   STALL_PERMANENCE_TABS,
   STALL_SIZE_RANGE,
@@ -32,16 +36,7 @@ import {
   type StallPermanenceType,
   type StallPlacement,
   type StallPropertyTypeValue,
-} from "./SearchConstants";
-import { StallSearchFooter } from "./SearchFooter";
-import { StallPermanenceTabs } from "./StallPermanenceTabs";
-import { StallSearchBudgetFilters } from "./StallSearchBudgetFilters";
-import { StallSearchPrimaryRow } from "./StallSearchPrimaryRow";
-import { StallSpaceFilter } from "./StallSpaceFilter";
-
-const BUSINESS_TYPE_LABELS: Record<string, string> = Object.fromEntries(
-  BUSINESS_CATEGORIES.flatMap((g) => g.types.map((t) => [t.slug, t.label])),
-);
+} from "./util/SearchConstants";
 
 export interface StallSearchProps {
   mode?: "hero" | "full";
@@ -119,7 +114,6 @@ export default function StallSearch({
   const radius = RADIUS_PRESETS[1];
   const [singleLandmark, setSingleLandmark] = useState("any");
 
-  // NEW: the tab everything else is scoped to
   const [permanenceType, setPermanenceType] =
     useState<StallPermanenceType>("permanent");
 
@@ -162,6 +156,15 @@ export default function StallSearch({
   const [customLeaseMonths, setCustomLeaseMonths] = useState("");
   const [paymentCycle, setPaymentCycle] = useState<PaymentCycle | "">("");
 
+  const [openingTime, setOpeningTime] = useState("10:00");
+  const [closingTime, setClosingTime] = useState("22:00");
+  const [registrationDeadlineDays, setRegistrationDeadlineDays] = useState<
+    number | null
+  >(null);
+  const [eventDurationDays, setEventDurationDays] = useState<number | null>(
+    null,
+  );
+
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const activeTabConfig = STALL_PERMANENCE_TABS.find(
@@ -174,54 +177,73 @@ export default function StallSearch({
     );
   }
 
-  // Switching tabs resets everything that was scoped to the old tab —
-  // an "Indoor mall shop" selection means nothing on the Temporary tab.
-  function handlePermanenceChange(next: StallPermanenceType) {
-    setPermanenceType(next);
-    setPropertyType([]);
-    setPlacement("");
-    setSizeRange([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]);
-    setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);
-    setFacilities([]);
+  function applyPresetFor(
+    typeSlug: string,
+    forPermanence: StallPermanenceType,
+  ) {
+    const typeDef = BUSINESS_TYPE_MAP[typeSlug];
+    if (!typeDef) return false;
+
+    const preset = typeDef.permanencePresets[forPermanence];
+
+    // Jika ada preset spesifik untuk tab ini, terapkan preset tersebut
+    if (preset) {
+      setPropertyType(
+        preset.allowedPropertyTypes.length ? preset.allowedPropertyTypes : [],
+      );
+      setPlacement(preset.defaultPlacement);
+      setFacilities(preset.facilities);
+
+      if (forPermanence === "permanent" && "recommendedSizeSqm" in preset) {
+        setSizeRange([
+          preset.recommendedSizeSqm.min,
+          preset.recommendedSizeSqm.max,
+        ]);
+        setFloorCountRange([
+          preset.recommendedFloors.min,
+          preset.recommendedFloors.max,
+        ]);
+      }
+
+      if (
+        forPermanence === "semi-permanent" &&
+        "defaultOpeningTime" in preset
+      ) {
+        setOpeningTime(preset.defaultOpeningTime);
+        setClosingTime(preset.defaultClosingTime);
+      }
+
+      if (
+        forPermanence === "temporary" &&
+        "registrationWindowDaysBefore" in preset
+      ) {
+        setRegistrationDeadlineDays(preset.registrationWindowDaysBefore);
+        setEventDurationDays(preset.typicalDurationDays);
+      }
+    } else {
+      // Jika tidak ada preset khusus untuk tab ini, gunakan default dari constant
+      const defaultPropertyTypes = getPropertyTypesForPermanence(
+        forPermanence,
+      ).map((p) => p.value);
+      const defaultPlacements = getAllowedPlacements([], forPermanence);
+      const defaultFacilities = getContextualFacilities([], forPermanence).map(
+        (f) => f.value,
+      );
+
+      setPropertyType(defaultPropertyTypes);
+      setPlacement(defaultPlacements[0] ?? "");
+      setSizeRange([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]);
+      setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);
+      setFacilities(defaultFacilities);
+      setOpeningTime("10:00");
+      setClosingTime("22:00");
+      setRegistrationDeadlineDays(null);
+      setEventDurationDays(null);
+    }
+
     setPaymentCycle("");
     setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
     setDepositRange([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]);
-
-    // Keep the business type only if it's actually offered on the new tab
-    const typeDef = BUSINESS_TYPE_MAP[businessType];
-    if (typeDef && !typeDef.permanencePresets[next]?.isAllowed) {
-      setBusinessType("");
-    }
-  }
-
-  function handleBusinessTypeChange(value: string) {
-    setBusinessType(value);
-    const typeDef = BUSINESS_TYPE_MAP[value];
-    if (!typeDef) return;
-
-    // Financial defaults (BEP, capital) are industry-wide, independent of tab
-    setBepMonths(String(typeDef.defaultBEPMonths));
-    setCustomBepMonths(null);
-    setCapital(typeDef.defaultCapital);
-
-    const preset = typeDef.permanencePresets[permanenceType];
-    if (!preset || !preset.isAllowed) return; // e.g. restaurant has no "temporary" preset
-
-    if (preset.allowedPropertyTypes.length) {
-      setPropertyType(preset.allowedPropertyTypes);
-    }
-    setPlacement(preset.defaultPlacement);
-    setSizeRange([
-      preset.recommendedSizeSqm.min,
-      preset.recommendedSizeSqm.max,
-    ]);
-    setFloorCountRange([
-      preset.recommendedFloors.min,
-      preset.recommendedFloors.max,
-    ]);
-    setFacilities((prev) =>
-      Array.from(new Set([...prev, ...preset.facilities])),
-    );
 
     setLandmarkEntries((prev) =>
       isUntouchedLandmarkEntries(prev)
@@ -231,10 +253,39 @@ export default function StallSearch({
           }))
         : prev,
     );
+    return true;
   }
 
-  // Keep placement valid whenever the property-type selection (or tab)
-  // narrows what's actually allowed.
+  function handlePermanenceChange(next: StallPermanenceType) {
+    setPermanenceType(next);
+
+    const applied = businessType ? applyPresetFor(businessType, next) : false;
+
+    if (!applied) {
+      setBusinessType("");
+      setPropertyType([]);
+      setPlacement("");
+      setSizeRange([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]);
+      setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);
+      setFacilities([]);
+      setPaymentCycle("");
+      setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
+      setDepositRange([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]);
+    }
+  }
+
+  function handleBusinessTypeChange(value: string) {
+    setBusinessType(value);
+    const typeDef = BUSINESS_TYPE_MAP[value];
+    if (!typeDef) return;
+
+    setBepMonths(String(typeDef.defaultBEPMonths));
+    setCustomBepMonths(null);
+    setCapital(typeDef.defaultCapital);
+
+    applyPresetFor(value, permanenceType);
+  }
+
   useEffect(() => {
     const allowed = getAllowedPlacements(propertyType, permanenceType);
     if (placement && !allowed.includes(placement)) {
@@ -243,7 +294,6 @@ export default function StallSearch({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propertyType, permanenceType]);
 
-  // Keep payment cycle valid whenever the tab changes its allowed cycles.
   useEffect(() => {
     if (
       paymentCycle &&
@@ -293,6 +343,10 @@ export default function StallSearch({
     setStartDate("");
     setMinLeasePeriod("");
     setPaymentCycle("");
+    setOpeningTime("10:00");
+    setClosingTime("22:00");
+    setRegistrationDeadlineDays(null);
+    setEventDurationDays(null);
   }
 
   const activeFilterCount =
@@ -302,6 +356,8 @@ export default function StallSearch({
     floorCountRange[1] > FLOOR_COUNT_RANGE.min
       ? 1
       : 0) +
+    (registrationDeadlineDays !== null ? 1 : 0) +
+    (eventDurationDays !== null ? 1 : 0) +
     (businessType ? 1 : 0) +
     facilities.length +
     (startDate ? 1 : 0) +
@@ -327,6 +383,14 @@ export default function StallSearch({
           onFloorCountChange={setFloorCountRange}
           stallSize={sizeRange}
           onStallSizeChange={setSizeRange}
+          openingTime={openingTime}
+          onOpeningTimeChange={setOpeningTime}
+          closingTime={closingTime}
+          onClosingTimeChange={setClosingTime}
+          registrationDeadlineDays={registrationDeadlineDays}
+          onRegistrationDeadlineDaysChange={setRegistrationDeadlineDays}
+          eventDurationDays={eventDurationDays}
+          onEventDurationDaysChange={setEventDurationDays}
         />
       </FilterAccordionSection>
 
@@ -344,7 +408,7 @@ export default function StallSearch({
     <>
       <FilterAccordionSection title="Budget & ROI">
         <StallSearchBudgetFilters
-          businessTypeLabel={BUSINESS_TYPE_LABELS[businessType] ?? null}
+          businessTypeLabel={BUSINESS_TYPE_MAP[businessType]?.label ?? null}
           bepMonths={bepMonths}
           onBepMonthsChange={setBepMonths}
           customBepMonths={customBepMonths}

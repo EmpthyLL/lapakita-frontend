@@ -1,12 +1,12 @@
-import type { ReactNode } from "react";
+import { Logo } from "@/components/layout/Logo";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import {
   AuthIconBadge,
   AuthIllustrationBackdrop,
   AuthIllustrationPanel,
 } from "./AuthIlustration";
-import { Logo } from "@/components/common/Logo";
 
 interface IllustrationContent {
   icon: LucideIcon;

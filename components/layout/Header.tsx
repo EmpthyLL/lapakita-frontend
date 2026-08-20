@@ -29,7 +29,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { LanguageSwitcher } from "../common/LanguageSwitcher";
-import { Logo } from "../common/Logo";
+import { Logo } from "./Logo";
 
 export const NAV_LINKS = [
   { label: "Home", href: "/" },

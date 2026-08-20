@@ -1,6 +1,6 @@
 "use client";
 
-import type { PaymentCycle } from "@/components/common/search/SearchConstants";
+import type { PaymentCycle } from "@/components/common/search/util/SearchConstants";
 import { Button } from "@/components/ui/button";
 import type { MultiPeriodPricing } from "@/lib/data/schema/stall/get_stall_detail";
 import { cn, formatCurrency } from "@/lib/utils";

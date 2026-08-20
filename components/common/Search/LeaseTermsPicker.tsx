@@ -6,7 +6,7 @@ import {
   LEASE_MONTHS_OPTIONS,
   MIN_LEASE_PERIOD_PRESETS,
   START_DATE_PRESETS,
-} from "./SearchConstants";
+} from "./util/SearchConstants";
 
 const START_DATE_OPTIONS = [
   ...START_DATE_PRESETS,

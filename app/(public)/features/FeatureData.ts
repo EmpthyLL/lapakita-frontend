@@ -7,13 +7,14 @@ import {
   Building2,
   Calculator,
   CalendarClock,
-  CalendarDays,
   ClipboardCheck,
   ClipboardList,
   Compass,
   EyeOff,
   Gauge,
   Handshake,
+  History,
+  Key,
   LayoutDashboard,
   Lock,
   MapPin,
@@ -30,6 +31,7 @@ import {
   Sparkles,
   Store,
   Target,
+  Tent,
   Truck,
   UserCheck,
   Users,
@@ -66,7 +68,7 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
     headline: "From Business Idea to Daily Retail Operations",
     color: "tenant",
     description:
-      "Tenants are business operators first, stall renters second. Whether you're running a physical stall or a home-based, cloud kitchen, or online business, you get the same tools.",
+      "Tenants are business operators first, stall renters second. Whether you're running a physical stall, market booth, pop-up event, or home-based business, you get the same powerful tools.",
     groups: [
       {
         title: "Multi-Business & POS Hub",
@@ -94,8 +96,14 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
         ],
       },
       {
-        title: "Stall Discovery & Budget-Fit Search",
+        title: "Stall & Event Spot Discovery",
         items: [
+          {
+            icon: Key,
+            title: "Operational Permanence Search Tabs",
+            description:
+              "Filter spaces by 3 distinct operational levels: Independent (24/7 access), Managed Complex (malls, traditional markets, food courts), or Temporary & Event Spots.",
+          },
           {
             icon: MapPin,
             title: "Landmark & Radius Search",
@@ -104,9 +112,9 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
           },
           {
             icon: SlidersHorizontal,
-            title: "Multi-Filter Specs, Size & Placement",
+            title: "Multi-Filter Specs, Size & Facilities",
             description:
-              "Filter spaces by property type (Mall Island, Ruko, Market Stall, Food Court), placement (Indoor, Semi-Outdoor, Outdoor), exact floor size (sqm), and essential facilities.",
+              "Filter spaces by property type (Shophouse, Mall Island, Open Market Stall, Food Court), placement (Indoor, Semi-Outdoor, Outdoor), floor size (sqm), and essential facilities.",
           },
           {
             icon: Target,
@@ -115,10 +123,10 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
               "Input your business type, capital, and target break-even period — e.g. 6 months — to surface stalls whose rent math fits your goals.",
           },
           {
-            icon: CalendarDays,
-            title: "Lease Schedule & Timeline Filters",
+            icon: Tent,
+            title: "Pop-Up & Bazaar Event Booking",
             description:
-              "Filter stalls by desired start dates (1st, 15th, End of Month, or 1-28), minimum lease periods, and payment cycles (Monthly, Quarterly, Semesterly, Yearly).",
+              "Discover and apply for short-term festival booths or food truck spots with transparent registration windows and fixed event schedules.",
           },
         ],
       },
@@ -140,27 +148,34 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
         ],
       },
       {
-        title: "Business Intelligence & Financial Analytics",
+        title: "Business Intelligence & Forecast Analytics",
         items: [
           {
             icon: Activity,
             title: "Diagnostic Health Overview",
             description:
-              "A daily and weekly snapshot of your revenue trend, transaction volume, and which items are moving slowly.",
+              "A daily and weekly snapshot of your revenue trend, transaction volume, and slow-moving items.",
             tier: "free",
           },
           {
             icon: Calculator,
             title: "Multi-Timeline Business Forecast",
             description:
-              "Project your revenue, margins, and cash flow across 1-week, 1-month, 6-month, and 1-year horizons using your sales history or custom financial presets under Conservative, Balanced, and Optimistic scenarios.",
+              "Project revenue, margins, and cash flow across 1-week, 1-month, 6-month, and 1-year horizons using historical POS data or custom financial presets under Conservative, Balanced, and Optimistic scenarios.",
             tier: "premium",
+          },
+          {
+            icon: History,
+            title: "Persistent Report Archive",
+            description:
+              "All generated forecast reports are automatically stored as structured history. Access and re-download your past analysis anytime, even if your account reverts to the Free tier.",
+            tier: "free",
           },
           {
             icon: Compass,
             title: "Prescriptive Operational Co-Pilot",
             description:
-              "Recommendations built from your own POS data — when to adjust your hours, which products to bundle, and when to restock.",
+              "Contextual recommendations built from your live POS data — when to adjust operating hours, which products to bundle, and optimal restock timing.",
             tier: "premium",
           },
         ],
@@ -174,7 +189,7 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
     headline: "Transparent Portfolio Management & Dispute-Free Leasing",
     color: "owner",
     description:
-      "Owners manage a portfolio, not just a lease. The focus is occupancy, payment certainty, and keeping the process dispute-free.",
+      "Owners manage a portfolio, not just a lease. Focus on occupancy, payment certainty, and keeping the process dispute-free across permanent, market, and event spaces.",
     groups: [
       {
         title: "Portfolio Dashboard",
@@ -183,7 +198,7 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: LayoutDashboard,
             title: "Real-Time Occupancy Overview",
             description:
-              "See which stalls are occupied and which are vacant, across your whole portfolio, at a glance.",
+              "See which stalls are occupied, vacant, or active in short-term events across your whole portfolio at a glance.",
           },
           {
             icon: CalendarClock,
@@ -200,31 +215,31 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
         ],
       },
       {
-        title: "Tenant Vetting & Price-Locked Leases",
+        title: "Tenant Vetting & Flexible Leasing",
         items: [
           {
             icon: UserCheck,
             title: "Tenant Profile & Rating Review",
             description:
-              "Check a prospective tenant's rental history, business type, and rating before you say yes.",
+              "Check a prospective tenant's rental history, business type, and rating before approving their application.",
           },
           {
             icon: ClipboardCheck,
             title: "Approve or Reject in One Queue",
             description:
-              "Review incoming applications and approve or reject them from a single, simple list.",
+              "Review incoming applications for permanent stalls or bazaar booths and manage approvals from a single queue.",
           },
           {
             icon: Lock,
             title: "Price-Locked Lease Terms",
             description:
-              "Once you approve, rent and deposit are locked into the contract — no changing terms mid-lease.",
+              "Once approved, rent and deposit terms are locked into the contract — no changing terms mid-lease.",
           },
           {
             icon: ShieldCheck,
-            title: "Custom Lease Rules & Anti-Spam",
+            title: "Custom Rules & Anti-Spam Commitment",
             description:
-              "Set flexible start dates, minimum lease terms, and payment cycles. Serial ghosters are required to place a 35% refundable deposit commitment when applying.",
+              "Configure flexible start dates, minimum lease terms, and payment cycles. Serial ghosters must place a 35% refundable deposit commitment when applying.",
           },
         ],
       },
@@ -235,19 +250,19 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: BadgeAlert,
             title: "Red Overdue Badges",
             description:
-              "A red badge only shows up once a due date has actually passed — no premature alerts, just a clear signal when it's time to follow up.",
+              "Clear, non-intrusive indicators that highlight missed due dates without premature alerts.",
           },
           {
             icon: Vault,
             title: "Escrow-Held Security Deposit",
             description:
-              "Deposits sit safely in a neutral escrow account for the length of the lease — not in anyone's personal account.",
+              "Deposits sit safely in a neutral escrow account for the length of the lease — protecting both owner and tenant.",
           },
           {
             icon: ScanSearch,
             title: "Photo-Evidence Damage Claims",
             description:
-              "Claiming part of a deposit for damage requires real photo evidence attached to the claim.",
+              "Claiming part of a deposit for damage requires timestamped photo evidence attached directly to the claim.",
           },
         ],
       },
@@ -258,14 +273,21 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: Building,
             title: "Daily Vacancy Loss Calculation",
             description:
-              "See exactly how much a vacant stall is costing you, day by day, in real numbers.",
+              "Track exactly how much a vacant stall is costing you day by day in real numbers.",
             tier: "premium",
           },
           {
-            icon: Percent,
-            title: "Pricing & Duration Recommendations",
+            icon: History,
+            title: "Vacancy & Yield History Archive",
             description:
-              "Get suggested rent adjustments and ideal contract lengths to fill vacancies faster.",
+              "Generated vacancy loss and rental yield reports remain accessible in your historical report archive permanently.",
+            tier: "free",
+          },
+          {
+            icon: Percent,
+            title: "Contextual Pricing & Lease Recommendations",
+            description:
+              "Live co-pilot recommendations suggesting rent adjustments, optimal lease durations, and deposit terms to minimize vacancy.",
             tier: "premium",
           },
         ],
@@ -279,7 +301,7 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
     headline: "Direct SME Matchmaking & Predictable Recurring Orders",
     color: "supplier",
     description:
-      "Suppliers are positioned as supply chain partners, matched directly with UMKM tenants ready to become loyal, recurring customers.",
+      "Suppliers are positioned as supply chain partners, matched directly with UMKM tenants ready to become loyal, recurring buyers.",
     groups: [
       {
         title: "Direct SME Matchmaking",
@@ -288,13 +310,13 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: Handshake,
             title: "In-Dashboard Catalog Placement",
             description:
-              "Your catalog shows up automatically on the shopping page of tenants whose business it fits.",
+              "Your catalog shows up automatically on the purchasing page of tenants operating within your target business categories.",
           },
           {
             icon: Megaphone,
             title: "Zero Advertising Spend",
             description:
-              "Reach buyers who already need your product — no ad budget required to be seen.",
+              "Reach active business operators who need your raw materials — no ad budget required to be seen.",
           },
         ],
       },
@@ -305,13 +327,13 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: Repeat,
             title: "Primary Supplier Designation",
             description:
-              'Tenants can set you as their "Primary Supplier" for a given ingredient or item.',
+              'Tenants can set you as their "Primary Supplier" for specific ingredients or inventory items.',
           },
           {
             icon: Zap,
             title: "1-Click Inventory Reorder",
             description:
-              "When a tenant's stock runs low, restocking from you takes a single click.",
+              "When a tenant's stock runs low, restocking from your catalog takes a single click from their cashier dashboard.",
           },
         ],
       },
@@ -322,19 +344,19 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: ClipboardList,
             title: "B2B Order Management",
             description:
-              "See every incoming order with item details and delivery address in one place.",
+              "Manage incoming orders, item breakdowns, and delivery destinations in one place.",
           },
           {
             icon: Truck,
             title: "Digital Delivery Notes",
             description:
-              "Generate delivery notes digitally instead of doing it on paper.",
+              "Generate digital delivery notes automatically upon order fulfillment.",
           },
           {
             icon: Package,
             title: "Catalog & MOQ Rules",
             description:
-              "Set tiered wholesale pricing and minimum order quantities for each product.",
+              "Configure tiered wholesale pricing and minimum order quantities per product.",
           },
         ],
       },
@@ -345,22 +367,29 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: Gauge,
             title: "Order Velocity Analytics",
             description:
-              "See your sales volume and which products are actually moving.",
+              "Track overall sales volume and identify fast-moving products across your customer base.",
             tier: "free",
           },
           {
             icon: Radar,
             title: "Subscriber Demand Signals",
             description:
-              "Read aggregated demand across your subscriber network — like expected weekly coffee bean consumption across everyone who buys from you.",
+              "Read aggregated demand across your subscriber network — predicting weekly ingredient consumption across all active buyers.",
             tier: "premium",
           },
           {
             icon: Sparkle,
-            title: "Market Opportunity Gaps",
+            title: "Market Opportunity Gap Analysis",
             description:
-              "Spot raw materials in high local demand that aren't in your catalog yet.",
+              "Spot raw material categories in high local tenant demand that are under-supplied in your catalog.",
             tier: "premium",
+          },
+          {
+            icon: History,
+            title: "Supply Chain Report Archive",
+            description:
+              "Generated opportunity gap and market demand reports are archived permanently for future reference.",
+            tier: "free",
           },
         ],
       },

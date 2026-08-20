@@ -1,4 +1,4 @@
-import type { StartDateValue } from "@/components/common/search/SearchConstants";
+import type { StartDateValue } from "@/components/common/search/util/SearchConstants";
 import type { StallDetail } from "@/lib/data/schema/stall/get_stall_detail";
 import { CalendarClock, FileText, Repeat } from "lucide-react";
 

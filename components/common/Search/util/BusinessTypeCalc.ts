@@ -1,7 +1,7 @@
 import {
   DEFAULT_ASSUMED_CAPITAL,
   PaymentCycle,
-} from "@/components/common/search/SearchConstants";
+} from "@/components/common/search/util/SearchConstants";
 import { BUSINESS_TYPE_MAP } from "@/lib/data/schema/master/business_type";
 
 export interface IndustryFinancialProfile {

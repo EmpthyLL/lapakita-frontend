@@ -1,20 +1,22 @@
 "use client";
 
-import { RangeInput } from "../input/RangeInput";
-import { SegmentedToggle } from "../input/SegmentedToggle";
+import { RangeInput } from "../../input/RangeInput";
+import { SegmentedToggle } from "../../input/SegmentedToggle";
 import {
   FLOOR_COUNT_RANGE,
-  getAllowedPlacements,
   STALL_PLACEMENT_OPTIONS,
   STALL_SIZE_RANGE,
-  type StallPermanenceType,
   type StallPlacement,
-  type StallPropertyTypeValue,
-} from "./SearchConstants";
+} from "../util/SearchConstants";
 
-interface StallSpaceFilterProps {
-  permanenceType: StallPermanenceType;
-  selectedPropertyTypes: StallPropertyTypeValue[];
+const SHORT_LABEL: Record<StallPlacement, string> = {
+  indoor: "Indoor",
+  "semi-outdoor": "Semi-Outdoor",
+  outdoor: "Outdoor",
+};
+
+interface PermanentSpaceFieldsProps {
+  allowedPlacements: StallPlacement[];
   placement: StallPlacement | "";
   onPlacementChange: (value: StallPlacement | "") => void;
   floorCount: [number, number];
@@ -23,26 +25,15 @@ interface StallSpaceFilterProps {
   onStallSizeChange: (value: [number, number]) => void;
 }
 
-const SHORT_LABEL: Record<StallPlacement, string> = {
-  indoor: "Indoor",
-  "semi-outdoor": "Semi-Outdoor",
-  outdoor: "Outdoor",
-};
-
-export function StallSpaceFilter({
-  permanenceType,
-  selectedPropertyTypes,
+export function PermanentSpaceFields({
+  allowedPlacements,
   placement,
   onPlacementChange,
   floorCount,
   onFloorCountChange,
   stallSize,
   onStallSizeChange,
-}: StallSpaceFilterProps) {
-  const allowedPlacements = getAllowedPlacements(
-    selectedPropertyTypes,
-    permanenceType,
-  );
+}: PermanentSpaceFieldsProps) {
   const placementOptions = STALL_PLACEMENT_OPTIONS.filter((opt) =>
     allowedPlacements.includes(opt.value),
   ).map((opt) => ({
@@ -65,7 +56,7 @@ export function StallSpaceFilter({
           />
         ) : (
           <p className="rounded-lg border border-dashed border-border p-3 text-center text-[11px] text-muted-foreground">
-            Pick a property type to see placement options.
+            Select a property type to view placement options.
           </p>
         )}
       </div>

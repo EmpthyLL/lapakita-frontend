@@ -1,7 +1,7 @@
-import Link from "next/link";
-import { Store, SearchX, Home, LayoutGrid } from "lucide-react";
+import { Logo } from "@/components/layout/Logo";
 import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/common/Logo";
+import { Home, LayoutGrid, SearchX, Store } from "lucide-react";
+import Link from "next/link";
 // import { SiteHeader } from "@/components/common/Header";
 // import { SiteFooter } from "@/components/common/Footer";
 import "@/style/globals.css";

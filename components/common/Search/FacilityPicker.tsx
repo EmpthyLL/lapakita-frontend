@@ -6,7 +6,7 @@ import {
   getContextualFacilities,
   type StallPermanenceType,
   type StallPropertyTypeValue,
-} from "./SearchConstants";
+} from "./util/SearchConstants";
 
 interface FacilityPickerProps {
   selected: string[];

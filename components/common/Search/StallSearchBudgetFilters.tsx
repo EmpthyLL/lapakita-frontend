@@ -8,7 +8,7 @@ import { Autocomplete } from "../input/Autocomplete";
 import { NumberInput } from "../input/NumberInput";
 import { RangeInput } from "../input/RangeInput";
 import { SegmentedToggle } from "../input/SegmentedToggle";
-import { getCalculatedRangesForFilters } from "./BusinessTypeCalc";
+import { getCalculatedRangesForFilters } from "./util/BusinessTypeCalc";
 import {
   BEP_PRESETS_MONTHS,
   DEPOSIT_RANGE,
@@ -16,7 +16,7 @@ import {
   PAYMENT_CYCLE_OPTIONS,
   RENT_RANGE_BY_CYCLE,
   type PaymentCycle,
-} from "./SearchConstants";
+} from "./util/SearchConstants";
 
 const PRESET_VALUES = BEP_PRESETS_MONTHS.map(String);
 

@@ -34,23 +34,38 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
         title: "Introduction & Platform Nature",
         subsections: [
           {
-            body: "Lapakita is an online venue and operating platform connecting Tenants (Business Operators), Stall Owners, and B2B Suppliers. Lapakita is not a real estate broker, property manager, cleaner, law enforcement agent, or direct seller of products. Lapakita provides digital infrastructure, contract tools, escrow payment facilitation, and business analytics.",
+            body: "Lapakita is an online venue and operating platform connecting Tenants (Business Operators), Stall Owners, and B2B Suppliers. Lapakita is not a real estate broker, property manager, cleaner, law enforcement agent, or direct seller of physical products. Lapakita provides digital infrastructure, lease contract tools, escrow payment facilitation, and business intelligence analytics.",
           },
         ],
       },
       {
         id: "user-roles",
         number: "2",
-        title: "User Roles & Single Account Multi-Persona",
+        title: "User Roles & Multi-Persona Profiles",
         subsections: [
           {
-            body: "A user registers a single primary account verified by email and phone number. A single account may operate across three personas (Tenant, Stall Owner, Supplier). Users are responsible for all activities under their credentials.",
+            body: "A user registers a primary account verified by email and phone number. A single account may operate across three personas (Tenant, Stall Owner, Supplier) with customizable role-specific display names and avatars. Users remain responsible for all activities under their credentials.",
+          },
+        ],
+      },
+      {
+        id: "stall-permanence-bazaar",
+        number: "3",
+        title: "Stall Classification & Short-Term Bazaar Events",
+        subsections: [
+          {
+            title: "Operational Permanence Levels",
+            body: "Lapakita classifies properties into three distinct operational types: (a) Permanent (Independent properties with 24/7 access and no parent entity restrictions), (b) Semi-Permanent (Managed complex stalls such as mall shops, food court counters, and traditional market stalls bound by parent entity operating hours), and (c) Temporary (Short-term pop-up bazaar booths, street vendor spots, and food truck bays).",
+          },
+          {
+            title: "Pop-Up & Bazaar Event Booking",
+            body: "Short-term bazaar booths are bound by fixed event schedules, registration windows, and full-duration event pricing packages set by the event organizer or owner. Tenants applying for bazaar booths agree to abide by event-specific guidelines and operational hours.",
           },
         ],
       },
       {
         id: "leasing-contracts",
-        number: "3",
+        number: "4",
         title: "Stall Leasing, Contracts & Payment Timelines",
         subsections: [
           {
@@ -67,13 +82,13 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
           },
           {
             title: "Refundable Anti-Spam Commitment Fee",
-            body: "To protect Owners from application spam, Tenants with two (2) or more unpaid or cancelled approved applications within a 30-day window are flagged. Flagged Tenants are required to submit a temporary 35% commitment deposit when applying. This deposit is 100% REFUNDABLE and non-punitive: if the lease becomes active, 100% of the deposit is applied directly toward the Tenant's initial rent and security deposit balance. If the application is cancelled or fails to proceed before the Start Date, the commitment deposit is fully refunded back to the Tenant's account. Account flag status and public star ratings remain the primary disciplinary measures for non-completion.",
+            body: "To protect Owners from application spam, Tenants with two (2) or more unpaid or cancelled approved applications within a 30-day window are flagged. Flagged Tenants are required to submit a temporary 35% commitment deposit when applying. This deposit is 100% REFUNDABLE and non-punitive: if the lease becomes active, 100% of the deposit is applied directly toward the Tenant's initial rent and security deposit balance. If the application is cancelled or fails to proceed before the Start Date, the commitment deposit is fully refunded back to the Tenant's account.",
           },
         ],
       },
       {
         id: "escrow",
-        number: "4",
+        number: "5",
         title: "Security Deposit & Escrow Handling",
         subsections: [
           {
@@ -95,8 +110,23 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
         ],
       },
       {
+        id: "analytics-reports",
+        number: "6",
+        title: "Generated Reports & Data Analysis History",
+        subsections: [
+          {
+            title: "Report Generation & Execution",
+            body: "Subscribed users (Premium or Active Tier) may execute automated data analysis reports, including Tenant Multi-Timeline Business Forecasts, Owner Vacancy Loss Analyses, and Supplier Market Opportunity Gap Analyses.",
+          },
+          {
+            title: "Historical Data Archive Rights",
+            body: "All generated reports are compiled into structured JSON payloads and saved permanently in the user's Report History archive. Users retain full rights to view, export, and download previously generated reports at any time, even if their subscription plan reverts to the Free tier. Regenerating new analysis reports requires an active subscription.",
+          },
+        ],
+      },
+      {
         id: "keys-access",
-        number: "5",
+        number: "7",
         title: "Physical Keys, Duplication & Lock Cylinder Responsibility",
         subsections: [
           {
@@ -127,7 +157,7 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
       },
       {
         id: "utilities-electricity",
-        number: "6",
+        number: "8",
         title: "Utilities, Electricity & Operational Expenses",
         subsections: [
           {
@@ -146,7 +176,7 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
       },
       {
         id: "cleanliness-eviction",
-        number: "7",
+        number: "9",
         title: "Stall Cleanliness, Abandoned Items & Evictions",
         subsections: [
           {
@@ -165,7 +195,7 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
       },
       {
         id: "supplier-disputes",
-        number: "8",
+        number: "10",
         title: "Supplier Marketplace & B2B Disputes",
         subsections: [
           {
@@ -180,7 +210,7 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
       },
       {
         id: "payouts",
-        number: "9",
+        number: "11",
         title: "Payouts & Bank Account Requirements",
         subsections: [
           {
@@ -204,20 +234,20 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
         title: "Data We Collect",
         subsections: [
           {
-            title: "Account Identity",
-            body: "Full name, email address, phone number (WhatsApp), and encrypted password.",
+            title: "Account Identity & Role Profiles",
+            body: "Full name, email address, multi-phone contact numbers (WhatsApp), role-specific avatars, display names, and encrypted password credentials.",
           },
           {
             title: "Verification Data (KYC)",
-            body: "ID card (KTP) photo, OCR data, and a selfie with KTP — collected prior to lease signing or supplier activation for legal identity binding.",
+            body: "ID card (KTP) photo, NIK, OCR data, and official business document photos collected prior to lease signing, stall publishing, or supplier activation.",
           },
           {
             title: "Financial & Payout Data",
-            body: "Bank account name, bank name, and account number for automated payment routing via payment gateway APIs.",
+            body: "Bank account holder name, bank code, and account number for automated payment routing and escrow payouts.",
           },
           {
-            title: "Operational & Transactional Data",
-            body: "POS sales entries, stock levels, item prices, rental payment history, chat messages, uploaded property photos, and review ratings.",
+            title: "Operational & Generated Analysis Data",
+            body: "POS sales entries, stock levels, item prices, rental payment history, chat messages, uploaded property media, and saved historical analysis report payloads.",
           },
         ],
       },
@@ -227,13 +257,13 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
         title: "How We Use Your Data",
         subsections: [
           {
-            body: "To facilitate digital lease contracts, billing, and automated payout transfers.",
+            body: "To facilitate digital lease contracts, short-term bazaar booth bookings, billing, and automated payout transfers.",
           },
           {
             body: "To display B2B supplier catalogs to relevant tenant business categories.",
           },
           {
-            body: "To generate aggregated, non-personally identifiable Business Intelligence (BI) statistics — e.g. area demand trends, average foot traffic scores.",
+            body: "To compile historical business forecast analysis and store structured report history accessible via user dashboards.",
           },
           {
             body: "To verify identity in cases of legal lease disputes or deposit appeals.",
@@ -265,7 +295,7 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
         title: "Data Retention & User Rights",
         subsections: [
           {
-            body: "Users may request account deactivation and data erasure, provided there are no active binding lease contracts, pending escrow deposit claims, or unfulfilled B2B transactions associated with the account.",
+            body: "Users may request account deactivation and data erasure, provided there are no active binding lease contracts, pending escrow deposit claims, unfulfilled B2B orders, or active event bookings associated with the account.",
           },
         ],
       },
@@ -289,7 +319,7 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
             body: "Keeping you logged in securely across page reloads.",
           },
           {
-            title: "Active Role Preference",
+            title: "Active Role & Profile Preference",
             body: "Remembering whether you last operated in Tenant, Owner, or Supplier mode.",
           },
           {

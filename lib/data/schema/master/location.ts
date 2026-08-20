@@ -1,86 +1,112 @@
-/* ---------------------------------------------------------------------- */
-/* 5. Dummy location autocomplete "API"                                    */
-/* ---------------------------------------------------------------------- */
+export type AreaType = "country" | "province" | "city" | "district" | "street";
 
-export interface LocationSuggestion {
-  id: string;
-  primary: string; // street / place name
-  secondary: string; // city / district
-  type: "street" | "area" | "city";
+export interface AreaGeneralResponseData {
+  type: AreaType;
+  title: string;
+  subtitle: string;
+  fullLabel: string;
+  country: string;
+  countryCode: string;
+  city?: string;
+  province?: string;
 }
 
-const DUMMY_LOCATIONS: LocationSuggestion[] = [
+const DUMMY_LOCATIONS: AreaGeneralResponseData[] = [
   {
-    id: "1",
-    primary: "Jl. Gatot Subroto",
-    secondary: "Medan, North Sumatra",
     type: "street",
+    title: "Jalan Delimas",
+    subtitle: "Surabaya, Jawa Timur, Indonesia",
+    fullLabel: "Jalan Delimas, Surabaya, Jawa Timur, Indonesia",
+    country: "Indonesia",
+    countryCode: "ID",
+    city: "Surabaya",
+    province: "Jawa Timur",
   },
   {
-    id: "2",
-    primary: "Jl. Sisingamangaraja",
-    secondary: "Medan, North Sumatra",
     type: "street",
+    title: "Jl. Gatot Subroto",
+    subtitle: "Medan, Sumatera Utara, Indonesia",
+    fullLabel: "Jl. Gatot Subroto, Medan, Sumatera Utara, Indonesia",
+    country: "Indonesia",
+    countryCode: "ID",
+    city: "Medan",
+    province: "Sumatera Utara",
   },
   {
-    id: "3",
-    primary: "Jl. Setiabudi",
-    secondary: "Medan, North Sumatra",
-    type: "street",
+    type: "district",
+    title: "Pondok Cina",
+    subtitle: "Depok, Jawa Barat, Indonesia",
+    fullLabel: "Pondok Cina, Depok, Jawa Barat, Indonesia",
+    country: "Indonesia",
+    countryCode: "ID",
+    city: "Depok",
+    province: "Jawa Barat",
   },
   {
-    id: "4",
-    primary: "Padang Bulan",
-    secondary: "Medan, North Sumatra",
-    type: "area",
+    type: "district",
+    title: "Tanah Abang",
+    subtitle: "Jakarta Pusat, DKI Jakarta, Indonesia",
+    fullLabel: "Tanah Abang, Jakarta Pusat, DKI Jakarta, Indonesia",
+    country: "Indonesia",
+    countryCode: "ID",
+    city: "Jakarta Pusat",
+    province: "DKI Jakarta",
   },
   {
-    id: "5",
-    primary: "Medan Baru",
-    secondary: "Medan, North Sumatra",
-    type: "area",
-  },
-  {
-    id: "6",
-    primary: "Jl. Malioboro",
-    secondary: "Yogyakarta",
-    type: "street",
-  },
-  {
-    id: "7",
-    primary: "Jl. Sudirman",
-    secondary: "Jakarta Selatan",
-    type: "street",
-  },
-  {
-    id: "8",
-    primary: "Jl. Braga",
-    secondary: "Bandung, West Java",
-    type: "street",
-  },
-  { id: "9", primary: "Medan", secondary: "North Sumatra", type: "city" },
-  {
-    id: "10",
-    primary: "Jakarta",
-    secondary: "Special Capital Region",
     type: "city",
+    title: "Medan",
+    subtitle: "Sumatera Utara, Indonesia",
+    fullLabel: "Medan, Sumatera Utara, Indonesia",
+    country: "Indonesia",
+    countryCode: "ID",
+    province: "Sumatera Utara",
   },
-  { id: "11", primary: "Bandung", secondary: "West Java", type: "city" },
   {
-    id: "12",
-    primary: "Yogyakarta",
-    secondary: "Special Region",
     type: "city",
+    title: "Bandung",
+    subtitle: "Jawa Barat, Indonesia",
+    fullLabel: "Bandung, Jawa Barat, Indonesia",
+    country: "Indonesia",
+    countryCode: "ID",
+    province: "Jawa Barat",
   },
-  { id: "13", primary: "Surabaya", secondary: "East Java", type: "city" },
+  {
+    type: "city",
+    title: "Surabaya",
+    subtitle: "Jawa Timur, Indonesia",
+    fullLabel: "Surabaya, Jawa Timur, Indonesia",
+    country: "Indonesia",
+    countryCode: "ID",
+    province: "Jawa Timur",
+  },
+  {
+    type: "province",
+    title: "Jawa Timur",
+    subtitle: "Indonesia",
+    fullLabel: "Jawa Timur, Indonesia",
+    country: "Indonesia",
+    countryCode: "ID",
+  },
+  {
+    type: "province",
+    title: "DKI Jakarta",
+    subtitle: "Indonesia",
+    fullLabel: "DKI Jakarta, Indonesia",
+    country: "Indonesia",
+    countryCode: "ID",
+  },
+  {
+    type: "country",
+    title: "Indonesia",
+    subtitle: "Southeast Asia",
+    fullLabel: "Indonesia",
+    country: "Indonesia",
+    countryCode: "ID",
+  },
 ];
 
-/**
- * Dummy async "API" — simulates network latency.
- * Replace with a real geocoding call later (Google Places, Mapbox, etc).
- */
 export interface SearchLocationResult {
-  results: LocationSuggestion[];
+  results: AreaGeneralResponseData[];
   hasMore: boolean;
 }
 
@@ -96,8 +122,9 @@ export async function searchLocations(
   const q = query.toLowerCase();
   const allFiltered = DUMMY_LOCATIONS.filter(
     (loc) =>
-      loc.primary.toLowerCase().includes(q) ||
-      loc.secondary.toLowerCase().includes(q),
+      loc.title.toLowerCase().includes(q) ||
+      loc.subtitle.toLowerCase().includes(q) ||
+      loc.fullLabel.toLowerCase().includes(q),
   );
 
   const start = (page - 1) * pageSize;

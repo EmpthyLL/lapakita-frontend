@@ -3,7 +3,7 @@
 import {
   MASTER_FACILITIES,
   type FacilityValue,
-} from "@/components/common/search/SearchConstants";
+} from "@/components/common/search/util/SearchConstants";
 
 export function StallFacilities({
   facilityValues,

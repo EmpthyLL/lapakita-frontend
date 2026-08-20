@@ -703,3 +703,12 @@ export const STALL_PLACEMENT_OPTIONS: StallPlacementOption[] = [
 export const FLOOR_COUNT_RANGE = { min: 1, max: 4, step: 1 } as const;
 
 export const STALL_SIZE_RANGE = { min: 2, max: 100, step: 1 } as const;
+
+export const OPERATING_HOURS_PRESETS = [
+  { openingTime: "08:00", closingTime: "17:00", label: "08:00 – 17:00" },
+  { openingTime: "10:00", closingTime: "22:00", label: "10:00 – 22:00" },
+  { openingTime: "09:00", closingTime: "21:00", label: "09:00 – 21:00" },
+] as const;
+
+export const REGISTRATION_DEADLINE_PRESETS = [1, 2, 3, 5, 7, 14] as const;
+export const EVENT_DURATION_PRESETS = [1, 2, 3, 5, 7, 14, 30] as const;

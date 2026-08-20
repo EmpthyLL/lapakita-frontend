@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { BUSINESS_CATEGORIES } from "@/lib/data/schema/master/business_type";
+import { BUSINESS_TYPES } from "@/lib/data/schema/master/business_type";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 import { Autocomplete } from "../input/Autocomplete";
@@ -9,7 +9,7 @@ import { LocationAutocomplete } from "./LocationAutocomplete";
 import {
   LANDMARK_CATEGORIES,
   type StallPermanenceType,
-} from "./SearchConstants";
+} from "./util/SearchConstants";
 
 interface StallSearchPrimaryRowProps {
   isFull: boolean;
@@ -34,11 +34,9 @@ export function StallSearchPrimaryRow({
   onSingleLandmarkChange,
   onSearch,
 }: StallSearchPrimaryRowProps) {
-  const businessTypeOptions = BUSINESS_CATEGORIES.flatMap((g) =>
-    g.types
-      .filter((t) => t.permanencePresets[permanenceType]?.isAllowed)
-      .map((t) => ({ value: t.slug, label: t.label, group: g.group })),
-  );
+  const businessTypeOptions = BUSINESS_TYPES.filter((t) =>
+    Boolean(t.permanencePresets[permanenceType]),
+  ).map((t) => ({ value: t.id, label: t.label, group: t.group }));
 
   return (
     <div

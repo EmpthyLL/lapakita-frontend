@@ -5,7 +5,7 @@ import { Check } from "lucide-react";
 import {
   STALL_PERMANENCE_TABS,
   type StallPermanenceType,
-} from "./SearchConstants";
+} from "./util/SearchConstants";
 
 interface StallPermanenceTabsProps {
   value: StallPermanenceType;

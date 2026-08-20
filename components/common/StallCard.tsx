@@ -3,7 +3,7 @@
 import {
   PAYMENT_CYCLE_OPTIONS,
   STALL_PROPERTY_TYPES,
-} from "@/components/common/search/SearchConstants";
+} from "@/components/common/search/util/SearchConstants";
 import { Badge } from "@/components/ui/badge";
 import { Stall } from "@/lib/data/schema/stall/get_stall";
 import { cn } from "@/lib/utils";

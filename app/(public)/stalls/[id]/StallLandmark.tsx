@@ -1,6 +1,6 @@
 "use client";
 
-import { LANDMARK_CATEGORIES } from "@/components/common/search/SearchConstants";
+import { LANDMARK_CATEGORIES } from "@/components/common/search/util/SearchConstants";
 import type { NearbyLandmark } from "@/lib/data/schema/stall/get_stall_detail";
 import { MapPin } from "lucide-react";
 

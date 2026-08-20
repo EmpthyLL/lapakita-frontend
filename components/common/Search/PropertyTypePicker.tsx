@@ -6,7 +6,7 @@ import {
   getPropertyTypesForPermanence,
   type StallPermanenceType,
   type StallPropertyTypeValue,
-} from "./SearchConstants";
+} from "./util/SearchConstants";
 
 interface PropertyTypePickerProps {
   value: StallPropertyTypeValue[];

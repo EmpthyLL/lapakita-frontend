@@ -1,6 +1,6 @@
 import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { SEARCH_CAPABILITIES } from "./SearchConstants";
+import { SEARCH_CAPABILITIES } from "./util/SearchConstants";
 
 export function StallSearchFooter() {
   return (

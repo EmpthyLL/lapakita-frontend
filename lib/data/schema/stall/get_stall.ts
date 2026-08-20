@@ -9,7 +9,7 @@ import {
   STALL_SIZE_RANGE,
   StallPlacement,
   StallPropertyTypeValue,
-} from "@/components/common/search/SearchConstants";
+} from "@/components/common/search/util/SearchConstants";
 import z from "zod";
 
 // Array nilai enum dari SearchConstants untuk validasi Zod
