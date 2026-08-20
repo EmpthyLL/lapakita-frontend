@@ -2,10 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
-import {
-  STALL_PERMANENCE_TABS,
-  type StallPermanenceType,
-} from "./util/SearchConstants";
+import { STALL_PERMANENCE_TABS } from "./constants/permanance";
+import { StallPermanenceType } from "./constants/types";
 
 interface StallPermanenceTabsProps {
   value: StallPermanenceType;

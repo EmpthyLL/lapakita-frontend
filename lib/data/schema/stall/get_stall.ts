@@ -1,176 +1,90 @@
 import {
-  DEPOSIT_RANGE,
-  FLOOR_COUNT_RANGE,
-  GENERAL_RENT_RANGE,
-  LandmarkCategoryValue,
   PaymentCycle,
-  RADIUS_PRESETS,
-  STALL_PLACEMENT_OPTIONS,
-  STALL_PROPERTY_TYPES,
-  STALL_SIZE_RANGE,
-  StallPermanenceType,
-  StallPlacement,
   StallPropertyTypeValue,
-} from "@/components/common/search/util/SearchConstants";
+} from "@/components/common/search/constants/types";
 import z from "zod";
 
-// Array Enum values untuk validasi Zod
-const PROPERTY_TYPE_VALUES = STALL_PROPERTY_TYPES.map((t) => t.value) as [
-  StallPropertyTypeValue,
-  ...StallPropertyTypeValue[],
-];
+/* ─── 1. DISCRIMINATED INTERFACES FOR STALL ENTITY ─── */
 
-const PLACEMENT_VALUES = STALL_PLACEMENT_OPTIONS.map((p) => p.value) as [
-  StallPlacement,
-  ...StallPlacement[],
-];
+export interface StallLocationSummary {
+  area: string;
+  city: string;
+  countryCode: string;
+}
 
-const PERMANENCE_VALUES: [StallPermanenceType, ...StallPermanenceType[]] = [
-  "permanent",
-  "semi-permanent",
-  "temporary",
-];
+export interface BaseStall {
+  id: string;
+  title: string;
+  imageUrl: string;
+  location: StallLocationSummary;
+  propertyType: StallPropertyTypeValue;
+  cheapestPriceFormatted: string;
+  cheapestPricePeriod: PaymentCycle;
+  rating: number;
+  reviewCount: number;
+}
 
-const PAYMENT_CYCLE_VALUES: [PaymentCycle, ...PaymentCycle[]] = [
-  "month",
-  "quarter",
-  "semester",
-  "year",
-];
+// 1. Permanent: Fokus pada Ruang & Fisik Bangunan Mandiri
+export interface PermanentStall extends BaseStall {
+  permanenceType: "permanent";
+  space: {
+    sizeSqm: number;
+    floorCount: number;
+  };
+}
 
-/* ─── 1. Sub-Schemas ────────────────────────────────────────────────────────── */
+// 2. Semi-Permanent: Terikat Jam Operasional Kompleks/Gedung Induk
+export interface SemiPermanentStall extends BaseStall {
+  permanenceType: "semi-permanent";
+  operatingHours: {
+    open: string; // e.g. "10:00"
+    close: string; // e.g. "22:00"
+  };
+}
 
-export const landmarkRadiusEntrySchema = z.object({
-  id: z.string(),
-  landmark: z.string().nullable().optional(),
-  radius: z.string().default(RADIUS_PRESETS[1]),
-});
+// 3. Temporary: Terikat Jadwal Event & Window Pendaftaran
+export interface TemporaryStall extends BaseStall {
+  permanenceType: "temporary";
+  event: {
+    registrationDeadlineDays: number; // Deadline pendaftaran (H-X)
+    durationDays: number; // Durasi event berlangsung
+  };
+}
 
-export type LandmarkRadiusEntryValue = z.infer<
-  typeof landmarkRadiusEntrySchema
->;
+// Union Type Utama untuk Entity Lapak
+export type Stall = PermanentStall | SemiPermanentStall | TemporaryStall;
 
-export const stallLocationSummarySchema = z.object({
-  area: z.string(),
-  city: z.string(),
-  countryCode: z.string().default("ID"),
-});
-
-export type StallLocationSummary = z.infer<typeof stallLocationSummarySchema>;
-
-export const nearbyLandmarkSchema = z.object({
-  categoryValue: z.string() as z.ZodType<LandmarkCategoryValue>,
-  name: z.string(),
-  distanceKm: z.number().positive(),
-});
-
-export type NearbyLandmark = z.infer<typeof nearbyLandmarkSchema>;
-
-export const ownerProfileSummarySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  contact: z.string(),
-  avatarUrl: z.string().url(),
-  rating: z.number().min(0).max(5),
-  reviewCount: z.number().int().nonnegative(),
-  joinedYear: z.string(),
-});
-
-export type OwnerProfileSummary = z.infer<typeof ownerProfileSummarySchema>;
-
-/* ─── 2. Filter Form Schema (UI Inputs) ─────────────────────────────────────── */
+/* ─── 2. SEARCH FILTER VALIDATOR SCHEMA (Sederhana & Ringkas) ─── */
 
 export const stallSearchFilterSchema = z.object({
   location: z.string().optional().default(""),
   businessType: z.string().optional().default(""),
-  permanenceType: z
-    .enum([...PERMANENCE_VALUES, ""])
-    .optional()
-    .default(""),
-  propertyType: z
-    .enum([...PROPERTY_TYPE_VALUES, ""])
-    .optional()
-    .default(""),
-  placement: z
-    .enum([...PLACEMENT_VALUES, ""])
-    .optional()
-    .default(""),
-  sizeRange: z
-    .tuple([z.number(), z.number()])
-    .default([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]),
-  floorCountRange: z
-    .tuple([z.number(), z.number()])
-    .default([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]),
-  capital: z.number().nonnegative().default(15000000),
-  paymentCycle: z
-    .enum([...PAYMENT_CYCLE_VALUES, ""])
-    .optional()
-    .default(""),
-  rentRange: z
-    .tuple([z.number(), z.number()])
-    .default([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]),
-  depositRange: z
-    .tuple([z.number(), z.number()])
-    .default([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]),
-  facilities: z.array(z.string()).default([]),
+  permanenceType: z.string().optional().default(""),
+  propertyType: z.string().optional().default(""),
+  placement: z.string().optional().default(""),
+  capital: z.number().optional().default(15000000),
+  paymentCycle: z.string().optional().default(""),
+  rentRange: z.tuple([z.number(), z.number()]).optional(),
+  depositRange: z.tuple([z.number(), z.number()]).optional(),
+  facilities: z.array(z.string()).optional().default([]),
   landmarkEntries: z
-    .array(landmarkRadiusEntrySchema)
-    .default([{ id: "default", landmark: null, radius: RADIUS_PRESETS[1] }]),
+    .array(
+      z.object({
+        id: z.string(),
+        landmark: z.string().nullable().optional(),
+        radius: z.string().optional(),
+      }),
+    )
+    .optional()
+    .default([]),
 });
 
 export type StallSearchFilterValues = z.infer<typeof stallSearchFilterSchema>;
 
-/* ─── 3. Clean API Payload Output Schema ────────────────────────────────────── */
-
-export const stallSearchApiPayloadSchema = z.object({
-  location: z.string().optional(),
-  businessType: z.string().optional(),
-  permanenceType: z.enum(PERMANENCE_VALUES).optional(),
-  propertyType: z.enum(PROPERTY_TYPE_VALUES).optional(),
-  placement: z.enum(PLACEMENT_VALUES).optional(),
-  minFloors: z.number().optional(),
-  maxFloors: z.number().optional(),
-  minSize: z.number().optional(),
-  maxSize: z.number().optional(),
-  capital: z.number().optional(),
-  paymentCycle: z.enum(PAYMENT_CYCLE_VALUES).optional(),
-  minRent: z.number().optional(),
-  maxRent: z.number().optional(),
-  minDeposit: z.number().optional(),
-  maxDeposit: z.number().optional(),
-  facilities: z.array(z.string()).optional(),
-  landmarks: z
-    .array(
-      z.object({
-        name: z.string(),
-        radiusKm: z.number(),
-      }),
-    )
-    .optional(),
-});
-
-export type StallSearchApiPayload = z.infer<typeof stallSearchApiPayloadSchema>;
-
-/* ─── 4. Stall Card Listing Entity Schema ──────────────────────────────────── */
-
-export const stallCardSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  imageUrl: z.string().url(),
-  location: stallLocationSummarySchema,
-  propertyType: z.enum(PROPERTY_TYPE_VALUES),
-  permanenceType: z.enum(PERMANENCE_VALUES),
-  sizeSqm: z.number().positive(),
-  cheapestPriceFormatted: z.string(),
-  cheapestPricePeriod: z.enum(PAYMENT_CYCLE_VALUES),
-  rating: z.number().min(0).max(5),
-  reviewCount: z.number().int().nonnegative(),
-});
-
-export type Stall = z.infer<typeof stallCardSchema>;
+/* ─── 3. MASTER MOCK STALL LIST (Di-keep & Ditambah) ─── */
 
 export const MOCK_STALL_LIST: Stall[] = [
-  // ── PERMANENT / INDEPENDENT (MANDIRI) ──
+  // ── 1. PERMANENT STALLS (Ada `space`: size & floor) ──
   {
     id: "stl_bdg_dago_001",
     title: "Ruko Dago Commercial Space - Ground Floor Main Road",
@@ -179,7 +93,7 @@ export const MOCK_STALL_LIST: Stall[] = [
     location: { area: "Dago", city: "Bandung", countryCode: "ID" },
     propertyType: "shophouse",
     permanenceType: "permanent",
-    sizeSqm: 45,
+    space: { sizeSqm: 45, floorCount: 1 },
     cheapestPriceFormatted: "Rp 7.500.000",
     cheapestPricePeriod: "month",
     rating: 4.9,
@@ -193,7 +107,7 @@ export const MOCK_STALL_LIST: Stall[] = [
     location: { area: "Jakal / UGM", city: "Sleman", countryCode: "ID" },
     propertyType: "garage-driveway",
     permanenceType: "permanent",
-    sizeSqm: 24,
+    space: { sizeSqm: 24, floorCount: 1 },
     cheapestPriceFormatted: "Rp 2.500.000",
     cheapestPricePeriod: "month",
     rating: 4.9,
@@ -211,7 +125,7 @@ export const MOCK_STALL_LIST: Stall[] = [
     },
     propertyType: "street-kiosk",
     permanenceType: "permanent",
-    sizeSqm: 8,
+    space: { sizeSqm: 8, floorCount: 1 },
     cheapestPriceFormatted: "Rp 1.800.000",
     cheapestPricePeriod: "month",
     rating: 4.6,
@@ -225,7 +139,7 @@ export const MOCK_STALL_LIST: Stall[] = [
     location: { area: "Setiabudi", city: "Medan", countryCode: "ID" },
     propertyType: "shophouse",
     permanenceType: "permanent",
-    sizeSqm: 60,
+    space: { sizeSqm: 120, floorCount: 2 },
     cheapestPriceFormatted: "Rp 50.000.000",
     cheapestPricePeriod: "year",
     rating: 4.8,
@@ -239,14 +153,28 @@ export const MOCK_STALL_LIST: Stall[] = [
     location: { area: "Canggu", city: "Badung / Bali", countryCode: "ID" },
     propertyType: "garage-driveway",
     permanenceType: "permanent",
-    sizeSqm: 32,
+    space: { sizeSqm: 32, floorCount: 1 },
     cheapestPriceFormatted: "Rp 12.000.000",
     cheapestPricePeriod: "month",
     rating: 5.0,
     reviewCount: 34,
   },
+  {
+    id: "stl_mrg_kda_017",
+    title: "Ruko Komersial 3 Lantai Utama Margonda Raya Depok",
+    imageUrl:
+      "https://images.unsplash.com/photo-1582037928769-181f2644ecb7?w=600&h=400&fit=crop",
+    location: { area: "Margonda", city: "Depok", countryCode: "ID" },
+    propertyType: "shophouse",
+    permanenceType: "permanent",
+    space: { sizeSqm: 150, floorCount: 3 },
+    cheapestPriceFormatted: "Rp 85.000.000",
+    cheapestPricePeriod: "year",
+    rating: 4.9,
+    reviewCount: 16,
+  },
 
-  // ── SEMI-PERMANENT / MANAGED COMPLEX (TERIKAT JAM INDUK) ──
+  // ── 2. SEMI-PERMANENT STALLS (Ada `operatingHours`: open & close) ──
   {
     id: "stl_depok_mrg_006",
     title: "Kios Ground Floor Plaza Margonda - Main Corridor",
@@ -255,7 +183,7 @@ export const MOCK_STALL_LIST: Stall[] = [
     location: { area: "Margonda", city: "Depok", countryCode: "ID" },
     propertyType: "mall-island",
     permanenceType: "semi-permanent",
-    sizeSqm: 12,
+    operatingHours: { open: "10:00", close: "22:00" },
     cheapestPriceFormatted: "Rp 3.500.000",
     cheapestPricePeriod: "month",
     rating: 4.8,
@@ -269,7 +197,7 @@ export const MOCK_STALL_LIST: Stall[] = [
     location: { area: "Tanah Abang", city: "Jakarta Pusat", countryCode: "ID" },
     propertyType: "traditional-market-shop",
     permanenceType: "semi-permanent",
-    sizeSqm: 8,
+    operatingHours: { open: "08:00", close: "16:00" },
     cheapestPriceFormatted: "Rp 22.000.000",
     cheapestPricePeriod: "year",
     rating: 4.9,
@@ -283,7 +211,7 @@ export const MOCK_STALL_LIST: Stall[] = [
     location: { area: "Tunjungan", city: "Surabaya", countryCode: "ID" },
     propertyType: "food-court-counter",
     permanenceType: "semi-permanent",
-    sizeSqm: 15,
+    operatingHours: { open: "10:00", close: "22:00" },
     cheapestPriceFormatted: "Rp 5.500.000",
     cheapestPricePeriod: "month",
     rating: 5.0,
@@ -297,7 +225,7 @@ export const MOCK_STALL_LIST: Stall[] = [
     location: { area: "Johar", city: "Semarang", countryCode: "ID" },
     propertyType: "open-market-stall",
     permanenceType: "semi-permanent",
-    sizeSqm: 6,
+    operatingHours: { open: "03:00", close: "12:00" },
     cheapestPriceFormatted: "Rp 800.000",
     cheapestPricePeriod: "month",
     rating: 4.5,
@@ -311,7 +239,7 @@ export const MOCK_STALL_LIST: Stall[] = [
     location: { area: "Bekasi Timur", city: "Bekasi", countryCode: "ID" },
     propertyType: "traditional-market-shop",
     permanenceType: "semi-permanent",
-    sizeSqm: 18,
+    operatingHours: { open: "06:00", close: "18:00" },
     cheapestPriceFormatted: "Rp 2.200.000",
     cheapestPricePeriod: "month",
     rating: 4.5,
@@ -325,17 +253,31 @@ export const MOCK_STALL_LIST: Stall[] = [
     location: { area: "Grogol", city: "Jakarta Barat", countryCode: "ID" },
     propertyType: "mall-island",
     permanenceType: "semi-permanent",
-    sizeSqm: 10,
+    operatingHours: { open: "10:00", close: "22:00" },
     cheapestPriceFormatted: "Rp 8.000.000",
     cheapestPricePeriod: "month",
     rating: 4.9,
     reviewCount: 42,
   },
+  {
+    id: "stl_bdg_paskal_018",
+    title: "Food Court Stall 23 Paskal Hyper Square Food Market",
+    imageUrl:
+      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&h=400&fit=crop",
+    location: { area: "Pasirkaliki", city: "Bandung", countryCode: "ID" },
+    propertyType: "food-court-counter",
+    permanenceType: "semi-permanent",
+    operatingHours: { open: "11:00", close: "23:00" },
+    cheapestPriceFormatted: "Rp 4.800.000",
+    cheapestPricePeriod: "month",
+    rating: 4.8,
+    reviewCount: 20,
+  },
 
-  // ── TEMPORARY / POP-UP EVENT (EVENT SHORT-TERM) ──
+  // ── 3. TEMPORARY STALLS (Ada `event`: registrationDeadline & duration) ──
   {
     id: "stl_tng_bsd_012",
-    title: "Outdoor Courtyard Spot Food Truck Breeze BSD",
+    title: "Outdoor Courtyard Spot Food Truck Breeze BSD (Kontrak Bulanan)",
     imageUrl:
       "https://images.unsplash.com/photo-1565123409695-7b5ef63a2efb?w=600&h=400&fit=crop",
     location: {
@@ -345,9 +287,9 @@ export const MOCK_STALL_LIST: Stall[] = [
     },
     propertyType: "food-truck-spot",
     permanenceType: "temporary",
-    sizeSqm: 20,
+    event: { registrationDeadlineDays: 5, durationDays: 90 }, // Event/spot 3 bulan
     cheapestPriceFormatted: "Rp 3.000.000",
-    cheapestPricePeriod: "month",
+    cheapestPricePeriod: "month", // Sewa Bulanan
     rating: 4.8,
     reviewCount: 15,
   },
@@ -359,9 +301,9 @@ export const MOCK_STALL_LIST: Stall[] = [
     location: { area: "Senayan", city: "Jakarta Pusat", countryCode: "ID" },
     propertyType: "bazaar-booth",
     permanenceType: "temporary",
-    sizeSqm: 9,
-    cheapestPriceFormatted: "Rp 2.500.000",
-    cheapestPricePeriod: "month",
+    event: { registrationDeadlineDays: 7, durationDays: 14 }, // Event 2 Minggu
+    cheapestPriceFormatted: "Rp 250.000",
+    cheapestPricePeriod: "day", // Sewa Harian
     rating: 4.7,
     reviewCount: 9,
   },
@@ -373,9 +315,9 @@ export const MOCK_STALL_LIST: Stall[] = [
     location: { area: "Saparua", city: "Bandung", countryCode: "ID" },
     propertyType: "street-vendor-spot",
     permanenceType: "temporary",
-    sizeSqm: 6,
-    cheapestPriceFormatted: "Rp 600.000",
-    cheapestPricePeriod: "month",
+    event: { registrationDeadlineDays: 2, durationDays: 30 },
+    cheapestPriceFormatted: "Rp 45.000",
+    cheapestPricePeriod: "day", // Sewa Harian
     rating: 4.4,
     reviewCount: 12,
   },
@@ -387,9 +329,9 @@ export const MOCK_STALL_LIST: Stall[] = [
     location: { area: "Gubeng", city: "Surabaya", countryCode: "ID" },
     propertyType: "bazaar-booth",
     permanenceType: "temporary",
-    sizeSqm: 12,
-    cheapestPriceFormatted: "Rp 4.000.000",
-    cheapestPricePeriod: "month",
+    event: { registrationDeadlineDays: 5, durationDays: 3 },
+    cheapestPriceFormatted: "Rp 350.000",
+    cheapestPricePeriod: "day", // Sewa booth pameran harian
     rating: 4.9,
     reviewCount: 18,
   },
@@ -401,10 +343,24 @@ export const MOCK_STALL_LIST: Stall[] = [
     location: { area: "Malioboro", city: "Yogyakarta", countryCode: "ID" },
     propertyType: "street-vendor-spot",
     permanenceType: "temporary",
-    sizeSqm: 8,
-    cheapestPriceFormatted: "Rp 1.200.000",
-    cheapestPricePeriod: "month",
+    event: { registrationDeadlineDays: 3, durationDays: 30 },
+    cheapestPriceFormatted: "Rp 50.000",
+    cheapestPricePeriod: "day", // Lapak kuliner malam harian
     rating: 4.7,
     reviewCount: 25,
+  },
+  {
+    id: "stl_jkt_jipexpo_019",
+    title: "Booth Hall B Jakarta Fair PRJ Kemayoran (1 Bulan Full)",
+    imageUrl:
+      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop",
+    location: { area: "Kemayoran", city: "Jakarta Pusat", countryCode: "ID" },
+    propertyType: "bazaar-booth",
+    permanenceType: "temporary",
+    event: { registrationDeadlineDays: 14, durationDays: 30 }, // Event 1 Bulan
+    cheapestPriceFormatted: "Rp 12.500.000",
+    cheapestPricePeriod: "month", // Sewa Paket Bulanan Event
+    rating: 5.0,
+    reviewCount: 52,
   },
 ];

@@ -2,11 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
-import {
-  getPropertyTypesForPermanence,
-  type StallPermanenceType,
-  type StallPropertyTypeValue,
-} from "./util/SearchConstants";
+import { getPropertyTypesForPermanence } from "./constants/permanance";
+import { StallPermanenceType, StallPropertyTypeValue } from "./constants/types";
 
 interface PropertyTypePickerProps {
   value: StallPropertyTypeValue[];

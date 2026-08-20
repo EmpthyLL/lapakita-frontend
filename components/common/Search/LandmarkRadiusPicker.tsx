@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
 import { useMemo } from "react";
 import { Autocomplete } from "../input/Autocomplete";
-import { LANDMARK_CATEGORIES, RADIUS_PRESETS } from "./util/SearchConstants";
+import { LANDMARK_CATEGORIES } from "./constants/landmark";
+import { RADIUS_PRESETS } from "./constants/range";
 
 export interface LandmarkRadiusEntry {
   id: string;

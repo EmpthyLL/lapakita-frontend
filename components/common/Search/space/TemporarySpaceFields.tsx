@@ -2,13 +2,15 @@
 
 import { cn } from "@/lib/utils";
 import { CalendarClock, Timer } from "lucide-react";
+import { useState } from "react";
+import { NumberInput } from "../../input/NumberInput";
 import { SegmentedToggle } from "../../input/SegmentedToggle";
+import { STALL_PLACEMENT_OPTIONS } from "../constants/permanance";
 import {
   EVENT_DURATION_PRESETS,
   REGISTRATION_DEADLINE_PRESETS,
-  STALL_PLACEMENT_OPTIONS,
-  type StallPlacement,
-} from "../util/SearchConstants";
+} from "../constants/range";
+import { StallPlacement } from "../constants/types";
 
 const SHORT_LABEL: Record<StallPlacement, string> = {
   indoor: "Indoor",
@@ -43,6 +45,24 @@ export function TemporarySpaceFields({
     shortLabel: SHORT_LABEL[opt.value],
   }));
 
+  const isCustomDuration =
+    eventDurationDays !== null &&
+    !EVENT_DURATION_PRESETS.includes(
+      eventDurationDays as (typeof EVENT_DURATION_PRESETS)[number],
+    );
+  const [durationMode, setDurationMode] = useState<"preset" | "custom">(
+    isCustomDuration ? "custom" : "preset",
+  );
+
+  const isCustomDeadline =
+    registrationDeadlineDays !== null &&
+    !REGISTRATION_DEADLINE_PRESETS.includes(
+      registrationDeadlineDays as (typeof REGISTRATION_DEADLINE_PRESETS)[number],
+    );
+  const [deadlineMode, setDeadlineMode] = useState<"preset" | "custom">(
+    isCustomDeadline ? "custom" : "preset",
+  );
+
   return (
     <div className="flex flex-col gap-5">
       <p className="flex items-start gap-1.5 rounded-lg bg-primary/10 px-2.5 py-2 text-[11px] font-medium text-primary">
@@ -74,10 +94,13 @@ export function TemporarySpaceFields({
             <button
               key={days}
               type="button"
-              onClick={() => onRegistrationDeadlineDaysChange(days)}
+              onClick={() => {
+                setDeadlineMode("preset");
+                onRegistrationDeadlineDaysChange(days);
+              }}
               className={cn(
                 "rounded-full px-3 py-1 text-xs font-medium transition-colors",
-                registrationDeadlineDays === days
+                deadlineMode === "preset" && registrationDeadlineDays === days
                   ? "bg-primary text-white"
                   : "border border-border bg-secondary/50 text-muted-foreground hover:border-primary/40 hover:text-foreground",
               )}
@@ -85,7 +108,33 @@ export function TemporarySpaceFields({
               H-{days}
             </button>
           ))}
+          <button
+            type="button"
+            onClick={() => setDeadlineMode("custom")}
+            className={cn(
+              "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+              deadlineMode === "custom"
+                ? "bg-primary text-white"
+                : "border border-border bg-secondary/50 text-muted-foreground hover:border-primary/40 hover:text-foreground",
+            )}
+          >
+            Custom
+          </button>
         </div>
+        {deadlineMode === "custom" && (
+          <NumberInput
+            suffix=" days before start"
+            decimalScale={0}
+            allowNegative={false}
+            placeholder="e.g. 21"
+            value={isCustomDeadline ? (registrationDeadlineDays ?? "") : ""}
+            onValueChange={(v) =>
+              v.floatValue !== undefined &&
+              onRegistrationDeadlineDaysChange(v.floatValue)
+            }
+            className="mt-2 h-9 py-2 text-sm"
+          />
+        )}
       </div>
 
       <div>
@@ -98,10 +147,13 @@ export function TemporarySpaceFields({
             <button
               key={days}
               type="button"
-              onClick={() => onEventDurationDaysChange(days)}
+              onClick={() => {
+                setDurationMode("preset");
+                onEventDurationDaysChange(days);
+              }}
               className={cn(
                 "rounded-full px-3 py-1 text-xs font-medium transition-colors",
-                eventDurationDays === days
+                durationMode === "preset" && eventDurationDays === days
                   ? "bg-primary text-white"
                   : "border border-border bg-secondary/50 text-muted-foreground hover:border-primary/40 hover:text-foreground",
               )}
@@ -109,7 +161,43 @@ export function TemporarySpaceFields({
               {days} day{days > 1 ? "s" : ""}
             </button>
           ))}
+          <button
+            type="button"
+            onClick={() => setDurationMode("custom")}
+            className={cn(
+              "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+              durationMode === "custom"
+                ? "bg-primary text-white"
+                : "border border-border bg-secondary/50 text-muted-foreground hover:border-primary/40 hover:text-foreground",
+            )}
+          >
+            Custom
+          </button>
         </div>
+        {durationMode === "custom" && (
+          <>
+            <NumberInput
+              suffix=" days"
+              decimalScale={0}
+              allowNegative={false}
+              placeholder="e.g. 45"
+              value={isCustomDuration ? (eventDurationDays ?? "") : ""}
+              onValueChange={(v) =>
+                v.floatValue !== undefined &&
+                onEventDurationDaysChange(v.floatValue)
+              }
+              className="mt-2 h-9 py-2 text-sm"
+            />
+            {typeof eventDurationDays === "number" &&
+              eventDurationDays > 30 && (
+                <p className="mt-1.5 text-[11px] text-muted-foreground">
+                  {Math.round((eventDurationDays / 30) * 10) / 10} month
+                  {eventDurationDays > 60 ? "s" : ""} — long-running booths like
+                  this are usually priced monthly rather than per day.
+                </p>
+              )}
+          </>
+        )}
       </div>
     </div>
   );

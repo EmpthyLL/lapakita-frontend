@@ -6,10 +6,8 @@ import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 import { Autocomplete } from "../input/Autocomplete";
 import { LocationAutocomplete } from "./LocationAutocomplete";
-import {
-  LANDMARK_CATEGORIES,
-  type StallPermanenceType,
-} from "./util/SearchConstants";
+import { LANDMARK_CATEGORIES } from "./constants/landmark";
+import { StallPermanenceType } from "./constants/types";
 
 interface StallSearchPrimaryRowProps {
   isFull: boolean;

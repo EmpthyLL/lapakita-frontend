@@ -2,21 +2,21 @@
 
 import { useDebounce } from "@/hooks/use-debounce";
 import { formatCurrency } from "@/lib/utils";
-import { Sparkles, Target } from "lucide-react";
+import { CalendarDays, Sparkles, Target } from "lucide-react";
 import * as React from "react";
 import { Autocomplete } from "../input/Autocomplete";
 import { NumberInput } from "../input/NumberInput";
 import { RangeInput } from "../input/RangeInput";
 import { SegmentedToggle } from "../input/SegmentedToggle";
-import { getCalculatedRangesForFilters } from "./util/BusinessTypeCalc";
 import {
   BEP_PRESETS_MONTHS,
   DEPOSIT_RANGE,
-  GENERAL_RENT_RANGE,
   PAYMENT_CYCLE_OPTIONS,
   RENT_RANGE_BY_CYCLE,
-  type PaymentCycle,
-} from "./util/SearchConstants";
+  getAllowedRentRange,
+} from "./constants/range";
+import { PaymentCycle, StallPermanenceType } from "./constants/types";
+import { getCalculatedRangesForFilters } from "./util/BusinessTypeCalc";
 
 const PRESET_VALUES = BEP_PRESETS_MONTHS.map(String);
 
@@ -29,7 +29,8 @@ const BEP_OPTIONS = [
 ];
 
 interface StallSearchBudgetFiltersProps {
-  businessType?: string; // Tambahkan businessType
+  permanenceType: StallPermanenceType;
+  businessType?: string;
   businessTypeLabel: string | null;
   bepMonths: string;
   onBepMonthsChange: (value: string) => void;
@@ -49,6 +50,7 @@ interface StallSearchBudgetFiltersProps {
 }
 
 export function StallSearchBudgetFilters({
+  permanenceType,
   businessType = "",
   businessTypeLabel,
   bepMonths,
@@ -65,6 +67,8 @@ export function StallSearchBudgetFilters({
   onDepositRangeChange,
   allowedPaymentCycles,
 }: StallSearchBudgetFiltersProps) {
+  const isTemporary = permanenceType === "temporary";
+
   React.useEffect(() => {
     if (
       bepMonths &&
@@ -82,8 +86,8 @@ export function StallSearchBudgetFilters({
   const debouncedCapital = useDebounce(capital, 450);
   const debouncedCustomBepMonths = useDebounce(customBepMonths, 450);
 
-  // SINGLE SOURCE OF TRUTH:
-  // Terintegrasi penuh dengan businessType, debouncedCapital, BEP, & paymentCycle
+  // Now runs for every permanence type — including temporary, using its
+  // daily-target-based calculation branch inside calculateMultiCycleRanges.
   React.useEffect(() => {
     const { rentRange: newRent, depositRange: newDeposit } =
       getCalculatedRangesForFilters(
@@ -92,6 +96,7 @@ export function StallSearchBudgetFilters({
         debouncedCustomBepMonths,
         paymentCycle,
         businessType,
+        permanenceType,
       );
 
     onRentRangeChange(newRent);
@@ -103,15 +108,19 @@ export function StallSearchBudgetFilters({
     debouncedCustomBepMonths,
     paymentCycle,
     businessType,
+    permanenceType,
   ]);
 
   const cycleOptions = PAYMENT_CYCLE_OPTIONS.filter((opt) =>
     allowedPaymentCycles.includes(opt.value),
   );
 
+  // Fallback range (no cycle picked yet) now spans allowed cycles only —
+  // e.g. temporary (day, month) gets a tight Rp50k–10jt range, not the
+  // fixed general Rp300k–50jt range meant for permanent's full cycle set.
   const activeRentLimit = paymentCycle
     ? RENT_RANGE_BY_CYCLE[paymentCycle]
-    : GENERAL_RENT_RANGE;
+    : getAllowedRentRange(allowedPaymentCycles);
 
   function handleCycleChange(next: string) {
     onPaymentCycleChange((next as PaymentCycle) || "");
@@ -136,7 +145,12 @@ export function StallSearchBudgetFilters({
         }
       >
         <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-        {businessTypeLabel ? (
+        {isTemporary ? (
+          <span>
+            Pop-up spots are priced per event — set a daily revenue target below
+            and we&apos;ll estimate a fair rent range for this booking.
+          </span>
+        ) : businessTypeLabel ? (
           <span>
             Recommendations tailored for {businessTypeLabel} — adjust anything
             below.
@@ -149,51 +163,83 @@ export function StallSearchBudgetFilters({
         )}
       </div>
 
-      <div className="rounded-2xl border-2 border-primary/30 bg-linear-to-br from-primary/10 via-primary/5 to-transparent p-3">
-        <div className="mb-2 flex items-center gap-2">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-white">
-            <Target className="h-3.5 w-3.5" />
-          </span>
-          <div>
-            <p className="text-xs font-bold text-foreground">
-              Target Break-Even Period
-            </p>
-            <p className="text-[10px] font-medium text-primary">Quick filter</p>
+      {isTemporary ? (
+        <div className="rounded-2xl border-2 border-primary/30 bg-linear-to-br from-primary/10 via-primary/5 to-transparent p-3">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-white">
+              <CalendarDays className="h-3.5 w-3.5" />
+            </span>
+            <div>
+              <p className="text-xs font-bold text-foreground">
+                Daily Revenue Target
+              </p>
+              <p className="text-[10px] font-medium text-primary">
+                Used to estimate a fair per-day or per-event rent
+              </p>
+            </div>
           </div>
-        </div>
-        <Autocomplete
-          value={bepMonths}
-          onSelect={(v) => handleBepSelect(String(v))}
-          options={BEP_OPTIONS}
-          placeholder="Pick a target BEP"
-          mode="solid"
-          className="mt-2"
-        />
-        {bepMonths === "custom" && (
           <NumberInput
-            suffix=" months"
+            prefix="Rp "
             decimalScale={0}
-            placeholder="e.g. 9 months"
-            value={customBepMonths ?? ""}
-            onValueChange={(v) => onCustomBepMonthsChange(v.floatValue ?? null)}
-            className="mt-2 h-9 py-2 text-sm"
+            placeholder="e.g. Rp 3,000,000"
+            value={capital}
+            onValueChange={(v) => onCapitalChange(v.floatValue ?? 0)}
+            className="mt-2 h-10"
           />
-        )}
-      </div>
+        </div>
+      ) : (
+        <>
+          <div className="rounded-2xl border-2 border-primary/30 bg-linear-to-br from-primary/10 via-primary/5 to-transparent p-3">
+            <div className="mb-2 flex items-center gap-2">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-white">
+                <Target className="h-3.5 w-3.5" />
+              </span>
+              <div>
+                <p className="text-xs font-bold text-foreground">
+                  Target Break-Even Period
+                </p>
+                <p className="text-[10px] font-medium text-primary">
+                  Quick filter
+                </p>
+              </div>
+            </div>
+            <Autocomplete
+              value={bepMonths}
+              onSelect={(v) => handleBepSelect(String(v))}
+              options={BEP_OPTIONS}
+              placeholder="Pick a target BEP"
+              mode="solid"
+              className="mt-2"
+            />
+            {bepMonths === "custom" && (
+              <NumberInput
+                suffix=" months"
+                decimalScale={0}
+                placeholder="e.g. 9 months"
+                value={customBepMonths ?? ""}
+                onValueChange={(v) =>
+                  onCustomBepMonthsChange(v.floatValue ?? null)
+                }
+                className="mt-2 h-9 py-2 text-sm"
+              />
+            )}
+          </div>
 
-      <div>
-        <p className="mb-2 text-xs font-semibold text-muted-foreground">
-          Available Capital
-        </p>
-        <NumberInput
-          prefix="Rp "
-          decimalScale={0}
-          placeholder="e.g. Rp 15,000,000"
-          value={capital}
-          onValueChange={(v) => onCapitalChange(v.floatValue ?? 0)}
-          className="h-10"
-        />
-      </div>
+          <div>
+            <p className="mb-2 text-xs font-semibold text-muted-foreground">
+              Available Capital
+            </p>
+            <NumberInput
+              prefix="Rp "
+              decimalScale={0}
+              placeholder="e.g. Rp 15,000,000"
+              value={capital}
+              onValueChange={(v) => onCapitalChange(v.floatValue ?? 0)}
+              className="h-10"
+            />
+          </div>
+        </>
+      )}
 
       <div>
         <p className="mb-2 text-xs font-semibold text-muted-foreground">

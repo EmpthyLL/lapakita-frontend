@@ -3,11 +3,10 @@
 import { cn } from "@/lib/utils";
 import { Clock } from "lucide-react";
 import { SegmentedToggle } from "../../input/SegmentedToggle";
-import {
-  OPERATING_HOURS_PRESETS,
-  STALL_PLACEMENT_OPTIONS,
-  type StallPlacement,
-} from "../util/SearchConstants";
+import { TimePicker } from "../../input/TimePicker";
+import { STALL_PLACEMENT_OPTIONS } from "../constants/permanance";
+import { OPERATING_HOURS_PRESETS } from "../constants/range";
+import { StallPlacement } from "../constants/types";
 
 const SHORT_LABEL: Record<StallPlacement, string> = {
   indoor: "Indoor",
@@ -67,22 +66,20 @@ export function SemiPermanentSpaceFields({
           <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">
             Opening Time
           </label>
-          <input
-            type="time"
+          <TimePicker
             value={openingTime}
-            onChange={(e) => onOpeningTimeChange(e.target.value)}
-            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+            onChange={onOpeningTimeChange}
+            maxTime={closingTime || undefined}
           />
         </div>
         <div>
           <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">
             Closing Time
           </label>
-          <input
-            type="time"
+          <TimePicker
             value={closingTime}
-            onChange={(e) => onClosingTimeChange(e.target.value)}
-            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+            onChange={onClosingTimeChange}
+            minTime={openingTime || undefined}
           />
         </div>
       </div>
@@ -105,7 +102,7 @@ export function SemiPermanentSpaceFields({
                   onClosingTimeChange(preset.closingTime);
                 }}
                 className={cn(
-                  "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                  "rounded-full px-3 py-1 text-xs font-medium transition-colors outline-none",
                   active
                     ? "bg-primary text-white"
                     : "border border-border bg-secondary/50 text-muted-foreground hover:border-primary/40 hover:text-foreground",

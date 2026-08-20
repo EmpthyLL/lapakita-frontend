@@ -1,15 +1,16 @@
 "use client";
 
-import {
-  PAYMENT_CYCLE_OPTIONS,
-  STALL_PROPERTY_TYPES,
-} from "@/components/common/search/util/SearchConstants";
 import { Badge } from "@/components/ui/badge";
 import { Stall } from "@/lib/data/schema/stall/get_stall";
 import { cn } from "@/lib/utils";
 import { ArrowUpRight, Heart, MapPin, Maximize2, Star } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import {
+  STALL_PERMANENCE_TABS,
+  STALL_PROPERTY_TYPES,
+} from "./search/constants/permanance";
+import { PAYMENT_CYCLE_OPTIONS } from "./search/constants/range";
 
 interface StallCardProps {
   stall: Stall;
@@ -17,13 +18,27 @@ interface StallCardProps {
   variant?: "row" | "grid";
 }
 
+// Distinct tint per permanence tab so the badge reads at a glance, matching
+// the same taxonomy used in StallPermanenceTabs during search.
+const PERMANENCE_BADGE_STYLE: Record<string, string> = {
+  permanent: "bg-emerald-500/90 text-white",
+  "semi-permanent": "bg-sky-500/90 text-white",
+  temporary: "bg-amber-500/90 text-white",
+};
+
 export function StallCard({ stall, variant = "row" }: StallCardProps) {
   const [saved, setSaved] = useState(false);
 
   const propertyTypeObj = STALL_PROPERTY_TYPES.find(
     (p) => p.value === stall.propertyType,
   );
+  const PropertyIcon = propertyTypeObj?.icon;
   const propertyLabel = propertyTypeObj?.label ?? stall.propertyType;
+
+  const permanenceTab = STALL_PERMANENCE_TABS.find(
+    (t) => t.value === stall.permanenceType,
+  );
+  const PermanenceIcon = permanenceTab?.icon;
 
   const paymentPeriodObj = PAYMENT_CYCLE_OPTIONS.find(
     (p) => p.value === stall.cheapestPricePeriod,
@@ -35,6 +50,26 @@ export function StallCard({ stall, variant = "row" }: StallCardProps) {
     e.preventDefault();
     setSaved((s) => !s);
   }
+
+  const topBadges = (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <Badge className="gap-1 border-none bg-black/60 text-[10px] font-medium text-white backdrop-blur-md">
+        {PropertyIcon && <PropertyIcon className="h-3 w-3" />}
+        {propertyLabel}
+      </Badge>
+      {permanenceTab && (
+        <Badge
+          className={cn(
+            "gap-1 border-none text-[10px] font-medium backdrop-blur-md",
+            PERMANENCE_BADGE_STYLE[stall.permanenceType],
+          )}
+        >
+          {PermanenceIcon && <PermanenceIcon className="h-3 w-3" />}
+          {permanenceTab.shortLabel}
+        </Badge>
+      )}
+    </div>
+  );
 
   if (variant === "grid") {
     return (
@@ -51,17 +86,15 @@ export function StallCard({ stall, variant = "row" }: StallCardProps) {
           />
           <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/60 via-black/5 to-black/25" />
 
-          <div className="absolute inset-x-2.5 top-2.5 flex items-center justify-between gap-2">
-            <Badge className="border-none bg-black/60 text-[10px] font-medium text-white backdrop-blur-md">
-              {propertyLabel}
-            </Badge>
+          <div className="absolute inset-x-2.5 top-2.5 flex items-start justify-between gap-2">
+            {topBadges}
             <button
               type="button"
               onClick={handleToggleSave}
               aria-label={saved ? "Remove from saved" : "Save this stall"}
               aria-pressed={saved}
               className={cn(
-                "flex h-7 w-7 items-center justify-center rounded-full backdrop-blur-md transition-all outline-none",
+                "flex h-7 w-7 shrink-0 items-center justify-center rounded-full backdrop-blur-md transition-all outline-none",
                 saved
                   ? "bg-white text-destructive shadow-xs"
                   : "bg-black/40 text-white opacity-0 hover:bg-black/60 group-hover:opacity-100",
@@ -136,17 +169,15 @@ export function StallCard({ stall, variant = "row" }: StallCardProps) {
         />
         <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/60 via-black/10 to-black/30" />
 
-        <div className="absolute inset-x-2.5 top-2.5 flex items-center justify-between gap-2">
-          <Badge className="border-none bg-black/60 text-[10px] font-medium text-white backdrop-blur-md">
-            {propertyLabel}
-          </Badge>
+        <div className="absolute inset-x-2.5 top-2.5 flex items-start justify-between gap-2">
+          {topBadges}
           <button
             type="button"
             onClick={handleToggleSave}
             aria-label={saved ? "Remove from saved" : "Save this stall"}
             aria-pressed={saved}
             className={cn(
-              "flex h-7 w-7 items-center justify-center rounded-full backdrop-blur-md transition-all outline-none",
+              "flex h-7 w-7 shrink-0 items-center justify-center rounded-full backdrop-blur-md transition-all outline-none",
               saved
                 ? "bg-white text-destructive shadow-xs"
                 : "bg-black/40 text-white opacity-0 hover:bg-black/60 group-hover:opacity-100",

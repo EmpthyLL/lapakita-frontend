@@ -1,14 +1,14 @@
 import {
-  calculateMultiCycleRanges,
-  MultiCycleRanges,
-} from "@/components/common/search/util/BusinessTypeCalc";
-import {
   FacilityValue,
   LandmarkCategoryValue,
   StallPermanenceType,
   StallPlacement,
   StallPropertyTypeValue,
-} from "@/components/common/search/util/SearchConstants";
+} from "@/components/common/search/constants/types";
+import {
+  calculateMultiCycleRanges,
+  MultiCycleRanges,
+} from "@/components/common/search/util/BusinessTypeCalc";
 
 /* ─── 1. DISCRIMINATED PRESET CONFIGURATIONS ─── */
 

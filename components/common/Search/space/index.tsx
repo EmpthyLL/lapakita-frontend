@@ -1,11 +1,11 @@
 "use client";
 
+import { getAllowedPlacements } from "../constants/permanance";
 import {
-  getAllowedPlacements,
-  type StallPermanenceType,
-  type StallPlacement,
-  type StallPropertyTypeValue,
-} from "../util/SearchConstants";
+  StallPermanenceType,
+  StallPlacement,
+  StallPropertyTypeValue,
+} from "../constants/types";
 import { PermanentSpaceFields } from "./PermanentSpaceFields";
 import { SemiPermanentSpaceFields } from "./SemiPermanentSpaceFields";
 import { TemporarySpaceFields } from "./TemporarySpaceFields";

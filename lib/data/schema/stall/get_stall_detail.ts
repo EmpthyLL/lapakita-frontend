@@ -6,7 +6,7 @@ import {
   StallPlacement,
   StallPropertyTypeValue,
   StartDateValue,
-} from "@/components/common/search/util/SearchConstants";
+} from "@/components/common/search/constants/types";
 
 type DayRange =
   | "1"

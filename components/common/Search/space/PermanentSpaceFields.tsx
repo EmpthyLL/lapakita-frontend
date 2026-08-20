@@ -2,12 +2,9 @@
 
 import { RangeInput } from "../../input/RangeInput";
 import { SegmentedToggle } from "../../input/SegmentedToggle";
-import {
-  FLOOR_COUNT_RANGE,
-  STALL_PLACEMENT_OPTIONS,
-  STALL_SIZE_RANGE,
-  type StallPlacement,
-} from "../util/SearchConstants";
+import { STALL_PLACEMENT_OPTIONS } from "../constants/permanance";
+import { FLOOR_COUNT_RANGE, STALL_SIZE_RANGE } from "../constants/range";
+import { StallPlacement } from "../constants/types";
 
 const SHORT_LABEL: Record<StallPlacement, string> = {
   indoor: "Indoor",

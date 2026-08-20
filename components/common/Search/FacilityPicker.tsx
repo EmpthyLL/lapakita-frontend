@@ -2,11 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { Check, Sparkles } from "lucide-react";
-import {
-  getContextualFacilities,
-  type StallPermanenceType,
-  type StallPropertyTypeValue,
-} from "./util/SearchConstants";
+import { getContextualFacilities } from "./constants/permanance";
+import { StallPermanenceType, StallPropertyTypeValue } from "./constants/types";
 
 interface FacilityPickerProps {
   selected: string[];

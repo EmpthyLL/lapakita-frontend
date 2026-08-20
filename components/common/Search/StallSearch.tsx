@@ -7,6 +7,27 @@ import { BUSINESS_TYPE_MAP } from "@/lib/data/schema/master/business_type";
 import { cn } from "@/lib/utils";
 import { ChevronDown, RotateCcw, SlidersHorizontal, X } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
+import {
+  getAllowedPlacements,
+  getContextualFacilities,
+  getPropertyTypesForPermanence,
+  STALL_PERMANENCE_TABS,
+} from "./constants/permanance";
+import {
+  DEFAULT_BEP_MONTHS,
+  DEFAULT_CAPITAL_BY_PERMANENCE,
+  DEPOSIT_RANGE,
+  FLOOR_COUNT_RANGE,
+  GENERAL_RENT_RANGE,
+  RADIUS_PRESETS,
+  STALL_SIZE_RANGE,
+} from "./constants/range";
+import {
+  PaymentCycle,
+  StallPermanenceType,
+  StallPlacement,
+  StallPropertyTypeValue,
+} from "./constants/types";
 import { FacilityPicker } from "./FacilityPicker";
 import {
   createLandmarkRadiusEntry,
@@ -20,23 +41,6 @@ import { StallSpaceFilter } from "./space";
 import { StallPermanenceTabs } from "./StallPermanenceTabs";
 import { StallSearchBudgetFilters } from "./StallSearchBudgetFilters";
 import { StallSearchPrimaryRow } from "./StallSearchPrimaryRow";
-import {
-  DEFAULT_ASSUMED_CAPITAL,
-  DEFAULT_BEP_MONTHS,
-  DEPOSIT_RANGE,
-  FLOOR_COUNT_RANGE,
-  GENERAL_RENT_RANGE,
-  getAllowedPlacements,
-  getContextualFacilities,
-  getPropertyTypesForPermanence,
-  RADIUS_PRESETS,
-  STALL_PERMANENCE_TABS,
-  STALL_SIZE_RANGE,
-  type PaymentCycle,
-  type StallPermanenceType,
-  type StallPlacement,
-  type StallPropertyTypeValue,
-} from "./util/SearchConstants";
 
 export interface StallSearchProps {
   mode?: "hero" | "full";
@@ -140,7 +144,9 @@ export default function StallSearch({
     String(DEFAULT_BEP_MONTHS),
   );
   const [customBepMonths, setCustomBepMonths] = useState<number | null>(null);
-  const [capital, setCapital] = useState<number>(DEFAULT_ASSUMED_CAPITAL);
+  const [capital, setCapital] = useState<number>(
+    DEFAULT_CAPITAL_BY_PERMANENCE.permanent,
+  );
   const [rentRange, setRentRange] = useState<[number, number]>([
     GENERAL_RENT_RANGE.min,
     GENERAL_RENT_RANGE.max,
@@ -271,9 +277,13 @@ export default function StallSearch({
       setPaymentCycle("");
       setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
       setDepositRange([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]);
+      setOpeningTime("10:00");
+      setClosingTime("22:00");
+      setRegistrationDeadlineDays(null);
+      setEventDurationDays(null);
+      setCapital(DEFAULT_CAPITAL_BY_PERMANENCE[next]);
     }
   }
-
   function handleBusinessTypeChange(value: string) {
     setBusinessType(value);
     const typeDef = BUSINESS_TYPE_MAP[value];
@@ -338,6 +348,7 @@ export default function StallSearch({
     setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);
     setBusinessType("");
     setFacilities([]);
+    setCapital(DEFAULT_CAPITAL_BY_PERMANENCE[permanenceType]); // <-- added
     setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
     setDepositRange([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]);
     setStartDate("");
@@ -408,6 +419,7 @@ export default function StallSearch({
     <>
       <FilterAccordionSection title="Budget & ROI">
         <StallSearchBudgetFilters
+          permanenceType={permanenceType}
           businessTypeLabel={BUSINESS_TYPE_MAP[businessType]?.label ?? null}
           bepMonths={bepMonths}
           onBepMonthsChange={setBepMonths}
