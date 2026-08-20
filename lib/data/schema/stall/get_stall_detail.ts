@@ -2,6 +2,7 @@ import {
   FacilityValue,
   LandmarkCategoryValue,
   PaymentCycle,
+  StallPermanenceType,
   StallPlacement,
   StallPropertyTypeValue,
   StartDateValue,
@@ -43,7 +44,7 @@ export interface MultiPeriodPricing {
   semesterlyRate?: number;
   yearlyRate?: number;
   securityDeposit: number;
-  allowedPaymentCycles: PaymentCycle[]; // e.g. ["month", "quarter", "year"]
+  allowedPaymentCycles: PaymentCycle[];
 }
 
 export interface NearbyLandmark {
@@ -77,15 +78,15 @@ export interface StallMedia {
 export interface StallDetail {
   id: string;
   title: string;
-  slug: string;
   description: string;
 
   // Gallery & Media
   media: StallMedia;
 
-  // Physical Specifications & Placement
+  // Physical Specifications & Classification
   propertyType: string;
   propertyTypeValue: StallPropertyTypeValue;
+  permanenceType: StallPermanenceType;
   placement: StallPlacement;
   sizeSqm: number;
   dimensions: {
@@ -93,6 +94,22 @@ export interface StallDetail {
     widthMeters: number;
   };
   electricityCapacityVA: number;
+  floorLevel?: number;
+
+  // Operational Context (Disesuaikan berdasarkan permanenceType)
+  operatingHours?: {
+    openingTime: string;
+    closingTime: string;
+    is24Hours: boolean;
+  };
+
+  // Event Context (Khusus Temporary)
+  eventMeta?: {
+    eventName?: string;
+    eventStartDate?: string;
+    eventEndDate?: string;
+    registrationDeadlineDaysBefore: number;
+  };
 
   // Location & Navigation
   address: {
@@ -131,127 +148,302 @@ export interface StallDetail {
   owner: OwnerProfileSummary;
 }
 
-export const MOCK_STALL_DETAIL: StallDetail = {
-  id: "stl_depok_mrg_001",
-  title: "Kios Ground Floor Plaza Margonda - Main Corridor",
-  slug: "kios-ground-floor-plaza-margonda-main-corridor",
-  description:
-    "Kios komersial strategis tepat di koridor utama ground floor Plaza Margonda. Posisi hook dengan visibilitas tinggi dari eskalator dan pintu masuk utama. Sangat cocok untuk usaha F&B Grab-and-Go, Coffee Shop Kiosk, Bakery, maupun konter aksesoris & retail modern. Sudah dilengkapi kran air bersih, saluran pembuangan grease-trap, dan daya listrik PLN 3500 VA.",
+/* ─── MOCK DATA: 3 CONTOH TIPE PERMANENSI ─── */
 
-  media: {
-    mainImage:
-      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&h=800&fit=crop",
-    facilityImages: [
+export const MOCK_STALL_DETAILS: Record<StallPermanenceType, StallDetail> = {
+  // 1. PERMANENT / INDEPENDENT (Akses Mandiri 24/7)
+  permanent: {
+    id: "stl_bdg_dago_001",
+    title: "Ruko Dago Commercial Space - Ground Floor Main Road",
+    description:
+      "Ruko komersial mandiri lokasi sangat strategis di koridor utama Jalan Ir. H. Juanda (Dago). Bebas jam operasional (akses 24/7), cocok untuk Cafe, Boutique, Office, atau Clinic. Dilengkapi halaman parkir sendiri, listrik 5500 VA, dan saluran air PDAM lancar.",
+    media: {
+      mainImage:
+        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&h=800&fit=crop",
+      facilityImages: [
+        {
+          id: "img_1",
+          url: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&h=800&fit=crop",
+          caption: "Area Interior Lantai 1",
+        },
+        {
+          id: "img_2",
+          url: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=1200&h=800&fit=crop",
+          caption: "Area Parkir Depan Ruko",
+        },
+      ],
+      virtualTour360Url: "https://pannellum.org/images/alma.jpg",
+    },
+    propertyType: "Shophouse / Standalone Store",
+    propertyTypeValue: "shophouse",
+    permanenceType: "permanent",
+    placement: "indoor",
+    sizeSqm: 45,
+    dimensions: { lengthMeters: 9, widthMeters: 5 },
+    electricityCapacityVA: 5500,
+    floorLevel: 1,
+    operatingHours: {
+      openingTime: "00:00",
+      closingTime: "23:59",
+      is24Hours: true,
+    },
+    address: {
+      street: "Jl. Ir. H. Juanda No. 102",
+      suburb: "Lebak Siliwangi",
+      district: "Coblong",
+      city: "Bandung",
+      country: "Indonesia",
+      countryCode: "ID",
+      province: "Jawa Barat",
+      postalCode: "40132",
+      mapUrl: "https://maps.google.com/?q=-6.8915,107.6106",
+      embeddedMapUrl: "https://www.google.com/maps/embed?pb=!1m18...",
+    },
+    nearbyLandmarks: [
       {
-        id: "img_1",
-        url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&h=800&fit=crop",
-        caption: "Tampak Depan Koridor Utama",
+        categoryValue: "campus",
+        name: "Institut Teknologi Bandung (ITB)",
+        distanceKm: 0.4,
       },
       {
-        id: "img_2",
-        url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop",
-        caption: "Meteran PLN & Instalasi Air Grease-Trap",
-      },
-      {
-        id: "img_3",
-        url: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=1200&h=800&fit=crop",
-        caption: "Area Parkir Pengunjung Mall",
+        categoryValue: "office",
+        name: "Dago Plaza & Business Hub",
+        distanceKm: 0.2,
       },
     ],
-    virtualTour360Url: "https://pannellum.org/images/alma.jpg",
-  },
-
-  propertyType: "Mall Island / Kiosk Corridor",
-  propertyTypeValue: "mall-island",
-  placement: "indoor",
-  sizeSqm: 12,
-  dimensions: {
-    lengthMeters: 4,
-    widthMeters: 3,
-  },
-  electricityCapacityVA: 3500,
-
-  address: {
-    street: "Jl. Margonda Raya No. 188, Ground Floor Blok G-05",
-    suburb: "Pondok Cina",
-    district: "Beji",
-    city: "Depok",
-    country: "Indonesia",
-    countryCode: "ID",
-    province: "Jawa Barat",
-    postalCode: "16424",
-    mapUrl: "https://maps.google.com/?q=-6.3732,106.8329",
-    embeddedMapUrl:
-      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.1872123!2d106.8329!3d-6.3732!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwMjInMjMuNSJTIDEwNsKwNDknNTguNCJF!5e0!3m2!1sen!2sid!4v1600000000000!5m2!1sen!2sid",
-  },
-
-  nearbyLandmarks: [
-    {
-      categoryValue: "campus",
-      name: "Universitas Indonesia (UI) - Stasiun Pocin",
-      distanceKm: 0.6,
+    pricing: {
+      monthlyRate: 7500000,
+      quarterlyRate: 21000000,
+      semesterlyRate: 40000000,
+      yearlyRate: 75000000,
+      securityDeposit: 5000000,
+      allowedPaymentCycles: ["month", "quarter", "semester", "year"],
     },
-    {
-      categoryValue: "transit-station",
-      name: "Stasiun Pondok Cina",
-      distanceKm: 0.4,
+    leaseRules: {
+      minimumLeaseMonths: 3,
+      startDateOptions: [1, 15, "eom"],
+      utilityTerms:
+        "Listrik PLN & PDAM dibayar mandiri sesuai pemakaian meteran.",
     },
-    {
-      categoryValue: "residential",
-      name: "Apartemen Mares Margonda",
-      distanceKm: 0.8,
-    },
-  ],
-
-  pricing: {
-    monthlyRate: 3500000,
-    quarterlyRate: 9900000,
-    semesterlyRate: 19000000,
-    yearlyRate: 36000000,
-    securityDeposit: 2500000,
-    allowedPaymentCycles: ["month", "quarter", "year"],
-  },
-
-  leaseRules: {
-    minimumLeaseMonths: 3,
-    startDateOptions: [1, 15, "eom", "2", "3"],
-    utilityTerms:
-      "Token listrik PLN prabayar diisi mandiri oleh tenant. Tagihan pemeliharaan kebersihan koridor mall dikelola oleh pengelola Plaza.",
-  },
-
-  facilityValues: [
-    "power",
-    "high-power",
-    "water",
-    "drainage",
-    "grease-trap",
-    "air-conditioner",
-    "wifi",
-    "seating",
-    "parking",
-    "toilet",
-    "trash-area",
-    "security",
-    "cctv",
-  ],
-
-  houseRules: [
-    "Tidak diperkenankan memproses bahan mentah berbau tajam berlebihan tanpa exhaust adekuat.",
-    "Jam operasional mengikuti jam buka/tutup Plaza Margonda (10:00 - 22:00 WIB).",
-    "Perubahan struktur fisik booth wajib dengan persetujuan tertulis dari Owner dan Pengelola Gedung.",
-  ],
-
-  rating: 4.8,
-  reviewCount: 14,
-
-  owner: {
-    id: "usr_owner_budi_01",
-    name: "Budi Santoso",
-    contact: "+62 812-3456-7890",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
+    facilityValues: [
+      "power",
+      "high-power",
+      "water",
+      "drainage",
+      "air-conditioner",
+      "wifi",
+      "parking",
+      "toilet",
+      "trash-area",
+      "security",
+      "cctv",
+    ],
+    houseRules: [
+      "Penyewa memegang kunci mandiri dan bertanggung jawab penuh atas keamanan internal.",
+      "Renovasi interior diperbolehkan dengan konfirmasi sebelum pengerjaan.",
+    ],
     rating: 4.9,
-    reviewCount: 38,
-    joinedYear: "2025",
+    reviewCount: 22,
+    owner: {
+      id: "usr_owner_dago_01",
+      name: "Rian Hidayat",
+      contact: "+62 811-2233-4455",
+      avatarUrl:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
+      rating: 4.9,
+      reviewCount: 45,
+      joinedYear: "2024",
+    },
+  },
+
+  // 2. SEMI-PERMANENT / MANAGED COMPLEX (Terikat Jam Induk)
+  "semi-permanent": {
+    id: "stl_depok_mrg_002",
+    title: "Kios Ground Floor Plaza Margonda - Main Corridor",
+    description:
+      "Kios komersial strategis di koridor utama ground floor Plaza Margonda. Posisi hook dengan visibilitas tinggi dari eskalator utama. Sangat cocok untuk F&B Grab-and-Go atau Beverage Kiosk. Jam operasional wajib mengikuti aturan gedung.",
+    media: {
+      mainImage:
+        "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&h=800&fit=crop",
+      facilityImages: [
+        {
+          id: "img_1",
+          url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop",
+          caption: "Meteran PLN & Instalasi Air Grease-Trap",
+        },
+      ],
+      virtualTour360Url: "https://pannellum.org/images/alma.jpg",
+    },
+    propertyType: "Mall Island / Kiosk Corridor",
+    propertyTypeValue: "mall-island",
+    permanenceType: "semi-permanent",
+    placement: "indoor",
+    sizeSqm: 12,
+    dimensions: { lengthMeters: 4, widthMeters: 3 },
+    electricityCapacityVA: 3500,
+    floorLevel: 1,
+    operatingHours: {
+      openingTime: "10:00",
+      closingTime: "22:00",
+      is24Hours: false,
+    },
+    address: {
+      street: "Jl. Margonda Raya No. 188, Ground Floor Blok G-05",
+      suburb: "Pondok Cina",
+      district: "Beji",
+      city: "Depok",
+      country: "Indonesia",
+      countryCode: "ID",
+      province: "Jawa Barat",
+      postalCode: "16424",
+      mapUrl: "https://maps.google.com/?q=-6.3732,106.8329",
+      embeddedMapUrl: "https://www.google.com/maps/embed?pb=!1m18...",
+    },
+    nearbyLandmarks: [
+      {
+        categoryValue: "campus",
+        name: "Universitas Indonesia (UI)",
+        distanceKm: 0.6,
+      },
+      {
+        categoryValue: "transit-station",
+        name: "Stasiun Pondok Cina",
+        distanceKm: 0.4,
+      },
+    ],
+    pricing: {
+      monthlyRate: 3500000,
+      quarterlyRate: 9900000,
+      securityDeposit: 2500000,
+      allowedPaymentCycles: ["month", "quarter"],
+    },
+    leaseRules: {
+      minimumLeaseMonths: 1,
+      startDateOptions: [1, 15, "eom"],
+      utilityTerms:
+        "Listrik isi token mandiri. Kebersihan koridor dikelola manajemen Mall.",
+    },
+    facilityValues: [
+      "power",
+      "high-power",
+      "water",
+      "drainage",
+      "grease-trap",
+      "air-conditioner",
+      "wifi",
+      "toilet",
+      "trash-area",
+      "cleaning-service",
+      "security",
+      "cctv",
+    ],
+    houseRules: [
+      "Wajib buka dan tutup sesuai jam operasional mall (10:00 - 22:00 WIB).",
+      "Loading barang hanya diperbolehkan sebelum mall buka (07:00 - 09:30 WIB).",
+    ],
+    rating: 4.8,
+    reviewCount: 14,
+    owner: {
+      id: "usr_owner_budi_01",
+      name: "Budi Santoso",
+      contact: "+62 812-3456-7890",
+      avatarUrl:
+        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
+      rating: 4.8,
+      reviewCount: 38,
+      joinedYear: "2025",
+    },
+  },
+
+  // 3. TEMPORARY / POP-UP EVENT (Short-Term Event & Bazaar)
+  temporary: {
+    id: "stl_jkt_bzr_003",
+    title: "Pop-Up Booth A-12 Kuliner Festival Ramadan Senayan",
+    description:
+      "Spot booth bazaar temporary pada event festival kuliner Ramadan di pelataran Parkir Timur Senayan. Paket sewa sudah mencakup fasitiltas meja, kursi, daya listrik 1300 VA, dan kebersihan event.",
+    media: {
+      mainImage:
+        "https://images.unsplash.com/photo-1565123409695-7b5ef63a2efb?w=1200&h=800&fit=crop",
+      facilityImages: [
+        {
+          id: "img_1",
+          url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&h=800&fit=crop",
+          caption: "Layout Denah Booth Outdoor",
+        },
+      ],
+    },
+    propertyType: "Pop-Up Event / Bazaar Booth",
+    propertyTypeValue: "bazaar-booth",
+    permanenceType: "temporary",
+    placement: "outdoor",
+    sizeSqm: 9,
+    dimensions: { lengthMeters: 3, widthMeters: 3 },
+    electricityCapacityVA: 1300,
+    eventMeta: {
+      eventName: "Ramadan Culinary Fest 2026",
+      eventStartDate: "2026-03-20",
+      eventEndDate: "2026-03-23",
+      registrationDeadlineDaysBefore: 5,
+    },
+    address: {
+      street: "GBK Parkir Timur Senayan, Booth A-12",
+      suburb: "Gelora",
+      district: "Tanah Abang",
+      city: "Jakarta Pusat",
+      country: "Indonesia",
+      countryCode: "ID",
+      province: "DKI Jakarta",
+      postalCode: "10270",
+      mapUrl: "https://maps.google.com/?q=-6.2183,106.8022",
+      embeddedMapUrl: "https://www.google.com/maps/embed?pb=!1m18...",
+    },
+    nearbyLandmarks: [
+      {
+        categoryValue: "office",
+        name: "Kawasan Bisnis Sudirman (SCBD)",
+        distanceKm: 0.8,
+      },
+      {
+        categoryValue: "transit-station",
+        name: "Stasiun MRT Istora Mandiri",
+        distanceKm: 0.5,
+      },
+    ],
+    pricing: {
+      monthlyRate: 2500000, // Total biaya full durasi event
+      securityDeposit: 500000,
+      allowedPaymentCycles: ["month"],
+    },
+    leaseRules: {
+      minimumLeaseMonths: 1,
+      startDateOptions: [1],
+      utilityTerms:
+        "Listrik 1300 VA ter-include. Dilarang menggunakan alat beban listrik >1300 VA tanpa izin EO.",
+    },
+    facilityValues: [
+      "power",
+      "wifi",
+      "seating",
+      "parking",
+      "trash-area",
+      "cleaning-service",
+      "security",
+    ],
+    houseRules: [
+      "Loading barang dapat dilakukan H-1 sebelum event dimulai.",
+      "Booth wajib terus dijaga selama jam operasional festival (15:00 - 22:00 WIB).",
+    ],
+    rating: 4.7,
+    reviewCount: 9,
+    owner: {
+      id: "usr_eo_jakarta_03",
+      name: "Jakarta Event Management",
+      contact: "+62 813-9988-7766",
+      avatarUrl:
+        "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=200&h=200&fit=crop",
+      rating: 4.7,
+      reviewCount: 52,
+      joinedYear: "2023",
+    },
   },
 };
