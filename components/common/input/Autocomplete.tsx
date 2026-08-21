@@ -325,7 +325,7 @@ export function Autocomplete<T extends Record<string, any>>({
                 icon={selectedOption[iconKey]}
                 size={20}
                 alt={String(selectedOption?.[labelKey]) || ""}
-                className={hasValue ? "opacity-60" : "opacity-20"}
+                className={"opacity-68"}
               />
             )}
 
