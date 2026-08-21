@@ -13,10 +13,11 @@ import { useState } from "react";
 interface TimePickerProps {
   value: string;
   onChange: (value: string) => void;
-  minTime?: string; // e.g. "08:00" -> waktu di bawah ini akan di-disable
-  maxTime?: string; // e.g. "22:00" -> waktu di atas ini akan di-disable
+  minTime?: string;
+  maxTime?: string;
   className?: string;
   placeholder?: string;
+  hasError?: boolean;
 }
 
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
@@ -34,6 +35,7 @@ export function TimePicker({
   maxTime,
   className,
   placeholder = "00:00",
+  hasError,
 }: TimePickerProps) {
   const [open, setOpen] = useState(false);
 
@@ -49,7 +51,7 @@ export function TimePicker({
   }
 
   const isCurrentValueInvalid =
-    (minTime && value < minTime) || (maxTime && value > maxTime);
+    hasError || (minTime && value < minTime) || (maxTime && value > maxTime);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -61,11 +63,8 @@ export function TimePicker({
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
           maxLength={5}
-          className={cn(
-            "h-10 pr-9 font-semibold transition-colors text-foreground",
-            isCurrentValueInvalid &&
-              "border-destructive text-destructive focus-visible:ring-destructive/20",
-          )}
+          hasError={isCurrentValueInvalid ? isCurrentValueInvalid : false}
+          className="h-10 pr-9 font-semibold text-foreground"
         />
 
         <PopoverTrigger asChild>

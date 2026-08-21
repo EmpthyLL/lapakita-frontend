@@ -8,13 +8,8 @@ declare module "axios" {
   }
 }
 
-const baseURL =
-  typeof window === "undefined"
-    ? (process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL)
-    : process.env.NEXT_PUBLIC_API_URL;
-
 const api = axios.create({
-  baseURL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   timeout: 30000,
   headers: {
     "Content-Type": "application/json",

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
+import { GoogleButton } from "@/components/common/GoogleButton";
 import { PasswordInput } from "@/components/common/input/PasswordInput";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,7 @@ import {
   registerSchema,
   RegisterValues,
 } from "@/lib/data/schema/auth/register";
+import { AuthDivider } from "../AuthDivider";
 import { AuthShell } from "../AuthShell";
 
 export default function RegisterPage() {
@@ -71,6 +73,11 @@ export default function RegisterPage() {
           </Link>
         </p>
       </div>
+
+      {/* Social sign-up */}
+      <GoogleButton href="/api/auth/google?flow=register" />
+
+      <AuthDivider label="Or sign up with email" />
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <FieldGroup>

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
+import { GoogleButton } from "@/components/common/GoogleButton";
 import { PasswordInput } from "@/components/common/input/PasswordInput";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { loginSchema, LoginValues } from "@/lib/data/schema/auth/login";
+import { AuthDivider } from "../AuthDivider";
 import { AuthShell } from "../AuthShell";
 
 export default function LoginPage() {
@@ -61,6 +63,11 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
+
+      {/* Social sign-in */}
+      <GoogleButton href="/api/auth/google?flow=login" />
+
+      <AuthDivider label="Or log in with email" />
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <FieldGroup>

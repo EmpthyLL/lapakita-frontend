@@ -70,19 +70,40 @@ export function DatePicker({
       <div
         className={cn(
           buttonVariants({ variant: "outline" }),
-          "border-input bg-background ring-offset-background focus-visible:ring-ring text-md file:text-md flex h-10 w-full justify-start rounded-md border px-3 file:border-0 file:bg-transparent file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+          "border-input bg-background ring-offset-background text-md file:text-md flex h-10 w-full justify-start rounded-md border px-3 file:border-0 file:bg-transparent file:font-medium focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+
+          /* Focus state normal */
+          "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
+
+          /* Error State (Parent <Field data-invalid="true">, aria-invalid, atau prop error) */
+          "group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-within:border-destructive group-data-[invalid=true]/field:focus-within:ring-2 group-data-[invalid=true]/field:focus-within:ring-destructive/20",
+          "aria-invalid:border-destructive aria-invalid:focus-within:border-destructive aria-invalid:focus-within:ring-2 aria-invalid:focus-within:ring-destructive/20",
           error &&
-            "border-destructive focus-within:border-destructive focus-within:ring-destructive/20",
+            "border-destructive focus-within:border-destructive focus-within:ring-2 focus-within:ring-destructive/20",
+
           !value && "text-muted-foreground",
         )}
       >
         <PopoverTrigger asChild>
-          <button type="button" className="flex flex-1 items-center py-2">
-            <CalendarIcon className="mr-2 h-4 w-4" />
+          <button
+            type="button"
+            className="flex flex-1 items-center py-2 text-start"
+          >
+            <CalendarIcon className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
             {parsedValue ? (
-              format(parsedValue, "dd MMMM yyyy")
+              <span className="font-semibold text-foreground">
+                {format(parsedValue, "dd MMMM yyyy")}
+              </span>
             ) : (
-              <span className="text-muted-foreground font-normal whitespace-nowrap">
+              <span
+                className={cn(
+                  "font-normal whitespace-nowrap text-muted-foreground/70 transition-colors",
+                  /* Red placeholder saat error */
+                  "group-data-[invalid=true]/field:text-destructive/70",
+                  "aria-invalid:text-destructive/70",
+                  error && "text-destructive/70",
+                )}
+              >
                 {placeholder}
               </span>
             )}
@@ -90,7 +111,7 @@ export function DatePicker({
         </PopoverTrigger>
         {!!value && (
           <X
-            className="h-4 w-4 hover:cursor-pointer"
+            className="h-4 w-4 shrink-0 hover:cursor-pointer text-muted-foreground hover:text-foreground"
             onClick={() => onChange(null)}
           />
         )}

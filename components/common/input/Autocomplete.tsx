@@ -158,11 +158,8 @@ export function Autocomplete<T extends Record<string, any>>({
   // Lock scroll event handling + infinite scroll detection
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget;
-
-    // Prevent outer scroll overflow
     const { scrollTop, scrollHeight, clientHeight } = el;
 
-    // Detect bottom edge for auto fetchMore
     if (
       hasMore &&
       fetchMore &&
@@ -215,7 +212,7 @@ export function Autocomplete<T extends Record<string, any>>({
           "relative flex cursor-pointer items-center justify-between rounded-md transition-colors",
           s.itemPad,
           isGrouped && "pl-5",
-          isSelected && "bg-primary/10 text-primary font-semibold",
+          isSelected && "bg-primary/10 font-semibold text-primary",
         )}
       >
         <div className="flex min-w-0 items-center gap-2">
@@ -255,15 +252,21 @@ export function Autocomplete<T extends Record<string, any>>({
         "data-[state=open]:border-primary data-[state=open]:ring-2 data-[state=open]:ring-primary/20",
         disabled &&
           "pointer-events-none cursor-not-allowed border-gray-200 bg-[#F2F6F8] text-[#adb4ba] hover:bg-[#F2F6F8]",
+        /* Error States */
+        "group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-within:border-destructive group-data-[invalid=true]/field:focus-within:ring-destructive/20",
+        "aria-invalid:border-destructive aria-invalid:focus-within:border-destructive aria-invalid:focus-within:ring-destructive/20",
         hasError &&
           !disabled &&
-          "border-destructive focus-within:ring-destructive/20",
+          "border-destructive focus-within:border-destructive focus-within:ring-destructive/20",
       )
     : cn(
         "rounded-md border border-input bg-background font-semibold text-foreground outline-none transition-all duration-150",
         "hover:bg-background",
         "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
         "data-[state=open]:border-primary data-[state=open]:ring-2 data-[state=open]:ring-primary/20",
+        /* Error States */
+        "group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-within:border-destructive group-data-[invalid=true]/field:focus-within:ring-destructive/20",
+        "aria-invalid:border-destructive aria-invalid:focus-within:border-destructive aria-invalid:focus-within:ring-destructive/20",
         hasError &&
           "border-destructive focus-within:border-destructive focus-within:ring-destructive/20",
         disabled &&
@@ -272,7 +275,11 @@ export function Autocomplete<T extends Record<string, any>>({
 
   const inputClass = cn(
     "font-semibold text-foreground outline-none transition-colors duration-150",
-    "placeholder:text-muted-foreground/70 placeholder:font-normal placeholder:transition-opacity",
+    "placeholder:text-muted-foreground/70 placeholder:font-normal placeholder:transition-colors",
+    /* Red Placeholder on Error */
+    "group-data-[invalid=true]/field:placeholder:text-destructive/70",
+    "aria-invalid:placeholder:text-destructive/70",
+    hasError && "placeholder:text-destructive/70",
     disabled &&
       (isSolid
         ? "cursor-not-allowed bg-[#F2F6F8] text-[#adb4ba]"
@@ -443,7 +450,6 @@ export function Autocomplete<T extends Record<string, any>>({
                   </CommandGroup>
                 )}
 
-                {/* Loading indicator halus di bagian paling bawah list */}
                 {isFetchingMore && (
                   <div className="flex items-center justify-center p-2 text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin text-primary" />

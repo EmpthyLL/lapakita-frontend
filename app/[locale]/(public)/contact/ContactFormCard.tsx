@@ -215,9 +215,10 @@ export function ContactFormCard() {
                   className="min-h-32 resize-none"
                   {...field}
                 />
-                <FieldDescription>Minimum 10 characters.</FieldDescription>
-                {fieldState.invalid && (
+                {fieldState.invalid ? (
                   <FieldError errors={[fieldState.error]} />
+                ) : (
+                  <FieldDescription>Minimum 10 characters.</FieldDescription>
                 )}
               </Field>
             )}
