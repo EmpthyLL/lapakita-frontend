@@ -67,8 +67,8 @@ export function TemporarySpaceFields({
     <div className="flex flex-col gap-5">
       <p className="flex items-start gap-1.5 rounded-lg bg-primary/10 px-2.5 py-2 text-[11px] font-medium text-primary">
         <CalendarClock className="mt-0.5 h-3 w-3 shrink-0" />
-        Pop-up spots are schedule-bound. Filter by registration lead time and
-        duration.
+        Pop-up spots are schedule-bound. Filter by how much time is left to
+        register and how long the spot runs.
       </p>
 
       {placementOptions.length > 0 && (
@@ -85,9 +85,9 @@ export function TemporarySpaceFields({
       )}
 
       <div>
-        <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+        <p className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
           <CalendarClock className="h-3.5 w-3.5" />
-          Registration Deadline (H-X before start)
+          Registration Closing Deadline
         </p>
         <div className="flex flex-wrap gap-1.5">
           {REGISTRATION_DEADLINE_PRESETS.map((days) => (
@@ -105,7 +105,7 @@ export function TemporarySpaceFields({
                   : "border border-border bg-secondary/50 text-muted-foreground hover:border-primary/40 hover:text-foreground",
               )}
             >
-              H-{days}
+              {days}d left
             </button>
           ))}
           <button
@@ -123,7 +123,7 @@ export function TemporarySpaceFields({
         </div>
         {deadlineMode === "custom" && (
           <NumberInput
-            suffix=" days before start"
+            suffix="d left"
             decimalScale={0}
             allowNegative={false}
             placeholder="e.g. 21"

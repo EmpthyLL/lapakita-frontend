@@ -26,7 +26,7 @@ export const COMPREHENSIVE_FAQS: FaqCategory[] = [
           {
             question: "What is Lapakita?",
             answer:
-              "Lapakita is an all-in-one digital operating platform designed specifically for micro, small, and medium enterprises (SMEs/UMKM). It unifies physical stall rentals, Point of Sale (POS) operations, financial business analytics, and a B2B supplier marketplace into a single ecosystem.",
+              "Lapakita is an all-in-one digital operating platform designed specifically for micro, small, and medium enterprises (SMEs/UMKM). It unifies physical stall rentals across permanent, semi-permanent, and temporary bazaar spaces, Point of Sale (POS) operations, financial business analytics, and a B2B supplier marketplace into a single ecosystem.",
           },
           {
             question: "How does the single account multi-role system work?",
@@ -103,8 +103,13 @@ export const COMPREHENSIVE_FAQS: FaqCategory[] = [
         ],
       },
       {
-        title: "Stall Search, Landmarks & ROI Filter",
+        title: "Stall Search, Permanence & Target ROI Filter",
         items: [
+          {
+            question: "How do the Operational Permanence Search Tabs work?",
+            answer:
+              "You can filter spaces by 3 operational levels: Permanent (standalone shophouses with 24/7 access & sqm physical specs), Semi-Permanent (mall shops, food courts, and traditional market stalls bound by parent complex operating hours), and Temporary (short-term bazaar booths, food truck spots, and street vendor spots).",
+          },
           {
             question: "How does the Landmark & Radius search work?",
             answer:
@@ -113,7 +118,7 @@ export const COMPREHENSIVE_FAQS: FaqCategory[] = [
           {
             question: "What is the Budget & Target ROI Match filter?",
             answer:
-              "Instead of guessing, you can input your total capital, business preset, and target break-even period (e.g., 6 months). Our search engine filters and highlights stalls with monthly rent prices that mathematically align with your budget goals.",
+              "For Permanent & Semi-Permanent stalls, input your total capital, business preset, and target BEP months to filter mathematically viable rents. For Temporary Bazaar spots, input your Target Daily Revenue to surface daily or monthly event rates that match your sales goals.",
           },
           {
             question: "Can I inspect the stall before signing a lease?",
@@ -128,7 +133,7 @@ export const COMPREHENSIVE_FAQS: FaqCategory[] = [
           {
             question: "What happens once the owner approves my lease request?",
             answer:
-              "A digital contract is created with price-locked terms. Once you make the first month's rent payment and security deposit through the Payment Gateway, the lease becomes active.",
+              "A digital contract is created with price-locked terms. Once you make the initial rent payment and security deposit through the Payment Gateway on or before your selected start date, the lease becomes active.",
           },
           {
             question: "Where does my security deposit go?",
@@ -136,9 +141,14 @@ export const COMPREHENSIVE_FAQS: FaqCategory[] = [
               "Your deposit is stored safely in a neutral Escrow Payment Gateway account — not in the owner's personal bank account. It is fully refunded to your registered bank account upon lease completion, provided there are no unreturned key fees or physical property damages.",
           },
           {
+            question: "How do lease rules work for Temporary Bazaar Events?",
+            answer:
+              "Temporary spots do not use monthly lease terms. Instead, they define minimum lease days, event operating days (e.g., Everyday vs. Weekends Only), attendance requirements (Mandatory Full vs. Flexible), and clear cancellation policies (Pro-Rata, Deposit Refundable, or Strict Non-Refundable).",
+          },
+          {
             question: "What if I lose my physical keys during the lease?",
             answer:
-              "You are free to duplicate keys independently at local locksmiths at your own expense. If all keys are lost, you can submit an in-app key replacement request to the owner; the key reproduction fee will be deducted from your deposit.",
+              "You are free to duplicate keys independently at local locksmiths. If all keys are lost, the owner replaces the lock cylinder; you pay strictly for the cost of the new key duplicated for your use.",
           },
         ],
       },
@@ -170,9 +180,9 @@ export const COMPREHENSIVE_FAQS: FaqCategory[] = [
         title: "Listing Stalls & Tenant Vetting",
         items: [
           {
-            question: "How do I list a stall on Lapakita?",
+            question: "How do I list a stall or event spot on Lapakita?",
             answer:
-              "From your Owner Dashboard, click 'Add Stall', upload clear photos of the space, select available facilities (electrical kVA, water, seating), set landmark locations, and define monthly rent and deposit amounts.",
+              "From your Owner Dashboard, click 'Add Stall', select the permanence type (Permanent, Semi-Permanent, or Temporary), fill in specific attributes (such as sqm size for Permanent, opening hours for Semi-Permanent, or event schedule & slots for Temporary), upload clear photos, and define rent rates.",
           },
           {
             question: "Can I review applicants before accepting them?",
@@ -190,7 +200,7 @@ export const COMPREHENSIVE_FAQS: FaqCategory[] = [
         title: "Payments, Overdues & Evictions",
         items: [
           {
-            question: "How do I receive monthly rent payouts?",
+            question: "How do I receive rent payouts?",
             answer:
               "Rent payments made by tenants via the Payment Gateway are disbursed automatically to your registered bank account after platform fee deduction.",
           },
@@ -218,7 +228,7 @@ export const COMPREHENSIVE_FAQS: FaqCategory[] = [
             question:
               "Should I replace the door lock between different tenants?",
             answer:
-              "We strongly recommend replacing the lock cylinder/knob set between tenancies for security hygiene. If you choose to reuse old lock sets, you accept inherent security risks regarding potential duplicate keys.",
+              "We strongly recommend replacing the lock cylinder/knob set between tenancies for security hygiene. Stall Owners accept all security risks regarding potential duplicate keys if they choose to reuse old lock sets.",
           },
           {
             question:

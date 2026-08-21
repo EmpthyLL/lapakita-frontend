@@ -30,8 +30,6 @@ export function StallReviewsSection({ stallId }: { stallId: string }) {
     },
   );
 
-  // Summary is a static aggregate here — swap for a real fetch alongside
-  // getStallReviews once the API exists.
   const summary = MOCK_STALL_REVIEW_SUMMARY;
   const remaining = meta ? Math.max(meta.totalItems - reviews.length, 0) : 0;
 

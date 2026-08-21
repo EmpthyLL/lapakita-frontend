@@ -22,8 +22,8 @@ export interface CycleRange {
 export type MultiCycleRanges = Record<PaymentCycle, CycleRange>;
 
 const ABSOLUTE_MIN_DAILY_RENT = 20_000;
-const ABSOLUTE_MIN_MONTHLY_RENT = 300_000;
-const ABSOLUTE_MIN_DEPOSIT = 100_000;
+const ABSOLUTE_MIN_MONTHLY_RENT = 200_000;
+const ABSOLUTE_MIN_DEPOSIT = 50_000;
 
 function roundToNearest10k(val: number): number {
   return Math.round(val / 10_000) * 10_000;
@@ -45,9 +45,17 @@ function ensureMinGap(
 }
 
 /**
- * Kalkulasi Range Sewa Fleksibel
- * - Permanent / Semi-Permanent: Menggunakan Modal & BEP Months.
- * - Temporary: Menggunakan Target Omset Harian / Event Target.
+ * Permanence Pricing Multipliers:
+ * Membedakan batas wajar sewa berdasarkan tipe fisik properti
+ */
+const PERMANENCE_PRICING_FACTOR: Record<StallPermanenceType, number> = {
+  permanent: 1.0, // Baseline Ruko / Bangunan Mandiri Full Price
+  "semi-permanent": 0.65, // Kios Pasar / Mall / Foodcourt (Lebih terjangkau)
+  temporary: 0.45, // Kakilima / Event / Pop-Up (Diskon akumulasi bulanan)
+};
+
+/**
+ * Kalkulasi Range Sewa Fleksibel Bertingkat Sesuai Tipe Permanensi
  */
 export function calculateMultiCycleRanges(
   capitalOrDailyTarget: number,
@@ -61,22 +69,27 @@ export function calculateMultiCycleRanges(
   let baseDailyMax = 0;
 
   const isTemporaryEvent = permanenceType === "temporary";
+  const permanenceFactor = PERMANENCE_PRICING_FACTOR[permanenceType] ?? 1.0;
 
   if (isTemporaryEvent) {
+    // ── TEMPORARY (BAZAAR / POP-UP / KAKILIMA) ──
     const dailyRevenueTarget =
       capitalOrDailyTarget > 0
         ? capitalOrDailyTarget
         : DEFAULT_CAPITAL_BY_PERMANENCE.temporary;
 
+    // Daily rent: Direct % dari target omset harian
     baseDailyMin = dailyRevenueTarget * (profile.rentToRevenueRatio * 0.75);
     baseDailyMax = dailyRevenueTarget * (profile.rentToRevenueRatio * 1.25);
 
     baseDailyMin = Math.max(baseDailyMin, ABSOLUTE_MIN_DAILY_RENT);
-    baseDailyMax = Math.max(baseDailyMax, baseDailyMin * 1.25);
+    baseDailyMax = Math.max(baseDailyMax, baseDailyMin * 1.2);
 
-    baseMonthlyMin = baseDailyMin * 30;
-    baseMonthlyMax = baseDailyMax * 30;
+    // Monthly rent untuk temporary: Diskon event berbulan-bulan (30 x daily x 0.45)
+    baseMonthlyMin = baseDailyMin * 30 * permanenceFactor;
+    baseMonthlyMax = baseDailyMax * 30 * permanenceFactor;
   } else {
+    // ── PERMANENT & SEMI-PERMANENT ──
     const safeCapital =
       capitalOrDailyTarget > 0
         ? capitalOrDailyTarget
@@ -86,10 +99,15 @@ export function calculateMultiCycleRanges(
     const estimatedMonthlyRevenueNeeded =
       safeCapital / (safeBep * profile.grossMarginRatio);
 
+    // Diberikan permanenceFactor (Ruko = 1.0, Kios/Mall = 0.65)
     baseMonthlyMin =
-      estimatedMonthlyRevenueNeeded * (profile.rentToRevenueRatio * 0.75);
+      estimatedMonthlyRevenueNeeded *
+      (profile.rentToRevenueRatio * 0.75) *
+      permanenceFactor;
     baseMonthlyMax =
-      estimatedMonthlyRevenueNeeded * (profile.rentToRevenueRatio * 1.25);
+      estimatedMonthlyRevenueNeeded *
+      (profile.rentToRevenueRatio * 1.25) *
+      permanenceFactor;
 
     baseMonthlyMin = Math.max(baseMonthlyMin, ABSOLUTE_MIN_MONTHLY_RENT);
     baseMonthlyMax = Math.max(baseMonthlyMax, baseMonthlyMin * 1.2);
@@ -111,10 +129,14 @@ export function calculateMultiCycleRanges(
 
   const result = {} as MultiCycleRanges;
 
+  // Deposit disesuaikan dengan tipe lapak
   const rawMinDeposit = isTemporaryEvent
     ? Math.max(baseDailyMin * 2, ABSOLUTE_MIN_DEPOSIT)
-    : Math.max(baseMonthlyMin * 0.5, ABSOLUTE_MIN_DEPOSIT);
-  const rawMaxDeposit = Math.max(rawMinDeposit * 1.5, rawMinDeposit + 100_000);
+    : permanenceType === "semi-permanent"
+      ? Math.max(baseMonthlyMin * 0.3, ABSOLUTE_MIN_DEPOSIT)
+      : Math.max(baseMonthlyMin * 0.5, ABSOLUTE_MIN_DEPOSIT);
+
+  const rawMaxDeposit = Math.max(rawMinDeposit * 1.3, rawMinDeposit + 50_000);
 
   const [minDeposit, maxDeposit] = ensureMinGap(
     roundToNearest50k(rawMinDeposit),
@@ -204,9 +226,8 @@ export function getPresetWithCalculatedRanges(
   const activeInput =
     capitalOrDailyTarget && capitalOrDailyTarget > 0
       ? capitalOrDailyTarget
-      : permanenceType === "temporary"
-        ? DEFAULT_CAPITAL_BY_PERMANENCE.temporary
-        : typeDef.defaultCapital;
+      : (DEFAULT_CAPITAL_BY_PERMANENCE[permanenceType] ??
+        typeDef.defaultCapital);
 
   const activeBEP = bepMonths ?? typeDef.defaultBEPMonths;
 

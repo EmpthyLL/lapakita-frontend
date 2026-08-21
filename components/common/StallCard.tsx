@@ -3,9 +3,19 @@
 import { Badge } from "@/components/ui/badge";
 import { Stall } from "@/lib/data/schema/stall/get_stall";
 import { cn } from "@/lib/utils";
-import { ArrowUpRight, Heart, MapPin, Maximize2, Star } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowUpRight,
+  Clock,
+  Heart,
+  Layers,
+  MapPin,
+  Maximize2,
+  Star,
+  Timer,
+} from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import {
   STALL_PERMANENCE_TABS,
   STALL_PROPERTY_TYPES,
@@ -18,13 +28,67 @@ interface StallCardProps {
   variant?: "row" | "grid";
 }
 
-// Distinct tint per permanence tab so the badge reads at a glance, matching
-// the same taxonomy used in StallPermanenceTabs during search.
 const PERMANENCE_BADGE_STYLE: Record<string, string> = {
   permanent: "bg-emerald-500/90 text-white",
   "semi-permanent": "bg-sky-500/90 text-white",
   temporary: "bg-amber-500/90 text-white",
 };
+
+interface MetaChip {
+  icon: typeof Maximize2;
+  label: string;
+}
+
+/**
+ * The Stall union carries different physical/schedule info per permanence
+ * type. Each datum gets its own chip so it has room to read clearly in the
+ * card body (previously cramped into a single corner badge on the photo).
+ */
+function getContextualMeta(stall: Stall): MetaChip[] {
+  switch (stall.permanenceType) {
+    case "permanent":
+      // Floor count always shown (even at 1) — omitting it at 1 read as
+      // missing data rather than "single floor".
+      return [
+        { icon: Maximize2, label: `${stall.space.sizeSqm} m²` },
+        {
+          icon: Layers,
+          label: `${stall.space.floorCount} floor${stall.space.floorCount > 1 ? "s" : ""}`,
+        },
+      ];
+    case "semi-permanent":
+      return [
+        {
+          icon: Clock,
+          label: `${stall.operatingHours.open}–${stall.operatingHours.close}`,
+        },
+      ];
+    case "temporary":
+      return [
+        {
+          icon: Timer,
+          label: `${stall.event.durationDays} day${stall.event.durationDays > 1 ? "s" : ""} event`,
+        },
+      ];
+  }
+}
+
+/**
+ * registrationDeadlineDays is "days remaining, counting from today, until
+ * registration closes" — NOT "days before the event you must register by".
+ * A "H-X" / "Register H-X" label reads ambiguously between those two
+ * meanings, so this spells it out as a countdown instead.
+ */
+function getRegistrationCountdown(
+  stall: Stall,
+): { label: string; urgent: boolean } | null {
+  if (stall.permanenceType !== "temporary") return null;
+  const days = stall.event.registrationDeadlineDays;
+
+  if (days <= 0) return { label: "Registration closed", urgent: true };
+  if (days === 1) return { label: "1 day left", urgent: true };
+  return { label: `${days} days left`, urgent: days <= 3 };
+}
 
 export function StallCard({ stall, variant = "row" }: StallCardProps) {
   const [saved, setSaved] = useState(false);
@@ -45,6 +109,9 @@ export function StallCard({ stall, variant = "row" }: StallCardProps) {
   );
   const periodLabel =
     paymentPeriodObj?.label.toLowerCase() ?? stall.cheapestPricePeriod;
+
+  const metaChips = getContextualMeta(stall);
+  const countdown = getRegistrationCountdown(stall);
 
   function handleToggleSave(e: React.MouseEvent) {
     e.preventDefault();
@@ -67,6 +134,48 @@ export function StallCard({ stall, variant = "row" }: StallCardProps) {
           {PermanenceIcon && <PermanenceIcon className="h-3 w-3" />}
           {permanenceTab.shortLabel}
         </Badge>
+      )}
+    </div>
+  );
+
+  const ratingBadge: ReactNode =
+    stall.reviewCount > 0 ? (
+      <div className="flex items-center gap-1 rounded-lg bg-white/95 px-2 py-1 text-xs font-bold text-slate-900 shadow-xs backdrop-blur-md">
+        <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+        <span>{stall.rating.toFixed(1)}</span>
+      </div>
+    ) : null;
+
+  const metaRow = (
+    <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+      {metaChips.map((chip) => {
+        const Icon = chip.icon;
+        return (
+          <span
+            key={chip.label}
+            className="flex items-center gap-1 rounded-lg bg-secondary/60 px-2 py-1 text-[11px] font-medium text-foreground"
+          >
+            <Icon className="h-3 w-3 text-primary" />
+            {chip.label}
+          </span>
+        );
+      })}
+      {countdown && (
+        <span
+          className={cn(
+            "flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold",
+            countdown.urgent
+              ? "bg-amber-500/15 text-amber-700"
+              : "bg-secondary/60 text-foreground",
+          )}
+        >
+          {countdown.urgent ? (
+            <AlertTriangle className="h-3 w-3" />
+          ) : (
+            <Timer className="h-3 w-3 text-primary" />
+          )}
+          {countdown.label}
+        </span>
       )}
     </div>
   );
@@ -109,20 +218,9 @@ export function StallCard({ stall, variant = "row" }: StallCardProps) {
             </button>
           </div>
 
-          <div className="absolute bottom-2.5 inset-x-2.5 flex items-center justify-between gap-1.5">
-            {stall.reviewCount > 0 ? (
-              <div className="flex items-center gap-1 rounded-lg bg-white/95 px-2 py-1 text-xs font-bold text-slate-900 shadow-xs backdrop-blur-md">
-                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                <span>{stall.rating.toFixed(1)}</span>
-              </div>
-            ) : (
-              <div />
-            )}
-            <div className="flex items-center gap-1 rounded-lg bg-black/70 px-2 py-1 text-xs font-bold text-white backdrop-blur-md">
-              <Maximize2 className="h-3 w-3 text-primary-secondary" />
-              <span>{stall.sizeSqm} m²</span>
-            </div>
-          </div>
+          {ratingBadge && (
+            <div className="absolute bottom-2.5 left-2.5">{ratingBadge}</div>
+          )}
         </div>
 
         <div className="flex flex-1 flex-col p-3.5">
@@ -136,6 +234,8 @@ export function StallCard({ stall, variant = "row" }: StallCardProps) {
               {stall.location.area}, {stall.location.city}
             </span>
           </div>
+
+          {metaRow}
 
           <div className="mt-3 border-t border-border/60 pt-2.5">
             <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -192,23 +292,15 @@ export function StallCard({ stall, variant = "row" }: StallCardProps) {
           </button>
         </div>
 
-        <div className="absolute bottom-2.5 inset-x-2.5 flex items-center justify-between gap-1.5">
-          {stall.reviewCount > 0 ? (
-            <div className="flex items-center gap-1 rounded-lg bg-white/95 px-2 py-1 text-xs font-bold text-slate-900 shadow-xs backdrop-blur-md">
-              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-              <span>{stall.rating.toFixed(1)}</span>
-              <span className="text-[10px] font-normal text-muted-foreground">
-                ({stall.reviewCount})
-              </span>
-            </div>
-          ) : (
-            <div />
-          )}
-          <div className="flex items-center gap-1 rounded-lg bg-black/70 px-2 py-1 text-xs font-bold text-white backdrop-blur-md">
-            <Maximize2 className="h-3 w-3 text-primary-secondary" />
-            <span>{stall.sizeSqm} m²</span>
+        {stall.reviewCount > 0 && (
+          <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1 rounded-lg bg-white/95 px-2 py-1 text-xs font-bold text-slate-900 shadow-xs backdrop-blur-md">
+            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+            <span>{stall.rating.toFixed(1)}</span>
+            <span className="text-[10px] font-normal text-muted-foreground">
+              ({stall.reviewCount})
+            </span>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col justify-between p-4">
@@ -233,6 +325,8 @@ export function StallCard({ stall, variant = "row" }: StallCardProps) {
               {stall.location.area}, {stall.location.city}
             </span>
           </div>
+
+          {metaRow}
         </div>
 
         <div className="mt-3 border-t border-border/60 pt-2.5">

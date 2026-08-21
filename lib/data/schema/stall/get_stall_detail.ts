@@ -1,4 +1,7 @@
 import {
+  AttendanceRequirementValue,
+  CancellationPolicyValue,
+  EventOperatingDaysValue,
   FacilityValue,
   LandmarkCategoryValue,
   PaymentCycle,
@@ -6,39 +9,11 @@ import {
   StallPlacement,
   StallPropertyTypeValue,
   StartDateValue,
+  TempStartDateValue,
 } from "@/components/common/search/constants/types";
 
-type DayRange =
-  | "1"
-  | "2"
-  | "3"
-  | "4"
-  | "5"
-  | "6"
-  | "7"
-  | "8"
-  | "9"
-  | "10"
-  | "11"
-  | "12"
-  | "13"
-  | "14"
-  | "15"
-  | "16"
-  | "17"
-  | "18"
-  | "19"
-  | "20"
-  | "21"
-  | "22"
-  | "23"
-  | "24"
-  | "25"
-  | "26"
-  | "27"
-  | "28";
-
 export interface MultiPeriodPricing {
+  dailyRate?: number;
   monthlyRate?: number;
   quarterlyRate?: number;
   semesterlyRate?: number;
@@ -63,55 +38,22 @@ export interface OwnerProfileSummary {
   joinedYear: string;
 }
 
-export interface FacilityImage {
-  id: string;
-  url: string;
-  caption: string;
-}
-
 export interface StallMedia {
   mainImage: string;
-  facilityImages: FacilityImage[];
+  facilityImages: { id: string; url: string; caption: string }[];
   virtualTour360Url?: string;
 }
 
-export interface StallDetail {
+export interface BaseStallDetail {
   id: string;
   title: string;
   description: string;
-
-  // Gallery & Media
   media: StallMedia;
-
-  // Physical Specifications & Classification
   propertyType: string;
   propertyTypeValue: StallPropertyTypeValue;
-  permanenceType: StallPermanenceType;
   placement: StallPlacement;
-  sizeSqm: number;
-  dimensions: {
-    lengthMeters: number;
-    widthMeters: number;
-  };
   electricityCapacityVA: number;
-  floorLevel?: number;
 
-  // Operational Context (Disesuaikan berdasarkan permanenceType)
-  operatingHours?: {
-    openingTime: string;
-    closingTime: string;
-    is24Hours: boolean;
-  };
-
-  // Event Context (Khusus Temporary)
-  eventMeta?: {
-    eventName?: string;
-    eventStartDate?: string;
-    eventEndDate?: string;
-    registrationDeadlineDaysBefore: number;
-  };
-
-  // Location & Navigation
   address: {
     street: string;
     suburb: string;
@@ -125,28 +67,69 @@ export interface StallDetail {
     embeddedMapUrl: string;
   };
   nearbyLandmarks: NearbyLandmark[];
-
-  // Financials & Multi-Period Pricing
   pricing: MultiPeriodPricing;
-
-  // Lease Rules & Timelines
-  leaseRules: {
-    minimumLeaseMonths: number;
-    startDateOptions: (StartDateValue | DayRange)[];
-    utilityTerms: string;
-  };
-
-  // Amenities & Constraints
   facilityValues: FacilityValue[];
   houseRules: string[];
-
-  // Community Rating
   rating: number;
   reviewCount: number;
-
-  // Owner Relation
   owner: OwnerProfileSummary;
 }
+
+// 1. Permanent Detail
+export interface PermanentStallDetail extends BaseStallDetail {
+  permanenceType: "permanent";
+  sizeSqm: number;
+  dimensions: { lengthMeters: number; widthMeters: number };
+  floorLevel: number;
+  leaseRules: {
+    minimumLeaseMonths: number;
+    startDateOptions: (StartDateValue | number)[];
+    utilityTerms: string;
+  };
+}
+
+// 2. Semi-Permanent Detail
+export interface SemiPermanentStallDetail extends BaseStallDetail {
+  permanenceType: "semi-permanent";
+  parentComplexName: string;
+  operatingHours: {
+    openingTime: string;
+    closingTime: string;
+    is24Hours: boolean;
+  };
+  leaseRules: {
+    minimumLeaseMonths: number;
+    startDateOptions: (StartDateValue | number)[];
+    utilityTerms: string;
+  };
+}
+
+// 3. Temporary Event Detail
+export interface TemporaryStallDetail extends BaseStallDetail {
+  permanenceType: "temporary";
+  eventMeta: {
+    eventName?: string;
+    eventStartDate: string;
+    eventEndDate: string;
+    registrationDeadlineDaysBefore: number;
+    totalSlots: number;
+    availableSlots: number;
+  };
+  leaseRules: {
+    minimumLeaseDays: number;
+    startDateOptions: (TempStartDateValue | string)[];
+    utilityTerms: string;
+    // Opsi Ketentuan Event Baru
+    operatingDays: EventOperatingDaysValue;
+    attendanceRequirement: AttendanceRequirementValue;
+    cancellationPolicy: CancellationPolicyValue;
+  };
+}
+
+export type StallDetail =
+  | PermanentStallDetail
+  | SemiPermanentStallDetail
+  | TemporaryStallDetail;
 
 /* ─── MOCK DATA: 3 CONTOH TIPE PERMANENSI ─── */
 
@@ -182,11 +165,6 @@ export const MOCK_STALL_DETAILS: Record<StallPermanenceType, StallDetail> = {
     dimensions: { lengthMeters: 9, widthMeters: 5 },
     electricityCapacityVA: 5500,
     floorLevel: 1,
-    operatingHours: {
-      openingTime: "00:00",
-      closingTime: "23:59",
-      is24Hours: true,
-    },
     address: {
       street: "Jl. Ir. H. Juanda No. 102",
       suburb: "Lebak Siliwangi",
@@ -278,10 +256,8 @@ export const MOCK_STALL_DETAILS: Record<StallPermanenceType, StallDetail> = {
     propertyTypeValue: "mall-island",
     permanenceType: "semi-permanent",
     placement: "indoor",
-    sizeSqm: 12,
-    dimensions: { lengthMeters: 4, widthMeters: 3 },
+    parentComplexName: "Plaza Margonda",
     electricityCapacityVA: 3500,
-    floorLevel: 1,
     operatingHours: {
       openingTime: "10:00",
       closingTime: "22:00",
@@ -360,7 +336,7 @@ export const MOCK_STALL_DETAILS: Record<StallPermanenceType, StallDetail> = {
     id: "stl_jkt_bzr_003",
     title: "Pop-Up Booth A-12 Kuliner Festival Ramadan Senayan",
     description:
-      "Spot booth bazaar temporary pada event festival kuliner Ramadan di pelataran Parkir Timur Senayan. Paket sewa sudah mencakup fasitiltas meja, kursi, daya listrik 1300 VA, dan kebersihan event.",
+      "Spot booth bazaar temporary pada event festival kuliner Ramadan di pelataran Parkir Timur Senayan. Paket sewa sudah mencakup fasilitas meja, kursi, daya listrik 1300 VA, dan kebersihan event.",
     media: {
       mainImage:
         "https://images.unsplash.com/photo-1565123409695-7b5ef63a2efb?w=1200&h=800&fit=crop",
@@ -376,14 +352,14 @@ export const MOCK_STALL_DETAILS: Record<StallPermanenceType, StallDetail> = {
     propertyTypeValue: "bazaar-booth",
     permanenceType: "temporary",
     placement: "outdoor",
-    sizeSqm: 9,
-    dimensions: { lengthMeters: 3, widthMeters: 3 },
     electricityCapacityVA: 1300,
     eventMeta: {
       eventName: "Ramadan Culinary Fest 2026",
       eventStartDate: "2026-03-20",
       eventEndDate: "2026-03-23",
       registrationDeadlineDaysBefore: 5,
+      totalSlots: 20,
+      availableSlots: 6,
     },
     address: {
       street: "GBK Parkir Timur Senayan, Booth A-12",
@@ -410,15 +386,20 @@ export const MOCK_STALL_DETAILS: Record<StallPermanenceType, StallDetail> = {
       },
     ],
     pricing: {
-      monthlyRate: 2500000, // Total biaya full durasi event
-      securityDeposit: 500000,
-      allowedPaymentCycles: ["month"],
+      dailyRate: 250000,
+      monthlyRate: 2500000,
+      securityDeposit: 300000,
+      allowedPaymentCycles: ["day", "month"],
     },
     leaseRules: {
-      minimumLeaseMonths: 1,
-      startDateOptions: [1],
+      minimumLeaseDays: 1,
+      startDateOptions: ["event_day_1", "event_day_2", "event_week_1"],
       utilityTerms:
         "Listrik 1300 VA ter-include. Dilarang menggunakan alat beban listrik >1300 VA tanpa izin EO.",
+      // Ketentuan Sewa Event
+      operatingDays: "everyday",
+      attendanceRequirement: "mandatory_full",
+      cancellationPolicy: "deposit_refundable",
     },
     facilityValues: [
       "power",

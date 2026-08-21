@@ -14,6 +14,7 @@ import {
   STALL_PERMANENCE_TABS,
 } from "./constants/permanance";
 import {
+  DEFAULT_ASSUMED_CAPITAL,
   DEFAULT_BEP_MONTHS,
   DEFAULT_CAPITAL_BY_PERMANENCE,
   DEPOSIT_RANGE,
@@ -31,13 +32,13 @@ import {
 import { FacilityPicker } from "./FacilityPicker";
 import {
   createLandmarkRadiusEntry,
+  LandmarkRadiusEntry,
   LandmarkRadiusPicker,
-  type LandmarkRadiusEntry,
 } from "./LandmarkRadiusPicker";
 import { LeaseTermsPicker } from "./LeaseTermsPicker";
+import { StallSpaceFilter } from "./permanence";
 import { PropertyTypePicker } from "./PropertyTypePicker";
 import { StallSearchFooter } from "./SearchFooter";
-import { StallSpaceFilter } from "./space";
 import { StallPermanenceTabs } from "./StallPermanenceTabs";
 import { StallSearchBudgetFilters } from "./StallSearchBudgetFilters";
 import { StallSearchPrimaryRow } from "./StallSearchPrimaryRow";
@@ -144,9 +145,7 @@ export default function StallSearch({
     String(DEFAULT_BEP_MONTHS),
   );
   const [customBepMonths, setCustomBepMonths] = useState<number | null>(null);
-  const [capital, setCapital] = useState<number>(
-    DEFAULT_CAPITAL_BY_PERMANENCE.permanent,
-  );
+  const [capital, setCapital] = useState<number>(DEFAULT_ASSUMED_CAPITAL);
   const [rentRange, setRentRange] = useState<[number, number]>([
     GENERAL_RENT_RANGE.min,
     GENERAL_RENT_RANGE.max,
@@ -156,11 +155,17 @@ export default function StallSearch({
     DEPOSIT_RANGE.max,
   ]);
 
+  // Lease Terms State (Permanent & Semi-Permanent)
   const [startDate, setStartDate] = useState("");
   const [customStartDay, setCustomStartDay] = useState("");
   const [minLeasePeriod, setMinLeasePeriod] = useState("");
   const [customLeaseMonths, setCustomLeaseMonths] = useState("");
   const [paymentCycle, setPaymentCycle] = useState<PaymentCycle | "">("");
+
+  // Temporary / Event Terms State
+  const [eventOperatingDays, setEventOperatingDays] = useState("");
+  const [attendanceRequirement, setAttendanceRequirement] = useState("");
+  const [cancellationPolicy, setCancellationPolicy] = useState("");
 
   const [openingTime, setOpeningTime] = useState("10:00");
   const [closingTime, setClosingTime] = useState("22:00");
@@ -192,7 +197,6 @@ export default function StallSearch({
 
     const preset = typeDef.permanencePresets[forPermanence];
 
-    // Jika ada preset spesifik untuk tab ini, terapkan preset tersebut
     if (preset) {
       setPropertyType(
         preset.allowedPropertyTypes.length ? preset.allowedPropertyTypes : [],
@@ -227,7 +231,6 @@ export default function StallSearch({
         setEventDurationDays(preset.typicalDurationDays);
       }
     } else {
-      // Jika tidak ada preset khusus untuk tab ini, gunakan default dari constant
       const defaultPropertyTypes = getPropertyTypesForPermanence(
         forPermanence,
       ).map((p) => p.value);
@@ -282,8 +285,18 @@ export default function StallSearch({
       setRegistrationDeadlineDays(null);
       setEventDurationDays(null);
       setCapital(DEFAULT_CAPITAL_BY_PERMANENCE[next]);
+
+      // Reset lease & event states
+      setStartDate("");
+      setCustomStartDay("");
+      setMinLeasePeriod("");
+      setCustomLeaseMonths("");
+      setEventOperatingDays("");
+      setAttendanceRequirement("");
+      setCancellationPolicy("");
     }
   }
+
   function handleBusinessTypeChange(value: string) {
     setBusinessType(value);
     const typeDef = BUSINESS_TYPE_MAP[value];
@@ -334,6 +347,9 @@ export default function StallSearch({
         customStartDay,
         minLeasePeriod,
         customLeaseMonths,
+        eventOperatingDays,
+        attendanceRequirement,
+        cancellationPolicy,
         paymentCycle,
       });
     } else {
@@ -348,11 +364,16 @@ export default function StallSearch({
     setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);
     setBusinessType("");
     setFacilities([]);
-    setCapital(DEFAULT_CAPITAL_BY_PERMANENCE[permanenceType]); // <-- added
+    setCapital(DEFAULT_CAPITAL_BY_PERMANENCE[permanenceType]);
     setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
     setDepositRange([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]);
     setStartDate("");
+    setCustomStartDay("");
     setMinLeasePeriod("");
+    setCustomLeaseMonths("");
+    setEventOperatingDays("");
+    setAttendanceRequirement("");
+    setCancellationPolicy("");
     setPaymentCycle("");
     setOpeningTime("10:00");
     setClosingTime("22:00");
@@ -373,6 +394,9 @@ export default function StallSearch({
     facilities.length +
     (startDate ? 1 : 0) +
     (minLeasePeriod ? 1 : 0) +
+    (eventOperatingDays ? 1 : 0) +
+    (attendanceRequirement ? 1 : 0) +
+    (cancellationPolicy ? 1 : 0) +
     (paymentCycle ? 1 : 0);
 
   const renderSpaceFilters = () => (
@@ -384,7 +408,7 @@ export default function StallSearch({
         />
       </FilterAccordionSection>
 
-      <FilterAccordionSection title="Placement & Size">
+      <FilterAccordionSection title="Space Details">
         <StallSpaceFilter
           permanenceType={permanenceType}
           selectedPropertyTypes={propertyType}
@@ -437,8 +461,9 @@ export default function StallSearch({
         />
       </FilterAccordionSection>
 
-      <FilterAccordionSection title="Lease & Payment Terms">
+      <FilterAccordionSection title="Lease & Event Terms">
         <LeaseTermsPicker
+          permanenceType={permanenceType}
           startDate={startDate}
           onStartDateChange={setStartDate}
           customStartDay={customStartDay}
@@ -447,6 +472,12 @@ export default function StallSearch({
           onMinLeasePeriodChange={setMinLeasePeriod}
           customLeaseMonths={customLeaseMonths}
           onCustomLeaseMonthsChange={setCustomLeaseMonths}
+          eventOperatingDays={eventOperatingDays}
+          onEventOperatingDaysChange={setEventOperatingDays}
+          attendanceRequirement={attendanceRequirement}
+          onAttendanceRequirementChange={setAttendanceRequirement}
+          cancellationPolicy={cancellationPolicy}
+          onCancellationPolicyChange={setCancellationPolicy}
         />
       </FilterAccordionSection>
 

@@ -249,7 +249,7 @@ export const MOCK_STALL_LIST: Stall[] = [
     id: "stl_jkt_cll_011",
     title: "Island Corridor Kiosk Central Park Mall GF",
     imageUrl:
-      "https://images.unsplash.com/photo-1567449303078-57ad995bd301?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=600&h=400&fit=crop",
     location: { area: "Grogol", city: "Jakarta Barat", countryCode: "ID" },
     propertyType: "mall-island",
     permanenceType: "semi-permanent",
@@ -311,7 +311,7 @@ export const MOCK_STALL_LIST: Stall[] = [
     id: "stl_bdg_sri_014",
     title: "Street Vendor Spot Lapak Kakilima Kuliner Saparua",
     imageUrl:
-      "https://images.unsplash.com/photo-1509315811355-57bd3b77a155?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?w=600&h=400&fit=crop",
     location: { area: "Saparua", city: "Bandung", countryCode: "ID" },
     propertyType: "street-vendor-spot",
     permanenceType: "temporary",

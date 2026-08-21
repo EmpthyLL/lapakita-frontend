@@ -9,12 +9,12 @@ const FAQS: FaqItem[] = [
   {
     question: "What is Lapakita and how does it work?",
     answer:
-      "Lapakita is a digital operating platform for SMEs. It connects tenants looking for spaces, stall owners managing rentals, and B2B suppliers fulfilling raw material needs — providing tailored dashboards for every role in one unified system.",
+      "Lapakita is an all-in-one digital operating platform for SMEs. It unifies physical stall rentals (permanent, semi-permanent, and temporary bazaar spots), POS cashier software, financial business forecasts, and a B2B supplier marketplace into a single ecosystem.",
   },
   {
-    question: "How do I search and rent a stall as a tenant?",
+    question: "How do I search and rent a stall or event spot as a tenant?",
     answer:
-      "Use our discovery filters to search by city, landmark (campuses, schools, office districts), radius, and physical facilities. You can also filter by your available capital, business category, and target break-even period to surface stalls with matching rent economics.",
+      "Filter by operational permanence level (Permanent, Semi-Permanent, or Temporary Bazaar), city, landmark radius, and facilities. You can also use our Target ROI filter: input your capital or daily revenue target to find spaces with mathematically matching rent economics.",
     roleType: "tenant",
   },
   {
@@ -24,19 +24,19 @@ const FAQS: FaqItem[] = [
     roleType: "tenant",
   },
   {
-    question: "How do I list my stall as a property owner?",
+    question: "How do I list my stall or bazaar booth as a property owner?",
     answer:
-      "Register an account, open the Owner Dashboard, and publish your stall listing with photos, rent prices, and available facilities. You can review tenant applications and profile ratings before approving any lease contract.",
+      "Register an account, open the Owner Dashboard, select the permanence type, and publish your listing with photos, rent rates, and specific rules (such as parent complex opening hours or event schedules & slot counts). You can review tenant applications before approving any contract.",
     roleType: "owner",
   },
   {
     question: "How are rent payments and security deposits managed?",
     answer:
-      "Rent collection is tracked automatically with clear visual due-date alerts. Security deposits are held safely in a neutral Escrow Payment Gateway account and are strictly reserved for verified physical property damage or lost key reproductions upon exit.",
+      "Rent collection is tracked automatically with clear due-date alerts. Security deposits are held safely in a neutral Escrow Payment Gateway account and are strictly reserved for verified physical property damage or unreturned key fees upon exit.",
     roleType: "owner",
   },
   {
-    question: "How to become a supplier on Lapakita?",
+    question: "How do I become a supplier on Lapakita?",
     answer:
       "Sign up or switch your role to Supplier from your profile menu, complete a quick verification, and upload your B2B product catalog with MOQ rules and tiered pricing. Your items will automatically appear in the procurement dashboards of relevant tenant businesses.",
     roleType: "supplier",

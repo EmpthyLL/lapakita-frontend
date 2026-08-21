@@ -1,9 +1,7 @@
 "use client";
 
-import {
-  MASTER_FACILITIES,
-  type FacilityValue,
-} from "@/components/common/search/util/SearchConstants";
+import { MASTER_FACILITIES } from "@/components/common/search/constants/facilities";
+import { FacilityValue } from "@/components/common/search/constants/types";
 
 export function StallFacilities({
   facilityValues,

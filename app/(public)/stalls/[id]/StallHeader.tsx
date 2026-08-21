@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import type { StallDetail } from "@/lib/data/schema/stall/get_stall_detail";
-import { MapPin, Maximize2, Star, Zap } from "lucide-react";
+import { Building2, MapPin, Maximize2, Star, Zap } from "lucide-react";
 
 export function StallHeader({ stall }: { stall: StallDetail }) {
   return (
@@ -12,6 +12,12 @@ export function StallHeader({ stall }: { stall: StallDetail }) {
         <Badge variant="outline" className="capitalize">
           {stall.placement}
         </Badge>
+        {stall.permanenceType === "semi-permanent" && (
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Building2 className="h-3 w-3" />
+            {stall.parentComplexName}
+          </Badge>
+        )}
       </div>
 
       <h1 className="font-heading mt-3 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
@@ -32,15 +38,20 @@ export function StallHeader({ stall }: { stall: StallDetail }) {
             {stall.address.country ? `, ${stall.address.country}` : ""}
           </span>
         </span>
-        <span className="flex items-center gap-1.5">
-          <Maximize2 className="h-4 w-4" />
-          {stall.sizeSqm} m² ({stall.dimensions.lengthMeters}×
-          {stall.dimensions.widthMeters}m)
-        </span>
+
+        {stall.permanenceType === "permanent" && (
+          <span className="flex items-center gap-1.5">
+            <Maximize2 className="h-4 w-4" />
+            {stall.sizeSqm} m² ({stall.dimensions.lengthMeters}×
+            {stall.dimensions.widthMeters}m)
+          </span>
+        )}
+
         <span className="flex items-center gap-1.5">
           <Zap className="h-4 w-4" />
           {stall.electricityCapacityVA.toLocaleString("id-ID")} VA
         </span>
+
         <span className="flex items-center gap-1.5 font-semibold text-amber-600">
           <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
           {stall.rating.toFixed(1)}

@@ -2,11 +2,21 @@ import { LucideIcon } from "lucide-react";
 
 export type BEPMonths = 3 | 6 | 12 | 18 | 24;
 export type RadiusPreset = "1 km" | "3 km" | "5 km" | "10 km";
+
 export type StartDateValue = 1 | 15 | "eom";
+export type TempStartDateValue =
+  | "event_day_1"
+  | "event_day_2"
+  | "event_week_1"
+  | "event_week_2";
+export type EventStartDayValue = string;
+
 export type LeasePeriodValue = "1m" | "3m" | "6m" | "12m" | "custom";
 export type PaymentCycle = "day" | "month" | "quarter" | "semester" | "year";
+
 export type DayOfMonthValue = number;
 export type LeaseMonthsValue = number;
+export type LeaseDaysValue = number;
 
 export type LandmarkCategoryValue =
   | "campus"
@@ -23,7 +33,6 @@ export type LandmarkCategoryValue =
   | "airport";
 
 export type StallPlacement = "indoor" | "semi-outdoor" | "outdoor";
-
 export type StallPermanenceType = "permanent" | "semi-permanent" | "temporary";
 
 export type StallPropertyTypeValue =
@@ -61,14 +70,26 @@ export type FacilityValue =
   | "reception"
   | "tv-display";
 
-export interface SearchInfoItem {
-  icon: LucideIcon;
-  highlight: string;
-  label: string;
-}
+export type EventOperatingDaysValue =
+  | "everyday"
+  | "weekends"
+  | "weekdays"
+  | "flexible";
+
+export type AttendanceRequirementValue = "mandatory_full" | "flexible_days";
+
+export type CancellationPolicyValue =
+  | "pro_rata"
+  | "deposit_refundable"
+  | "non_refundable";
 
 export interface StartDateOption {
   value: StartDateValue;
+  label: string;
+}
+
+export interface TempStartDateOption {
+  value: TempStartDateValue;
   label: string;
 }
 
@@ -101,22 +122,6 @@ export interface StallPermanenceTabOption {
   description: string;
   icon: LucideIcon;
   allowedPaymentCycles: PaymentCycle[];
-}
-
-export interface StallPropertyType {
-  value: StallPropertyTypeValue;
-  label: string;
-  description: string;
-  icon: LucideIcon;
-  permanenceType: StallPermanenceType;
-  allowedPlacements: StallPlacement[];
-  allowedFacilities: FacilityValue[];
-}
-
-export interface Facility {
-  value: FacilityValue;
-  label: string;
-  icon: LucideIcon;
 }
 
 export interface RentRangeConfig {

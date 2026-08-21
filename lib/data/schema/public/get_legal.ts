@@ -55,11 +55,11 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
         subsections: [
           {
             title: "Operational Permanence Levels",
-            body: "Lapakita classifies properties into three distinct operational types: (a) Permanent (Independent properties with 24/7 access and no parent entity restrictions), (b) Semi-Permanent (Managed complex stalls such as mall shops, food court counters, and traditional market stalls bound by parent entity operating hours), and (c) Temporary (Short-term pop-up bazaar booths, street vendor spots, and food truck bays).",
+            body: "Lapakita classifies properties into three distinct operational types: (a) Permanent (Independent properties with 24/7 access, physical sqm specifications, and no parent entity restrictions), (b) Semi-Permanent (Managed complex stalls such as mall shops, food court counters, and traditional market stalls bound by parent entity operating hours and parent complex names), and (c) Temporary (Short-term pop-up bazaar booths, street vendor spots, and food truck bays).",
           },
           {
-            title: "Pop-Up & Bazaar Event Booking",
-            body: "Short-term bazaar booths are bound by fixed event schedules, registration windows, and full-duration event pricing packages set by the event organizer or owner. Tenants applying for bazaar booths agree to abide by event-specific guidelines and operational hours.",
+            title: "Pop-Up & Bazaar Event Booking & Lease Rules",
+            body: "Temporary bazaar booths are bound by specific event schedules, registration deadlines, slot availability, and event-specific lease rules. Event lease rules configure operating days ('everyday', 'weekends', 'weekdays', 'flexible'), attendance requirements ('mandatory_full' or 'flexible_days'), and cancellation policies ('pro_rata', 'deposit_refundable', or 'non_refundable'). Tenants applying for bazaar booths agree to abide by these event terms.",
           },
         ],
       },
@@ -70,7 +70,7 @@ export const LEGAL_DOCUMENTS: LegalDocument[] = [
         subsections: [
           {
             title: "Digital Lease Agreement & Owner Configurations",
-            body: "Stall Owners configure specific lease rules for their listings, including Start Date options (1st, 15th, End of Month, or custom dates between 1-28), Minimum Lease Durations, and Payment Cycles (Monthly, Quarterly, Semesterly, Yearly). Tenants use search filters to find stalls matching their preferred timeline.",
+            body: "Stall Owners configure specific lease rules for their listings. For Permanent & Semi-Permanent stalls, rules include Start Date options (1st, 15th, End of Month, or custom dates between 1-28), Minimum Lease Months, and Payment Cycles (Monthly, Quarterly, Semesterly, Yearly). For Temporary stalls, rules include Minimum Lease Days, Start Day options (e.g. Event Day 1, Event Day 2, Event Week 1), and Daily/Monthly event pricing.",
           },
           {
             title: "Approval Lock & Payment Deadline",

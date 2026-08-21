@@ -1,5 +1,6 @@
 "use client";
 
+import { Building2 } from "lucide-react";
 import { RangeInput } from "../../input/RangeInput";
 import { SegmentedToggle } from "../../input/SegmentedToggle";
 import { STALL_PLACEMENT_OPTIONS } from "../constants/permanance";
@@ -41,6 +42,12 @@ export function PermanentSpaceFields({
 
   return (
     <div className="flex flex-col gap-5">
+      {" "}
+      <p className="flex items-start gap-1.5 rounded-lg bg-primary/10 px-2.5 py-2 text-[11px] font-medium text-primary">
+        <Building2 className="mt-0.5 h-3 w-3 shrink-0" />
+        Independent stalls are available 24/7 with no shared operating-hour
+        restrictions.
+      </p>
       <div>
         <p className="mb-2 text-xs font-semibold text-muted-foreground">
           Stall Placement
@@ -57,7 +64,6 @@ export function PermanentSpaceFields({
           </p>
         )}
       </div>
-
       <RangeInput
         label="Number of Floors"
         min={FLOOR_COUNT_RANGE.min}
@@ -68,7 +74,6 @@ export function PermanentSpaceFields({
         formatValue={(n) => `${n} floor${n > 1 ? "s" : ""}`}
         suffix=" floor"
       />
-
       <RangeInput
         label="Stall Size"
         min={STALL_SIZE_RANGE.min}

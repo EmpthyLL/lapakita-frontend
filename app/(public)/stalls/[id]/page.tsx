@@ -1,25 +1,26 @@
 import { Separator } from "@/components/ui/separator";
-import { MOCK_STALL_DETAIL } from "@/lib/data/schema/stall/get_stall_detail";
+import { getMockStallDetail } from "@/lib/data/api/stall";
 import type { Metadata } from "next";
 import { SimilarStalls } from "./SimilarStall";
 import { StallDetailTopBar } from "./StallDetailTopBar";
+import { StallEventMeta } from "./StallEventMeta";
 import { StallFacilities } from "./StallFacility";
 import { StallGallery } from "./StallGallery";
 import { StallHeader } from "./StallHeader";
 import { StallLandmarks } from "./StallLandmark";
 import { StallLeaseRules } from "./StallLeaseRules";
 import { StallMap } from "./StallMap";
+import { StallOperatingHours } from "./StallOperatingHours";
 import { StallOwnerCard } from "./StallOwnerCard";
 import { StallPricingCard } from "./StallPricingCard";
 import { StallReviewsSection } from "./review/StallReviewsSection";
 
 export const metadata: Metadata = {
-  title: `${MOCK_STALL_DETAIL.title} — Lapakita`,
-  description: MOCK_STALL_DETAIL.description.slice(0, 155),
+  title: "Stall Detail — Lapakita",
 };
 
 export default function StallDetailPage() {
-  const stall = MOCK_STALL_DETAIL;
+  const stall = getMockStallDetail();
 
   return (
     <div className="bg-background">
@@ -31,6 +32,17 @@ export default function StallDetailPage() {
         <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_360px]">
           <div className="min-w-0 space-y-8">
             <StallHeader stall={stall} />
+
+            {stall.permanenceType === "temporary" && (
+              <StallEventMeta eventMeta={stall.eventMeta} />
+            )}
+
+            {stall.permanenceType === "semi-permanent" && (
+              <StallOperatingHours
+                operatingHours={stall.operatingHours}
+                parentComplexName={stall.parentComplexName}
+              />
+            )}
 
             <Separator />
 

@@ -12,13 +12,9 @@ export async function getStallReviews(
 
   await new Promise((resolve) => setTimeout(resolve, 450));
 
-  const source = params.stallId
-    ? MOCK_STALL_REVIEWS.filter((r) => r.stallId === params.stallId)
-    : MOCK_STALL_REVIEWS;
-
   const start = (page - 1) * limit;
-  const pageItems = source.slice(start, start + limit);
-  const totalItems = source.length;
+  const pageItems = MOCK_STALL_REVIEWS.slice(start, start + limit);
+  const totalItems = MOCK_STALL_REVIEWS.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / limit));
 
   return {

@@ -1,6 +1,6 @@
 "use client";
 
-import type { PaymentCycle } from "@/components/common/search/util/SearchConstants";
+import type { PaymentCycle } from "@/components/common/search/constants/types";
 import { Button } from "@/components/ui/button";
 import type { MultiPeriodPricing } from "@/lib/data/schema/stall/get_stall_detail";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -8,6 +8,7 @@ import { CalendarDays, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 
 const CYCLE_LABEL: Record<PaymentCycle, string> = {
+  day: "Daily",
   month: "Monthly",
   quarter: "Quarterly",
   semester: "Semesterly",
@@ -15,6 +16,7 @@ const CYCLE_LABEL: Record<PaymentCycle, string> = {
 };
 
 const CYCLE_RATE_KEY: Record<PaymentCycle, keyof MultiPeriodPricing> = {
+  day: "dailyRate",
   month: "monthlyRate",
   quarter: "quarterlyRate",
   semester: "semesterlyRate",

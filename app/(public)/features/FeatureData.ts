@@ -102,7 +102,7 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: Key,
             title: "Operational Permanence Search Tabs",
             description:
-              "Filter spaces by 3 distinct operational levels: Independent (24/7 access), Managed Complex (malls, traditional markets, food courts), or Temporary & Event Spots.",
+              "Filter spaces by 3 distinct operational levels: Permanent (24/7 access), Semi-Permanent (malls, traditional markets, food courts), or Temporary (pop-up bazaar booths & street vendor spots).",
           },
           {
             icon: MapPin,
@@ -120,13 +120,13 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: Target,
             title: "Budget & Target ROI Match",
             description:
-              "Input your business type, capital, and target break-even period — e.g. 6 months — to surface stalls whose rent math fits your goals.",
+              "Input your business type, capital, and target break-even period — or target daily revenue for bazaars — to surface stalls whose rent math fits your goals.",
           },
           {
             icon: Tent,
             title: "Pop-Up & Bazaar Event Booking",
             description:
-              "Discover and apply for short-term festival booths or food truck spots with transparent registration windows and fixed event schedules.",
+              "Discover and apply for short-term festival booths or food truck spots with transparent registration windows, slot counts, and fixed event schedules.",
           },
         ],
       },
@@ -227,7 +227,7 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: ClipboardCheck,
             title: "Approve or Reject in One Queue",
             description:
-              "Review incoming applications for permanent stalls or bazaar booths and manage approvals from a single queue.",
+              "Review incoming applications for permanent stalls, managed complex kiosks, or bazaar booths and manage approvals from a single queue.",
           },
           {
             icon: Lock,
@@ -239,7 +239,7 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: ShieldCheck,
             title: "Custom Rules & Anti-Spam Commitment",
             description:
-              "Configure flexible start dates, minimum lease terms, and payment cycles. Serial ghosters must place a 35% refundable deposit commitment when applying.",
+              "Configure flexible start dates, minimum lease terms, operating days, and payment cycles. Serial ghosters must place a 35% refundable deposit commitment when applying.",
           },
         ],
       },
@@ -386,7 +386,7 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
           },
           {
             icon: History,
-            title: "Supply Chain Report Archive",
+            title: "Market Opportunity Report Archive",
             description:
               "Generated opportunity gap and market demand reports are archived permanently for future reference.",
             tier: "free",

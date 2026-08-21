@@ -1,5 +1,10 @@
+import { StallPermanenceType } from "@/components/common/search/constants/types";
 import { BasePaginationQuery, PaginatedResponse } from "../schema/base";
 import { MOCK_STALL_LIST, Stall } from "../schema/stall/get_stall";
+import {
+  MOCK_STALL_DETAILS,
+  StallDetail,
+} from "../schema/stall/get_stall_detail";
 
 export async function getStalls(
   params: BasePaginationQuery,
@@ -27,4 +32,17 @@ export async function getStalls(
       hasPrevPage: page > 1,
     },
   };
+}
+
+const PERMANENCE_TYPES: StallPermanenceType[] = [
+  "permanent",
+  "semi-permanent",
+  "temporary",
+];
+
+export function getMockStallDetail(type?: StallPermanenceType): StallDetail {
+  const resolvedType =
+    type ??
+    PERMANENCE_TYPES[Math.floor(Math.random() * PERMANENCE_TYPES.length)];
+  return MOCK_STALL_DETAILS[resolvedType];
 }
