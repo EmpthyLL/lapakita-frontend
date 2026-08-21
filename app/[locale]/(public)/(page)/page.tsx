@@ -1,4 +1,4 @@
-import { FaqSection } from "@/app/(public)/(page)/FaqSection";
+import { FaqSection } from "@/app/[locale]/(public)/(page)/FaqSection";
 import { AboutSummary } from "./AboutSummary";
 import { ComparisonSection } from "./ComparisonSection";
 import { Hero } from "./Hero";

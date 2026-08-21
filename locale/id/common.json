@@ -1,0 +1,12 @@
+{
+  "error": {
+    "default": "Ada yang salah, silakan coba lagi.",
+    "unexpected": "Terjadi kesalahan yang tidak terduga.",
+    "unknown": "Terjadi kesalahan yang tidak diketahui."
+  },
+  "action": {
+    "save": "Simpan",
+    "cancel": "Batal",
+    "close": "Tutup"
+  }
+}

@@ -6,13 +6,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { usePathname, useRouter } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronDown, Globe } from "lucide-react";
-import { useState } from "react";
+import { Locale, useLocale } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export const LANGUAGES: Record<string, string> = {
-  id: "Indonesia",
   en: "English",
+  id: "Indonesia",
 };
 
 interface LanguageSwitcherProps {
@@ -26,14 +30,32 @@ export function LanguageSwitcher({
   className,
   showLabel = true,
 }: LanguageSwitcherProps) {
+  const queryClient = useQueryClient();
+  const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [open, setOpen] = useState(false);
-  const [currentLocale, setCurrentLocale] = useState<string>("id");
 
   const handleLocaleChange = (nextLocale: string) => {
     setOpen(false);
-    if (nextLocale === currentLocale) return;
-    setCurrentLocale(nextLocale);
+    if (nextLocale === locale) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+    const pathnameWithParams = params.toString()
+      ? `${pathname}?${params.toString()}`
+      : pathname;
+
+    router.replace(pathnameWithParams, {
+      locale: nextLocale as Locale,
+      scroll: false,
+    });
   };
+
+  useEffect(() => {
+    queryClient.invalidateQueries();
+  }, [locale, queryClient]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -50,11 +72,11 @@ export function LanguageSwitcher({
           <div className="flex items-center gap-1.5 min-w-0">
             <Globe className="h-3.5 w-3.5 shrink-0 text-primary" />
             <span className="uppercase text-foreground font-semibold text-[11px]">
-              {currentLocale}
+              {locale}
             </span>
             {showLabel && (
               <span className="hidden text-muted-foreground/80 text-[11px] sm:inline">
-                ({LANGUAGES[currentLocale]})
+                ({LANGUAGES[locale] ?? locale})
               </span>
             )}
           </div>
@@ -70,7 +92,7 @@ export function LanguageSwitcher({
 
       <PopoverContent align="end" className="w-36 rounded-md p-1 shadow-md">
         {Object.entries(LANGUAGES).map(([key, name]) => {
-          const isSelected = currentLocale === key;
+          const isSelected = locale === key;
           return (
             <button
               key={key}

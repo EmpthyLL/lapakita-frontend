@@ -1,0 +1,12 @@
+{
+  "error": {
+    "default": "Something went wrong, please try again.",
+    "unexpected": "An unexpected error occurred.",
+    "unknown": "Unknown error occurred."
+  },
+  "action": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close"
+  }
+}
