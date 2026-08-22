@@ -54,7 +54,7 @@ api.interceptors.request.use(
     config.metadata = { start: Date.now(), side };
 
     if (!isServer) {
-      // 1. Client-Side: Ambil Locale dari Cookie 'NEXT_LOCALE'
+      // Client-Side
       const locale =
         document.cookie
           .split("; ")
@@ -62,13 +62,12 @@ api.interceptors.request.use(
           ?.split("=")[1] || "en";
       config.headers["lang"] = locale;
 
-      // 2. Client-Side Auth Token
       const token = await getBrowserToken();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     } else {
-      // 1. Server-Side: Ambil Locale dari next-intl/server
+      // Server-Side
       try {
         const locale = await getLocale();
         config.headers["lang"] = locale || "en";
@@ -76,11 +75,20 @@ api.interceptors.request.use(
         config.headers["lang"] = "en";
       }
 
-      // 2. Server-Side Auth Token
-      const { auth } = await import("./auth");
-      const session = await auth();
-      if (session?.user?.token) {
-        config.headers.Authorization = `Bearer ${session.user.token}`;
+      try {
+        const { cookies } = await import("next/headers");
+        const cookieStore = await cookies();
+        const cookieName =
+          process.env.NODE_ENV === "production"
+            ? "__Secure-lapakita-next-auth.session-token"
+            : "lapakita-next-auth.session-token";
+
+        const sessionToken = cookieStore.get(cookieName)?.value;
+        if (sessionToken) {
+          config.headers.Authorization = `Bearer ${sessionToken}`;
+        }
+      } catch {
+        // Abaikan jika dipanggil di luar HTTP Context
       }
     }
 

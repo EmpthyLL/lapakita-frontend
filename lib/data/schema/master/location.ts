@@ -1,4 +1,10 @@
-export type AreaType = "country" | "province" | "city" | "district" | "street";
+export type AreaType =
+  | "country"
+  | "province"
+  | "city"
+  | "district"
+  | "suburb"
+  | "street";
 
 export interface AreaGeneralResponseData {
   type: AreaType;
@@ -9,9 +15,11 @@ export interface AreaGeneralResponseData {
   countryCode: string;
   city?: string;
   province?: string;
+  district?: string;
+  suburb?: string;
 }
 
-const DUMMY_LOCATIONS: AreaGeneralResponseData[] = [
+export const DUMMY_LOCATIONS: AreaGeneralResponseData[] = [
   {
     type: "street",
     title: "Jalan Delimas",
@@ -21,6 +29,19 @@ const DUMMY_LOCATIONS: AreaGeneralResponseData[] = [
     countryCode: "ID",
     city: "Surabaya",
     province: "Jawa Timur",
+  },
+  {
+    type: "suburb",
+    title: "Kelurahan Kebayoran Baru",
+    subtitle: "Kebayoran Baru, Jakarta Selatan, DKI Jakarta",
+    fullLabel:
+      "Kelurahan Kebayoran Baru, Jakarta Selatan, DKI Jakarta, Indonesia",
+    country: "Indonesia",
+    countryCode: "ID",
+    city: "Jakarta Selatan",
+    province: "DKI Jakarta",
+    district: "Kebayoran Baru",
+    suburb: "Kebayoran Baru",
   },
   {
     type: "street",
@@ -104,34 +125,3 @@ const DUMMY_LOCATIONS: AreaGeneralResponseData[] = [
     countryCode: "ID",
   },
 ];
-
-export interface SearchLocationResult {
-  results: AreaGeneralResponseData[];
-  hasMore: boolean;
-}
-
-export async function searchLocations(
-  query: string,
-  page: number = 1,
-  pageSize: number = 5,
-): Promise<SearchLocationResult> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
-  if (!query.trim()) return { results: [], hasMore: false };
-
-  const q = query.toLowerCase();
-  const allFiltered = DUMMY_LOCATIONS.filter(
-    (loc) =>
-      loc.title.toLowerCase().includes(q) ||
-      loc.subtitle.toLowerCase().includes(q) ||
-      loc.fullLabel.toLowerCase().includes(q),
-  );
-
-  const start = (page - 1) * pageSize;
-  const paginated = allFiltered.slice(start, start + pageSize);
-
-  return {
-    results: paginated,
-    hasMore: start + pageSize < allFiltered.length,
-  };
-}

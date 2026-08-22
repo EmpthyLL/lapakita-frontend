@@ -3,10 +3,9 @@
 
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
-import {
-  searchLocations,
-  type AreaGeneralResponseData,
-} from "@/lib/data/schema/master/location";
+
+import { searchLocations } from "@/lib/data/api/location";
+import { AreaGeneralResponseData } from "@/lib/data/schema/master/location";
 import { cn } from "@/lib/utils";
 import { Loader2, MapPin, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -17,6 +16,7 @@ interface LocationAutocompleteProps {
   onChange: (value: string) => void;
   onCommit: (value: string) => void;
   placeholder?: string;
+  hasError?: boolean;
   className?: string;
   inputClassName?: string;
 }
@@ -25,7 +25,8 @@ export function LocationAutocomplete({
   value,
   onChange,
   onCommit,
-  placeholder = "Street, district, city, or province",
+  placeholder = "Street, suburb, district, city, or province",
+  hasError = false,
   className,
   inputClassName,
 }: LocationAutocompleteProps) {
@@ -144,11 +145,20 @@ export function LocationAutocomplete({
   }
 
   return (
-    <div ref={containerRef} className={cn("relative", className)}>
-      <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+    <div ref={containerRef} className={cn("relative w-full", className)}>
+      <MapPin
+        className={cn(
+          "pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 transition-colors",
+          hasError
+            ? "text-destructive"
+            : "text-muted-foreground group-data-[invalid=true]/field:text-destructive",
+        )}
+      />
+
       <Input
         ref={inputRef}
         value={value}
+        hasError={hasError}
         onChange={(e) => {
           onChange(e.target.value);
           setOpen(true);
@@ -157,22 +167,22 @@ export function LocationAutocomplete({
         onFocus={() => value.trim() && setOpen(true)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className={cn("pl-9 pr-9", inputClassName)}
+        className={cn("pl-9 pr-9 font-medium", inputClassName)}
         autoComplete="off"
       />
 
-      {/* Right Controls: Loader or Clear Button */}
-      <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1">
+      {/* Control Kanan: Loader / Clear */}
+      <div className="absolute right-3 top-1/2 z-10 flex -translate-y-1/2 items-center gap-1">
         {loading ? (
-          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          <Loader2 className="size-4 animate-spin text-muted-foreground" />
         ) : (
           value.length > 0 && (
             <button
               type="button"
               onClick={handleClear}
-              className="rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              className="rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground outline-none"
             >
-              <X className="h-4 w-4 stroke-[2.5] opacity-60" />
+              <X className="size-3.5 stroke-[2.5]" />
               <span className="sr-only">Clear input</span>
             </button>
           )
@@ -183,10 +193,11 @@ export function LocationAutocomplete({
         <div
           ref={dropdownRef}
           onScroll={handleScroll}
-          className="absolute left-0 right-0 top-full z-50 mt-2 max-h-72 overflow-y-auto rounded-xl border border-border bg-card p-1.5 shadow-lg"
+          className="absolute left-0 right-0 top-full z-50 mt-1.5 max-h-72 overflow-y-auto rounded-xl border border-border bg-popover p-1.5 shadow-lg"
         >
           {suggestions.map((area, i) => {
-            const config = AREA_TYPE_CONFIG[area.type];
+            const config =
+              AREA_TYPE_CONFIG[area.type] ?? AREA_TYPE_CONFIG.street;
             const Icon = config.icon;
             return (
               <button
@@ -195,26 +206,28 @@ export function LocationAutocomplete({
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => selectSuggestion(area)}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
-                  i === activeIndex ? "bg-secondary" : "hover:bg-secondary/60",
+                  "flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left text-xs font-semibold transition-colors outline-none",
+                  i === activeIndex
+                    ? "bg-secondary text-foreground"
+                    : "text-foreground hover:bg-secondary/60",
                 )}
               >
                 <span
                   className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+                    "flex size-7 shrink-0 items-center justify-center rounded-md border border-border/50",
                     config.bgClass,
                   )}
                 >
-                  <Icon className={cn("h-4 w-4", config.iconClass)} />
+                  <Icon className={cn("size-3.5", config.iconClass)} />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-1.5">
-                    <span className="truncate font-medium text-foreground">
+                    <span className="truncate font-semibold text-foreground">
                       {area.title}
                     </span>
                     <span
                       className={cn(
-                        "shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                        "shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
                         config.bgClass,
                         config.iconClass,
                       )}
@@ -222,7 +235,7 @@ export function LocationAutocomplete({
                       {config.label}
                     </span>
                   </span>
-                  <span className="block truncate text-xs text-muted-foreground">
+                  <span className="block truncate text-[11px] font-normal text-muted-foreground mt-0.5">
                     {area.subtitle}
                   </span>
                 </span>
@@ -232,7 +245,7 @@ export function LocationAutocomplete({
 
           {fetchingMore && (
             <div className="flex items-center justify-center p-2 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="size-4 animate-spin" />
             </div>
           )}
         </div>

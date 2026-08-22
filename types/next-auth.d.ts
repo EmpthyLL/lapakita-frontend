@@ -2,6 +2,8 @@ import { DefaultSession } from "next-auth";
 import { JWT as DefaultJWT } from "next-auth/jwt";
 import { Role } from ".";
 
+export type SubscriptionPlan = "free" | Role | "all_access";
+
 declare module "next-auth" {
   interface User {
     id: string;
