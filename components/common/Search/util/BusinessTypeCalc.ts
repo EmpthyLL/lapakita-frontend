@@ -1,4 +1,4 @@
-import { BUSINESS_TYPE_MAP } from "@/lib/data/schema/master/business_type";
+import { BusinessType } from "@/lib/data/schema/master/business_type";
 import { DEFAULT_CAPITAL_BY_PERMANENCE } from "../constants/range";
 import { PaymentCycle, StallPermanenceType } from "../constants/types";
 
@@ -50,8 +50,8 @@ function ensureMinGap(
  */
 const PERMANENCE_PRICING_FACTOR: Record<StallPermanenceType, number> = {
   permanent: 1.0, // Baseline Ruko / Bangunan Mandiri Full Price
-  "semi-permanent": 0.65, // Kios Pasar / Mall / Foodcourt (Lebih terjangkau)
-  temporary: 0.45, // Kakilima / Event / Pop-Up (Diskon akumulasi bulanan)
+  "semi-permanent": 0.65, // Kios Pasar / Mall / Foodcourt
+  temporary: 0.45, // Kakilima / Event / Pop-Up
 };
 
 /**
@@ -72,24 +72,20 @@ export function calculateMultiCycleRanges(
   const permanenceFactor = PERMANENCE_PRICING_FACTOR[permanenceType] ?? 1.0;
 
   if (isTemporaryEvent) {
-    // ── TEMPORARY (BAZAAR / POP-UP / KAKILIMA) ──
     const dailyRevenueTarget =
       capitalOrDailyTarget > 0
         ? capitalOrDailyTarget
         : DEFAULT_CAPITAL_BY_PERMANENCE.temporary;
 
-    // Daily rent: Direct % dari target omset harian
     baseDailyMin = dailyRevenueTarget * (profile.rentToRevenueRatio * 0.75);
     baseDailyMax = dailyRevenueTarget * (profile.rentToRevenueRatio * 1.25);
 
     baseDailyMin = Math.max(baseDailyMin, ABSOLUTE_MIN_DAILY_RENT);
     baseDailyMax = Math.max(baseDailyMax, baseDailyMin * 1.2);
 
-    // Monthly rent untuk temporary: Diskon event berbulan-bulan (30 x daily x 0.45)
     baseMonthlyMin = baseDailyMin * 30 * permanenceFactor;
     baseMonthlyMax = baseDailyMax * 30 * permanenceFactor;
   } else {
-    // ── PERMANENT & SEMI-PERMANENT ──
     const safeCapital =
       capitalOrDailyTarget > 0
         ? capitalOrDailyTarget
@@ -99,7 +95,6 @@ export function calculateMultiCycleRanges(
     const estimatedMonthlyRevenueNeeded =
       safeCapital / (safeBep * profile.grossMarginRatio);
 
-    // Diberikan permanenceFactor (Ruko = 1.0, Kios/Mall = 0.65)
     baseMonthlyMin =
       estimatedMonthlyRevenueNeeded *
       (profile.rentToRevenueRatio * 0.75) *
@@ -129,7 +124,6 @@ export function calculateMultiCycleRanges(
 
   const result = {} as MultiCycleRanges;
 
-  // Deposit disesuaikan dengan tipe lapak
   const rawMinDeposit = isTemporaryEvent
     ? Math.max(baseDailyMin * 2, ABSOLUTE_MIN_DEPOSIT)
     : permanenceType === "semi-permanent"
@@ -180,7 +174,7 @@ export function getCalculatedRangesForFilters(
   bepMonths: number | string,
   customBepMonths: number | null,
   paymentCycle: PaymentCycle | "",
-  businessType?: string,
+  businessTypeObj?: BusinessType | null,
   permanenceType: StallPermanenceType = "permanent",
 ): {
   rentRange: [number, number];
@@ -189,11 +183,10 @@ export function getCalculatedRangesForFilters(
   const activeBep =
     bepMonths === "custom" ? (customBepMonths ?? 6) : Number(bepMonths) || 6;
 
-  const preset = businessType ? BUSINESS_TYPE_MAP[businessType] : null;
-  const profile = preset
+  const profile = businessTypeObj
     ? {
-        grossMarginRatio: preset.avgGrossMarginRatio,
-        rentToRevenueRatio: preset.industryRentToRevenueRatio,
+        grossMarginRatio: businessTypeObj.avgGrossMarginRatio,
+        rentToRevenueRatio: businessTypeObj.industryRentToRevenueRatio,
       }
     : undefined;
 
@@ -215,12 +208,11 @@ export function getCalculatedRangesForFilters(
 }
 
 export function getPresetWithCalculatedRanges(
-  typeId: string,
+  typeDef?: BusinessType | null,
   capitalOrDailyTarget?: number,
   bepMonths?: number,
   permanenceType: StallPermanenceType = "permanent",
 ) {
-  const typeDef = BUSINESS_TYPE_MAP[typeId];
   if (!typeDef) return null;
 
   const activeInput =

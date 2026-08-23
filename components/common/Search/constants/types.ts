@@ -83,6 +83,28 @@ export type CancellationPolicyValue =
   | "deposit_refundable"
   | "non_refundable";
 
+export interface Facility {
+  value: FacilityValue;
+  label: string;
+  icon: LucideIcon;
+}
+
+export interface StallPropertyType {
+  value: StallPropertyTypeValue;
+  label: string;
+  description: string;
+  icon: LucideIcon;
+  permanenceType: StallPermanenceType;
+  allowedPlacements: StallPlacement[];
+  allowedFacilities: FacilityValue[];
+}
+
+export interface SearchInfoItem {
+  icon: LucideIcon;
+  highlight: string;
+  label: string;
+}
+
 export interface StartDateOption {
   value: StartDateValue;
   label: string;

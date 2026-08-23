@@ -1,5 +1,13 @@
-import { LEGAL_DOCUMENTS, LegalDocument } from "../schema/public/get_legal";
+import api from "@/lib/api";
+import { RoleAndAll } from "@/types";
+import { FAQResponse } from "../schema/public/get_faq";
+import { DocType, LegalResponse } from "../schema/public/get_legal";
 
-export function getLegalDocument(slug: LegalDocument["slug"]) {
-  return LEGAL_DOCUMENTS.find((doc) => doc.slug === slug)!;
+export async function getFAQs(role_type: RoleAndAll) {
+  const res = await api.get<FAQResponse>(`/faqs/${role_type}`);
+  return res.data.data;
+}
+export async function getLegals(doc_type: DocType) {
+  const res = await api.get<LegalResponse>(`/legals/${doc_type}`);
+  return res.data.data;
 }

@@ -24,6 +24,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { showToast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { Check, Copy, Link2, Mail } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { ReactNode, useState } from "react";
 import {
   FacebookIcon,
@@ -50,29 +51,26 @@ interface ShareChannel {
   onClick?: () => void;
 }
 
-export function ShareSheet({
-  title,
-  text = "Check out this stall on Lapakita!",
-  url,
-  trigger,
-}: ShareSheetProps) {
+export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
+  const t = useTranslations("common.share_sheet");
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 640px)");
 
+  const shareText = text || t("default_text");
   const shareUrl =
     url || (typeof window !== "undefined" ? window.location.href : "");
   const encodedUrl = encodeURIComponent(shareUrl);
-  const encodedText = encodeURIComponent(`${text}\n${shareUrl}`);
+  const encodedText = encodeURIComponent(`${shareText}\n${shareUrl}`);
 
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
-      showToast.success("Link copied");
+      showToast.success(t("toast.success"));
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      showToast.error("Couldn't copy the link");
+      showToast.error(t("toast.error"));
     }
   }
 
@@ -87,13 +85,13 @@ export function ShareSheet({
       name: "X",
       icon: XIcon,
       brandColor: "#0F1419",
-      href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodedUrl}`,
+      href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodedUrl}`,
     },
     {
       name: "Telegram",
       icon: TelegramIcon,
       brandColor: "#24A1DE",
-      href: `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(text)}`,
+      href: `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(shareText)}`,
     },
     {
       name: "LINE",
@@ -123,7 +121,6 @@ export function ShareSheet({
 
   const body = (
     <div className="flex flex-col gap-3.5">
-      {/* Primary Channel: WhatsApp */}
       <a
         href={`https://wa.me/?text=${encodedText}`}
         target="_blank"
@@ -135,15 +132,14 @@ export function ShareSheet({
         </span>
         <span className="flex-1 text-left min-w-0">
           <span className="block text-xs font-semibold leading-tight">
-            Share on WhatsApp
+            {t("whatsapp_banner.title")}
           </span>
           <span className="block text-[11px] text-white/80 leading-tight mt-0.5 truncate">
-            Fastest way to reach someone
+            {t("whatsapp_banner.subtitle")}
           </span>
         </span>
       </a>
 
-      {/* Grid Channels Lainnya */}
       <div className="grid grid-cols-4 gap-2">
         {secondaryChannels.map((c) => {
           const Icon = c.icon;
@@ -191,7 +187,6 @@ export function ShareSheet({
         })}
       </div>
 
-      {/* Copy Link Input */}
       <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/40 p-1 pl-3">
         <Link2 className="h-4 w-4 shrink-0 text-muted-foreground" />
         <Input
@@ -213,7 +208,7 @@ export function ShareSheet({
           ) : (
             <Copy className="h-3.5 w-3.5" />
           )}
-          {copied ? "Copied" : "Copy"}
+          {copied ? t("copied") : t("copy_link")}
         </Button>
       </div>
     </div>
@@ -224,11 +219,10 @@ export function ShareSheet({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{trigger}</DialogTrigger>
 
-        {/* max-w-[400px] & overflow-hidden membuat ukuran Dialog pas dan compact */}
         <DialogContent className="w-full max-w-100 p-5 rounded-2xl gap-4 overflow-hidden">
           <DialogHeader className="p-0 space-y-1">
             <DialogTitle className="text-base font-semibold">
-              Share this stall
+              {t("title")}
             </DialogTitle>
             <DialogDescription className="truncate text-xs">
               {title}
@@ -248,7 +242,7 @@ export function ShareSheet({
         <div className="mx-auto w-full max-w-md p-4 pt-0">
           <DrawerHeader className="px-0 pt-2 pb-4 space-y-1">
             <DrawerTitle className="text-base font-semibold">
-              Share this stall
+              {t("title")}
             </DrawerTitle>
             <DrawerDescription className="truncate text-xs">
               {title}
@@ -263,7 +257,7 @@ export function ShareSheet({
                 variant="outline"
                 className="w-full rounded-xl h-9 text-xs"
               >
-                Cancel
+                {t("cancel")}
               </Button>
             </DrawerClose>
           </DrawerFooter>

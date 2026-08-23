@@ -1,9 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { BUSINESS_TYPES } from "@/lib/data/schema/master/business_type";
+import { useInfiniteSearch } from "@/hooks/use-infinite-search";
+import { getBusinessTypes } from "@/lib/data/api/business_type";
+import {
+  BusinessType,
+  GetBusinessTypesQuery,
+} from "@/lib/data/schema/master/business_type";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { Autocomplete } from "../input/Autocomplete";
 import { LocationAutocomplete } from "./LocationAutocomplete";
 import { LANDMARK_CATEGORIES } from "./constants/landmark";
@@ -14,7 +21,7 @@ interface StallSearchPrimaryRowProps {
   location: string;
   onLocationChange: (value: string) => void;
   businessType: string;
-  onBusinessTypeChange: (value: string) => void;
+  onBusinessTypeChange: (value: string, selectedType?: BusinessType) => void;
   permanenceType: StallPermanenceType;
   singleLandmark: string;
   onSingleLandmarkChange: (value: string) => void;
@@ -32,9 +39,31 @@ export function StallSearchPrimaryRow({
   onSingleLandmarkChange,
   onSearch,
 }: StallSearchPrimaryRowProps) {
-  const businessTypeOptions = BUSINESS_TYPES.filter((t) =>
-    Boolean(t.permanencePresets[permanenceType]),
-  ).map((t) => ({ value: t.id, label: t.label, group: t.group }));
+  const t = useTranslations("common.search");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const {
+    data: businessTypes,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteSearch<BusinessType, GetBusinessTypesQuery>({
+    queryKey: ["business-types", permanenceType],
+    queryFn: getBusinessTypes,
+    search: searchTerm,
+    searchKey: "search",
+    enabled: isFull,
+  });
+
+  const businessTypeOptions = businessTypes
+    .filter((bt) => Boolean(bt.permanencePresets?.[permanenceType]))
+    .map((bt) => ({
+      ...bt,
+      value: bt.id,
+      label: bt.label,
+      group: bt.group,
+    }));
 
   return (
     <div
@@ -54,22 +83,29 @@ export function StallSearchPrimaryRow({
       {isFull ? (
         <Autocomplete
           value={businessType}
-          onSelect={(v) => onBusinessTypeChange(String(v))}
+          onSelect={(v, option) => onBusinessTypeChange(String(v), option)}
           options={businessTypeOptions}
           valueKey="value"
           labelKey="label"
           groupKey="group"
-          placeholder="Business type"
+          placeholder={t("business_type_placeholder")}
           mode="solid"
+          size="lg"
           className="lg:w-60"
+          onFilterChange={setSearchTerm}
+          isLoading={isLoading}
+          isFetchingMore={isFetchingNextPage}
+          hasMore={hasNextPage}
+          fetchMore={fetchNextPage}
         />
       ) : (
         <Autocomplete
           value={singleLandmark}
           onSelect={(v) => onSingleLandmarkChange(String(v))}
           options={LANDMARK_CATEGORIES}
-          placeholder="Any landmark"
+          placeholder={t("any_landmark_placeholder")}
           mode="solid"
+          size="lg"
           className="sm:w-45"
         />
       )}
@@ -80,7 +116,7 @@ export function StallSearchPrimaryRow({
       >
         <Search className="h-4 w-4" />
         <span className={isFull ? undefined : "hidden sm:inline"}>
-          {isFull ? "Search Stalls" : "Search"}
+          {isFull ? t("search_stalls") : t("search_button")}
         </span>
       </Button>
     </div>

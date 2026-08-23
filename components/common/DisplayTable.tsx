@@ -57,11 +57,10 @@ import {
   Sparkles,
   Trash2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { ReactNode, useState } from "react";
 import { Input } from "../ui/input";
 import { DatePicker } from "./input/DatePicker";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface FilterOption<TData> {
   id: keyof TData;
@@ -73,7 +72,6 @@ export interface FilterOption<TData> {
 export interface ColumnDef<TData> {
   key: keyof TData;
   header: string;
-  /** Optional icon shown next to the header label — makes columns easier to scan. */
   icon?: LucideIcon;
   className?: string;
   render?: (value: unknown, row: TData) => ReactNode;
@@ -97,7 +95,6 @@ interface DisplayTableProps<TData, TParams extends Record<string, any>> {
   showFilter?: boolean;
   showCount?: boolean;
   countList?: number[];
-  /** "load-more" accumulates pages with a button. "pagination" shows page numbers, one page at a time. */
   paginationMode?: "load-more" | "pagination";
 }
 
@@ -109,8 +106,6 @@ const FILTER_TYPE_ICON: Record<
   date: CalendarIcon,
   select: ListFilter,
 };
-
-// ─── FilterOptions ────────────────────────────────────────────────────────────
 
 interface FilterOptionsProps<TData> {
   options: FilterOption<TData>[];
@@ -125,6 +120,7 @@ function FilterOptions<TData>({
   selectedOptions,
   setSelectedOptions,
 }: FilterOptionsProps<TData>) {
+  const t = useTranslations("common.display_table");
   const [open, setOpen] = useState(false);
   const unselected = options.filter(
     (o) => !selectedOptions.find((s) => s.id === o.id),
@@ -139,22 +135,22 @@ function FilterOptions<TData>({
           className="rounded-full border-dashed border-primary/40 text-primary hover:border-primary hover:bg-primary/5 hover:text-primary"
         >
           <Plus className="mr-1.5 h-3.5 w-3.5" />
-          Add filter
+          {t("add_filter")}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-56 p-0" align="start">
         <Command>
           <CommandInput
             className="border-b px-4 py-2"
-            placeholder="Filter by..."
+            placeholder={t("filter_by_placeholder")}
           />
           {unselected.length < 1 ? (
             <div className="flex flex-col items-center gap-2 py-8 text-center text-sm text-muted-foreground">
               <Sparkles className="h-4 w-4 text-primary/50" />
-              All filters added
+              {t("all_filters_added")}
             </div>
           ) : (
-            <CommandEmpty>Nothing found</CommandEmpty>
+            <CommandEmpty>{t("nothing_found")}</CommandEmpty>
           )}
           <CommandGroup>
             <ScrollArea className="max-h-[60vh] overflow-y-scroll">
@@ -192,8 +188,6 @@ function FilterOptions<TData>({
   );
 }
 
-// ─── FilterItem ────────────────────────────────────────────────────────────────
-
 interface FilterItemProps<TData, TParams extends Record<string, unknown>> {
   option: FilterOption<TData>;
   filterValues: Partial<TParams>;
@@ -209,6 +203,7 @@ function FilterItem<TData, TParams extends Record<string, unknown>>({
   filterToParamKey,
   onRemove,
 }: FilterItemProps<TData, TParams>) {
+  const t = useTranslations("common.display_table");
   const [open, setOpen] = useState(true);
   const paramKey = filterToParamKey[option.id as string];
   const value = paramKey
@@ -272,14 +267,13 @@ function FilterItem<TData, TParams extends Record<string, unknown>>({
       </PopoverTrigger>
 
       <PopoverContent className="w-60 space-y-2 text-sm" align="start">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-1.5 text-sm font-medium capitalize text-foreground">
             <Icon className="h-3.5 w-3.5 text-primary" />
             {option.title}
           </span>
           <Button
-            aria-label="Remove filter"
+            aria-label={t("remove_filter")}
             variant="ghost"
             size="icon"
             className="h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
@@ -292,7 +286,6 @@ function FilterItem<TData, TParams extends Record<string, unknown>>({
           </Button>
         </div>
 
-        {/* Input */}
         {option.type === "date" ? (
           <DatePicker
             value={
@@ -316,7 +309,7 @@ function FilterItem<TData, TParams extends Record<string, unknown>>({
             }}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select option" />
+              <SelectValue placeholder={t("select_option")} />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
@@ -330,7 +323,7 @@ function FilterItem<TData, TParams extends Record<string, unknown>>({
           </Select>
         ) : (
           <Input
-            placeholder="Type here..."
+            placeholder={t("type_here")}
             className="h-8"
             value={String(value)}
             autoFocus
@@ -346,8 +339,6 @@ function FilterItem<TData, TParams extends Record<string, unknown>>({
     </Popover>
   );
 }
-
-// ─── ActiveFilters ─────────────────────────────────────────────────────────────
 
 interface ActiveFiltersProps<TData, TParams extends Record<string, unknown>> {
   selectedOptions: FilterOption<TData>[];
@@ -382,10 +373,7 @@ function ActiveFilters<TData, TParams extends Record<string, unknown>>({
   );
 }
 
-// ─── Row-index chip ────────────────────────────────────────────────────────
-
 function RowIndexBadge({ index }: { index: number }) {
-  // Cycles through a few soft primary tints so long lists don't look flat
   const tints = [
     "bg-primary/10 text-primary",
     "bg-primary/15 text-primary",
@@ -403,8 +391,6 @@ function RowIndexBadge({ index }: { index: number }) {
     </span>
   );
 }
-
-// ─── Skeleton rows ───────────────────────────────────────────────────────────
 
 function SkeletonRows({
   columnCount,
@@ -433,15 +419,15 @@ function SkeletonRows({
   );
 }
 
-// ─── Empty state ─────────────────────────────────────────────────────────────
-
 function EmptyState({
   columnCount,
   text,
 }: {
   columnCount: number;
-  text: string;
+  text?: string;
 }) {
+  const t = useTranslations("common.display_table");
+
   return (
     <TableRow className="hover:bg-transparent">
       <TableCell colSpan={columnCount} className="py-14 text-center">
@@ -449,17 +435,15 @@ function EmptyState({
           <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Inbox className="h-5 w-5" />
           </span>
-          <p className="text-sm font-medium text-foreground">{text}</p>
-          <p className="text-xs text-muted-foreground">
-            Try adjusting or clearing your filters.
+          <p className="text-sm font-medium text-foreground">
+            {text || t("empty_title")}
           </p>
+          <p className="text-xs text-muted-foreground">{t("empty_subtitle")}</p>
         </div>
       </TableCell>
     </TableRow>
   );
 }
-
-// ─── Pagination bar ──────────────────────────────────────────────────────────
 
 function PageNumbers({
   currentPage,
@@ -496,9 +480,10 @@ function PageNumbers({
             onPageChange(page);
           }}
           className={cn(
-            "rounded-full",
-            page === currentPage &&
-              "border-primary bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
+            "rounded-full border-none transition-all shadow-none",
+            page === currentPage
+              ? "bg-primary text-primary-foreground font-semibold hover:bg-primary hover:text-primary-foreground"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground",
           )}
         >
           {page}
@@ -510,18 +495,17 @@ function PageNumbers({
   return <>{items}</>;
 }
 
-// ─── DisplayTable ──────────────────────────────────────────────────────────
-
 export function DisplayTable<TData, TParams extends BasePaginationQuery>({
   columns,
   query,
-  emptyText = "No data found",
+  emptyText,
   rowKey,
   showFilter = false,
   showCount = false,
   countList = [10, 20, 50, 100],
   paginationMode = "load-more",
 }: DisplayTableProps<TData, TParams>) {
+  const t = useTranslations("common.display_table");
   const [selectedOptions, setSelectedOptions] = useState<FilterOption<TData>[]>(
     [],
   );
@@ -538,7 +522,6 @@ export function DisplayTable<TData, TParams extends BasePaginationQuery>({
     ...(isPagination ? { page } : {}),
   } as TParams;
 
-  // Reset to page 1 whenever filters or page size change
   function updateFilterValues(updater: React.SetStateAction<Partial<TParams>>) {
     setFilterValues(updater);
     setPage(1);
@@ -600,12 +583,12 @@ export function DisplayTable<TData, TParams extends BasePaginationQuery>({
             }}
           >
             <SelectTrigger className="w-40 rounded-full border-primary/20 bg-primary/5">
-              <SelectValue placeholder="Select page size" />
+              <SelectValue placeholder={t("select_page_size")} />
             </SelectTrigger>
             <SelectContent>
               {countList.map((size) => (
                 <SelectItem key={size} value={String(size)}>
-                  {size} rows
+                  {t("rows_count", { count: size })}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -678,26 +661,22 @@ export function DisplayTable<TData, TParams extends BasePaginationQuery>({
         </div>
       </div>
 
-      {/* Footer: load-more or pagination */}
-      {/* ─── Unified Table Footer ────────────────────────────────────────────── */}
+      {/* Unified Table Footer */}
       <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-        {/* SISI KIRI (Pasti muncul di kedua mode) */}
         <div className="flex items-center gap-2">
-          {/* Animated Status Dot */}
           <span className="relative flex h-2.5 w-2.5 items-center justify-center">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/40 opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
           </span>
 
-          {/* Counter Info */}
           <span className="text-muted-foreground font-medium">
-            Showing{" "}
+            {t("showing")}{" "}
             <span className="font-semibold text-foreground">{rows.length}</span>
             {isPagination
               ? paginated.meta && (
                   <>
                     {" "}
-                    of{" "}
+                    {t("of")}{" "}
                     <span className="font-semibold text-foreground">
                       {paginated.meta.totalItems}
                     </span>
@@ -706,31 +685,28 @@ export function DisplayTable<TData, TParams extends BasePaginationQuery>({
               : infinite.data && (
                   <>
                     {" "}
-                    of{" "}
+                    {t("of")}{" "}
                     <span className="font-semibold text-foreground">
                       {infinite?.meta?.totalItems ?? rows.length}
                     </span>
                   </>
                 )}{" "}
-            rows
+            {t("rows")}
           </span>
 
-          {/* Refetching Alert Badge */}
           {((isPagination && isRefetching) ||
             (!isPagination &&
               infinite.isFetching &&
               !infinite.isFetchingNextPage)) && (
             <span className="bg-primary/10 text-primary flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium animate-in fade-in zoom-in-95">
               <Loader2 className="h-3 w-3 animate-spin" />
-              Updating...
+              {t("updating")}
             </span>
           )}
         </div>
 
-        {/* SISI KANAN (Action bergantung pada `paginationMode`) */}
         {isPagination
-          ? /* Mode 1: Numbered Pagination */
-            paginated.meta &&
+          ? paginated.meta &&
             paginated.meta.totalPages > 1 && (
               <Pagination className="mx-0 w-auto">
                 <PaginationContent>
@@ -770,8 +746,7 @@ export function DisplayTable<TData, TParams extends BasePaginationQuery>({
                 </PaginationContent>
               </Pagination>
             )
-          : /* Mode 2: Load More Button */
-            infinite.hasNextPage && (
+          : infinite.hasNextPage && (
               <Button
                 variant="outline"
                 size="sm"
@@ -782,10 +757,10 @@ export function DisplayTable<TData, TParams extends BasePaginationQuery>({
                 {infinite.isFetchingNextPage ? (
                   <>
                     <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                    Loading...
+                    {t("loading")}
                   </>
                 ) : (
-                  "Load more"
+                  t("load_more")
                 )}
               </Button>
             )}

@@ -4,9 +4,100 @@
     "unexpected": "An unexpected error occurred.",
     "unknown": "Unknown error occurred."
   },
-  "action": {
-    "save": "Save",
+  "toc": {
+    "on_this_page": "On this page"
+  },
+  "stall_card": {
+    "floors": "{count, plural, =1 {1 floor} other {# floors}}",
+    "days_event": "{count, plural, =1 {1 day event} other {# days event}}",
+    "registration_closed": "Registration closed",
+    "one_day_left": "1 day left",
+    "days_left": "{days} days left",
+    "starts_from": "Starts from",
+    "save_stall": "Save this stall",
+    "remove_saved": "Remove from saved"
+  },
+  "share_sheet": {
+    "title": "Share this stall",
+    "default_text": "Check out this stall on Lapakita!",
+    "whatsapp_banner": {
+      "title": "Share on WhatsApp",
+      "subtitle": "Fastest way to reach someone"
+    },
+    "copy_link": "Copy",
+    "copied": "Copied",
+    "toast": {
+      "success": "Link copied",
+      "error": "Couldn't copy the link"
+    },
+    "cancel": "Cancel"
+  },
+  "role_tab": {
+    "all": "All",
+    "tenant": "Tenant",
+    "owner": "Stall Owner",
+    "supplier": "Supplier"
+  },
+  "display_table": {
+    "add_filter": "Add filter",
+    "filter_by_placeholder": "Filter by...",
+    "all_filters_added": "All filters added",
+    "nothing_found": "Nothing found",
+    "remove_filter": "Remove filter",
+    "select_option": "Select option",
+    "type_here": "Type here...",
+    "empty_title": "No data found",
+    "empty_subtitle": "Try adjusting or clearing your filters.",
+    "select_page_size": "Select page size",
+    "rows_count": "{count} rows",
+    "showing": "Showing",
+    "of": "of",
+    "rows": "rows",
+    "updating": "Updating...",
+    "loading": "Loading...",
+    "load_more": "Load more"
+  },
+  "date_range_picker": {
+    "select_date": "Select Date",
     "cancel": "Cancel",
-    "close": "Close"
+    "submit": "Submit",
+    "select_placeholder": "Select...",
+    "presets": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "last7": "Last 7 days",
+      "last14": "Last 14 days",
+      "last30": "Last 30 days",
+      "thisWeek": "This Week",
+      "lastWeek": "Last Week",
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month",
+      "thisYear": "This Year"
+    }
+  },
+  "search": {
+    "business_type_placeholder": "Business type",
+    "any_landmark_placeholder": "Any landmark",
+    "search_stalls": "Search Stalls",
+    "search_button": "Search",
+    "stall_search": {
+      "radius": "Radius:",
+      "hide_filters": "Hide Filters",
+      "show_filters": "Filter Search Options {count}",
+      "reset": "Reset",
+      "reset_all": "Reset All",
+      "all_search_filters": "All Search Filters",
+      "space_filters": "Space Filters",
+      "budget_terms": "Budget & Terms",
+      "listing_placeholder": "Stall listing goes here",
+      "sections": {
+        "landmarks_radius": "Landmarks & Radius",
+        "space_details": "Space Details",
+        "property_type": "Property Type",
+        "budget_roi": "Budget & ROI",
+        "lease_event_terms": "Lease & Event Terms",
+        "facilities": "Facilities"
+      }
+    }
   }
 }

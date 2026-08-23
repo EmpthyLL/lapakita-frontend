@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { CheckIcon, ChevronDownIcon } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import React, { useEffect, useRef, useState, type FC } from "react";
 import {
   DateRange,
@@ -27,10 +28,6 @@ import {
   type MonthCaptionProps,
 } from "react-day-picker";
 
-interface Preset {
-  name: string;
-  label: string;
-}
 export interface DateRangePickerProps {
   onUpdate?: (values: DateRange) => void;
   value?: DateRange;
@@ -39,11 +36,8 @@ export interface DateRangePickerProps {
   fixedCalender?: boolean;
   align?: "start" | "center" | "end";
   locale?: string;
-  /** Disables selection of these dates, e.g. `{ after: new Date() }` to block future dates. */
   disabled?: Matcher | Matcher[];
-  /** Earliest year selectable in the month/year dropdown. Default: 100 years ago. */
   fromYear?: number;
-  /** Latest year selectable in the month/year dropdown. Default: current year. */
   toYear?: number;
 }
 
@@ -62,7 +56,20 @@ const MONTH_LABELS = [
   "Dec",
 ];
 
-const formatDate = (date: Date, locale: string = "en-us"): string => {
+const PRESET_KEYS = [
+  "today",
+  "yesterday",
+  "last7",
+  "last14",
+  "last30",
+  "thisWeek",
+  "lastWeek",
+  "thisMonth",
+  "lastMonth",
+  "thisYear",
+] as const;
+
+const formatDate = (date: Date, locale: string = "en-US"): string => {
   return date.toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
@@ -75,19 +82,6 @@ const isValidDate = (date: Date | string | undefined): boolean => {
   const parsedDate = typeof date === "string" ? new Date(date) : date;
   return parsedDate instanceof Date && !isNaN(parsedDate.getTime());
 };
-
-const PRESETS: Preset[] = [
-  { name: "today", label: "Today" },
-  { name: "yesterday", label: "Yesterday" },
-  { name: "last7", label: "Last 7 days" },
-  { name: "last14", label: "Last 14 days" },
-  { name: "last30", label: "Last 30 days" },
-  { name: "thisWeek", label: "This Week" },
-  { name: "lastWeek", label: "Last Week" },
-  { name: "thisMonth", label: "This Month" },
-  { name: "thisYear", label: "This Year" },
-  { name: "lastMonth", label: "Last Month" },
-];
 
 function CalendarCaption({
   calendarMonth,
@@ -106,6 +100,7 @@ function CalendarCaption({
   const { goToMonth } = useDayPicker();
   const [open, setOpen] = useState(false);
   const selectedYearRef = useRef<HTMLButtonElement | null>(null);
+  const locale = useLocale();
 
   const displayMonth = calendarMonth.date;
   const selectedYear = displayMonth.getFullYear();
@@ -154,9 +149,9 @@ function CalendarCaption({
         <PopoverTrigger asChild>
           <button
             type="button"
-            className="hover:bg-accent hover:text-accent-foreground flex items-center gap-1 rounded-md px-2 py-1 text-sm font-semibold"
+            className="hover:bg-accent hover:text-accent-foreground flex items-center gap-1 rounded-md px-2 py-1 text-sm font-semibold capitalize"
           >
-            {displayMonth.toLocaleDateString("en-US", {
+            {displayMonth.toLocaleDateString(locale, {
               month: "long",
               year: "numeric",
             })}
@@ -234,11 +229,15 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
   onUpdate = () => {},
   onCancel = () => {},
   align = "end",
-  locale = "en-US",
+  locale,
   disabled,
   fromYear = new Date().getFullYear() - 100,
   toYear = new Date().getFullYear(),
 }): React.JSX.Element => {
+  const t = useTranslations("common.date_range_picker");
+  const activeLocale = useLocale();
+  const currentLocale = locale || activeLocale;
+
   const [isOpen, setIsOpen] = useState(false);
 
   const [range, setRange] = useState<DateRange>({
@@ -273,13 +272,11 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
   }, []);
 
   const getPresetRange = (presetName: string): DateRange => {
-    const preset = PRESETS.find(({ name }) => name === presetName);
-    if (!preset) throw new Error(`Unknown date range preset: ${presetName}`);
     const from = new Date();
     const to = new Date();
     const first = from.getDate() - from.getDay();
 
-    switch (preset.name) {
+    switch (presetName) {
       case "today":
         from.setHours(0, 0, 0, 0);
         to.setHours(23, 59, 59, 999);
@@ -335,7 +332,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
         to.setHours(23, 59, 59, 999);
         break;
       default:
-        throw new Error(`Unexpected preset name: ${preset.name}`);
+        throw new Error(`Unexpected preset name: ${presetName}`);
     }
 
     return { from, to };
@@ -347,8 +344,8 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
   };
 
   const checkPreset = (): void => {
-    const matchedPreset = PRESETS.find((preset) => {
-      const presetRange = getPresetRange(preset.name);
+    const matchedPreset = PRESET_KEYS.find((key) => {
+      const presetRange = getPresetRange(key);
 
       const normalizedRangeFrom = new Date(range.from!);
       normalizedRangeFrom.setHours(0, 0, 0, 0);
@@ -368,7 +365,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
       );
     });
 
-    setSelectedPreset(matchedPreset?.name);
+    setSelectedPreset(matchedPreset);
   };
 
   const resetValues = (): void => {
@@ -407,7 +404,6 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
     checkPreset();
   }, [range]);
 
-  // Handle pembukaan Popover & Sinkronisasi Bulan Kiri (From) dan Kanan (To)
   useEffect(() => {
     if (isOpen) {
       openedRangeRef.current = range;
@@ -422,7 +418,6 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
       let rightAnchor: Date;
       if (range.to) {
         rightAnchor = new Date(range.to.getFullYear(), range.to.getMonth(), 1);
-        // Jika bulan/tahun 'to' sama dengan 'from', geser kanan ke bulan berikutnya
         if (
           rightAnchor.getFullYear() === leftAnchor.getFullYear() &&
           rightAnchor.getMonth() === leftAnchor.getMonth()
@@ -446,7 +441,6 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
     }
   }, [isOpen]);
 
-  // Handler navigasi bulan kiri agar tidak pernah menyamai/melewati bulan kanan
   const handleLeftMonthChange = (newLeft: Date) => {
     const nextLeft = new Date(newLeft.getFullYear(), newLeft.getMonth(), 1);
     setLeftMonth(nextLeft);
@@ -464,7 +458,6 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
     }
   };
 
-  // Handler navigasi bulan kanan agar tidak pernah menyamai/mendahului bulan kiri
   const handleRightMonthChange = (newRight: Date) => {
     const nextRight = new Date(newRight.getFullYear(), newRight.getMonth(), 1);
     const currentLeft = new Date(
@@ -515,20 +508,18 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
     );
   };
 
-  const handleSelect = (value: { from?: Date; to?: Date } | undefined) => {
-    if (value?.from != null) {
-      setRange({ from: value.from, to: value?.to });
+  const handleSelect = (val: { from?: Date; to?: Date } | undefined) => {
+    if (val?.from != null) {
+      setRange({ from: val.from, to: val?.to });
     }
   };
 
-  // Batas maksimal bulan kiri = 1 bulan sebelum bulan kanan
   const maxLeftMonth = new Date(
     rightMonth.getFullYear(),
     rightMonth.getMonth() - 1,
     1,
   );
 
-  // Batas minimal bulan kanan = 1 bulan setelah bulan kiri
   const minRightMonth = new Date(
     leftMonth.getFullYear(),
     leftMonth.getMonth() + 1,
@@ -554,10 +545,12 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
             <div className="py-1">
               <div>
                 {range.from
-                  ? `${formatDate(range.from, locale)}${
-                      range.to ? ` - ${formatDate(range.to, locale)}` : ""
+                  ? `${formatDate(range.from, currentLocale)}${
+                      range.to
+                        ? ` - ${formatDate(range.to, currentLocale)}`
+                        : ""
                     }`
-                  : "Select Date"}
+                  : t("select_date")}
               </div>
             </div>
           </div>
@@ -585,17 +578,17 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
             {isSmallScreen && (
               <Select
                 defaultValue={selectedPreset}
-                onValueChange={(value) => {
-                  setPreset(value);
+                onValueChange={(val) => {
+                  setPreset(val);
                 }}
               >
                 <SelectTrigger className="mx-auto mb-2 w-full max-w-45">
-                  <SelectValue placeholder="Select..." />
+                  <SelectValue placeholder={t("select_placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {PRESETS.map((preset) => (
-                    <SelectItem key={preset.name} value={preset.name}>
-                      {preset.label}
+                  {PRESET_KEYS.map((key) => (
+                    <SelectItem key={key} value={key}>
+                      {t(`presets.${key}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -655,12 +648,12 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
           {!isSmallScreen && (
             <div className="flex flex-col items-end gap-1 pr-2 pl-6">
               <div className="flex max-h-80 w-full flex-col items-end gap-1 overflow-y-auto pr-2 pb-6 pl-6">
-                {PRESETS.map((preset) => (
+                {PRESET_KEYS.map((key) => (
                   <PresetButton
-                    key={preset.name}
-                    preset={preset.name}
-                    label={preset.label}
-                    isSelected={selectedPreset === preset.name}
+                    key={key}
+                    preset={key}
+                    label={t(`presets.${key}`)}
+                    isSelected={selectedPreset === key}
                   />
                 ))}
               </div>
@@ -675,7 +668,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
             }}
             variant="ghost"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             onClick={() => {
@@ -685,7 +678,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
               }
             }}
           >
-            Submit
+            {t("submit")}
           </Button>
         </div>
       </PopoverContent>

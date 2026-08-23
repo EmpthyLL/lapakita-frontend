@@ -1,8 +1,12 @@
 import { FAQAccordion } from "@/components/common/FAQAccordion";
-import { FaqCategory } from "@/lib/data/schema/public/get_faq";
+import { FAQCategoryResponse } from "@/lib/data/schema/public/get_faq";
 import { generateSlug } from "@/lib/utils";
 
-export function FaqCategoryContent({ category }: { category: FaqCategory }) {
+export function FaqCategoryContent({
+  category,
+}: {
+  category: FAQCategoryResponse;
+}) {
   return (
     <div className="space-y-12">
       {category.subTopics.map((subTopic, id) => (

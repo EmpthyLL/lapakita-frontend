@@ -1,0 +1,47 @@
+{
+  "faq": {
+    "badge": "FAQ",
+    "title": "Pertanyaan yang Sering Diajukan",
+    "last_updated": "Terakhir diperbarui",
+    "descriptions": {
+      "all": "Pelajari ekosistem Lapakita, sistem satu akun multi-peran, dan paket harga.",
+      "tenant": "Panduan untuk penyewa bisnis yang menjalankan Kasir POS, mencari lapak, dan analisis keuangan.",
+      "owner": "Informasi bagi pemilik tempat untuk mengelola listing, penyewa, dan deposit garansi.",
+      "supplier": "Detail bagi grosir dan distributor yang terhubung dengan pembeli UMKM."
+    },
+    "error": {
+      "title": "Gagal Memuat FAQ",
+      "description": "Terjadi kendala saat mengambil data FAQ. Silakan periksa koneksi internet Anda atau coba lagi.",
+      "retry": "Coba Lagi"
+    },
+    "contact": {
+      "title": "Masih punya pertanyaan?",
+      "description": "Tim kami siap membantu Anda untuk memulai.",
+      "button": "Hubungi Kami"
+    }
+  },
+  "legal": {
+    "badge": "Legal",
+    "last_updated": "Terakhir diperbarui",
+    "error_title": "Gagal memuat dokumen",
+    "error_desc": "Tidak dapat mengambil dokumen legal. Silakan coba lagi.",
+    "retry": "Coba Lagi",
+    "docs": {
+      "terms": {
+        "label": "Syarat & Ketentuan",
+        "title": "Syarat dan Ketentuan",
+        "intro": "Ketentuan ini mengatur penggunaan Lapakita sebagai Penyewa, Pemilik Lapak, atau Supplier. Harap baca dengan cermat sebelum menggunakan platform."
+      },
+      "privacy": {
+        "label": "Kebijakan Privasi",
+        "title": "Kebijakan Privasi",
+        "intro": "Kebijakan ini menjelaskan data apa yang dikumpulkan Lapakita, bagaimana data digunakan, dan perlindungan yang diterapkan untuk akun Penyewa, Pemilik, dan Supplier."
+      },
+      "cookies": {
+        "label": "Kebijakan Cookie",
+        "title": "Kebijakan Cookie & Penyimpanan Lokal",
+        "intro": "Lapakita menggunakan penyimpanan browser minimal — murni untuk fungsionalitas esensial, tidak pernah untuk pelacakan invasif atau penargetan ulang iklan."
+      }
+    }
+  }
+}

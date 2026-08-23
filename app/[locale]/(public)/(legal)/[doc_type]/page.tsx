@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
-import { LegalDocumentView } from "../LegalDocument";
-import { getLegalDocument } from "@/lib/data/api/public";
-import { SlugKey } from "@/lib/data/schema/public/get_legal";
+import { DocType } from "@/lib/data/schema/public/get_legal";
+import { LegalDocument } from "../LegalDocument";
 
 type Props = {
   params: Promise<{
-    slug: SlugKey;
+    doc_type: string;
   }>;
 };
 
-const metadataMap = {
+const VALID_DOC_TYPES: DocType[] = ["terms", "privacy", "cookies"];
+
+const metadataMap: Record<DocType, { title: string; description: string }> = {
   terms: {
     title: "Terms and Conditions — Lapakita",
     description:
@@ -27,30 +29,30 @@ const metadataMap = {
     description:
       "How Lapakita uses browser storage — strictly for essential functionality, never for tracking.",
   },
-} as const;
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { doc_type } = await params;
 
-  const metadata = metadataMap[slug as keyof typeof metadataMap];
+  const metadata = metadataMap[doc_type as DocType];
 
   if (!metadata) {
-    return {
-      title: "Not Found",
-    };
+    return { title: "Not Found — Lapakita" };
   }
 
   return metadata;
 }
 
 export default async function LegalPage({ params }: Props) {
-  const { slug } = await params;
+  const { doc_type } = await params;
 
-  const document = getLegalDocument(slug);
-
-  if (!document) {
+  if (!VALID_DOC_TYPES.includes(doc_type as DocType)) {
     notFound();
   }
 
-  return <LegalDocumentView document={document} />;
+  return (
+    <Suspense fallback={null}>
+      <LegalDocument docType={doc_type as DocType} />
+    </Suspense>
+  );
 }

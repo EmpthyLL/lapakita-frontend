@@ -4,9 +4,100 @@
     "unexpected": "Terjadi kesalahan yang tidak terduga.",
     "unknown": "Terjadi kesalahan yang tidak diketahui."
   },
-  "action": {
-    "save": "Simpan",
+  "toc": {
+    "on_this_page": "Di halaman ini"
+  },
+  "stall_card": {
+    "floors": "{count} lantai",
+    "days_event": "Acara {count} hari",
+    "registration_closed": "Pendaftaran ditutup",
+    "one_day_left": "Sisa 1 hari",
+    "days_left": "Sisa {days} hari",
+    "starts_from": "Mulai dari",
+    "save_stall": "Simpan lapak ini",
+    "remove_saved": "Hapus dari simpanan"
+  },
+  "share_sheet": {
+    "title": "Bagikan lapak ini",
+    "default_text": "Lihat lapak ini di Lapakita!",
+    "whatsapp_banner": {
+      "title": "Bagikan via WhatsApp",
+      "subtitle": "Cara tercepat menghubungi orang lain"
+    },
+    "copy_link": "Salin",
+    "copied": "Tersalin",
+    "toast": {
+      "success": "Tautan berhasil disalin",
+      "error": "Gagal menyalin tautan"
+    },
+    "cancel": "Batal"
+  },
+  "role_tab": {
+    "all": "Semua",
+    "tenant": "Penyewa",
+    "owner": "Pemilik Lapak",
+    "supplier": "Pemasok"
+  },
+  "display_table": {
+    "add_filter": "Tambah filter",
+    "filter_by_placeholder": "Filter berdasarkan...",
+    "all_filters_added": "Semua filter telah ditambahkan",
+    "nothing_found": "Tidak ada hasil",
+    "remove_filter": "Hapus filter",
+    "select_option": "Pilih opsi",
+    "type_here": "Ketik di sini...",
+    "empty_title": "Data tidak ditemukan",
+    "empty_subtitle": "Coba sesuaikan atau hapus filter Anda.",
+    "select_page_size": "Pilih jumlah baris",
+    "rows_count": "{count} baris",
+    "showing": "Menampilkan",
+    "of": "dari",
+    "rows": "baris",
+    "updating": "Memperbarui...",
+    "loading": "Memuat...",
+    "load_more": "Muat lagi"
+  },
+  "date_range_picker": {
+    "select_date": "Pilih Tanggal",
     "cancel": "Batal",
-    "close": "Tutup"
+    "submit": "Simpan",
+    "select_placeholder": "Pilih...",
+    "presets": {
+      "today": "Hari ini",
+      "yesterday": "Kemarin",
+      "last7": "7 hari terakhir",
+      "last14": "14 hari terakhir",
+      "last30": "30 hari terakhir",
+      "thisWeek": "Minggu ini",
+      "lastWeek": "Minggu lalu",
+      "thisMonth": "Bulan ini",
+      "lastMonth": "Bulan lalu",
+      "thisYear": "Tahun ini"
+    }
+  },
+  "search": {
+    "business_type_placeholder": "Jenis Usaha",
+    "any_landmark_placeholder": "Semua Landmark",
+    "search_stalls": "Cari Lapak",
+    "search_button": "Cari",
+    "stall_search": {
+      "radius": "Radius:",
+      "hide_filters": "Sembunyikan Filter",
+      "show_filters": "Opsi Filter Pencarian {count}",
+      "reset": "Atur Ulang",
+      "reset_all": "Atur Ulang Semua",
+      "all_search_filters": "Semua Filter Pencarian",
+      "space_filters": "Filter Ruang",
+      "budget_terms": "Anggaran & Ketentuan",
+      "listing_placeholder": "Daftar lapak akan muncul di sini",
+      "sections": {
+        "landmarks_radius": "Landmark & Radius",
+        "space_details": "Detail Ruang",
+        "property_type": "Tipe Properti",
+        "budget_roi": "Anggaran & ROI",
+        "lease_event_terms": "Ketentuan Sewa & Acara",
+        "facilities": "Fasilitas"
+      }
+    }
   }
 }

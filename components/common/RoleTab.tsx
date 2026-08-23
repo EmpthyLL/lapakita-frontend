@@ -3,21 +3,23 @@
 import { useRoleFilter } from "@/components/providers/role_provider";
 import { cn } from "@/lib/utils";
 import type { RoleAndAll } from "@/types";
+import { useTranslations } from "next-intl";
 
 interface RoleTabItem {
   value: RoleAndAll;
-  label: string;
+  key: "all" | "tenant" | "owner" | "supplier";
 }
 
 const TABS: RoleTabItem[] = [
-  { value: "all", label: "All" },
-  { value: "tenant", label: "Tenant" },
-  { value: "owner", label: "Stall Owner" },
-  { value: "supplier", label: "Supplier" },
+  { value: "all", key: "all" },
+  { value: "tenant", key: "tenant" },
+  { value: "owner", key: "owner" },
+  { value: "supplier", key: "supplier" },
 ];
 
 export function RoleTab() {
   const { activeRole, setActiveRole } = useRoleFilter();
+  const t = useTranslations("common.role_tab");
 
   return (
     <div
@@ -52,7 +54,7 @@ export function RoleTab() {
                 : undefined
             }
           >
-            {tab.label}
+            {t(tab.key)}
           </button>
         );
       })}

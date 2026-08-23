@@ -1,12 +1,5 @@
-import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError } from "axios";
 import { getSession, signOut } from "next-auth/react";
-import { getLocale } from "next-intl/server";
-
-declare module "axios" {
-  export interface InternalAxiosRequestConfig {
-    metadata?: { start: number; side: "server" | "browser" };
-  }
-}
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -16,80 +9,23 @@ const api = axios.create({
   },
 });
 
-let cachedBrowserToken: string | null = null;
-let browserTokenFetchedAt = 0;
-let browserSessionPromise: Promise<string | null> | null = null;
-const BROWSER_TOKEN_TTL_MS = 15 * 1000;
-
-const getBrowserToken = async (): Promise<string | null> => {
-  const now = Date.now();
-
-  if (
-    cachedBrowserToken &&
-    now - browserTokenFetchedAt < BROWSER_TOKEN_TTL_MS
-  ) {
-    return cachedBrowserToken;
-  }
-
-  if (!browserSessionPromise) {
-    browserSessionPromise = getSession()
-      .then((session) => {
-        const token = session?.user?.token ?? null;
-        cachedBrowserToken = token;
-        browserTokenFetchedAt = Date.now();
-        return token;
-      })
-      .finally(() => {
-        browserSessionPromise = null;
-      });
-  }
-
-  return browserSessionPromise;
-};
-
 api.interceptors.request.use(
-  async (config: InternalAxiosRequestConfig) => {
-    const isServer = typeof window === "undefined";
-    const side = isServer ? "server" : "browser";
-    config.metadata = { start: Date.now(), side };
+  async (config) => {
+    if (typeof window !== "undefined") {
+      const session = await getSession();
+      if (session?.user?.token) {
+        config.headers.Authorization = `Bearer ${session.user.token}`;
+      }
+    }
 
-    if (!isServer) {
-      // Client-Side
+    if (typeof document !== "undefined") {
       const locale =
         document.cookie
           .split("; ")
           .find((row) => row.startsWith("NEXT_LOCALE="))
           ?.split("=")[1] || "en";
-      config.headers["lang"] = locale;
 
-      const token = await getBrowserToken();
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    } else {
-      // Server-Side
-      try {
-        const locale = await getLocale();
-        config.headers["lang"] = locale || "en";
-      } catch {
-        config.headers["lang"] = "en";
-      }
-
-      try {
-        const { cookies } = await import("next/headers");
-        const cookieStore = await cookies();
-        const cookieName =
-          process.env.NODE_ENV === "production"
-            ? "__Secure-lapakita-next-auth.session-token"
-            : "lapakita-next-auth.session-token";
-
-        const sessionToken = cookieStore.get(cookieName)?.value;
-        if (sessionToken) {
-          config.headers.Authorization = `Bearer ${sessionToken}`;
-        }
-      } catch {
-        // Abaikan jika dipanggil di luar HTTP Context
-      }
+      config.headers.lang = locale;
     }
 
     return config;
@@ -98,29 +34,8 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response) => {
-    const meta = response.config.metadata;
-    if (meta && process.env.NODE_ENV === "development") {
-      const ms = Date.now() - meta.start;
-      console.log(
-        `[API ${meta.side.toUpperCase()}] ${response.config.url} -> ${response.status} (${ms}ms)`,
-      );
-    }
-    return response;
-  },
+  (response) => response,
   async (error: AxiosError<{ message?: string; error?: string }>) => {
-    const meta = error.config?.metadata;
-    if (meta && process.env.NODE_ENV === "development") {
-      const ms = Date.now() - meta.start;
-      const tag =
-        error.code === "ECONNABORTED"
-          ? "TIMEOUT"
-          : (error.response?.status ?? "ERR");
-      console.error(
-        `[API ${meta.side.toUpperCase()}] ${error.config?.url} -> ${tag} (${ms}ms)`,
-      );
-    }
-
     const status = error.response?.status;
     const errorMessage =
       error.response?.data?.error || error.response?.data?.message;
@@ -133,8 +48,6 @@ api.interceptors.response.use(
       errorMessage === "Unauthorized"
     ) {
       if (typeof window !== "undefined") {
-        cachedBrowserToken = null;
-        browserTokenFetchedAt = 0;
         await signOut({ redirect: true, callbackUrl: "/login" });
       }
     }

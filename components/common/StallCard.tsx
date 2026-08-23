@@ -14,6 +14,7 @@ import {
   Star,
   Timer,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { ReactNode, useState } from "react";
 import {
@@ -24,7 +25,6 @@ import { PAYMENT_CYCLE_OPTIONS } from "./search/constants/range";
 
 interface StallCardProps {
   stall: Stall;
-  /** "row": wide horizontal card for the main listing. "grid": vertical card for multi-column grids like Similar Stalls. */
   variant?: "row" | "grid";
 }
 
@@ -39,59 +39,47 @@ interface MetaChip {
   label: string;
 }
 
-/**
- * The Stall union carries different physical/schedule info per permanence
- * type. Each datum gets its own chip so it has room to read clearly in the
- * card body (previously cramped into a single corner badge on the photo).
- */
-function getContextualMeta(stall: Stall): MetaChip[] {
-  switch (stall.permanenceType) {
-    case "permanent":
-      // Floor count always shown (even at 1) — omitting it at 1 read as
-      // missing data rather than "single floor".
-      return [
-        { icon: Maximize2, label: `${stall.space.sizeSqm} m²` },
-        {
-          icon: Layers,
-          label: `${stall.space.floorCount} floor${stall.space.floorCount > 1 ? "s" : ""}`,
-        },
-      ];
-    case "semi-permanent":
-      return [
-        {
-          icon: Clock,
-          label: `${stall.operatingHours.open}–${stall.operatingHours.close}`,
-        },
-      ];
-    case "temporary":
-      return [
-        {
-          icon: Timer,
-          label: `${stall.event.durationDays} day${stall.event.durationDays > 1 ? "s" : ""} event`,
-        },
-      ];
-  }
-}
-
-/**
- * registrationDeadlineDays is "days remaining, counting from today, until
- * registration closes" — NOT "days before the event you must register by".
- * A "H-X" / "Register H-X" label reads ambiguously between those two
- * meanings, so this spells it out as a countdown instead.
- */
-function getRegistrationCountdown(
-  stall: Stall,
-): { label: string; urgent: boolean } | null {
-  if (stall.permanenceType !== "temporary") return null;
-  const days = stall.event.registrationDeadlineDays;
-
-  if (days <= 0) return { label: "Registration closed", urgent: true };
-  if (days === 1) return { label: "1 day left", urgent: true };
-  return { label: `${days} days left`, urgent: days <= 3 };
-}
-
 export function StallCard({ stall, variant = "row" }: StallCardProps) {
   const [saved, setSaved] = useState(false);
+  const t = useTranslations("common.stall_card");
+
+  function getContextualMeta(s: Stall): MetaChip[] {
+    switch (s.permanenceType) {
+      case "permanent":
+        return [
+          { icon: Maximize2, label: `${s.space.sizeSqm} m²` },
+          {
+            icon: Layers,
+            label: t("floors", { count: s.space.floorCount }),
+          },
+        ];
+      case "semi-permanent":
+        return [
+          {
+            icon: Clock,
+            label: `${s.operatingHours.open}–${s.operatingHours.close}`,
+          },
+        ];
+      case "temporary":
+        return [
+          {
+            icon: Timer,
+            label: t("days_event", { count: s.event.durationDays }),
+          },
+        ];
+    }
+  }
+
+  function getRegistrationCountdown(
+    s: Stall,
+  ): { label: string; urgent: boolean } | null {
+    if (s.permanenceType !== "temporary") return null;
+    const days = s.event.registrationDeadlineDays;
+
+    if (days <= 0) return { label: t("registration_closed"), urgent: true };
+    if (days === 1) return { label: t("one_day_left"), urgent: true };
+    return { label: t("days_left", { days }), urgent: days <= 3 };
+  }
 
   const propertyTypeObj = STALL_PROPERTY_TYPES.find(
     (p) => p.value === stall.propertyType,
@@ -200,7 +188,7 @@ export function StallCard({ stall, variant = "row" }: StallCardProps) {
             <button
               type="button"
               onClick={handleToggleSave}
-              aria-label={saved ? "Remove from saved" : "Save this stall"}
+              aria-label={saved ? t("remove_saved") : t("save_stall")}
               aria-pressed={saved}
               className={cn(
                 "flex h-7 w-7 shrink-0 items-center justify-center rounded-full backdrop-blur-md transition-all outline-none",
@@ -239,7 +227,7 @@ export function StallCard({ stall, variant = "row" }: StallCardProps) {
 
           <div className="mt-3 border-t border-border/60 pt-2.5">
             <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Starts from
+              {t("starts_from")}
             </span>
             <div className="flex items-baseline gap-1">
               <span className="text-base font-bold text-primary">
@@ -274,7 +262,7 @@ export function StallCard({ stall, variant = "row" }: StallCardProps) {
           <button
             type="button"
             onClick={handleToggleSave}
-            aria-label={saved ? "Remove from saved" : "Save this stall"}
+            aria-label={saved ? t("remove_saved") : t("save_stall")}
             aria-pressed={saved}
             className={cn(
               "flex h-7 w-7 shrink-0 items-center justify-center rounded-full backdrop-blur-md transition-all outline-none",
@@ -331,7 +319,7 @@ export function StallCard({ stall, variant = "row" }: StallCardProps) {
 
         <div className="mt-3 border-t border-border/60 pt-2.5">
           <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Starts from
+            {t("starts_from")}
           </span>
           <div className="flex items-baseline gap-1">
             <span className="text-lg font-bold text-primary sm:text-xl">

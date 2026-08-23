@@ -3,9 +3,10 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BUSINESS_TYPE_MAP } from "@/lib/data/schema/master/business_type";
+import { BusinessType } from "@/lib/data/schema/master/business_type";
 import { cn } from "@/lib/utils";
 import { ChevronDown, RotateCcw, SlidersHorizontal, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { ReactNode, useEffect, useState } from "react";
 import {
   getAllowedPlacements,
@@ -113,6 +114,7 @@ export default function StallSearch({
   mode = "full",
   children,
 }: StallSearchProps) {
+  const t = useTranslations("common.search.stall_search");
   const isFull = mode === "full";
 
   const [location, setLocation] = useState("");
@@ -140,6 +142,10 @@ export default function StallSearch({
   ]);
 
   const [businessType, setBusinessType] = useState("");
+  const [selectedTypeObj, setSelectedTypeObj] = useState<BusinessType | null>(
+    null,
+  );
+
   const [facilities, setFacilities] = useState<string[]>([]);
   const [bepMonths, setBepMonths] = useState<string>(
     String(DEFAULT_BEP_MONTHS),
@@ -155,14 +161,12 @@ export default function StallSearch({
     DEPOSIT_RANGE.max,
   ]);
 
-  // Lease Terms State (Permanent & Semi-Permanent)
   const [startDate, setStartDate] = useState("");
   const [customStartDay, setCustomStartDay] = useState("");
   const [minLeasePeriod, setMinLeasePeriod] = useState("");
   const [customLeaseMonths, setCustomLeaseMonths] = useState("");
   const [paymentCycle, setPaymentCycle] = useState<PaymentCycle | "">("");
 
-  // Temporary / Event Terms State
   const [eventOperatingDays, setEventOperatingDays] = useState("");
   const [attendanceRequirement, setAttendanceRequirement] = useState("");
   const [cancellationPolicy, setCancellationPolicy] = useState("");
@@ -189,20 +193,19 @@ export default function StallSearch({
   }
 
   function applyPresetFor(
-    typeSlug: string,
+    typeDef: BusinessType | null,
     forPermanence: StallPermanenceType,
   ) {
-    const typeDef = BUSINESS_TYPE_MAP[typeSlug];
     if (!typeDef) return false;
 
-    const preset = typeDef.permanencePresets[forPermanence];
+    const preset = typeDef.permanencePresets?.[forPermanence];
 
     if (preset) {
       setPropertyType(
-        preset.allowedPropertyTypes.length ? preset.allowedPropertyTypes : [],
+        preset.allowedPropertyTypes?.length ? preset.allowedPropertyTypes : [],
       );
       setPlacement(preset.defaultPlacement);
-      setFacilities(preset.facilities);
+      setFacilities(preset.facilities || []);
 
       if (forPermanence === "permanent" && "recommendedSizeSqm" in preset) {
         setSizeRange([
@@ -254,24 +257,29 @@ export default function StallSearch({
     setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
     setDepositRange([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]);
 
-    setLandmarkEntries((prev) =>
-      isUntouchedLandmarkEntries(prev)
-        ? typeDef.landmarks.map((landmark) => ({
-            ...createLandmarkRadiusEntry(),
-            landmark,
-          }))
-        : prev,
-    );
+    if (typeDef.landmarks?.length) {
+      setLandmarkEntries((prev) =>
+        isUntouchedLandmarkEntries(prev)
+          ? typeDef.landmarks.map((landmark) => ({
+              ...createLandmarkRadiusEntry(),
+              landmark,
+            }))
+          : prev,
+      );
+    }
     return true;
   }
 
   function handlePermanenceChange(next: StallPermanenceType) {
     setPermanenceType(next);
 
-    const applied = businessType ? applyPresetFor(businessType, next) : false;
+    const applied = selectedTypeObj
+      ? applyPresetFor(selectedTypeObj, next)
+      : false;
 
     if (!applied) {
       setBusinessType("");
+      setSelectedTypeObj(null);
       setPropertyType([]);
       setPlacement("");
       setSizeRange([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]);
@@ -286,7 +294,6 @@ export default function StallSearch({
       setEventDurationDays(null);
       setCapital(DEFAULT_CAPITAL_BY_PERMANENCE[next]);
 
-      // Reset lease & event states
       setStartDate("");
       setCustomStartDay("");
       setMinLeasePeriod("");
@@ -297,16 +304,18 @@ export default function StallSearch({
     }
   }
 
-  function handleBusinessTypeChange(value: string) {
+  function handleBusinessTypeChange(value: string, selectedObj?: BusinessType) {
     setBusinessType(value);
-    const typeDef = BUSINESS_TYPE_MAP[value];
+    const typeDef = selectedObj ?? null;
+    setSelectedTypeObj(typeDef);
+
     if (!typeDef) return;
 
     setBepMonths(String(typeDef.defaultBEPMonths));
     setCustomBepMonths(null);
     setCapital(typeDef.defaultCapital);
 
-    applyPresetFor(value, permanenceType);
+    applyPresetFor(typeDef, permanenceType);
   }
 
   useEffect(() => {
@@ -363,6 +372,7 @@ export default function StallSearch({
     setSizeRange([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]);
     setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);
     setBusinessType("");
+    setSelectedTypeObj(null);
     setFacilities([]);
     setCapital(DEFAULT_CAPITAL_BY_PERMANENCE[permanenceType]);
     setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
@@ -401,14 +411,14 @@ export default function StallSearch({
 
   const renderSpaceFilters = () => (
     <>
-      <FilterAccordionSection title="Landmarks & Radius">
+      <FilterAccordionSection title={t("sections.landmarks_radius")}>
         <LandmarkRadiusPicker
           entries={landmarkEntries}
           onChange={setLandmarkEntries}
         />
       </FilterAccordionSection>
 
-      <FilterAccordionSection title="Space Details">
+      <FilterAccordionSection title={t("sections.space_details")}>
         <StallSpaceFilter
           permanenceType={permanenceType}
           selectedPropertyTypes={propertyType}
@@ -429,7 +439,7 @@ export default function StallSearch({
         />
       </FilterAccordionSection>
 
-      <FilterAccordionSection title="Property Type">
+      <FilterAccordionSection title={t("sections.property_type")}>
         <PropertyTypePicker
           value={propertyType}
           onChange={setPropertyType}
@@ -441,10 +451,10 @@ export default function StallSearch({
 
   const renderBudgetTermsFilters = () => (
     <>
-      <FilterAccordionSection title="Budget & ROI">
+      <FilterAccordionSection title={t("sections.budget_roi")}>
         <StallSearchBudgetFilters
           permanenceType={permanenceType}
-          businessTypeLabel={BUSINESS_TYPE_MAP[businessType]?.label ?? null}
+          businessTypeLabel={selectedTypeObj?.label ?? null}
           bepMonths={bepMonths}
           onBepMonthsChange={setBepMonths}
           customBepMonths={customBepMonths}
@@ -461,7 +471,7 @@ export default function StallSearch({
         />
       </FilterAccordionSection>
 
-      <FilterAccordionSection title="Lease & Event Terms">
+      <FilterAccordionSection title={t("sections.lease_event_terms")}>
         <LeaseTermsPicker
           permanenceType={permanenceType}
           startDate={startDate}
@@ -482,7 +492,7 @@ export default function StallSearch({
       </FilterAccordionSection>
 
       <FilterAccordionSection
-        title="Facilities"
+        title={t("sections.facilities")}
         activeCount={facilities.length}
       >
         <FacilityPicker
@@ -519,7 +529,7 @@ export default function StallSearch({
         {!isFull && (
           <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
             <span className="text-xs font-medium text-muted-foreground">
-              Radius:
+              {t("radius")}
             </span>
             <div className="flex flex-wrap gap-1.5">
               {RADIUS_PRESETS.map((r) => (
@@ -559,8 +569,11 @@ export default function StallSearch({
             <span className="flex items-center gap-2">
               <SlidersHorizontal className="h-4 w-4" />
               {showMobileFilters
-                ? "Hide Filters"
-                : `Filter Search Options ${activeFilterCount > 0 ? `(${activeFilterCount})` : ""}`}
+                ? t("hide_filters")
+                : t("show_filters", {
+                    count:
+                      activeFilterCount > 0 ? `(${activeFilterCount})` : "",
+                  })}
             </span>
             {showMobileFilters ? (
               <X className="h-4 w-4" />
@@ -577,7 +590,7 @@ export default function StallSearch({
               className="gap-1.5 rounded-xl text-xs font-semibold text-muted-foreground hover:text-destructive"
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              Reset
+              {t("reset")}
             </Button>
           )}
         </div>
@@ -587,7 +600,7 @@ export default function StallSearch({
         <div className="rounded-2xl border border-border bg-card p-4 shadow-sm lg:hidden animate-in fade-in zoom-in-95">
           <div className="mb-3 flex items-center justify-between border-b border-border pb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              All Search Filters
+              {t("all_search_filters")}
             </span>
             <button
               type="button"
@@ -595,7 +608,7 @@ export default function StallSearch({
               className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
             >
               <RotateCcw className="h-3 w-3" />
-              Reset All
+              {t("reset_all")}
             </button>
           </div>
 
@@ -612,14 +625,14 @@ export default function StallSearch({
             <div className="space-y-1 rounded-2xl border border-border bg-card p-4 shadow-xs sticky top-4">
               <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Space Filters
+                  {t("space_filters")}
                 </span>
                 <button
                   type="button"
                   onClick={resetAllFilters}
                   className="text-[11px] font-medium text-primary hover:underline"
                 >
-                  Reset
+                  {t("reset")}
                 </button>
               </div>
               {renderSpaceFilters()}
@@ -629,7 +642,7 @@ export default function StallSearch({
           <main className="min-w-0">
             {children ?? (
               <div className="flex h-full min-h-60 items-center justify-center rounded-2xl border border-dashed border-border text-sm text-muted-foreground">
-                Stall listing goes here
+                {t("listing_placeholder")}
               </div>
             )}
           </main>
@@ -638,14 +651,14 @@ export default function StallSearch({
             <div className="space-y-1 rounded-2xl border border-border bg-card p-4 shadow-xs sticky top-4">
               <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Budget & Terms
+                  {t("budget_terms")}
                 </span>
                 <button
                   type="button"
                   onClick={resetAllFilters}
                   className="text-[11px] font-medium text-primary hover:underline"
                 >
-                  Reset
+                  {t("reset")}
                 </button>
               </div>
               {renderBudgetTermsFilters()}
