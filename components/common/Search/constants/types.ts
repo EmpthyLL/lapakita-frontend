@@ -1,4 +1,10 @@
-import { LucideIcon } from "lucide-react";
+import {
+  Key,
+  LucideIcon,
+  MapPin,
+  SlidersHorizontal,
+  Target,
+} from "lucide-react";
 
 export type BEPMonths = 3 | 6 | 12 | 18 | 24;
 export type RadiusPreset = "1 km" | "3 km" | "5 km" | "10 km";
@@ -99,12 +105,6 @@ export interface StallPropertyType {
   allowedFacilities: FacilityValue[];
 }
 
-export interface SearchInfoItem {
-  icon: LucideIcon;
-  highlight: string;
-  label: string;
-}
-
 export interface StartDateOption {
   value: StartDateValue;
   label: string;
@@ -151,3 +151,15 @@ export interface RentRangeConfig {
   max: number;
   step: number;
 }
+
+export interface SearchCapabilityItem {
+  id: "permanence" | "landmark" | "specs" | "roi";
+  icon: LucideIcon;
+}
+
+export const SEARCH_CAPABILITIES: SearchCapabilityItem[] = [
+  { id: "permanence", icon: Key },
+  { id: "landmark", icon: MapPin },
+  { id: "specs", icon: SlidersHorizontal },
+  { id: "roi", icon: Target },
+];

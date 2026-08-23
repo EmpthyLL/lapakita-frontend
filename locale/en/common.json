@@ -98,6 +98,28 @@
         "lease_event_terms": "Lease & Event Terms",
         "facilities": "Facilities"
       }
+    },
+    "footer": {
+      "cta_text": "Have a specific budget & ROI timeline?",
+      "cta_highlight": "Try Budget & ROI Match",
+      "capabilities": {
+        "permanence": {
+          "title": "Operational Permanence",
+          "desc": "Filter by 24/7 Standalone, Mall/Market, or Temporary Bazaar Spots"
+        },
+        "landmark": {
+          "title": "Landmark & Radius",
+          "desc": "Search near campuses, schools, office hubs & transit stations"
+        },
+        "specs": {
+          "title": "Multi-Filter Specs",
+          "desc": "Filter by placement, power kVA, water, grease-trap & facilities"
+        },
+        "roi": {
+          "title": "Budget & ROI Match",
+          "desc": "Calculate rent fit by capital, BEP target, or event revenue target"
+        }
+      }
     }
   }
 }

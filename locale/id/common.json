@@ -98,6 +98,28 @@
         "lease_event_terms": "Ketentuan Sewa & Acara",
         "facilities": "Fasilitas"
       }
+    },
+    "footer": {
+      "cta_text": "Punya target modal & garis waktu ROI?",
+      "cta_highlight": "Coba Fitur Budget & ROI Match",
+      "capabilities": {
+        "permanence": {
+          "title": "Permanensi Operasional",
+          "desc": "Filter Ruko 24/7, Kios Mall/Pasar, atau Lapak Event/Bazaar"
+        },
+        "landmark": {
+          "title": "Landmark & Radius",
+          "desc": "Cari di sekitar kampus, sekolah, perkantoran & stasiun transit"
+        },
+        "specs": {
+          "title": "Spesifikasi Detail",
+          "desc": "Filter berdasarkan penempatan, kVA listrik, air, & fasilitas"
+        },
+        "roi": {
+          "title": "Kesesuaian Budget & ROI",
+          "desc": "Hitung sewa ideal berdasarkan modal, target BEP, atau omset"
+        }
+      }
     }
   }
 }

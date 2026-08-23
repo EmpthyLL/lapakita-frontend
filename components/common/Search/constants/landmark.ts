@@ -6,34 +6,13 @@ import {
   HeartPulse,
   Home,
   Landmark,
-  MapPin,
   Plane,
   School,
   ShoppingBag,
-  SlidersHorizontal,
-  Target,
   TrainFront,
   Utensils,
 } from "lucide-react";
-import { LandmarkCategory, SearchInfoItem } from "./types";
-
-export const SEARCH_CAPABILITIES: SearchInfoItem[] = [
-  {
-    icon: MapPin,
-    highlight: "Landmark & Radius",
-    label: "Search near campus, schools & offices",
-  },
-  {
-    icon: SlidersHorizontal,
-    highlight: "Multi-Filter Utility",
-    label: "Power, water, kitchen & rent range",
-  },
-  {
-    icon: Target,
-    highlight: "Budget & ROI Match",
-    label: "Calculate rent fit by capital & BEP target",
-  },
-];
+import { LandmarkCategory } from "./types";
 
 export const LANDMARK_CATEGORIES: LandmarkCategory[] = [
   { value: "campus", label: "Campus & University Area", icon: GraduationCap },
