@@ -1,3 +1,9 @@
+import {
+  basePaginationQuerySchema,
+  PaginatedResponse,
+} from "@/lib/data/schema/base";
+import { z } from "zod";
+
 export type AreaType =
   | "country"
   | "province"
@@ -6,122 +12,44 @@ export type AreaType =
   | "suburb"
   | "street";
 
+// ── Struct / DTO Response: Search General (/areas) ──────────────────────────
 export interface AreaGeneralResponseData {
   type: AreaType;
   title: string;
   subtitle: string;
-  fullLabel: string;
+  full_label: string;
   country: string;
-  countryCode: string;
+  country_code: string;
   city?: string;
   province?: string;
   district?: string;
   suburb?: string;
 }
 
-export const DUMMY_LOCATIONS: AreaGeneralResponseData[] = [
-  {
-    type: "street",
-    title: "Jalan Delimas",
-    subtitle: "Surabaya, Jawa Timur, Indonesia",
-    fullLabel: "Jalan Delimas, Surabaya, Jawa Timur, Indonesia",
-    country: "Indonesia",
-    countryCode: "ID",
-    city: "Surabaya",
-    province: "Jawa Timur",
-  },
-  {
-    type: "suburb",
-    title: "Kelurahan Kebayoran Baru",
-    subtitle: "Kebayoran Baru, Jakarta Selatan, DKI Jakarta",
-    fullLabel:
-      "Kelurahan Kebayoran Baru, Jakarta Selatan, DKI Jakarta, Indonesia",
-    country: "Indonesia",
-    countryCode: "ID",
-    city: "Jakarta Selatan",
-    province: "DKI Jakarta",
-    district: "Kebayoran Baru",
-    suburb: "Kebayoran Baru",
-  },
-  {
-    type: "street",
-    title: "Jl. Gatot Subroto",
-    subtitle: "Medan, Sumatera Utara, Indonesia",
-    fullLabel: "Jl. Gatot Subroto, Medan, Sumatera Utara, Indonesia",
-    country: "Indonesia",
-    countryCode: "ID",
-    city: "Medan",
-    province: "Sumatera Utara",
-  },
-  {
-    type: "district",
-    title: "Pondok Cina",
-    subtitle: "Depok, Jawa Barat, Indonesia",
-    fullLabel: "Pondok Cina, Depok, Jawa Barat, Indonesia",
-    country: "Indonesia",
-    countryCode: "ID",
-    city: "Depok",
-    province: "Jawa Barat",
-  },
-  {
-    type: "district",
-    title: "Tanah Abang",
-    subtitle: "Jakarta Pusat, DKI Jakarta, Indonesia",
-    fullLabel: "Tanah Abang, Jakarta Pusat, DKI Jakarta, Indonesia",
-    country: "Indonesia",
-    countryCode: "ID",
-    city: "Jakarta Pusat",
-    province: "DKI Jakarta",
-  },
-  {
-    type: "city",
-    title: "Medan",
-    subtitle: "Sumatera Utara, Indonesia",
-    fullLabel: "Medan, Sumatera Utara, Indonesia",
-    country: "Indonesia",
-    countryCode: "ID",
-    province: "Sumatera Utara",
-  },
-  {
-    type: "city",
-    title: "Bandung",
-    subtitle: "Jawa Barat, Indonesia",
-    fullLabel: "Bandung, Jawa Barat, Indonesia",
-    country: "Indonesia",
-    countryCode: "ID",
-    province: "Jawa Barat",
-  },
-  {
-    type: "city",
-    title: "Surabaya",
-    subtitle: "Jawa Timur, Indonesia",
-    fullLabel: "Surabaya, Jawa Timur, Indonesia",
-    country: "Indonesia",
-    countryCode: "ID",
-    province: "Jawa Timur",
-  },
-  {
-    type: "province",
-    title: "Jawa Timur",
-    subtitle: "Indonesia",
-    fullLabel: "Jawa Timur, Indonesia",
-    country: "Indonesia",
-    countryCode: "ID",
-  },
-  {
-    type: "province",
-    title: "DKI Jakarta",
-    subtitle: "Indonesia",
-    fullLabel: "DKI Jakarta, Indonesia",
-    country: "Indonesia",
-    countryCode: "ID",
-  },
-  {
-    type: "country",
-    title: "Indonesia",
-    subtitle: "Southeast Asia",
-    fullLabel: "Indonesia",
-    country: "Indonesia",
-    countryCode: "ID",
-  },
-];
+export type AreaGeneralResponse = PaginatedResponse<AreaGeneralResponseData>;
+
+// ── Struct / DTO Response: Search Detail (/areas/detail) ─────────────────────
+export interface AreaDetailResponseData {
+  formatted: string;
+  street_address: string;
+  suburb: string;
+  district: string;
+  city: string;
+  province: string;
+  country: string;
+  country_code: string;
+  postal_code: string;
+  latitude: number;
+  longitude: number;
+  map_url: string;
+  embedded_map_url: string;
+}
+
+export type AreaDetailResponse = PaginatedResponse<AreaDetailResponseData>;
+
+// ── Query Schema ────────────────────────────────────────────────────────────
+export const getAreaQuerySchema = basePaginationQuerySchema.extend({
+  search: z.string(),
+});
+
+export type GetAreaQuery = z.infer<typeof getAreaQuerySchema>;

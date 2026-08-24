@@ -185,8 +185,8 @@ export function getCalculatedRangesForFilters(
 
   const profile = businessTypeObj
     ? {
-        grossMarginRatio: businessTypeObj.avgGrossMarginRatio,
-        rentToRevenueRatio: businessTypeObj.industryRentToRevenueRatio,
+        grossMarginRatio: businessTypeObj.avg_gross_margin_ratio,
+        rentToRevenueRatio: businessTypeObj.industry_rent_to_revenue_ratio,
       }
     : undefined;
 
@@ -219,16 +219,16 @@ export function getPresetWithCalculatedRanges(
     capitalOrDailyTarget && capitalOrDailyTarget > 0
       ? capitalOrDailyTarget
       : (DEFAULT_CAPITAL_BY_PERMANENCE[permanenceType] ??
-        typeDef.defaultCapital);
+        typeDef.default_capital);
 
-  const activeBEP = bepMonths ?? typeDef.defaultBEPMonths;
+  const activeBEP = bepMonths ?? typeDef.default_bep_months;
 
   const cycleRanges: MultiCycleRanges = calculateMultiCycleRanges(
     activeInput,
     activeBEP,
     {
-      grossMarginRatio: typeDef.avgGrossMarginRatio,
-      rentToRevenueRatio: typeDef.industryRentToRevenueRatio,
+      grossMarginRatio: typeDef.avg_gross_margin_ratio,
+      rentToRevenueRatio: typeDef.industry_rent_to_revenue_ratio,
     },
     permanenceType,
   );

@@ -1,8 +1,10 @@
 "use client";
 
 import { useDebounce } from "@/hooks/use-debounce";
+import { BusinessType } from "@/lib/data/schema/master/business_type";
 import { formatCurrency } from "@/lib/utils";
 import { CalendarDays, Sparkles, Target } from "lucide-react";
+import { useTranslations } from "next-intl";
 import * as React from "react";
 import { Autocomplete } from "../input/Autocomplete";
 import { NumberInput } from "../input/NumberInput";
@@ -20,17 +22,9 @@ import { getCalculatedRangesForFilters } from "./util/BusinessTypeCalc";
 
 const PRESET_VALUES = BEP_PRESETS_MONTHS.map(String);
 
-const BEP_OPTIONS = [
-  ...BEP_PRESETS_MONTHS.map((m) => ({
-    value: String(m),
-    label: `${m} months`,
-  })),
-  { value: "custom", label: "Custom" },
-];
-
 interface StallSearchBudgetFiltersProps {
   permanenceType: StallPermanenceType;
-  businessType?: string;
+  businessTypeObj?: BusinessType | null;
   businessTypeLabel: string | null;
   bepMonths: string;
   onBepMonthsChange: (value: string) => void;
@@ -51,7 +45,7 @@ interface StallSearchBudgetFiltersProps {
 
 export function StallSearchBudgetFilters({
   permanenceType,
-  businessType = "",
+  businessTypeObj,
   businessTypeLabel,
   bepMonths,
   onBepMonthsChange,
@@ -67,7 +61,16 @@ export function StallSearchBudgetFilters({
   onDepositRangeChange,
   allowedPaymentCycles,
 }: StallSearchBudgetFiltersProps) {
+  const t = useTranslations("common.search.budget_filters");
   const isTemporary = permanenceType === "temporary";
+
+  const bepOptions = [
+    ...BEP_PRESETS_MONTHS.map((m) => ({
+      value: String(m),
+      label: `${m}${t("months_suffix")}`,
+    })),
+    { value: "custom", label: t("custom") },
+  ];
 
   React.useEffect(() => {
     if (
@@ -86,8 +89,6 @@ export function StallSearchBudgetFilters({
   const debouncedCapital = useDebounce(capital, 450);
   const debouncedCustomBepMonths = useDebounce(customBepMonths, 450);
 
-  // Now runs for every permanence type — including temporary, using its
-  // daily-target-based calculation branch inside calculateMultiCycleRanges.
   React.useEffect(() => {
     const { rentRange: newRent, depositRange: newDeposit } =
       getCalculatedRangesForFilters(
@@ -95,7 +96,7 @@ export function StallSearchBudgetFilters({
         bepMonths,
         debouncedCustomBepMonths,
         paymentCycle,
-        businessType,
+        businessTypeObj,
         permanenceType,
       );
 
@@ -107,7 +108,7 @@ export function StallSearchBudgetFilters({
     bepMonths,
     debouncedCustomBepMonths,
     paymentCycle,
-    businessType,
+    businessTypeObj,
     permanenceType,
   ]);
 
@@ -115,9 +116,6 @@ export function StallSearchBudgetFilters({
     allowedPaymentCycles.includes(opt.value),
   );
 
-  // Fallback range (no cycle picked yet) now spans allowed cycles only —
-  // e.g. temporary (day, month) gets a tight Rp50k–10jt range, not the
-  // fixed general Rp300k–50jt range meant for permanent's full cycle set.
   const activeRentLimit = paymentCycle
     ? RENT_RANGE_BY_CYCLE[paymentCycle]
     : getAllowedRentRange(allowedPaymentCycles);
@@ -146,20 +144,13 @@ export function StallSearchBudgetFilters({
       >
         <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0" />
         {isTemporary ? (
-          <span>
-            Pop-up spots are priced per event — set a daily revenue target below
-            and we&apos;ll estimate a fair rent range for this booking.
-          </span>
+          <span>{t("temporary_notice")}</span>
         ) : businessTypeLabel ? (
           <span>
-            Recommendations tailored for {businessTypeLabel} — adjust anything
-            below.
+            {t("tailored_notice", { businessType: businessTypeLabel })}
           </span>
         ) : (
-          <span>
-            Showing general assumptions. Pick a business type above for tailored
-            numbers.
-          </span>
+          <span>{t("general_notice")}</span>
         )}
       </div>
 
@@ -171,10 +162,10 @@ export function StallSearchBudgetFilters({
             </span>
             <div>
               <p className="text-xs font-bold text-foreground">
-                Daily Revenue Target
+                {t("daily_revenue_target")}
               </p>
               <p className="text-[10px] font-medium text-primary">
-                Used to estimate a fair per-day or per-event rent
+                {t("daily_revenue_desc")}
               </p>
             </div>
           </div>
@@ -196,26 +187,26 @@ export function StallSearchBudgetFilters({
               </span>
               <div>
                 <p className="text-xs font-bold text-foreground">
-                  Target Break-Even Period
+                  {t("target_bep_period")}
                 </p>
                 <p className="text-[10px] font-medium text-primary">
-                  Quick filter
+                  {t("quick_filter")}
                 </p>
               </div>
             </div>
             <Autocomplete
               value={bepMonths}
               onSelect={(v) => handleBepSelect(String(v))}
-              options={BEP_OPTIONS}
-              placeholder="Pick a target BEP"
+              options={bepOptions}
+              placeholder={t("pick_bep_placeholder")}
               mode="solid"
               className="mt-2"
             />
             {bepMonths === "custom" && (
               <NumberInput
-                suffix=" months"
+                suffix={t("months_suffix")}
                 decimalScale={0}
-                placeholder="e.g. 9 months"
+                placeholder={`e.g. 9${t("months_suffix")}`}
                 value={customBepMonths ?? ""}
                 onValueChange={(v) =>
                   onCustomBepMonthsChange(v.floatValue ?? null)
@@ -227,7 +218,7 @@ export function StallSearchBudgetFilters({
 
           <div>
             <p className="mb-2 text-xs font-semibold text-muted-foreground">
-              Available Capital
+              {t("available_capital")}
             </p>
             <NumberInput
               prefix="Rp "
@@ -243,7 +234,7 @@ export function StallSearchBudgetFilters({
 
       <div>
         <p className="mb-2 text-xs font-semibold text-muted-foreground">
-          Payment Cycle
+          {t("payment_cycle")}
         </p>
         <SegmentedToggle
           value={paymentCycle}
@@ -253,7 +244,7 @@ export function StallSearchBudgetFilters({
       </div>
 
       <RangeInput
-        label="Rent"
+        label={t("rent")}
         min={activeRentLimit.min}
         max={activeRentLimit.max}
         step={activeRentLimit.step}
@@ -264,7 +255,7 @@ export function StallSearchBudgetFilters({
       />
 
       <RangeInput
-        label="Deposit"
+        label={t("deposit")}
         min={DEPOSIT_RANGE.min}
         max={DEPOSIT_RANGE.max}
         step={DEPOSIT_RANGE.step}

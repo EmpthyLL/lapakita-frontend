@@ -99,6 +99,22 @@
         "facilities": "Fasilitas"
       }
     },
+    "budget_filters": {
+      "temporary_notice": "Lapak pop-up dihitung per acara — tentukan target omset harian di bawah dan kami akan mengestimasi kisaran sewa yang wajar.",
+      "tailored_notice": "Rekomendasi disesuaikan untuk {businessType} — Anda dapat mengubah nilai apa pun di bawah.",
+      "general_notice": "Menampilkan asumsi umum. Pilih jenis usaha di atas untuk angka yang disesuaikan.",
+      "daily_revenue_target": "Target Omset Harian",
+      "daily_revenue_desc": "Digunakan untuk mengestimasi harga sewa per hari atau per acara",
+      "target_bep_period": "Target Periode Impas (BEP)",
+      "quick_filter": "Filter cepat",
+      "pick_bep_placeholder": "Pilih target BEP",
+      "available_capital": "Modal Tersedia",
+      "payment_cycle": "Siklus Pembayaran",
+      "rent": "Sewa",
+      "deposit": "Deposit",
+      "custom": "Kustom",
+      "months_suffix": " bulan"
+    },
     "footer": {
       "cta_text": "Punya target modal & garis waktu ROI?",
       "cta_highlight": "Coba Fitur Budget & ROI Match",
@@ -120,6 +136,25 @@
           "desc": "Hitung sewa ideal berdasarkan modal, target BEP, atau omset"
         }
       }
+    }
+  },
+  "location_autocomplete": {
+    "search_placeholder": "Jalan, kelurahan, kecamatan, kota, atau provinsi",
+    "street_address": "Alamat Jalan / No. Rumah",
+    "suburb": "Kelurahan / Desa",
+    "district": "Kecamatan",
+    "city": "Kota / Kabupaten",
+    "province": "Provinsi",
+    "postal_code": "Kode Pos",
+    "country": "Negara",
+    "auto_filled": "Terisi otomatis berdasarkan pencarian lokasi",
+    "types": {
+      "country": "Negara",
+      "province": "Provinsi",
+      "city": "Kota",
+      "district": "Kecamatan",
+      "suburb": "Kelurahan",
+      "street": "Jalan"
     }
   }
 }

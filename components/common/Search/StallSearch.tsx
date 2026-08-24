@@ -198,7 +198,7 @@ export default function StallSearch({
   ) {
     if (!typeDef) return false;
 
-    const preset = typeDef.permanencePresets?.[forPermanence];
+    const preset = typeDef.permanence_presets?.[forPermanence];
 
     if (preset) {
       setPropertyType(
@@ -257,10 +257,10 @@ export default function StallSearch({
     setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
     setDepositRange([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]);
 
-    if (typeDef.landmarks?.length) {
+    if (typeDef.recommended_landmarks?.length) {
       setLandmarkEntries((prev) =>
         isUntouchedLandmarkEntries(prev)
-          ? typeDef.landmarks.map((landmark) => ({
+          ? typeDef.recommended_landmarks.map((landmark) => ({
               ...createLandmarkRadiusEntry(),
               landmark,
             }))
@@ -311,9 +311,9 @@ export default function StallSearch({
 
     if (!typeDef) return;
 
-    setBepMonths(String(typeDef.defaultBEPMonths));
+    setBepMonths(String(typeDef.default_bep_months));
     setCustomBepMonths(null);
-    setCapital(typeDef.defaultCapital);
+    setCapital(typeDef.default_capital);
 
     applyPresetFor(typeDef, permanenceType);
   }

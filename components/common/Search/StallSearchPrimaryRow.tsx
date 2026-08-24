@@ -12,7 +12,7 @@ import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Autocomplete } from "../input/Autocomplete";
-import { LocationAutocomplete } from "./LocationAutocomplete";
+import { LocationAutocomplete } from "../input/LocationAutocomplete";
 import { LANDMARK_CATEGORIES } from "./constants/landmark";
 import { StallPermanenceType } from "./constants/types";
 
@@ -57,12 +57,12 @@ export function StallSearchPrimaryRow({
   });
 
   const businessTypeOptions = businessTypes
-    .filter((bt) => Boolean(bt.permanencePresets?.[permanenceType]))
+    .filter((bt) => Boolean(bt.permanence_presets?.[permanenceType]))
     .map((bt) => ({
       ...bt,
       value: bt.id,
       label: bt.label,
-      group: bt.group,
+      group: bt.group_name,
     }));
 
   return (
@@ -90,7 +90,6 @@ export function StallSearchPrimaryRow({
           groupKey="group"
           placeholder={t("business_type_placeholder")}
           mode="solid"
-          size="lg"
           className="lg:w-60"
           onFilterChange={setSearchTerm}
           isLoading={isLoading}
