@@ -1,16 +1,16 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { LogIn } from "lucide-react";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { GoogleButton } from "@/components/common/GoogleButton";
 import { PasswordInput } from "@/components/common/input/PasswordInput";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
   FieldError,
@@ -19,23 +19,48 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { loginSchema, LoginValues } from "@/lib/data/schema/auth/login";
+import { handleError } from "@/lib/error";
 import { AuthDivider } from "../AuthDivider";
 import { AuthShell } from "../AuthShell";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
 
   const { control, handleSubmit } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "", remember: false },
+    defaultValues: { email: "", password: "" },
   });
 
-  async function onSubmit() {
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    router.push("/dashboard");
+  const loginMutation = useMutation({
+    mutationFn: async (values: LoginValues) => {
+      const result = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+
+      // Pengecekan respons NextAuth v5
+      if (result?.error || !result?.ok) {
+        const errorMessage =
+          result?.code && result.code !== "credentials"
+            ? result.code
+            : "Invalid email or password";
+
+        throw new Error(errorMessage);
+      }
+
+      return result;
+    },
+    onSuccess: () => {
+      router.push("/dashboard");
+    },
+    onError: (error) => {
+      handleError(error);
+    },
+  });
+
+  function onSubmit(values: LoginValues) {
+    loginMutation.mutate(values);
   }
 
   return (
@@ -64,8 +89,7 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Social sign-in */}
-      <GoogleButton href="/api/auth/google?flow=login" />
+      <GoogleButton />
 
       <AuthDivider label="Or log in with email" />
 
@@ -116,30 +140,10 @@ export default function LoginPage() {
             )}
           />
 
-          <Controller
-            control={control}
-            name="remember"
-            render={({ field }) => (
-              <Field orientation="horizontal">
-                <Checkbox
-                  id="remember"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-                <FieldLabel
-                  htmlFor="remember"
-                  className="font-normal text-muted-foreground"
-                >
-                  Keep me logged in
-                </FieldLabel>
-              </Field>
-            )}
-          />
-
           <Field>
             <Button
               type="submit"
-              isLoading={isLoading}
+              isLoading={loginMutation.isPending}
               size="lg"
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
             >

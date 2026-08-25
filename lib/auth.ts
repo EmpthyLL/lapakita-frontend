@@ -1,6 +1,15 @@
 import axios from "axios";
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
+import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
+
+// Class Custom Error untuk Auth.js v5
+class CustomAuthError extends CredentialsSignin {
+  constructor(message: string) {
+    super(message);
+    this.code = message; // Auth.js v5 menyimpan pesan error di properti 'code'
+  }
+}
 
 const authApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -12,6 +21,32 @@ const authApi = axios.create({
 
 const COOKIE_PREFIX = "lapakita";
 const useSecureCookies = (process.env.AUTH_URL ?? "").startsWith("https://");
+
+async function refreshAccessToken(token: JWT): Promise<JWT> {
+  try {
+    const response = await authApi.post("auth/refresh", {
+      refresh_token: token.refreshToken,
+    });
+
+    const refreshedTokens = response.data?.data;
+
+    if (!response.data || !refreshedTokens) {
+      throw new Error("Failed to refresh token");
+    }
+
+    return {
+      ...token,
+      token: refreshedTokens.access_token,
+      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
+      tokenExpiresAt: Date.now() + 15 * 60 * 1000,
+    };
+  } catch {
+    return {
+      ...token,
+      error: "RefreshTokenError",
+    };
+  }
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
@@ -56,7 +91,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials?.email || !credentials?.password) {
+          throw new CustomAuthError("Email and password are required");
+        }
 
         try {
           const res = await authApi.post("auth/login", {
@@ -64,32 +101,42 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             password: credentials.password,
           });
 
-          const user = res.data?.data;
+          const data = res.data?.data;
+          const user = data?.user;
+          const accessToken = data?.access_token || user?.token;
+          const refreshToken = data?.refresh_token;
 
-          if (user && user.token) {
+          if (user && accessToken) {
             return {
               id: user.id,
               name: user.name,
               email: user.email,
               phone: user.phone,
-              avatarUrl: user.avatar_url,
-              activeRole: user.active_role ?? "tenant",
-              subscriptionPlan: user.subscription_plan ?? "free",
-              subscriptionExpiresAt: user.subscription_expires_at,
-              token: user.token,
+              avatarUrl: user.avatarUrl ?? user.avatar_url,
+              activeRole: user.activeRole ?? user.active_role ?? "tenant",
+              subscriptionPlan:
+                user.subscriptionPlan ?? user.subscription_plan ?? "free",
+              subscriptionExpiresAt:
+                user.subscriptionExpiresAt ?? user.subscription_expires_at,
+              token: accessToken,
+              refreshToken: refreshToken || "",
+              tokenExpiresAt: Date.now() + 15 * 60 * 1000,
             };
           }
-          return null;
+          throw new CustomAuthError("Invalid credentials");
         } catch (error) {
           if (axios.isAxiosError(error)) {
-            if (error.response?.status === 401) {
-              return null;
-            }
-            throw new Error(
-              error.response?.data?.error || "Gagal menghubungi server",
-            );
+            // Tangkap pesan error dari response backend Golang
+            const msg =
+              error.response?.data?.message ||
+              error.response?.data?.error ||
+              "Invalid email or password";
+            throw new CustomAuthError(msg);
           }
-          throw error;
+          if (error instanceof CustomAuthError) {
+            throw error;
+          }
+          throw new CustomAuthError("Authentication failed");
         }
       },
     }),
@@ -104,6 +151,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.subscriptionPlan = user.subscriptionPlan;
         token.subscriptionExpiresAt = user.subscriptionExpiresAt;
         token.token = user.token;
+        token.refreshToken = user.refreshToken;
+        token.tokenExpiresAt = user.tokenExpiresAt;
+        return token;
       }
 
       if (trigger === "update" && session) {
@@ -112,7 +162,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.subscriptionPlan = session.subscriptionPlan;
       }
 
-      return token;
+      if (Date.now() < token.tokenExpiresAt) {
+        return token;
+      }
+
+      return refreshAccessToken(token);
     },
     async session({ session, token }) {
       if (token && session.user) {
@@ -123,6 +177,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.subscriptionPlan = token.subscriptionPlan;
         session.user.subscriptionExpiresAt = token.subscriptionExpiresAt;
         session.user.token = token.token;
+        session.user.refreshToken = token.refreshToken;
+        session.error = token.error;
       }
       return session;
     },

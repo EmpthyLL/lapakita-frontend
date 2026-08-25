@@ -13,6 +13,13 @@ api.interceptors.request.use(
   async (config) => {
     if (typeof window !== "undefined") {
       const session = await getSession();
+
+      // Jika refresh token gagal di NextAuth, langsung force signout
+      if (session?.error === "RefreshTokenError") {
+        await signOut({ redirect: true, callbackUrl: "/login" });
+        return Promise.reject(new Error("Session expired"));
+      }
+
       if (session?.user?.token) {
         config.headers.Authorization = `Bearer ${session.user.token}`;
       }

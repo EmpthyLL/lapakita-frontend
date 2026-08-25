@@ -1,9 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { ShieldCheck } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 
 import { PasswordInput } from "@/components/common/input/PasswordInput";
@@ -15,27 +15,42 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
+import { resetPassword } from "@/lib/data/api/auth";
 import {
   resetSchema,
   ResetValues,
 } from "@/lib/data/schema/auth/reset_password";
+import { handleError } from "@/lib/error";
 import { AuthShell } from "../AuthShell";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const email = "johndoe@example.com";
-  const [isLoading, setIsLoading] = useState(false);
+  const searchParams = useSearchParams();
+
+  const token = searchParams.get("token") || "";
+  const email = searchParams.get("email") || "";
 
   const { control, handleSubmit } = useForm<ResetValues>({
     resolver: zodResolver(resetSchema),
     defaultValues: { password: "", confirmPassword: "" },
   });
 
-  async function onSubmit() {
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    router.push("/login?reset=1");
+  const resetMutation = useMutation({
+    mutationFn: (values: ResetValues) =>
+      resetPassword({
+        verification_token: token,
+        new_password: values.password,
+      }),
+    onSuccess: () => {
+      router.push("/login?reset=1");
+    },
+    onError: (error) => {
+      handleError(error);
+    },
+  });
+
+  function onSubmit(values: ResetValues) {
+    resetMutation.mutate(values);
   }
 
   return (
@@ -78,9 +93,7 @@ export default function ResetPasswordPage() {
                   placeholder="Create a new password"
                   {...field}
                 />
-                <FieldDescription>
-                  At least 8 characters, with 1 uppercase letter and 1 number.
-                </FieldDescription>
+                <FieldDescription>At least 6 characters long.</FieldDescription>
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}
@@ -111,7 +124,7 @@ export default function ResetPasswordPage() {
           <Field>
             <Button
               type="submit"
-              isLoading={isLoading}
+              isLoading={resetMutation.isPending}
               size="lg"
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
             >

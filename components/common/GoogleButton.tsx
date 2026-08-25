@@ -1,29 +1,50 @@
+"use client";
+
+import api from "@/lib/api";
+import { handleError } from "@/lib/error";
 import { cn } from "@/lib/utils";
+import { useMutation } from "@tanstack/react-query";
 import { GoogleIcon } from "../icon/SocialIcon";
 import { Button } from "../ui/button";
 
 interface GoogleButtonProps {
-  href?: string;
   label?: string;
   className?: string;
 }
 
 export function GoogleButton({
-  href = "/api/auth/google",
   label = "Continue with Google",
   className,
 }: GoogleButtonProps) {
+  const googleAuthMutation = useMutation({
+    mutationFn: async () => {
+      const res = await api.post("/auth/google");
+      return res.data;
+    },
+    onSuccess: (data) => {
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    },
+    onError: (error) => {
+      handleError(error);
+    },
+  });
+
   return (
     <Button
-      asChild
+      type="button"
       variant="outline"
       size="lg"
-      className={cn("w-full font-semibold", className)}
+      onClick={() => googleAuthMutation.mutate()}
+      isLoading={googleAuthMutation.isPending}
+      disabled={googleAuthMutation.isPending}
+      className={cn("w-full font-semibold gap-2.5", className)}
     >
-      <a href={href}>
-        <GoogleIcon />
-        <span>{label}</span>
-      </a>
+      {!googleAuthMutation.isPending && (
+        <GoogleIcon className="size-4 shrink-0" />
+      )}
+      <span>{label}</span>
     </Button>
   );
 }

@@ -1,42 +1,51 @@
 "use client";
 
-import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { ArrowLeft, KeyRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { ArrowLeft, KeyRound } from "lucide-react";
+import { Controller, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { AuthShell } from "../AuthShell";
+import { Input } from "@/components/ui/input";
+import { sendOTP } from "@/lib/data/api/auth";
 import {
   forgotSchema,
   ForgotValues,
 } from "@/lib/data/schema/auth/forget_password";
+import { handleError } from "@/lib/error";
+import { AuthShell } from "../AuthShell";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
 
   const { control, handleSubmit } = useForm<ForgotValues>({
     resolver: zodResolver(forgotSchema),
     defaultValues: { email: "" },
   });
 
-  async function onSubmit(values: ForgotValues) {
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    router.push(
-      `/verify-otp?flow=reset&email=${encodeURIComponent(values.email)}`,
-    );
+  const sendOtpMutation = useMutation({
+    mutationFn: (values: ForgotValues) =>
+      sendOTP({ ...values, mode: "reset_password" }),
+    onSuccess: (_, variables) => {
+      router.push(
+        `/verify-otp?flow=reset&email=${encodeURIComponent(variables.email)}`,
+      );
+    },
+    onError: (error) => {
+      handleError(error);
+    },
+  });
+
+  function onSubmit(values: ForgotValues) {
+    sendOtpMutation.mutate(values);
   }
 
   return (
@@ -92,7 +101,7 @@ export default function ForgotPasswordPage() {
           <Field>
             <Button
               type="submit"
-              isLoading={isLoading}
+              isLoading={sendOtpMutation.isPending}
               size="lg"
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
             >

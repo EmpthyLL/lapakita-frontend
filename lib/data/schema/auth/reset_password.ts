@@ -2,12 +2,8 @@ import { z } from "zod";
 
 export const resetSchema = z
   .object({
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Must include at least one uppercase letter")
-      .regex(/[0-9]/, "Must include at least one number"),
-    confirmPassword: z.string(),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(6, "Confirm password is required"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",

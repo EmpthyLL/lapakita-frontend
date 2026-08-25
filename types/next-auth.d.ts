@@ -15,6 +15,8 @@ declare module "next-auth" {
     subscriptionPlan: SubscriptionPlan;
     subscriptionExpiresAt?: string | null;
     token: string;
+    refreshToken: string;
+    tokenExpiresAt: number; // In milliseconds/seconds timestamp
   }
 
   interface Session {
@@ -28,7 +30,9 @@ declare module "next-auth" {
       subscriptionPlan: SubscriptionPlan;
       subscriptionExpiresAt?: string | null;
       token: string;
+      refreshToken: string;
     } & DefaultSession["user"];
+    error?: "RefreshTokenError";
   }
 }
 
@@ -41,5 +45,8 @@ declare module "next-auth/jwt" {
     subscriptionPlan: SubscriptionPlan;
     subscriptionExpiresAt?: string | null;
     token: string;
+    refreshToken: string;
+    tokenExpiresAt: number;
+    error?: "RefreshTokenError";
   }
 }

@@ -10,7 +10,7 @@ export function Toaster() {
     <SonnerToaster
       theme={theme as "light" | "dark" | "system"}
       className="toaster group"
-      position="bottom-right"
+      position="top-right"
       closeButton
       toastOptions={{
         classNames: {
