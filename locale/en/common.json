@@ -156,5 +156,63 @@
       "suburb": "Suburb",
       "street": "Street"
     }
+  },
+  "nav": {
+    "home": "Home",
+    "stalls": "Find Stalls",
+    "features": "Features",
+    "about": "About Us",
+    "pricing": "Pricing",
+    "contact": "Contact Us",
+    "login": "Login",
+    "get_started": "Get Started",
+    "dashboard": "Go to Dashboard",
+    "profile": "Profile",
+    "wallet": "Wallet",
+    "switch_role": "Switch Role",
+    "roles": {
+      "tenant": "Tenant",
+      "owner": "Stall Owner",
+      "supplier": "Supplier"
+    },
+    "sign_out": "Sign Out",
+    "view_profile": "View profile"
+  },
+  "footer": {
+    "tagline": "The data-driven platform connecting tenants, stall owners, and suppliers — with business analytics and built-in POS.",
+    "newsletter_title": "Interested in partnering with Lapakita?",
+    "newsletter_desc": "Leave your email and our team will get in touch to discuss partnership opportunities.",
+    "newsletter_success": "Thanks! We've received your inquiry and will contact you soon.",
+    "placeholder_email": "your@email.com",
+    "groups": {
+      "tenant": "For Tenants",
+      "owner": "For Stall Owners",
+      "supplier": "For B2B Suppliers",
+      "company": "Company"
+    },
+    "links": {
+      "discover_stalls": "Discover Ideal Stall",
+      "tenant_capabilities": "Tenant Capabilities",
+      "business_pos": "Business POS",
+      "tenant_pricing": "Tenant Pricing Plans",
+      "rental_faq": "Rental & POS FAQ",
+      "owner_capabilities": "Owner Capabilities",
+      "manage_catalog": "Manage Catalog",
+      "property_plans": "View Property Plans",
+      "stall_faq": "Stall Management FAQ",
+      "supplier_capabilities": "Supplier Capabilities",
+      "wholesale_hub": "Access Wholesale Hub",
+      "supplier_plans": "View Supplier Plans",
+      "supply_faq": "Supply Chain FAQ",
+      "about_us": "About Us",
+      "pricing_plans": "Pricing & Plans",
+      "faq_center": "FAQ Center",
+      "contact_support": "Contact Support",
+      "jobs": "Jobs Application",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "cookies": "Cookie Policy"
+    },
+    "copyright": "© {year} Lapakita. All rights reserved."
   }
 }

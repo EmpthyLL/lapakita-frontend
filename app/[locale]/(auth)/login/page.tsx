@@ -39,16 +39,6 @@ export default function LoginPage() {
         redirect: false,
       });
 
-      // Pengecekan respons NextAuth v5
-      if (result?.error || !result?.ok) {
-        const errorMessage =
-          result?.code && result.code !== "credentials"
-            ? result.code
-            : "Invalid email or password";
-
-        throw new Error(errorMessage);
-      }
-
       return result;
     },
     onSuccess: () => {

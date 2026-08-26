@@ -38,7 +38,6 @@ export function GoogleButton({
       size="lg"
       onClick={() => googleAuthMutation.mutate()}
       isLoading={googleAuthMutation.isPending}
-      disabled={googleAuthMutation.isPending}
       className={cn("w-full font-semibold gap-2.5", className)}
     >
       {!googleAuthMutation.isPending && (

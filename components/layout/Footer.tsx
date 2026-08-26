@@ -2,7 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { ArrowRight, Mail } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 import { LanguageSwitcher } from "../common/LanguageSwitcher";
@@ -13,54 +15,6 @@ import {
   YoutubeIcon,
 } from "../icon/SocialIcon";
 import { Logo } from "./Logo";
-
-export const ROLE_LINKS = {
-  tenant: {
-    label: "For Tenants",
-    color: "primary" as const,
-    links: [
-      { label: "Discover Ideal Stall", href: "/stalls" },
-      { label: "Tenant Capabilities", href: "/features?role=tenant" },
-      { label: "Business POS", href: "/dashboard/tenant" },
-      { label: "Tenant Pricing Plans", href: "/pricing?role=tenant" },
-      { label: "Rental & POS FAQ", href: "/faq?tab=tenant" },
-    ],
-  },
-  owner: {
-    label: "For Stall Owners",
-    color: "owner" as const,
-    links: [
-      { label: "Owner Capabilities", href: "/features?role=owner" },
-      { label: "Manage Catalog", href: "/dashboard/owner" },
-      { label: "View Property Plans", href: "/pricing?role=owner" },
-      { label: "Stall Management FAQ", href: "/faq?tab=owner" },
-    ],
-  },
-  supplier: {
-    label: "For B2B Suppliers",
-    color: "supplier" as const,
-    links: [
-      { label: "Supplier Capabilities", href: "/features?role=supplier" },
-      { label: "Access Wholesale Hub", href: "/dashboard/supplier" },
-      { label: "View Supplier Plans", href: "/pricing?role=supplier" },
-      { label: "Supply Chain FAQ", href: "/faq?tab=supplier" },
-    ],
-  },
-};
-
-const COMPANY_LINKS = [
-  { label: "About Us", href: "/about" },
-  { label: "Pricing & Plans", href: "/pricing" },
-  { label: "FAQ Center", href: "/faq" },
-  { label: "Contact Support", href: "/contact" },
-  { label: "Jobs Application", href: "/career" },
-];
-
-const LEGAL_LINKS = [
-  { label: "Terms of Service", href: "/terms" },
-  { label: "Privacy Policy", href: "/privacy" },
-  { label: "Cookie Policy", href: "/cookies" },
-];
 
 const SOCIALS = [
   {
@@ -82,8 +36,63 @@ const SOCIALS = [
 ];
 
 export function SiteFooter() {
+  const t = useTranslations("common.footer");
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+
+  const roleLinks = {
+    tenant: {
+      label: t("groups.tenant"),
+      color: "primary" as const,
+      links: [
+        { label: t("links.discover_stalls"), href: "/stalls" },
+        {
+          label: t("links.tenant_capabilities"),
+          href: "/features?role=tenant",
+        },
+        { label: t("links.business_pos"), href: "/dashboard/tenant" },
+        { label: t("links.tenant_pricing"), href: "/pricing?role=tenant" },
+        { label: t("links.rental_faq"), href: "/faq?tab=tenant" },
+      ],
+    },
+    owner: {
+      label: t("groups.owner"),
+      color: "emerald-500" as const,
+      links: [
+        { label: t("links.owner_capabilities"), href: "/features?role=owner" },
+        { label: t("links.manage_catalog"), href: "/dashboard/owner" },
+        { label: t("links.property_plans"), href: "/pricing?role=owner" },
+        { label: t("links.stall_faq"), href: "/faq?tab=owner" },
+      ],
+    },
+    supplier: {
+      label: t("groups.supplier"),
+      color: "amber-500" as const,
+      links: [
+        {
+          label: t("links.supplier_capabilities"),
+          href: "/features?role=supplier",
+        },
+        { label: t("links.wholesale_hub"), href: "/dashboard/supplier" },
+        { label: t("links.supplier_plans"), href: "/pricing?role=supplier" },
+        { label: t("links.supply_faq"), href: "/faq?tab=supplier" },
+      ],
+    },
+  };
+
+  const companyLinks = [
+    { label: t("links.about_us"), href: "/about" },
+    { label: t("links.pricing_plans"), href: "/pricing" },
+    { label: t("links.faq_center"), href: "/faq" },
+    { label: t("links.contact_support"), href: "/contact" },
+    { label: t("links.jobs"), href: "/career" },
+  ];
+
+  const legalLinks = [
+    { label: t("links.terms"), href: "/terms" },
+    { label: t("links.privacy"), href: "/privacy" },
+    { label: t("links.cookies"), href: "/cookies" },
+  ];
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,8 +111,7 @@ export function SiteFooter() {
             <Logo />
 
             <p className="mt-4 max-w-sm text-sm text-muted-foreground">
-              The data-driven platform connecting tenants, stall owners, and
-              suppliers — with business analytics and built-in POS.
+              {t("tagline")}
             </p>
 
             <form onSubmit={handleSubscribe} className="mt-6 max-w-sm">
@@ -111,7 +119,7 @@ export function SiteFooter() {
                 htmlFor="footer-email"
                 className="text-sm font-medium text-foreground"
               >
-                Interested in partnering with Lapakita?
+                {t("newsletter_title")}
               </label>
 
               <div className="mt-2 flex gap-2">
@@ -120,7 +128,7 @@ export function SiteFooter() {
                   <Input
                     id="footer-email"
                     type="email"
-                    placeholder="your@email.com"
+                    placeholder={t("placeholder_email")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="h-10 bg-background pl-9"
@@ -139,14 +147,12 @@ export function SiteFooter() {
               </div>
 
               <p className="mt-2 text-xs text-muted-foreground">
-                Leave your email and our team will get in touch to discuss
-                partnership opportunities.
+                {t("newsletter_desc")}
               </p>
 
               {submitted && (
-                <p className="mt-2 text-xs text-primary">
-                  Thanks! We&rsquo;ve received your inquiry and will contact you
-                  soon.
+                <p className="mt-2 text-xs text-primary font-medium">
+                  {t("newsletter_success")}
                 </p>
               )}
             </form>
@@ -154,11 +160,17 @@ export function SiteFooter() {
 
           {/* Links Grid */}
           <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-8">
-            {Object.values(ROLE_LINKS).map((group) => (
+            {Object.values(roleLinks).map((group) => (
               <div key={group.label}>
                 <h4
-                  className="mb-4 text-sm font-semibold uppercase tracking-wide"
-                  style={{ color: `var(--${group.color})` }}
+                  className={cn(
+                    "mb-4 text-sm font-semibold uppercase tracking-wide",
+                    {
+                      "text-primary": group.color === "primary",
+                      "text-emerald-500": group.color === "emerald-500",
+                      "text-amber-500": group.color === "amber-500",
+                    },
+                  )}
                 >
                   {group.label}
                 </h4>
@@ -179,10 +191,10 @@ export function SiteFooter() {
 
             <div>
               <h4 className="mb-4 text-sm font-semibold uppercase tracking-wide text-foreground">
-                Company
+                {t("groups.company")}
               </h4>
               <ul className="space-y-3">
-                {COMPANY_LINKS.map((link) => (
+                {companyLinks.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
@@ -200,11 +212,11 @@ export function SiteFooter() {
         {/* Bottom bar */}
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-border pt-8 text-center sm:text-left sm:mt-14">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Lapakita. All rights reserved.
+            {t("copyright", { year: new Date().getFullYear() })}
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-            {LEGAL_LINKS.map((link) => (
+            {legalLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

@@ -156,5 +156,63 @@
       "suburb": "Kelurahan",
       "street": "Jalan"
     }
+  },
+  "nav": {
+    "home": "Beranda",
+    "stalls": "Cari Lapak",
+    "features": "Fitur",
+    "about": "Tentang Kami",
+    "pricing": "Harga",
+    "contact": "Hubungi Kami",
+    "login": "Masuk",
+    "get_started": "Daftar Sekarang",
+    "dashboard": "Ke Dashboard",
+    "profile": "Profil",
+    "wallet": "Dompet",
+    "switch_role": "Ganti Peran",
+    "roles": {
+      "tenant": "Penyewa",
+      "owner": "Pemilik Lapak",
+      "supplier": "Pemasok"
+    },
+    "sign_out": "Keluar",
+    "view_profile": "Lihat profil"
+  },
+  "footer": {
+    "tagline": "Platform berbasis data yang menghubungkan penyewa, pemilik lapak, dan pemasok — dilengkapi analitik bisnis dan POS terintegrasi.",
+    "newsletter_title": "Tertarik bermitra dengan Lapakita?",
+    "newsletter_desc": "Tinggalkan email Anda dan tim kami akan menghubungi Anda untuk mendiskusikan peluang kemitraan.",
+    "newsletter_success": "Terima kasih! Kami telah menerima pertanyaan Anda dan akan segera menghubungi Anda.",
+    "placeholder_email": "email@anda.com",
+    "groups": {
+      "tenant": "Untuk Penyewa",
+      "owner": "Untuk Pemilik Lapak",
+      "supplier": "Untuk Pemasok B2B",
+      "company": "Perusahaan"
+    },
+    "links": {
+      "discover_stalls": "Cari Lapak Ideal",
+      "tenant_capabilities": "Kemampuan Penyewa",
+      "business_pos": "POS Usaha",
+      "tenant_pricing": "Paket Harga Penyewa",
+      "rental_faq": "FAQ Sewa & POS",
+      "owner_capabilities": "Kemampuan Pemilik",
+      "manage_catalog": "Kelola Katalog",
+      "property_plans": "Lihat Paket Properti",
+      "stall_faq": "FAQ Pengelolaan Lapak",
+      "supplier_capabilities": "Kemampuan Pemasok",
+      "wholesale_hub": "Akses Pusat Grosir",
+      "supplier_plans": "Lihat Paket Pemasok",
+      "supply_faq": "FAQ Rantai Pasok",
+      "about_us": "Tentang Kami",
+      "pricing_plans": "Harga & Paket",
+      "faq_center": "Pusat FAQ",
+      "contact_support": "Dukungan Kontak",
+      "jobs": "Lowongan Kerja",
+      "terms": "Syarat & Ketentuan",
+      "privacy": "Kebijakan Privasi",
+      "cookies": "Kebijakan Cookie"
+    },
+    "copyright": "© {year} Lapakita. Hak cipta dilindungi undang-undang."
   }
 }
