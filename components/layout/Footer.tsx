@@ -16,6 +16,8 @@ import {
 } from "../icon/SocialIcon";
 import { Logo } from "./Logo";
 
+type RoleVariant = "tenant" | "owner" | "supplier";
+
 const SOCIALS = [
   {
     icon: InstagramIcon,
@@ -40,10 +42,18 @@ export function SiteFooter() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const roleLinks = {
+  // roleLinks menggunakan key roleVariant resmi ("tenant", "owner", "supplier")
+  const roleLinks: Record<
+    RoleVariant,
+    {
+      label: string;
+      role: RoleVariant;
+      links: Array<{ label: string; href: string }>;
+    }
+  > = {
     tenant: {
       label: t("groups.tenant"),
-      color: "primary" as const,
+      role: "tenant",
       links: [
         { label: t("links.discover_stalls"), href: "/stalls" },
         {
@@ -57,7 +67,7 @@ export function SiteFooter() {
     },
     owner: {
       label: t("groups.owner"),
-      color: "emerald-500" as const,
+      role: "owner",
       links: [
         { label: t("links.owner_capabilities"), href: "/features?role=owner" },
         { label: t("links.manage_catalog"), href: "/dashboard/owner" },
@@ -67,7 +77,7 @@ export function SiteFooter() {
     },
     supplier: {
       label: t("groups.supplier"),
-      color: "amber-500" as const,
+      role: "supplier",
       links: [
         {
           label: t("links.supplier_capabilities"),
@@ -161,14 +171,15 @@ export function SiteFooter() {
           {/* Links Grid */}
           <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-8">
             {Object.values(roleLinks).map((group) => (
-              <div key={group.label}>
+              <div key={group.role}>
+                {/* Judul Role menggunakan kelas warna token dari globals.css */}
                 <h4
                   className={cn(
                     "mb-4 text-sm font-semibold uppercase tracking-wide",
                     {
-                      "text-primary": group.color === "primary",
-                      "text-emerald-500": group.color === "emerald-500",
-                      "text-amber-500": group.color === "amber-500",
+                      "text-tenant": group.role === "tenant",
+                      "text-owner": group.role === "owner",
+                      "text-supplier": group.role === "supplier",
                     },
                   )}
                 >

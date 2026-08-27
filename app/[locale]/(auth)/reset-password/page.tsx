@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { ShieldCheck } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { PasswordInput } from "@/components/common/input/PasswordInput";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ export default function ResetPasswordPage() {
         new_password: values.password,
       }),
     onSuccess: () => {
+      toast.success("Password reset successfully! Please log in.");
       router.push("/login?reset=1");
     },
     onError: (error) => {

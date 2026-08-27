@@ -13,7 +13,6 @@ import {
   Store,
   Truck,
   Users,
-  Vault,
   Wallet,
 } from "lucide-react";
 
@@ -61,7 +60,7 @@ export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
     {
       label: "Deposits & Escrow",
       href: "/dashboard/owner/deposits",
-      icon: Vault,
+      icon: Wallet,
     },
     {
       label: "Strategy Analytics",
@@ -89,6 +88,6 @@ export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
 };
 
 export const DASHBOARD_FOOTER_NAV: DashboardNavItem[] = [
-  { label: "Wallet", href: "/wallet", icon: Wallet },
-  { label: "Settings", href: "/settings", icon: Settings },
+  { label: "Wallet", href: "/dashboard/wallet", icon: Wallet },
+  { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
@@ -20,7 +21,17 @@ import { otpSchema, OtpValues } from "@/lib/data/schema/auth/otp";
 import { handleError } from "@/lib/error";
 import { AuthShell } from "../AuthShell";
 
-const RESEND_SECONDS = 30;
+// Ubah durasi resend menjadi 60 detik (1 menit)
+const RESEND_SECONDS = 60;
+
+function formatTime(seconds: number) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  if (mins > 0) {
+    return `${mins}m ${secs}s`;
+  }
+  return `${secs}s`;
+}
 
 export default function VerifyOtpPage() {
   const router = useRouter();
@@ -52,6 +63,7 @@ export default function VerifyOtpPage() {
         otp_code: values.code,
       }),
     onSuccess: (data) => {
+      toast.success("Verification successful!");
       if (flow === "reset") {
         router.push(
           `/reset-password?token=${encodeURIComponent(data?.token || "")}&email=${encodeURIComponent(email)}`,
@@ -73,6 +85,7 @@ export default function VerifyOtpPage() {
         mode: flow === "reset" ? "reset_password" : "register",
       }),
     onSuccess: () => {
+      toast.success("A new verification code has been sent!");
       setSecondsLeft(RESEND_SECONDS);
       hasAutoSubmitted.current = false;
     },
@@ -198,7 +211,9 @@ export default function VerifyOtpPage() {
           disabled={secondsLeft > 0 || resendMutation.isPending}
           className="font-medium text-primary hover:underline disabled:cursor-not-allowed disabled:text-muted-foreground disabled:no-underline"
         >
-          {secondsLeft > 0 ? `Resend in ${secondsLeft}s` : "Resend code"}
+          {secondsLeft > 0
+            ? `Resend in ${formatTime(secondsLeft)}`
+            : "Resend code"}
         </button>
       </p>
     </AuthShell>

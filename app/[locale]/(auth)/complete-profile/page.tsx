@@ -7,6 +7,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { AvatarInput } from "@/components/common/input/AvatarInput";
 import { PasswordInput } from "@/components/common/input/PasswordInput";
@@ -61,6 +62,8 @@ export default function CompleteProfilePage() {
     mutationFn: (values: CompleteProfileValues) =>
       completeGoogleProfile(values),
     onSuccess: async (_, variables) => {
+      toast.success("Profile setup completed successfully!");
+
       const result = await signIn("credentials", {
         email: variables.email,
         password: variables.password,

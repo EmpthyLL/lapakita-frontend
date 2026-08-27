@@ -90,7 +90,7 @@ export function StallSearchPrimaryRow({
           groupKey="group"
           placeholder={t("business_type_placeholder")}
           mode="solid"
-          className="lg:w-60"
+          className="lg:w-90"
           onFilterChange={setSearchTerm}
           isLoading={isLoading}
           isFetchingMore={isFetchingNextPage}
@@ -104,8 +104,7 @@ export function StallSearchPrimaryRow({
           options={LANDMARK_CATEGORIES}
           placeholder={t("any_landmark_placeholder")}
           mode="solid"
-          size="lg"
-          className="sm:w-45"
+          className="lg:w-60"
         />
       )}
 

@@ -19,10 +19,21 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+const GENERAL_ROUTES = [
+  "/dashboard/profile",
+  "/dashboard/wallet",
+  "/dashboard/settings",
+];
+
 export function DashboardSidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const { role } = useRoleTheme();
+
+  // Deteksi apakah sedang berada di halaman general
+  const isGeneralPage = GENERAL_ROUTES.some((route) =>
+    pathname.startsWith(route),
+  );
 
   const navItems = DASHBOARD_NAV[role] ?? DASHBOARD_NAV.tenant;
 
@@ -57,18 +68,26 @@ export function DashboardSidebar() {
         {/* Role badge */}
         {!collapsed && (
           <div className="px-4 pt-4">
-            <span className="inline-flex items-center rounded-full bg-primary-secondary px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
-              {role === "tenant"
-                ? "Tenant"
-                : role === "owner"
-                  ? "Stall Owner"
-                  : "Supplier"}{" "}
-              Mode
+            <span
+              className={cn(
+                "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide transition-colors",
+                isGeneralPage
+                  ? "bg-secondary text-secondary-foreground border border-border"
+                  : "bg-primary-secondary text-primary",
+              )}
+            >
+              {isGeneralPage
+                ? "General Mode"
+                : role === "tenant"
+                  ? "Tenant Mode"
+                  : role === "owner"
+                    ? "Stall Owner Mode"
+                    : "Supplier Mode"}
             </span>
           </div>
         )}
 
-        {/* Nav */}
+        {/* Main Role Nav */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
           {navItems.map((item) => {
             const active = isActive(pathname, item.href);
@@ -117,7 +136,7 @@ export function DashboardSidebar() {
           })}
         </nav>
 
-        {/* Footer nav */}
+        {/* Footer Nav (Wallet & Settings General Styling) */}
         <div className="space-y-1 border-t border-border px-3 py-4">
           {DASHBOARD_FOOTER_NAV.map((item) => {
             const active = isActive(pathname, item.href);
@@ -127,8 +146,9 @@ export function DashboardSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                   collapsed && "justify-center px-0",
+                  // Ketika aktif di footer nav (general pages), gunakan gaya netral/secondary
                   active
-                    ? "bg-secondary text-foreground"
+                    ? "bg-secondary text-foreground font-semibold shadow-xs"
                     : "text-muted-foreground hover:bg-secondary hover:text-foreground",
                 )}
               >

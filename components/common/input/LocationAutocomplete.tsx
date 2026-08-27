@@ -386,8 +386,8 @@ export function LocationAutocomplete({
             })}
 
             {isFetchingNextPage && (
-              <div className="flex items-center justify-center p-2 text-muted-foreground">
-                <Loader2 className="size-4 animate-spin" />
+              <div className="flex items-center justify-center p-2 ">
+                <Loader2 className="size-4 animate-spin text-primary" />
               </div>
             )}
           </div>

@@ -6,6 +6,7 @@ import { UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { GoogleButton } from "@/components/common/GoogleButton";
 import { PasswordInput } from "@/components/common/input/PasswordInput";
@@ -44,6 +45,7 @@ export default function RegisterPage() {
   const registerMutation = useMutation({
     mutationFn: (values: RegisterValues) => registerUser(values),
     onSuccess: (_, variables) => {
+      toast.success("Account created! Please verify your email.");
       router.push(
         `/verify-otp?flow=register&email=${encodeURIComponent(variables.email)}`,
       );

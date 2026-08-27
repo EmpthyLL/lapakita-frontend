@@ -48,12 +48,28 @@ export function SiteHeader() {
   const { data: session } = useSession();
 
   const isLoggedIn = Boolean(session?.user);
-  const userName = session?.user?.name || "User";
-  const userAvatarUrl = session?.user?.avatarUrl || "";
 
-  // Mengambil activeRole resmi dari session (default: tenant)
+  // 1. Role Aktif (Default: tenant)
   const activeRole: RoleVariant =
     (session?.user?.activeRole as RoleVariant) || "tenant";
+
+  // 2. Ambil detail Persona berdasarkan activeRole
+  const currentPersona = session?.user?.personas?.[activeRole];
+
+  // 3. Nama: Persona display_name -> defaultName -> Fallback "User"
+  const userName =
+    currentPersona?.display_name || session?.user?.defaultName || "User";
+
+  // 4. Avatar: Persona avatar_url -> defaultAvatarUrl -> Fallback ""
+  const userAvatarUrl =
+    currentPersona?.avatar_url || session?.user?.defaultAvatarUrl || "";
+
+  // 5. Nomor HP: Persona phone -> primary phone number -> defaultPhone -> Fallback ""
+  const primaryPhone = session?.user?.phoneNumbers?.find(
+    (p) => p.is_primary,
+  )?.number;
+  const userPhone =
+    currentPersona?.phone || primaryPhone || session?.user?.defaultPhone || "";
 
   const navLinks = [
     { label: t("home"), href: "/" },
@@ -64,14 +80,12 @@ export function SiteHeader() {
     { label: t("contact"), href: "/contact" },
   ];
 
+  // Extraction Inisial Nama (misal: "John Doe" -> "JD")
   const getInitials = (str: string) => {
-    if (!str) return "U";
-    return str
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+    if (!str || str.trim() === "") return "U";
+    const parts = str.trim().split(" ");
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
   return (
@@ -124,7 +138,7 @@ export function SiteHeader() {
             </>
           ) : (
             <>
-              {/* Button Dashboard secara otomatis memakai variant: tenant / owner / supplier */}
+              {/* Button Dashboard dengan Dynamic Role Variant */}
               <Link href={`/dashboard/${activeRole}`}>
                 <Button variant={activeRole}>
                   <LayoutDashboard className="mr-2 h-4 w-4" />
@@ -146,7 +160,7 @@ export function SiteHeader() {
                       </AvatarFallback>
                     </Avatar>
 
-                    {/* Status Dot Indikator Role Aktif */}
+                    {/* Status Dot Indicator Role Aktif */}
                     <span
                       className={cn(
                         "absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background",
@@ -166,7 +180,12 @@ export function SiteHeader() {
                       <p className="text-sm font-semibold leading-none text-foreground truncate">
                         {userName}
                       </p>
-                      <p className="text-xs leading-none text-muted-foreground capitalize">
+                      {userPhone && (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {userPhone}
+                        </p>
+                      )}
+                      <p className="text-xs leading-none text-muted-foreground capitalize pt-0.5">
                         Role:{" "}
                         <span
                           className={cn("font-semibold", {
@@ -368,6 +387,11 @@ export function SiteHeader() {
                         <p className="truncate text-sm font-medium text-foreground">
                           {userName}
                         </p>
+                        {userPhone && (
+                          <p className="truncate text-xs text-muted-foreground">
+                            {userPhone}
+                          </p>
+                        )}
                         <p className="text-xs text-muted-foreground capitalize">
                           Role:{" "}
                           <span

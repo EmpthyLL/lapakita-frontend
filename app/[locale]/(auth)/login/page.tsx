@@ -7,6 +7,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { GoogleButton } from "@/components/common/GoogleButton";
 import { PasswordInput } from "@/components/common/input/PasswordInput";
@@ -42,6 +43,7 @@ export default function LoginPage() {
       return result;
     },
     onSuccess: () => {
+      toast.success("Welcome back! Login successful.");
       router.push("/dashboard");
     },
     onError: (error) => {

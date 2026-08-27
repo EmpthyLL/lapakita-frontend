@@ -13,12 +13,14 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import {
   Bell,
   ChevronDown,
   ChevronRight,
   LogOut,
   Repeat,
+  Settings,
   User,
   Wallet,
 } from "lucide-react";
@@ -30,6 +32,12 @@ interface DashboardTopbarProps {
   userName?: string;
   userAvatarUrl?: string;
 }
+
+const GENERAL_ROUTES = [
+  "/dashboard/profile",
+  "/dashboard/wallet",
+  "/dashboard/settings",
+];
 
 function useBreadcrumb(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
@@ -55,6 +63,10 @@ export function DashboardTopbar({
   const breadcrumb = useBreadcrumb(pathname);
   const { data: session } = useSession();
 
+  const isGeneralPage = GENERAL_ROUTES.some((route) =>
+    pathname.startsWith(route),
+  );
+
   const userName = session?.user?.name || propUserName || "User";
   const userAvatarUrl = session?.user?.avatarUrl || propAvatarUrl || "";
   const activeRole = session?.user?.activeRole || "tenant";
@@ -71,7 +83,7 @@ export function DashboardTopbar({
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur">
-      {/* Breadcrumb dengan pemisah underscore & hyphen */}
+      {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
         {breadcrumb.map((crumb, i) => (
           <span key={crumb.href} className="flex items-center gap-1.5">
@@ -128,8 +140,15 @@ export function DashboardTopbar({
                   {userName}
                 </p>
                 <p className="text-xs leading-none text-muted-foreground capitalize">
-                  Role:{" "}
-                  <span className="font-medium text-primary">{activeRole}</span>
+                  Mode:{" "}
+                  <span
+                    className={cn(
+                      "font-semibold",
+                      isGeneralPage ? "text-muted-foreground" : "text-primary",
+                    )}
+                  >
+                    {isGeneralPage ? "General" : activeRole}
+                  </span>
                 </p>
               </div>
             </DropdownMenuLabel>
@@ -153,6 +172,15 @@ export function DashboardTopbar({
               </Link>
             </DropdownMenuItem>
 
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <Link
+                href="/dashboard/settings"
+                className="flex items-center w-full"
+              >
+                <Settings className="mr-2 h-4 w-4" /> Settings
+              </Link>
+            </DropdownMenuItem>
+
             {/* Switch Role Menu */}
             <DropdownMenuSub>
               <DropdownMenuSubTrigger className="cursor-pointer">
@@ -164,7 +192,7 @@ export function DashboardTopbar({
                     href="/dashboard/tenant"
                     className="flex items-center w-full"
                   >
-                    <span className="mr-2 h-2 w-2 rounded-full bg-primary" />
+                    <span className="mr-2 h-2 w-2 rounded-full bg-tenant" />
                     Tenant
                   </Link>
                 </DropdownMenuItem>
@@ -173,7 +201,7 @@ export function DashboardTopbar({
                     href="/dashboard/owner"
                     className="flex items-center w-full"
                   >
-                    <span className="mr-2 h-2 w-2 rounded-full bg-emerald-500" />
+                    <span className="mr-2 h-2 w-2 rounded-full bg-owner" />
                     Stall Owner
                   </Link>
                 </DropdownMenuItem>
@@ -182,7 +210,7 @@ export function DashboardTopbar({
                     href="/dashboard/supplier"
                     className="flex items-center w-full"
                   >
-                    <span className="mr-2 h-2 w-2 rounded-full bg-amber-500" />
+                    <span className="mr-2 h-2 w-2 rounded-full bg-supplier" />
                     Supplier
                   </Link>
                 </DropdownMenuItem>
@@ -191,7 +219,6 @@ export function DashboardTopbar({
 
             <DropdownMenuSeparator />
 
-            {/* Direct Logout Trigger */}
             <DropdownMenuItem
               onClick={() => signOut({ callbackUrl: "/login" })}
               className="text-destructive focus:text-destructive cursor-pointer"

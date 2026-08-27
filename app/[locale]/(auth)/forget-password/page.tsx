@@ -6,6 +6,7 @@ import { ArrowLeft, KeyRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +36,7 @@ export default function ForgotPasswordPage() {
     mutationFn: (values: ForgotValues) =>
       sendOTP({ ...values, mode: "reset_password" }),
     onSuccess: (_, variables) => {
+      toast.success("Verification code sent to your email!");
       router.push(
         `/verify-otp?flow=reset&email=${encodeURIComponent(variables.email)}`,
       );
