@@ -23,7 +23,6 @@ const authApi = axios.create({
 const COOKIE_PREFIX = "lapakita";
 const useSecureCookies = (process.env.AUTH_URL ?? "").startsWith("https://");
 
-// Helper untuk mengambil Persona sesuai activeRole dengan type-safety
 function getActivePersona(
   personas: PersonaMap | undefined,
   activeRole: Role,
@@ -106,10 +105,52 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       id: "credentials",
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
+        accessToken: { label: "Access Token", type: "text" },
+        refreshToken: { label: "Refresh Token", type: "text" },
+        userData: { label: "User Data Payload", type: "text" },
       },
       async authorize(credentials) {
+        // Flow 1: Direct Token Ingestion (OTP Verification / Google Complete Profile)
+        if (credentials?.accessToken && credentials?.userData) {
+          try {
+            const userPayload = JSON.parse(credentials.userData as string);
+            const accessToken = credentials.accessToken as string;
+            const refreshToken = (credentials.refreshToken as string) || "";
+
+            const activeRole: Role =
+              (userPayload.active_role as Role) || "tenant";
+            const persona = getActivePersona(userPayload.personas, activeRole, {
+              name: userPayload.default_name,
+              avatarUrl: userPayload.default_avatar_url,
+              phone: userPayload.default_phone,
+            });
+
+            return {
+              id: userPayload.id,
+              defaultName: userPayload.default_name,
+              defaultAvatarUrl: userPayload.default_avatar_url,
+              defaultPhone: userPayload.default_phone,
+              email: userPayload.email,
+              activeRole,
+              subscriptionPlan: userPayload.subscription_plan || "free",
+              subscriptionExpiresAt: userPayload.subscription_expires_at,
+              phoneNumbers: userPayload.phone_numbers || [],
+              personas: userPayload.personas || {},
+              token: accessToken,
+              refreshToken,
+              tokenExpiresAt: Date.now() + 15 * 60 * 1000,
+              name: persona.name,
+              avatarUrl: persona.avatarUrl,
+              phone: persona.phone,
+            };
+          } catch {
+            throw new CustomAuthError("Failed to parse user session payload");
+          }
+        }
+
+        // Flow 2: Email & Password Login
         if (!credentials?.email || !credentials?.password) {
           throw new CustomAuthError("Email and password are required");
         }

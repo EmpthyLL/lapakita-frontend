@@ -6,3 +6,8 @@ export const loginSchema = z.object({
 });
 
 export type LoginValues = z.infer<typeof loginSchema>;
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}

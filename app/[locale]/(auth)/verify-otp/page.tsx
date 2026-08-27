@@ -1,8 +1,10 @@
+/* eslint-disable react-hooks/incompatible-library */
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowLeft, MailCheck } from "lucide-react";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -17,28 +19,29 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { sendOTP, verifyOTP } from "@/lib/data/api/auth";
-import { otpSchema, OtpValues } from "@/lib/data/schema/auth/otp";
+import {
+  flowToOtpMode,
+  otpSchema,
+  OtpValues,
+} from "@/lib/data/schema/auth/otp";
 import { handleError } from "@/lib/error";
 import { AuthShell } from "../AuthShell";
 
-// Ubah durasi resend menjadi 60 detik (1 menit)
 const RESEND_SECONDS = 60;
 
 function formatTime(seconds: number) {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
-  if (mins > 0) {
-    return `${mins}m ${secs}s`;
-  }
-  return `${secs}s`;
+  return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
 }
 
 export default function VerifyOtpPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const flow = searchParams.get("flow") || "reset";
+  const flow = searchParams.get("flow") || "reset_password";
   const email = searchParams.get("email") || "";
+  const mode = flowToOtpMode(flow);
 
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
   const hasAutoSubmitted = useRef(false);
@@ -58,17 +61,37 @@ export default function VerifyOtpPage() {
 
   const verifyOtpMutation = useMutation({
     mutationFn: (values: OtpValues) =>
-      verifyOTP({
-        state_payload: JSON.stringify({ email, mode: flow }),
-        otp_code: values.code,
-      }),
-    onSuccess: (data) => {
+      verifyOTP({ email, mode, otp_code: values.code }),
+    onSuccess: async (data) => {
       toast.success("Verification successful!");
-      if (flow === "reset") {
+
+      if (mode === "reset_password") {
         router.push(
-          `/reset-password?token=${encodeURIComponent(data?.token || "")}&email=${encodeURIComponent(email)}`,
+          `/reset-password?token=${encodeURIComponent(
+            data.verification_token ?? "",
+          )}&email=${encodeURIComponent(email)}`,
         );
       } else {
+        // Mode REGISTER -> Buat Session NextAuth otomatis
+        if (data.auth_data) {
+          const res = await signIn("credentials", {
+            accessToken: data.auth_data.access_token,
+            refreshToken: data.auth_data.refresh_token,
+            userData: JSON.stringify(data.auth_data.user),
+            redirect: false,
+          });
+
+          if (res?.error) {
+            toast.error("Gagal membuat sesi login. Silakan login manual.");
+            router.push("/login");
+            return;
+          }
+
+          // Force reload untuk memastikan cookie HTTP Session NextAuth diset penuh
+          window.location.href = "/dashboard";
+          return;
+        }
+
         router.push("/login?verified=1");
       }
     },
@@ -79,19 +102,13 @@ export default function VerifyOtpPage() {
   });
 
   const resendMutation = useMutation({
-    mutationFn: () =>
-      sendOTP({
-        email,
-        mode: flow === "reset" ? "reset_password" : "register",
-      }),
+    mutationFn: () => sendOTP({ email, mode }),
     onSuccess: () => {
       toast.success("A new verification code has been sent!");
       setSecondsLeft(RESEND_SECONDS);
       hasAutoSubmitted.current = false;
     },
-    onError: (error) => {
-      handleError(error);
-    },
+    onError: handleError,
   });
 
   useEffect(() => {
@@ -103,9 +120,7 @@ export default function VerifyOtpPage() {
       hasAutoSubmitted.current = true;
       handleSubmit((vals) => verifyOtpMutation.mutate(vals))();
     }
-    if (codeValue?.length !== 6) {
-      hasAutoSubmitted.current = false;
-    }
+    if (codeValue?.length !== 6) hasAutoSubmitted.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [codeValue]);
 
@@ -125,7 +140,7 @@ export default function VerifyOtpPage() {
       }}
     >
       <Link
-        href={flow === "reset" ? "/forget-password" : "/register"}
+        href={mode === "reset_password" ? "/forget-password" : "/register"}
         className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -157,30 +172,13 @@ export default function VerifyOtpPage() {
                   containerClassName="justify-center"
                 >
                   <InputOTPGroup>
-                    <InputOTPSlot
-                      index={0}
-                      className="size-12 sm:size-14 text-lg sm:text-xl"
-                    />
-                    <InputOTPSlot
-                      index={1}
-                      className="size-12 sm:size-14 text-lg sm:text-xl"
-                    />
-                    <InputOTPSlot
-                      index={2}
-                      className="size-12 sm:size-14 text-lg sm:text-xl"
-                    />
-                    <InputOTPSlot
-                      index={3}
-                      className="size-12 sm:size-14 text-lg sm:text-xl"
-                    />
-                    <InputOTPSlot
-                      index={4}
-                      className="size-12 sm:size-14 text-lg sm:text-xl"
-                    />
-                    <InputOTPSlot
-                      index={5}
-                      className="size-12 sm:size-14 text-lg sm:text-xl"
-                    />
+                    {[0, 1, 2, 3, 4, 5].map((i) => (
+                      <InputOTPSlot
+                        key={i}
+                        index={i}
+                        className="size-12 text-lg sm:size-14 sm:text-xl"
+                      />
+                    ))}
                   </InputOTPGroup>
                 </InputOTP>
                 {fieldState.invalid && (

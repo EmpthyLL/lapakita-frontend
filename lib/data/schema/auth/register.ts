@@ -14,3 +14,10 @@ export const registerSchema = z
   });
 
 export type RegisterValues = z.infer<typeof registerSchema>;
+
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+}

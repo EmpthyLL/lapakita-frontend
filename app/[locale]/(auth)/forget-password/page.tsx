@@ -34,16 +34,14 @@ export default function ForgotPasswordPage() {
 
   const sendOtpMutation = useMutation({
     mutationFn: (values: ForgotValues) =>
-      sendOTP({ ...values, mode: "reset_password" }),
+      sendOTP({ email: values.email, mode: "reset_password" }),
     onSuccess: (_, variables) => {
       toast.success("Verification code sent to your email!");
       router.push(
-        `/verify-otp?flow=reset&email=${encodeURIComponent(variables.email)}`,
+        `/verify-otp?flow=reset_password&email=${encodeURIComponent(variables.email)}`,
       );
     },
-    onError: (error) => {
-      handleError(error);
-    },
+    onError: handleError,
   });
 
   function onSubmit(values: ForgotValues) {

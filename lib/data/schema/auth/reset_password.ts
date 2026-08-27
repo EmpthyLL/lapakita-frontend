@@ -11,3 +11,9 @@ export const resetSchema = z
   });
 
 export type ResetValues = z.infer<typeof resetSchema>;
+
+export interface ResetPasswordPayload {
+  email: string;
+  verification_token: string;
+  new_password: string;
+}

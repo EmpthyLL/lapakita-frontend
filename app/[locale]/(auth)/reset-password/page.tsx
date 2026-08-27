@@ -39,6 +39,7 @@ export default function ResetPasswordPage() {
   const resetMutation = useMutation({
     mutationFn: (values: ResetValues) =>
       resetPassword({
+        email,
         verification_token: token,
         new_password: values.password,
       }),
@@ -46,9 +47,7 @@ export default function ResetPasswordPage() {
       toast.success("Password reset successfully! Please log in.");
       router.push("/login?reset=1");
     },
-    onError: (error) => {
-      handleError(error);
-    },
+    onError: handleError,
   });
 
   function onSubmit(values: ResetValues) {

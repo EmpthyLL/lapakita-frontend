@@ -5,3 +5,8 @@ export const forgotSchema = z.object({
 });
 
 export type ForgotValues = z.infer<typeof forgotSchema>;
+
+export interface SendOtpPayload {
+  email: string;
+  mode: "register" | "reset_password";
+}

@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { ArrowRight, Phone, ShieldCheck, UserCheck } from "lucide-react";
+import { ArrowRight, Phone, UserCheck } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -10,7 +10,6 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { AvatarInput } from "@/components/common/input/AvatarInput";
-import { PasswordInput } from "@/components/common/input/PasswordInput";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -36,6 +35,14 @@ export default function CompleteProfilePage() {
   const initialEmail = searchParams.get("email") ?? "";
   const initialAvatar = searchParams.get("avatar_url") ?? "";
 
+  // Guard: Jika tidak ada setupToken, jangan biarkan user berada di halaman ini
+  useEffect(() => {
+    if (!setupToken) {
+      toast.error("Invalid or missing setup session. Please sign in again.");
+      router.push("/login");
+    }
+  }, [setupToken, router]);
+
   const { control, handleSubmit, setValue, watch } =
     useForm<CompleteProfileValues>({
       resolver: zodResolver(completeProfileSchema),
@@ -60,30 +67,33 @@ export default function CompleteProfilePage() {
 
   const completeProfileMutation = useMutation({
     mutationFn: (values: CompleteProfileValues) =>
-      completeGoogleProfile(values),
-    onSuccess: async (_, variables) => {
+      completeGoogleProfile({
+        setup_token: values.setupToken,
+        name: values.name,
+        phone: values.phone,
+        avatar_url: values.avatarUrl || undefined,
+      }),
+    onSuccess: async (data) => {
       toast.success("Profile setup completed successfully!");
 
-      const result = await signIn("credentials", {
-        email: variables.email,
-        password: variables.password,
+      // Terapkan Sesi Login NextAuth secara langsung menggunakan AuthResponseData backend
+      const res = await signIn("credentials", {
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token,
+        userData: JSON.stringify(data.user),
         redirect: false,
       });
 
-      if (result?.error) {
-        handleError(
-          new Error(
-            "Profile completed, but automated login failed. Please login manually.",
-          ),
-        );
+      if (res?.error) {
+        toast.error("Failed to set login session. Please sign in manually.");
         router.push("/login");
-      } else {
-        router.push("/dashboard");
+        return;
       }
+
+      // Hard redirect ke dashboard untuk mengonfirmasi cookie HTTP
+      window.location.href = "/dashboard";
     },
-    onError: (error) => {
-      handleError(error);
-    },
+    onError: handleError,
   });
 
   function onSubmit(values: CompleteProfileValues) {
@@ -98,20 +108,22 @@ export default function CompleteProfilePage() {
         eyebrow: "Google Account Connected",
         headline: "Complete Your Profile",
         description:
-          "Set up your profile photo, phone number, and password to finalize your Lapakita account.",
+          "Confirm your name, setup your profile photo, and add your phone number to finish setting up your account.",
       }}
     >
       <div className="mb-6 text-center">
-        <h1 className="font-heading text-xl font-bold tracking-tight text-foreground">
+        <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground">
           Complete Your Profile
         </h1>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Verify your details to finish setting up your account.
+        <p className="mt-2 text-sm text-muted-foreground">
+          Signed in with Google as{" "}
+          <span className="font-medium text-foreground">
+            {initialEmail || "—"}
+          </span>
         </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Input Avatar Komponen Terpisah */}
         <div className="mb-6 rounded-xl border border-border bg-secondary/30 p-4">
           <Controller
             control={control}
@@ -121,13 +133,13 @@ export default function CompleteProfilePage() {
                 value={field.value}
                 onChange={field.onChange}
                 name={currentName}
+                disabled={completeProfileMutation.isPending}
               />
             )}
           />
         </div>
 
         <FieldGroup className="space-y-3.5">
-          {/* Full Name */}
           <Controller
             control={control}
             name="name"
@@ -136,10 +148,10 @@ export default function CompleteProfilePage() {
                 <div className="flex items-center justify-between">
                   <FieldLabel htmlFor="name">Full Name</FieldLabel>
                   <span className="text-[11px] text-muted-foreground">
-                    From Google
+                    From Google — editable
                   </span>
                 </div>
-                <Input id="name" placeholder="Full Name" {...field} />
+                <Input id="name" placeholder="e.g. John Doe" {...field} />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}
@@ -147,7 +159,6 @@ export default function CompleteProfilePage() {
             )}
           />
 
-          {/* Phone Number */}
           <Controller
             control={control}
             name="phone"
@@ -162,27 +173,8 @@ export default function CompleteProfilePage() {
                     className="pr-10"
                     {...field}
                   />
-                  <Phone className="absolute right-3 size-4 text-muted-foreground pointer-events-none" />
+                  <Phone className="pointer-events-none absolute right-3 size-4 text-muted-foreground" />
                 </div>
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
-
-          {/* Set Password */}
-          <Controller
-            control={control}
-            name="password"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="password">Create Password</FieldLabel>
-                <PasswordInput
-                  id="password"
-                  placeholder="Create account password"
-                  {...field}
-                />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}
@@ -195,7 +187,7 @@ export default function CompleteProfilePage() {
               type="submit"
               isLoading={completeProfileMutation.isPending}
               size="lg"
-              className="w-full font-semibold group"
+              className="group w-full font-semibold"
             >
               <span>Complete Setup</span>
               <ArrowRight className="size-4 transition-transform duration-150 group-hover:translate-x-1" />
@@ -203,15 +195,6 @@ export default function CompleteProfilePage() {
           </Field>
         </FieldGroup>
       </form>
-
-      <div className="mt-6 rounded-lg border border-dashed border-border p-3">
-        <div className="flex items-center justify-center gap-2 text-center text-muted-foreground">
-          <ShieldCheck className="size-4 shrink-0 text-primary" />
-          <p className="text-[11px] leading-normal font-medium">
-            Your information is secured. Password enables fallback email logins.
-          </p>
-        </div>
-      </div>
     </AuthShell>
   );
 }
