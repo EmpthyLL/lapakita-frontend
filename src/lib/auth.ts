@@ -1,5 +1,4 @@
 import { Role } from "@/types";
-import { PersonaMap } from "@/types/next-auth";
 import axios from "axios";
 import NextAuth, { CredentialsSignin } from "next-auth";
 import { JWT } from "next-auth/jwt";
@@ -22,23 +21,6 @@ const authApi = axios.create({
 
 const COOKIE_PREFIX = "lapakita";
 const useSecureCookies = (process.env.AUTH_URL ?? "").startsWith("https://");
-
-function getActivePersona(
-  personas: PersonaMap | undefined,
-  activeRole: Role,
-  defaults: {
-    name?: string | null;
-    avatarUrl?: string | null;
-    phone?: string | null;
-  },
-) {
-  const activePersona = personas?.[activeRole as keyof PersonaMap];
-  return {
-    name: activePersona?.display_name || defaults.name || "User",
-    avatarUrl: activePersona?.avatar_url || defaults.avatarUrl || null,
-    phone: activePersona?.phone || defaults.phone || null,
-  };
-}
 
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
@@ -121,11 +103,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           const activeRole: Role =
             (userPayload.active_role as Role) || "tenant";
-          const persona = getActivePersona(userPayload.personas, activeRole, {
-            name: userPayload.default_name,
-            avatarUrl: userPayload.default_avatar_url,
-            phone: userPayload.default_phone,
-          });
 
           return {
             id: userPayload.id,
@@ -142,9 +119,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token: accessToken,
             refreshToken,
             tokenExpiresAt: Date.now() + 15 * 60 * 1000,
-            name: persona.name,
-            avatarUrl: persona.avatarUrl,
-            phone: persona.phone,
           };
         } catch {
           throw new CustomAuthError("Failed to parse user session payload");
@@ -192,11 +166,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (token && session.user) {
         const activeRole: Role = token.activeRole || "tenant";
-        const persona = getActivePersona(token.personas, activeRole, {
-          name: token.defaultName,
-          avatarUrl: token.defaultAvatarUrl,
-          phone: token.defaultPhone,
-        });
 
         session.user.id = token.id;
         session.user.defaultName = token.defaultName;
@@ -212,10 +181,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.token = token.token;
         session.user.refreshToken = token.refreshToken;
         session.error = token.error;
-
-        session.user.name = persona.name;
-        session.user.avatarUrl = persona.avatarUrl;
-        session.user.phone = persona.phone;
       }
       return session;
     },

@@ -33,7 +33,7 @@ export async function registerUser(payload: RegisterPayload) {
 
 export async function completeGoogleProfile(payload: CompleteProfilePayload) {
   const res = await api.post<CompleteProfileResponse>(
-    "/auth/google/complete",
+    "/auth/complete-profile",
     payload,
   );
   return res.data;

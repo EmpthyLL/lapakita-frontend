@@ -8,18 +8,15 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { Role } from "@/types";
 import {
   Bell,
   ChevronDown,
   ChevronRight,
   LogOut,
-  Repeat,
   Settings,
   User,
   Wallet,
@@ -27,6 +24,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { RoleSwitcher } from "./RoleSwitcher";
 
 interface DashboardTopbarProps {
   userName?: string;
@@ -38,6 +36,8 @@ const GENERAL_ROUTES = [
   "/dashboard/wallet",
   "/dashboard/settings",
 ];
+
+const VALID_ROLES: Role[] = ["tenant", "owner", "supplier"];
 
 function useBreadcrumb(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
@@ -67,9 +67,17 @@ export function DashboardTopbar({
     pathname.startsWith(route),
   );
 
+  // Ambil role aktif secara dinamis dari URL path (/dashboard/[role])
+  const segments = pathname.split("/").filter(Boolean);
+  const currentPathRole = segments[1] as Role;
+
+  // Jika sedang di path role yang valid gunakan itu, jika tidak fallback ke main persona dari session/tenant
+  const currentRole: Role = VALID_ROLES.includes(currentPathRole)
+    ? currentPathRole
+    : (session?.user?.activeRole as Role) || "tenant";
+
   const userName = session?.user?.name || propUserName || "User";
-  const userAvatarUrl = session?.user?.avatarUrl || propAvatarUrl || "";
-  const activeRole = session?.user?.activeRole || "tenant";
+  const userAvatarUrl = session?.user?.defaultAvatarUrl || propAvatarUrl || "";
 
   const getInitials = (str: string) => {
     if (!str) return "U";
@@ -117,6 +125,10 @@ export function DashboardTopbar({
 
         <div className="mx-1 h-4 w-px bg-border" />
 
+        {/* Popover Role Switcher berdasarkan path URL */}
+        <RoleSwitcher activeRole={currentRole} isGeneralPage={isGeneralPage} />
+
+        {/* User Profile Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-1.5 rounded-full outline-none ring-primary/40 focus-visible:ring-2">
@@ -147,7 +159,7 @@ export function DashboardTopbar({
                       isGeneralPage ? "text-muted-foreground" : "text-primary",
                     )}
                   >
-                    {isGeneralPage ? "General" : activeRole}
+                    {isGeneralPage ? "General" : currentRole}
                   </span>
                 </p>
               </div>
@@ -180,42 +192,6 @@ export function DashboardTopbar({
                 <Settings className="mr-2 h-4 w-4" /> Settings
               </Link>
             </DropdownMenuItem>
-
-            {/* Switch Role Menu */}
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger className="cursor-pointer">
-                <Repeat className="mr-2 h-4 w-4" /> Switch Role
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <Link
-                    href="/dashboard/tenant"
-                    className="flex items-center w-full"
-                  >
-                    <span className="mr-2 h-2 w-2 rounded-full bg-tenant" />
-                    Tenant
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <Link
-                    href="/dashboard/owner"
-                    className="flex items-center w-full"
-                  >
-                    <span className="mr-2 h-2 w-2 rounded-full bg-owner" />
-                    Stall Owner
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <Link
-                    href="/dashboard/supplier"
-                    className="flex items-center w-full"
-                  >
-                    <span className="mr-2 h-2 w-2 rounded-full bg-supplier" />
-                    Supplier
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
 
             <DropdownMenuSeparator />
 

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/purity */
 "use client";
 
 import { Logo } from "@/components/layout/Logo";
@@ -9,7 +10,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { Role } from "@/types";
 import { ChevronsLeft, ChevronsRight } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -29,13 +32,32 @@ export function DashboardSidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const { role } = useRoleTheme();
+  const { data: session } = useSession();
 
-  // Deteksi apakah sedang berada di halaman general
+  const plan = session?.user?.subscriptionPlan;
+  const expiresAt = session?.user?.subscriptionExpiresAt;
+
   const isGeneralPage = GENERAL_ROUTES.some((route) =>
     pathname.startsWith(route),
   );
 
-  const navItems = DASHBOARD_NAV[role] ?? DASHBOARD_NAV.tenant;
+  // Helper lokal pengecekan akses menu Pro
+  function canAccessMenuItem(itemBadge?: string): boolean {
+    if (itemBadge !== "PRO") return true;
+    if (!plan || plan === "free") return false;
+    if (plan === "all_access") return true;
+
+    // Jika plan spesifik role, cek status expire
+    if (!expiresAt) return false;
+    return new Date(expiresAt).getTime() > Date.now();
+  }
+
+  // Pilih menu utama: jika di halaman General render DASHBOARD_FOOTER_NAV, jika tidak render sesuai role aktif
+  const rawNavItems = isGeneralPage
+    ? DASHBOARD_FOOTER_NAV
+    : (DASHBOARD_NAV[role as Role] ?? DASHBOARD_NAV.tenant);
+
+  const navItems = rawNavItems.filter((item) => canAccessMenuItem(item.badge));
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -45,7 +67,7 @@ export function DashboardSidebar() {
           collapsed ? "w-18" : "w-64",
         )}
       >
-        {/* Logo / collapse toggle */}
+        {/* Logo / Collapse Toggle */}
         <div className="flex h-16 shrink-0 items-center justify-between border-b border-border px-4">
           {!collapsed && <Logo variant="full" className="h-7 w-auto" />}
           <button
@@ -65,7 +87,7 @@ export function DashboardSidebar() {
           </button>
         </div>
 
-        {/* Role badge */}
+        {/* Role / Mode Badge */}
         {!collapsed && (
           <div className="px-4 pt-4">
             <span
@@ -87,7 +109,7 @@ export function DashboardSidebar() {
           </div>
         )}
 
-        {/* Main Role Nav */}
+        {/* Main Navigation */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
           {navItems.map((item) => {
             const active = isActive(pathname, item.href);
@@ -98,7 +120,9 @@ export function DashboardSidebar() {
                   "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                   collapsed && "justify-center px-0",
                   active
-                    ? "bg-primary text-primary-foreground shadow-xs"
+                    ? isGeneralPage
+                      ? "bg-secondary text-foreground font-semibold shadow-xs"
+                      : "bg-primary text-primary-foreground shadow-xs"
                     : "text-muted-foreground hover:bg-secondary hover:text-foreground",
                 )}
               >
@@ -136,37 +160,38 @@ export function DashboardSidebar() {
           })}
         </nav>
 
-        {/* Footer Nav (Wallet & Settings General Styling) */}
-        <div className="space-y-1 border-t border-border px-3 py-4">
-          {DASHBOARD_FOOTER_NAV.map((item) => {
-            const active = isActive(pathname, item.href);
-            const linkEl = (
-              <Link
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-                  collapsed && "justify-center px-0",
-                  // Ketika aktif di footer nav (general pages), gunakan gaya netral/secondary
-                  active
-                    ? "bg-secondary text-foreground font-semibold shadow-xs"
-                    : "text-muted-foreground hover:bg-secondary hover:text-foreground",
-                )}
-              >
-                <item.icon className="h-4.5 w-4.5 shrink-0" />
-                {!collapsed && <span className="truncate">{item.label}</span>}
-              </Link>
-            );
+        {/* Footer Navigation (Tampilkan General Nav di bawah jika sedang tidak di General Page) */}
+        {!isGeneralPage && (
+          <div className="space-y-1 border-t border-border px-3 py-4">
+            {DASHBOARD_FOOTER_NAV.map((item) => {
+              const active = isActive(pathname, item.href);
+              const linkEl = (
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                    collapsed && "justify-center px-0",
+                    active
+                      ? "bg-secondary text-foreground font-semibold shadow-xs"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                  )}
+                >
+                  <item.icon className="h-4.5 w-4.5 shrink-0" />
+                  {!collapsed && <span className="truncate">{item.label}</span>}
+                </Link>
+              );
 
-            if (!collapsed) return <div key={item.href}>{linkEl}</div>;
+              if (!collapsed) return <div key={item.href}>{linkEl}</div>;
 
-            return (
-              <Tooltip key={item.href}>
-                <TooltipTrigger asChild>{linkEl}</TooltipTrigger>
-                <TooltipContent side="right">{item.label}</TooltipContent>
-              </Tooltip>
-            );
-          })}
-        </div>
+              return (
+                <Tooltip key={item.href}>
+                  <TooltipTrigger asChild>{linkEl}</TooltipTrigger>
+                  <TooltipContent side="right">{item.label}</TooltipContent>
+                </Tooltip>
+              );
+            })}
+          </div>
+        )}
       </aside>
     </TooltipProvider>
   );

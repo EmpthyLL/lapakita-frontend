@@ -3,8 +3,11 @@ import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
   Building2,
+  CalendarCheck,
   ClipboardList,
+  FileSpreadsheet,
   Handshake,
+  KeyRound,
   LayoutDashboard,
   Package,
   Radar,
@@ -23,28 +26,40 @@ export interface DashboardNavItem {
   badge?: string;
 }
 
+// ── 1. DASHBOARD UTAMA BERDASARKAN ROLE AKUN ────────────────────────────────
 export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
+  // TENANT: Manajemen portofolio usaha, sewa lapak & finansial global
   tenant: [
     { label: "Overview", href: "/dashboard/tenant", icon: LayoutDashboard },
-    { label: "POS Cashier", href: "/dashboard/tenant/pos", icon: ShoppingCart },
     {
-      label: "Products & Stock",
-      href: "/dashboard/tenant/products",
-      icon: Package,
-    },
-    { label: "Staff Accounts", href: "/dashboard/tenant/staff", icon: Users },
-    {
-      label: "Supplier Marketplace",
-      href: "/dashboard/tenant/marketplace",
+      label: "My Businesses",
+      href: "/dashboard/tenant/businesses",
       icon: Store,
     },
     {
-      label: "Analytics",
+      label: "My Leases & Events",
+      href: "/dashboard/tenant/leases",
+      icon: KeyRound,
+    },
+    {
+      label: "Rent History & Invoices",
+      href: "/dashboard/tenant/billing",
+      icon: Wallet,
+    },
+    {
+      label: "Business Intelligence",
       href: "/dashboard/tenant/analytics",
       icon: BarChart3,
-      badge: "Pro",
+      badge: "Pro", // Fitur Pro / Premium
+    },
+    {
+      label: "Report History",
+      href: "/dashboard/tenant/reports",
+      icon: FileSpreadsheet,
     },
   ],
+
+  // OWNER: Manajemen portofolio properti & deposit escrow
   owner: [
     { label: "Overview", href: "/dashboard/owner", icon: LayoutDashboard },
     {
@@ -53,9 +68,14 @@ export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
       icon: Building2,
     },
     {
-      label: "Applications",
+      label: "Lease Applications",
       href: "/dashboard/owner/applications",
       icon: ClipboardList,
+    },
+    {
+      label: "Active Tenancies",
+      href: "/dashboard/owner/tenancies",
+      icon: CalendarCheck,
     },
     {
       label: "Deposits & Escrow",
@@ -66,9 +86,16 @@ export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
       label: "Strategy Analytics",
       href: "/dashboard/owner/analytics",
       icon: BarChart3,
-      badge: "Pro",
+      badge: "Pro", // Fitur Pro / Premium
+    },
+    {
+      label: "Report History",
+      href: "/dashboard/owner/reports",
+      icon: FileSpreadsheet,
     },
   ],
+
+  // SUPPLIER: Katalog B2B & pesanan grosir
   supplier: [
     { label: "Overview", href: "/dashboard/supplier", icon: LayoutDashboard },
     { label: "Catalog", href: "/dashboard/supplier/catalog", icon: Package },
@@ -82,12 +109,57 @@ export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
       label: "Demand Signals",
       href: "/dashboard/supplier/demand",
       icon: Radar,
-      badge: "Pro",
+      badge: "Pro", // Fitur Pro / Premium
+    },
+    {
+      label: "Report History",
+      href: "/dashboard/supplier/reports",
+      icon: FileSpreadsheet,
     },
   ],
 };
 
+// ── 2. BUSINESS WORKSPACE NAV (Khusus Operasional POS, Stok & Kasir Per Usaha) ──
+// Rute terpisah di bawah: /dashboard/business/[businessId]
+export function getBusinessWorkspaceNav(
+  businessId: string,
+): DashboardNavItem[] {
+  const base = `/dashboard/business/${businessId}`;
+  return [
+    {
+      label: "Business Overview",
+      href: base,
+      icon: LayoutDashboard,
+    },
+    {
+      label: "POS Cashier",
+      href: `${base}/pos`,
+      icon: ShoppingCart,
+    },
+    {
+      label: "Products & Stock",
+      href: `${base}/products`,
+      icon: Package,
+    },
+    {
+      label: "Staff Accounts",
+      href: `${base}/staff`,
+      icon: Users,
+    },
+    {
+      label: "Supplier Procurement",
+      href: `${base}/marketplace`,
+      icon: Store,
+    },
+    {
+      label: "Business Settings",
+      href: `${base}/settings`,
+      icon: Settings,
+    },
+  ];
+}
+
 export const DASHBOARD_FOOTER_NAV: DashboardNavItem[] = [
-  { label: "Wallet", href: "/dashboard/wallet", icon: Wallet },
-  { label: "Settings", href: "/dashboard/settings", icon: Settings },
+  { label: "Wallet & Payouts", href: "/dashboard/wallet", icon: Wallet },
+  { label: "Account Settings", href: "/dashboard/settings", icon: Settings },
 ];

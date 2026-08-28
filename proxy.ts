@@ -19,7 +19,6 @@ const getPathWithoutLocale = (pathname: string) => {
   return pathname.replace(/^\/(en|id)/, "") || "/";
 };
 
-// Helper pengecekan jenis halaman
 const isGuestOnlyPage = (pathname: string) => {
   const path = getPathWithoutLocale(pathname);
   return guestOnlyPages.some((page) => path.startsWith(page));
@@ -30,9 +29,10 @@ const isCompleteProfilePage = (pathname: string) => {
   return path.startsWith("/complete-profile");
 };
 
+// Protected pages: /dashboard dan /complete-profile
 const isProtectedPage = (pathname: string) => {
   const path = getPathWithoutLocale(pathname);
-  return path.startsWith("/dashboard");
+  return path.startsWith("/dashboard") || path.startsWith("/complete-profile");
 };
 
 export default async function middleware(request: NextRequest) {
@@ -47,31 +47,42 @@ export default async function middleware(request: NextRequest) {
   // 2. Ambil session user dari NextAuth
   const session = await auth();
 
-  // Cek kelengkapan data dasar user (defaultPhone / defaultName)
+  // Cek kelengkapan data dasar user (defaultPhone & defaultName)
   const isProfileIncomplete =
-    session?.user && (!session.user.phone || !session.user.name);
+    session?.user && (!session.user.defaultPhone || !session.user.defaultName);
 
-  // 3. JIKA PROFIL BELUM LENGKAP -> Paksa tetap di /complete-profile
-  if (session && isProfileIncomplete) {
-    if (!isCompleteProfilePage(pathname)) {
+  // 3. JIKA USER SUDAH LOGIN:
+  if (session) {
+    // A. Jika profil BELUM LENGKAP & mencoba akses Protected Page selain /complete-profile -> Redirect ke /complete-profile
+    if (
+      isProfileIncomplete &&
+      !isCompleteProfilePage(pathname) &&
+      isProtectedPage(pathname)
+    ) {
       return NextResponse.redirect(
         new URL(`/${locale}/complete-profile`, request.url),
       );
     }
-    return response;
+
+    // B. Jika profil SUDAH LENGKAP & mencoba buka /complete-profile -> Redirect ke /dashboard
+    if (!isProfileIncomplete && isCompleteProfilePage(pathname)) {
+      return NextResponse.redirect(
+        new URL(`/${locale}/dashboard`, request.url),
+      );
+    }
+
+    // C. Jika mencoba buka Guest Pages (/login, /register, dll):
+    if (isGuestOnlyPage(pathname)) {
+      const targetPath = isProfileIncomplete
+        ? "/complete-profile"
+        : "/dashboard";
+      return NextResponse.redirect(
+        new URL(`/${locale}${targetPath}`, request.url),
+      );
+    }
   }
 
-  // 4. JIKA PROFIL SUDAH LENGKAP & mencoba buka halaman /complete-profile -> Redirect ke Dashboard
-  if (session && !isProfileIncomplete && isCompleteProfilePage(pathname)) {
-    return NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url));
-  }
-
-  // 5. JIKA USER SUDAH LOGIN & mencoba buka Halaman Guest (/login, /register, dll)
-  if (session && isGuestOnlyPage(pathname)) {
-    return NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url));
-  }
-
-  // 6. JIKA USER BELUM LOGIN & mencoba buka Halaman Terproteksi (/dashboard)
+  // 4. JIKA USER BELUM LOGIN & mencoba buka Halaman Terproteksi (/dashboard atau /complete-profile)
   if (!session && isProtectedPage(pathname)) {
     return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
   }

@@ -34,10 +34,6 @@ declare module "next-auth" {
     token: string;
     refreshToken: string;
     tokenExpiresAt: number;
-    // Computed convenient props for active role persona
-    name?: string | null;
-    avatarUrl?: string | null;
-    phone?: string | null;
   }
 
   interface Session {
@@ -55,9 +51,6 @@ declare module "next-auth" {
       personas?: PersonaMap;
       token: string;
       refreshToken: string;
-      name?: string | null;
-      avatarUrl?: string | null;
-      phone?: string | null;
     } & DefaultSession["user"];
     error?: "RefreshTokenError";
   }

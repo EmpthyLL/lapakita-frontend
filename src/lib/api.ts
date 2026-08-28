@@ -12,7 +12,13 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     if (typeof window !== "undefined") {
-      const session = await getSession();
+      let session = await getSession();
+
+      // Retry 1x jika session belum siap ( race condition setelah signIn )
+      if (!session?.user?.token) {
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        session = await getSession();
+      }
 
       // Jika refresh token gagal di NextAuth, langsung force signout
       if (session?.error === "RefreshTokenError") {
@@ -32,6 +38,7 @@ api.interceptors.request.use(
           .find((row) => row.startsWith("NEXT_LOCALE="))
           ?.split("=")[1] || "en";
 
+      config.headers["Accept-Language"] = locale;
       config.headers.lang = locale;
     }
 
@@ -47,6 +54,7 @@ api.interceptors.response.use(
     const errorMessage =
       error.response?.data?.error || error.response?.data?.message;
 
+    // Jangan trigger force signOut jika sedang di halaman login/authpublik
     if (
       status === 401 ||
       errorMessage === "Expired token" ||
@@ -54,7 +62,10 @@ api.interceptors.response.use(
       errorMessage === "Invalid token" ||
       errorMessage === "Unauthorized"
     ) {
-      if (typeof window !== "undefined") {
+      if (
+        typeof window !== "undefined" &&
+        !window.location.pathname.includes("/login")
+      ) {
         await signOut({ redirect: true, callbackUrl: "/login" });
       }
     }

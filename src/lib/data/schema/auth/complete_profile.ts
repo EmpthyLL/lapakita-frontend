@@ -1,24 +1,26 @@
 import { z } from "zod";
 import { ResponseData } from "../base";
 
+// 1. Schema Validator Form (Lebih fleksibel)
 export const completeProfileSchema = z.object({
-  setupToken: z.string().min(1, "Setup token is required"),
   name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  password: z.string().optional(),
+  phone: z
+    .string()
+    .min(8, "Phone number must be at least 8 digits")
+    .regex(/^[0-9+\s-]+$/, "Invalid phone number format"),
   avatarUrl: z.string().optional(),
 });
 
 export type CompleteProfileValues = z.infer<typeof completeProfileSchema>;
 
+// 2. Payload Request ke Backend API Go
 export interface CompleteProfilePayload {
-  setup_token: string;
   name: string;
   phone: string;
   avatar_url?: string;
 }
 
+// 3. User & Auth Response Data
 export interface PhonePayload {
   number: string;
   is_primary: boolean;
@@ -37,6 +39,7 @@ export interface UserPayload {
   default_avatar_url?: string | null;
   default_phone: string;
   email: string;
+  is_password_set: boolean;
   active_role: string;
   subscription_plan: string;
   subscription_expires_at?: string | null;

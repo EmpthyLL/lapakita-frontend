@@ -45,7 +45,6 @@ export function GoogleButton({ className }: GoogleButtonProps) {
 
         if (res.message) showToast.success(res.message);
 
-        // 2. Arahkan ke /dashboard (Middleware akan otomatis mengunci ke /complete-profile jika phone/name belum lengkap)
         router.push("/dashboard");
         router.refresh();
       }

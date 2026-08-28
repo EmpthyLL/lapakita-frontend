@@ -37,34 +37,26 @@ export default function CompleteProfilePage() {
     useForm<CompleteProfileValues>({
       resolver: zodResolver(completeProfileSchema),
       defaultValues: {
-        setupToken: "",
-        name: user?.name || user?.defaultName || "",
-        email: user?.email || "",
-        phone: user?.phone || user?.defaultPhone || "",
-        password: "",
-        avatarUrl: user?.avatarUrl || user?.defaultAvatarUrl || "",
+        name: user?.defaultName || "",
+        phone: user?.defaultPhone || "",
+        avatarUrl: user?.defaultAvatarUrl || "",
       },
     });
 
   const currentName = watch("name");
 
-  // Sync data form jika session selesai dimuat
+  // Sync data form saat session NextAuth selesai di-load di client
   useEffect(() => {
     if (user) {
-      if (user.name || user.defaultName)
-        setValue("name", user.name || user.defaultName || "");
-      if (user.email) setValue("email", user.email);
-      if (user.avatarUrl || user.defaultAvatarUrl)
-        setValue("avatarUrl", user.avatarUrl || user.defaultAvatarUrl || "");
-      if (user.phone || user.defaultPhone)
-        setValue("phone", user.phone || user.defaultPhone || "");
+      if (user.defaultName) setValue("name", user.defaultName);
+      if (user.defaultPhone) setValue("phone", user.defaultPhone);
+      if (user.defaultAvatarUrl) setValue("avatarUrl", user.defaultAvatarUrl);
     }
   }, [user, setValue]);
 
   const completeProfileMutation = useMutation({
     mutationFn: (values: CompleteProfileValues) =>
       completeGoogleProfile({
-        setup_token: values.setupToken,
         name: values.name,
         phone: values.phone,
         avatar_url: values.avatarUrl || undefined,
@@ -73,7 +65,7 @@ export default function CompleteProfilePage() {
       const authData = res.data;
 
       if (authData) {
-        // 1. Perbarui payload Session lokal di browser
+        // Update payload Session lokal tanpa perlunya login ulang
         await updateSession({
           defaultName: authData.user.default_name,
           defaultPhone: authData.user.default_phone,
@@ -86,7 +78,7 @@ export default function CompleteProfilePage() {
           showToast.success(res.message);
         }
 
-        // 2. Navigasi ke Dashboard (Middleware akan meloloskan karena phone & name sudah terisi)
+        // Navigasi ke Dashboard (Middleware akan meloloskan karena defaultPhone & defaultName terisi)
         router.push("/dashboard");
         router.refresh();
       }
