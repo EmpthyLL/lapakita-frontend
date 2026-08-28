@@ -7,6 +7,7 @@ import {
   SendOtpPayload,
   SendOtpResponse,
 } from "../schema/auth/forget_password";
+import { GoogleAuthPayload, GoogleAuthResponse } from "../schema/auth/google";
 import { LoginPayload, LoginResponse } from "../schema/auth/login";
 import { VerifyOtpPayload, VerifyOtpResponse } from "../schema/auth/otp";
 import { RegisterPayload, RegisterResponse } from "../schema/auth/register";
@@ -14,6 +15,11 @@ import {
   ResetPasswordPayload,
   ResetPasswordResponse,
 } from "../schema/auth/reset_password";
+
+export async function googleAuth(payload: GoogleAuthPayload) {
+  const res = await api.post<GoogleAuthResponse>("/auth/google", payload);
+  return res.data;
+}
 
 export async function loginUser(payload: LoginPayload) {
   const res = await api.post<LoginResponse>("/auth/login", payload);

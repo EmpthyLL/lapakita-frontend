@@ -133,6 +133,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             defaultAvatarUrl: userPayload.default_avatar_url,
             defaultPhone: userPayload.default_phone,
             email: userPayload.email,
+            isPasswordSet: userPayload.is_password_set ?? false,
             activeRole,
             subscriptionPlan: userPayload.subscription_plan || "free",
             subscriptionExpiresAt: userPayload.subscription_expires_at,
@@ -159,6 +160,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.defaultAvatarUrl = user.defaultAvatarUrl;
         token.defaultPhone = user.defaultPhone;
         token.email = user.email;
+        token.isPasswordSet = user.isPasswordSet;
         token.activeRole = user.activeRole;
         token.subscriptionPlan = user.subscriptionPlan;
         token.subscriptionExpiresAt = user.subscriptionExpiresAt;
@@ -170,7 +172,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return token;
       }
 
+      // Dukungan dynamic session update (misal: setelah user berhasil Set Password)
       if (trigger === "update" && session) {
+        if (typeof session.isPasswordSet === "boolean") {
+          token.isPasswordSet = session.isPasswordSet;
+        }
         if (session.activeRole) token.activeRole = session.activeRole;
         if (session.subscriptionPlan)
           token.subscriptionPlan = session.subscriptionPlan;
@@ -197,6 +203,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.defaultAvatarUrl = token.defaultAvatarUrl;
         session.user.defaultPhone = token.defaultPhone;
         session.user.email = token.email ?? "";
+        session.user.isPasswordSet = token.isPasswordSet;
         session.user.activeRole = activeRole;
         session.user.subscriptionPlan = token.subscriptionPlan;
         session.user.subscriptionExpiresAt = token.subscriptionExpiresAt;

@@ -25,6 +25,7 @@ declare module "next-auth" {
     defaultAvatarUrl?: string | null;
     defaultPhone?: string | null;
     email: string;
+    isPasswordSet: boolean;
     activeRole: Role;
     subscriptionPlan: SubscriptionPlan;
     subscriptionExpiresAt?: string | null;
@@ -46,6 +47,7 @@ declare module "next-auth" {
       defaultAvatarUrl?: string | null;
       defaultPhone?: string | null;
       email: string;
+      isPasswordSet: boolean;
       activeRole: Role;
       subscriptionPlan: SubscriptionPlan;
       subscriptionExpiresAt?: string | null;
@@ -67,6 +69,7 @@ declare module "next-auth/jwt" {
     defaultName?: string | null;
     defaultAvatarUrl?: string | null;
     defaultPhone?: string | null;
+    isPasswordSet: boolean;
     activeRole: Role;
     subscriptionPlan: SubscriptionPlan;
     subscriptionExpiresAt?: string | null;
