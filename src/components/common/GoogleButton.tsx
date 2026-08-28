@@ -27,42 +27,10 @@ export function GoogleButton({ className }: GoogleButtonProps) {
   const googleAuthMutation = useMutation({
     mutationFn: (idToken: string) => googleAuth({ id_token: idToken }),
     onSuccess: async (res) => {
-      const responseData = res.data;
+      const authData = res.data?.auth_data || res.data;
 
-      // SKENARIO A: Profil Belum Lengkap
-      if (responseData?.setup_preset) {
-        const { setup_token, name, email, avatar_url } =
-          responseData.setup_preset;
-
-        // 1. Jika backend mengembalikan auth_data di setup_preset, daftarkan session dulu
-        if (responseData.auth_data) {
-          const authData = responseData.auth_data;
-          await signIn("credentials", {
-            accessToken: authData.access_token,
-            refreshToken: authData.refresh_token,
-            userData: JSON.stringify(authData.user),
-            redirect: false,
-          });
-        }
-
-        if (res.message) showToast.success(res.message);
-
-        // 2. Redirect ke complete-profile (Middleware akan mengunci user di sini karena phone/name belum lengkap)
-        const params = new URLSearchParams({
-          setup_token,
-          name: name || "",
-          email: email || "",
-          avatar_url: avatar_url || "",
-        });
-
-        router.push(`/complete-profile?${params.toString()}`);
-        router.refresh();
-        return;
-      }
-
-      // SKENARIO B: Profil Sudah Lengkap -> Direct Dashboard
-      if (responseData?.auth_data) {
-        const authData = responseData.auth_data;
+      if (authData?.access_token && authData?.user) {
+        // 1. Langsung daftarkan Session NextAuth di Browser
         const signInRes = await signIn("credentials", {
           accessToken: authData.access_token,
           refreshToken: authData.refresh_token,
@@ -76,6 +44,8 @@ export function GoogleButton({ className }: GoogleButtonProps) {
         }
 
         if (res.message) showToast.success(res.message);
+
+        // 2. Arahkan ke /dashboard (Middleware akan otomatis mengunci ke /complete-profile jika phone/name belum lengkap)
         router.push("/dashboard");
         router.refresh();
       }

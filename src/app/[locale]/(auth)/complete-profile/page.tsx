@@ -4,8 +4,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, Phone, UserCheck } from "lucide-react";
-import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
@@ -29,40 +29,37 @@ import { AuthShell } from "../AuthShell";
 
 export default function CompleteProfilePage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const { data: session, update: updateSession } = useSession();
 
-  const setupToken = searchParams.get("setup_token") ?? "";
-  const initialName = searchParams.get("name") ?? "";
-  const initialEmail = searchParams.get("email") ?? "";
-  const initialAvatar = searchParams.get("avatar_url") ?? "";
-
-  useEffect(() => {
-    if (!setupToken) {
-      router.push("/login");
-    }
-  }, [setupToken, router]);
+  const user = session?.user;
 
   const { control, handleSubmit, setValue, watch } =
     useForm<CompleteProfileValues>({
       resolver: zodResolver(completeProfileSchema),
       defaultValues: {
-        setupToken,
-        name: initialName,
-        email: initialEmail,
-        phone: "",
+        setupToken: "",
+        name: user?.name || user?.defaultName || "",
+        email: user?.email || "",
+        phone: user?.phone || user?.defaultPhone || "",
         password: "",
-        avatarUrl: initialAvatar,
+        avatarUrl: user?.avatarUrl || user?.defaultAvatarUrl || "",
       },
     });
 
   const currentName = watch("name");
 
+  // Sync data form jika session selesai dimuat
   useEffect(() => {
-    if (setupToken) setValue("setupToken", setupToken);
-    if (initialName) setValue("name", initialName);
-    if (initialEmail) setValue("email", initialEmail);
-    if (initialAvatar) setValue("avatarUrl", initialAvatar);
-  }, [setupToken, initialName, initialEmail, initialAvatar, setValue]);
+    if (user) {
+      if (user.name || user.defaultName)
+        setValue("name", user.name || user.defaultName || "");
+      if (user.email) setValue("email", user.email);
+      if (user.avatarUrl || user.defaultAvatarUrl)
+        setValue("avatarUrl", user.avatarUrl || user.defaultAvatarUrl || "");
+      if (user.phone || user.defaultPhone)
+        setValue("phone", user.phone || user.defaultPhone || "");
+    }
+  }, [user, setValue]);
 
   const completeProfileMutation = useMutation({
     mutationFn: (values: CompleteProfileValues) =>
@@ -73,26 +70,25 @@ export default function CompleteProfilePage() {
         avatar_url: values.avatarUrl || undefined,
       }),
     onSuccess: async (res) => {
-      if (res.message) {
-        showToast.success(res.message);
-      }
-
       const authData = res.data;
 
       if (authData) {
-        const signInRes = await signIn("credentials", {
-          accessToken: authData.access_token,
-          refreshToken: authData.refresh_token,
-          userData: JSON.stringify(authData.user),
-          redirect: false,
+        // 1. Perbarui payload Session lokal di browser
+        await updateSession({
+          defaultName: authData.user.default_name,
+          defaultPhone: authData.user.default_phone,
+          defaultAvatarUrl: authData.user.default_avatar_url,
+          phoneNumbers: authData.user.phone_numbers,
+          personas: authData.user.personas,
         });
 
-        if (signInRes?.error) {
-          router.push("/login");
-          return;
+        if (res.message) {
+          showToast.success(res.message);
         }
 
-        window.location.href = "/dashboard";
+        // 2. Navigasi ke Dashboard (Middleware akan meloloskan karena phone & name sudah terisi)
+        router.push("/dashboard");
+        router.refresh();
       }
     },
     onError: handleError,
@@ -120,7 +116,7 @@ export default function CompleteProfilePage() {
         <p className="mt-2 text-sm text-muted-foreground">
           Signed in with Google as{" "}
           <span className="font-medium text-foreground">
-            {initialEmail || "—"}
+            {user?.email || "—"}
           </span>
         </p>
       </div>
