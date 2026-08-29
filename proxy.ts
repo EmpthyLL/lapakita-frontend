@@ -47,31 +47,27 @@ export default async function middleware(request: NextRequest) {
   // 2. Ambil session user dari NextAuth
   const session = await auth();
 
-  // Cek kelengkapan data dasar user (defaultPhone & defaultName)
+  // Cek kelengkapan data dasar user (menggunakan defaultPhone & defaultName)
   const isProfileIncomplete =
     session?.user && (!session.user.defaultPhone || !session.user.defaultName);
 
-  // 3. JIKA USER SUDAH LOGIN:
+  // 3. JIKA USER SUDAH LOGIN
   if (session) {
-    // A. Jika profil BELUM LENGKAP & mencoba akses Protected Page selain /complete-profile -> Redirect ke /complete-profile
-    if (
-      isProfileIncomplete &&
-      !isCompleteProfilePage(pathname) &&
-      isProtectedPage(pathname)
-    ) {
+    // A. Hanya jika mencoba buka Halaman Protected (/dashboard) DENGAN profil BELUM lengkap -> redirect ke /complete-profile
+    if (isProfileIncomplete && isProtectedPage(pathname)) {
       return NextResponse.redirect(
         new URL(`/${locale}/complete-profile`, request.url),
       );
     }
 
-    // B. Jika profil SUDAH LENGKAP & mencoba buka /complete-profile -> Redirect ke /dashboard
+    // B. Jika profil SUDAH LENGKAP & mencoba buka /complete-profile -> redirect ke /dashboard
     if (!isProfileIncomplete && isCompleteProfilePage(pathname)) {
       return NextResponse.redirect(
         new URL(`/${locale}/dashboard`, request.url),
       );
     }
 
-    // C. Jika mencoba buka Guest Pages (/login, /register, dll):
+    // C. Jika mencoba buka Guest Pages (/login, /register, dll)
     if (isGuestOnlyPage(pathname)) {
       const targetPath = isProfileIncomplete
         ? "/complete-profile"
@@ -83,10 +79,14 @@ export default async function middleware(request: NextRequest) {
   }
 
   // 4. JIKA USER BELUM LOGIN & mencoba buka Halaman Terproteksi (/dashboard atau /complete-profile)
-  if (!session && isProtectedPage(pathname)) {
+  if (
+    !session &&
+    (isProtectedPage(pathname) || isCompleteProfilePage(pathname))
+  ) {
     return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
   }
 
+  // Jika tidak kena rule di atas (misal buka landing page '/'), loloskan!
   return response;
 }
 
