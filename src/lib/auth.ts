@@ -19,9 +19,6 @@ const authApi = axios.create({
   },
 });
 
-const COOKIE_PREFIX = "lapakita";
-const useSecureCookies = (process.env.AUTH_URL ?? "").startsWith("https://");
-
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
     const response = await authApi.post("auth/refresh", {
@@ -52,35 +49,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: "jwt",
     maxAge: 18000,
-    updateAge: 0,
-  },
-  cookies: {
-    sessionToken: {
-      name: `${COOKIE_PREFIX}-next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: useSecureCookies,
-      },
-    },
-    callbackUrl: {
-      name: `${COOKIE_PREFIX}-next-auth.callback-url`,
-      options: {
-        sameSite: "lax",
-        path: "/",
-        secure: useSecureCookies,
-      },
-    },
-    csrfToken: {
-      name: `${COOKIE_PREFIX}-next-auth.csrf-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: useSecureCookies,
-      },
-    },
   },
   providers: [
     CredentialsProvider({
@@ -146,15 +114,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return token;
       }
 
-      // Dukungan dynamic session update (misal: setelah user berhasil Set Password)
+      // Handle update dari client side
       if (trigger === "update" && session) {
-        if (typeof session.isPasswordSet === "boolean") {
-          token.isPasswordSet = session.isPasswordSet;
-        }
-        if (session.activeRole) token.activeRole = session.activeRole;
-        if (session.subscriptionPlan)
-          token.subscriptionPlan = session.subscriptionPlan;
-        if (session.personas) token.personas = session.personas;
+        const updateData = session.user || session;
+
+        if (updateData.defaultName !== undefined)
+          token.defaultName = updateData.defaultName;
+        if (updateData.defaultPhone !== undefined)
+          token.defaultPhone = updateData.defaultPhone;
+        if (updateData.defaultAvatarUrl !== undefined)
+          token.defaultAvatarUrl = updateData.defaultAvatarUrl;
+        if (updateData.phoneNumbers !== undefined)
+          token.phoneNumbers = updateData.phoneNumbers;
+        if (updateData.personas !== undefined)
+          token.personas = updateData.personas;
+        if (updateData.activeRole !== undefined)
+          token.activeRole = updateData.activeRole;
+        if (updateData.subscriptionPlan !== undefined)
+          token.subscriptionPlan = updateData.subscriptionPlan;
+
+        return token;
       }
 
       if (Date.now() < token.tokenExpiresAt) {
@@ -165,15 +144,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (token && session.user) {
-        const activeRole: Role = token.activeRole || "tenant";
-
         session.user.id = token.id;
         session.user.defaultName = token.defaultName;
         session.user.defaultAvatarUrl = token.defaultAvatarUrl;
         session.user.defaultPhone = token.defaultPhone;
         session.user.email = token.email ?? "";
         session.user.isPasswordSet = token.isPasswordSet;
-        session.user.activeRole = activeRole;
+        session.user.activeRole = token.activeRole;
         session.user.subscriptionPlan = token.subscriptionPlan;
         session.user.subscriptionExpiresAt = token.subscriptionExpiresAt;
         session.user.phoneNumbers = token.phoneNumbers;

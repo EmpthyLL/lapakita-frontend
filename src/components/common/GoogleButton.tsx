@@ -29,7 +29,7 @@ export function GoogleButton({ className }: GoogleButtonProps) {
   const googleAuthMutation = useMutation({
     mutationFn: (idToken: string) => googleAuth({ id_token: idToken }),
     onSuccess: async (res) => {
-      const authData = res.data?.auth_data || res.data;
+      const authData = res.data;
 
       const signInRes = await signIn("credentials", {
         accessToken: authData.access_token,

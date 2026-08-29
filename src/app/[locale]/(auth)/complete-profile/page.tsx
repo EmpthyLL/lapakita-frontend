@@ -45,7 +45,6 @@ export default function CompleteProfilePage() {
 
   const currentName = watch("name");
 
-  // Sync data form saat session NextAuth selesai di-load di client
   useEffect(() => {
     if (user) {
       if (user.defaultName) setValue("name", user.defaultName);
@@ -65,20 +64,21 @@ export default function CompleteProfilePage() {
       const authData = res.data;
 
       if (authData) {
-        // Update payload Session lokal tanpa perlunya login ulang
-        await updateSession({
-          defaultName: authData.user.default_name,
-          defaultPhone: authData.user.default_phone,
-          defaultAvatarUrl: authData.user.default_avatar_url,
-          phoneNumbers: authData.user.phone_numbers,
-          personas: authData.user.personas,
-        });
-
         if (res.message) {
           showToast.success(res.message);
         }
 
-        // Navigasi ke Dashboard (Middleware akan meloloskan karena defaultPhone & defaultName terisi)
+        // Cukup kirim field profil user, token & expiry tidak tersentuh
+        await updateSession({
+          user: {
+            defaultName: authData.default_name,
+            defaultPhone: authData.default_phone,
+            defaultAvatarUrl: authData.default_avatar_url,
+            phoneNumbers: authData.phone_numbers,
+            personas: authData.personas,
+          },
+        });
+
         router.push("/dashboard");
         router.refresh();
       }

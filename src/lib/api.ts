@@ -14,13 +14,13 @@ api.interceptors.request.use(
     if (typeof window !== "undefined") {
       let session = await getSession();
 
-      // Retry 1x jika session belum siap ( race condition setelah signIn )
+      // Retry 1x jika session belum siap (race condition setelah login)
       if (!session?.user?.token) {
         await new Promise((resolve) => setTimeout(resolve, 200));
         session = await getSession();
       }
 
-      // Jika refresh token gagal di NextAuth, langsung force signout
+      // Force signout jika refresh token di NextAuth gagal
       if (session?.error === "RefreshTokenError") {
         await signOut({ redirect: true, callbackUrl: "/login" });
         return Promise.reject(new Error("Session expired"));
@@ -54,18 +54,27 @@ api.interceptors.response.use(
     const errorMessage =
       error.response?.data?.error || error.response?.data?.message;
 
-    // Jangan trigger force signOut jika sedang di halaman login/authpublik
-    if (
+    const invalidTokenMessages = [
+      "Expired token",
+      "Token not found",
+      "Invalid token",
+      "Unauthorized",
+    ];
+
+    const isUnauthorized =
       status === 401 ||
-      errorMessage === "Expired token" ||
-      errorMessage === "Token not found" ||
-      errorMessage === "Invalid token" ||
-      errorMessage === "Unauthorized"
-    ) {
-      if (
-        typeof window !== "undefined" &&
-        !window.location.pathname.includes("/login")
-      ) {
+      (errorMessage && invalidTokenMessages.includes(errorMessage));
+
+    if (isUnauthorized && typeof window !== "undefined") {
+      const currentPath = window.location.pathname;
+      const isPublicAuthPage =
+        currentPath.includes("/login") ||
+        currentPath.includes("/register") ||
+        currentPath.includes("/verify-otp") ||
+        currentPath.includes("/forgot-password") ||
+        currentPath.includes("/reset-password");
+
+      if (!isPublicAuthPage) {
         await signOut({ redirect: true, callbackUrl: "/login" });
       }
     }

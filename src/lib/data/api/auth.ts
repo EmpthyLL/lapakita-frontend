@@ -1,14 +1,15 @@
 import api from "@/lib/api";
-import {
-  CompleteProfilePayload,
-  CompleteProfileResponse,
-} from "../schema/auth/complete_profile";
+import { CompleteProfileResponse } from "../schema/auth/complete_profile";
 import {
   SendOtpPayload,
   SendOtpResponse,
 } from "../schema/auth/forget_password";
 import { GoogleAuthPayload, GoogleAuthResponse } from "../schema/auth/google";
-import { LoginPayload, LoginResponse } from "../schema/auth/login";
+import {
+  CompleteProfilePayload,
+  LoginPayload,
+  LoginResponse,
+} from "../schema/auth/login";
 import { VerifyOtpPayload, VerifyOtpResponse } from "../schema/auth/otp";
 import { RegisterPayload, RegisterResponse } from "../schema/auth/register";
 import {
@@ -32,7 +33,7 @@ export async function registerUser(payload: RegisterPayload) {
 }
 
 export async function completeGoogleProfile(payload: CompleteProfilePayload) {
-  const res = await api.post<CompleteProfileResponse>(
+  const res = await api.put<CompleteProfileResponse>(
     "/auth/complete-profile",
     payload,
   );
