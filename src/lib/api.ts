@@ -1,6 +1,18 @@
 import axios, { AxiosError } from "axios";
 import { getSession, signOut } from "next-auth/react";
 
+// Helper membuat/mengambil Device ID yang persisten di localStorage
+function getOrCreateDeviceId(): string {
+  if (typeof window === "undefined") return "";
+
+  let deviceId = localStorage.getItem("lapakita_device_id");
+  if (!deviceId) {
+    deviceId = crypto.randomUUID();
+    localStorage.setItem("lapakita_device_id", deviceId);
+  }
+  return deviceId;
+}
+
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   timeout: 30000,
@@ -12,6 +24,12 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     if (typeof window !== "undefined") {
+      // 1. Set Device ID Header secara otomatis di setiap request
+      const deviceId = getOrCreateDeviceId();
+      if (deviceId) {
+        config.headers["X-Device-ID"] = deviceId; // atau "Device-ID" sesuai preferensi BE
+      }
+
       let session = await getSession();
 
       // Retry 1x jika session belum siap (race condition setelah login)

@@ -16,7 +16,11 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { DASHBOARD_FOOTER_NAV, DASHBOARD_NAV } from "./DashboardNav";
+import {
+  DASHBOARD_FOOTER_NAV,
+  DASHBOARD_NAV,
+  GENERAL_NAV,
+} from "./DashboardNav";
 
 function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -27,6 +31,13 @@ const GENERAL_ROUTES = [
   "/dashboard/wallet",
   "/dashboard/settings",
 ];
+
+// Mappings untuk warna hover kustom tiap role berbasis token global CSS
+const ROLE_HOVER_CLASSES: Record<Role, string> = {
+  tenant: "hover:bg-tenant-secondary hover:text-tenant",
+  owner: "hover:bg-owner-secondary hover:text-owner",
+  supplier: "hover:bg-supplier-secondary hover:text-supplier",
+};
 
 export function DashboardSidebar() {
   const pathname = usePathname();
@@ -41,20 +52,17 @@ export function DashboardSidebar() {
     pathname.startsWith(route),
   );
 
-  // Helper lokal pengecekan akses menu Pro
   function canAccessMenuItem(itemBadge?: string): boolean {
     if (itemBadge !== "PRO") return true;
     if (!plan || plan === "free") return false;
     if (plan === "all_access") return true;
 
-    // Jika plan spesifik role, cek status expire
     if (!expiresAt) return false;
     return new Date(expiresAt).getTime() > Date.now();
   }
 
-  // Pilih menu utama: jika di halaman General render DASHBOARD_FOOTER_NAV, jika tidak render sesuai role aktif
   const rawNavItems = isGeneralPage
-    ? DASHBOARD_FOOTER_NAV
+    ? GENERAL_NAV
     : (DASHBOARD_NAV[role as Role] ?? DASHBOARD_NAV.tenant);
 
   const navItems = rawNavItems.filter((item) => canAccessMenuItem(item.badge));
@@ -74,7 +82,7 @@ export function DashboardSidebar() {
             type="button"
             onClick={() => setCollapsed((c) => !c)}
             className={cn(
-              "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground",
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground outline-none",
               collapsed && "mx-auto",
             )}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -87,7 +95,7 @@ export function DashboardSidebar() {
           </button>
         </div>
 
-        {/* Role / Mode Badge */}
+        {/* Mode Indicator Badge */}
         {!collapsed && (
           <div className="px-4 pt-4">
             <span
@@ -109,10 +117,17 @@ export function DashboardSidebar() {
           </div>
         )}
 
-        {/* Main Navigation */}
+        {/* Main Navigation (Atas) */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
           {navItems.map((item) => {
             const active = isActive(pathname, item.href);
+
+            // Tentukan style hover: khusus di general page gunakan warna role masing-masing
+            const hoverClass =
+              isGeneralPage && item.role
+                ? ROLE_HOVER_CLASSES[item.role]
+                : "hover:bg-secondary hover:text-foreground";
+
             const linkEl = (
               <Link
                 href={item.href}
@@ -123,7 +138,7 @@ export function DashboardSidebar() {
                     ? isGeneralPage
                       ? "bg-secondary text-foreground font-semibold shadow-xs"
                       : "bg-primary text-primary-foreground shadow-xs"
-                    : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                    : cn("text-muted-foreground", hoverClass),
                 )}
               >
                 <item.icon className="h-4.5 w-4.5 shrink-0" />
@@ -160,38 +175,36 @@ export function DashboardSidebar() {
           })}
         </nav>
 
-        {/* Footer Navigation (Tampilkan General Nav di bawah jika sedang tidak di General Page) */}
-        {!isGeneralPage && (
-          <div className="space-y-1 border-t border-border px-3 py-4">
-            {DASHBOARD_FOOTER_NAV.map((item) => {
-              const active = isActive(pathname, item.href);
-              const linkEl = (
-                <Link
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-                    collapsed && "justify-center px-0",
-                    active
-                      ? "bg-secondary text-foreground font-semibold shadow-xs"
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground",
-                  )}
-                >
-                  <item.icon className="h-4.5 w-4.5 shrink-0" />
-                  {!collapsed && <span className="truncate">{item.label}</span>}
-                </Link>
-              );
+        {/* Footer Navigation (Bawah: Wallet & Settings) */}
+        <div className="space-y-1 border-t border-border px-3 py-4">
+          {DASHBOARD_FOOTER_NAV.map((item) => {
+            const active = isActive(pathname, item.href);
+            const linkEl = (
+              <Link
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                  collapsed && "justify-center px-0",
+                  active
+                    ? "bg-secondary text-foreground font-semibold shadow-xs"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                )}
+              >
+                <item.icon className="h-4.5 w-4.5 shrink-0" />
+                {!collapsed && <span className="truncate">{item.label}</span>}
+              </Link>
+            );
 
-              if (!collapsed) return <div key={item.href}>{linkEl}</div>;
+            if (!collapsed) return <div key={item.href}>{linkEl}</div>;
 
-              return (
-                <Tooltip key={item.href}>
-                  <TooltipTrigger asChild>{linkEl}</TooltipTrigger>
-                  <TooltipContent side="right">{item.label}</TooltipContent>
-                </Tooltip>
-              );
-            })}
-          </div>
-        )}
+            return (
+              <Tooltip key={item.href}>
+                <TooltipTrigger asChild>{linkEl}</TooltipTrigger>
+                <TooltipContent side="right">{item.label}</TooltipContent>
+              </Tooltip>
+            );
+          })}
+        </div>
       </aside>
     </TooltipProvider>
   );

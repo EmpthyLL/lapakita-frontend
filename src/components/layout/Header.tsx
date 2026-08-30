@@ -64,12 +64,7 @@ export function SiteHeader() {
   const userAvatarUrl =
     currentPersona?.avatar_url || session?.user?.defaultAvatarUrl || "";
 
-  // 5. Nomor HP: Persona phone -> primary phone number -> defaultPhone -> Fallback ""
-  const primaryPhone = session?.user?.phoneNumbers?.find(
-    (p) => p.is_primary,
-  )?.number;
-  const userPhone =
-    currentPersona?.phone || primaryPhone || session?.user?.defaultPhone || "";
+  const userEmail = session?.user.email;
 
   const navLinks = [
     { label: t("home"), href: "/" },
@@ -180,9 +175,9 @@ export function SiteHeader() {
                       <p className="text-sm font-semibold leading-none text-foreground truncate">
                         {userName}
                       </p>
-                      {userPhone && (
+                      {userEmail && (
                         <p className="text-xs text-muted-foreground truncate">
-                          {userPhone}
+                          {userEmail}
                         </p>
                       )}
                       <p className="text-xs leading-none text-muted-foreground capitalize pt-0.5">
@@ -387,9 +382,9 @@ export function SiteHeader() {
                         <p className="truncate text-sm font-medium text-foreground">
                           {userName}
                         </p>
-                        {userPhone && (
+                        {userEmail && (
                           <p className="truncate text-xs text-muted-foreground">
-                            {userPhone}
+                            {userEmail}
                           </p>
                         )}
                         <p className="text-xs text-muted-foreground capitalize">

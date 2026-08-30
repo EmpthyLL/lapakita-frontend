@@ -67,16 +67,14 @@ export function DashboardTopbar({
     pathname.startsWith(route),
   );
 
-  // Ambil role aktif secara dinamis dari URL path (/dashboard/[role])
   const segments = pathname.split("/").filter(Boolean);
   const currentPathRole = segments[1] as Role;
 
-  // Jika sedang di path role yang valid gunakan itu, jika tidak fallback ke main persona dari session/tenant
   const currentRole: Role = VALID_ROLES.includes(currentPathRole)
     ? currentPathRole
     : (session?.user?.activeRole as Role) || "tenant";
 
-  const userName = session?.user?.name || propUserName || "User";
+  const userName = session?.user?.defaultName || propUserName || "User";
   const userAvatarUrl = session?.user?.defaultAvatarUrl || propAvatarUrl || "";
 
   const getInitials = (str: string) => {
@@ -116,7 +114,7 @@ export function DashboardTopbar({
 
         <button
           type="button"
-          className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground outline-none"
+          className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground outline-none cursor-pointer"
           aria-label="Notifications"
         >
           <Bell className="h-4.5 w-4.5" />
@@ -125,13 +123,18 @@ export function DashboardTopbar({
 
         <div className="mx-1 h-4 w-px bg-border" />
 
-        {/* Popover Role Switcher berdasarkan path URL */}
-        <RoleSwitcher activeRole={currentRole} isGeneralPage={isGeneralPage} />
+        {/* Render Role Switcher HANYA jika bukan halaman General */}
+        {!isGeneralPage && (
+          <RoleSwitcher
+            activeRole={currentRole}
+            isGeneralPage={isGeneralPage}
+          />
+        )}
 
         {/* User Profile Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-1.5 rounded-full outline-none ring-primary/40 focus-visible:ring-2">
+            <button className="flex items-center gap-1.5 rounded-full outline-none ring-primary/40 focus-visible:ring-2 cursor-pointer">
               <Avatar className="h-9 w-9 border border-border">
                 <AvatarImage
                   src={userAvatarUrl}

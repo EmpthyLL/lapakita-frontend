@@ -12,7 +12,7 @@ import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Autocomplete } from "../input/Autocomplete";
-import { LocationAutocomplete } from "../input/LocationAutocomplete";
+import { LocationAutocomplete } from "../long/location-autocomplete/LocationAutocomplete";
 import { LANDMARK_CATEGORIES } from "./constants/landmark";
 import { StallPermanenceType } from "./constants/types";
 

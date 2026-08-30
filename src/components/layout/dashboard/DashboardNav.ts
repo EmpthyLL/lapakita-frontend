@@ -15,6 +15,7 @@ import {
   ShoppingCart,
   Store,
   Truck,
+  User,
   Users,
   Wallet,
 } from "lucide-react";
@@ -24,11 +25,12 @@ export interface DashboardNavItem {
   href: string;
   icon: LucideIcon;
   badge?: string;
+  role?: Role; // Added role field to map custom hover colors
 }
 
 // ── 1. DASHBOARD UTAMA BERDASARKAN ROLE AKUN ────────────────────────────────
 export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
-  // TENANT: Manajemen portofolio usaha, sewa lapak & finansial global
+  // TENANT
   tenant: [
     { label: "Overview", href: "/dashboard/tenant", icon: LayoutDashboard },
     {
@@ -50,7 +52,7 @@ export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
       label: "Business Intelligence",
       href: "/dashboard/tenant/analytics",
       icon: BarChart3,
-      badge: "Pro", // Fitur Pro / Premium
+      badge: "PRO",
     },
     {
       label: "Report History",
@@ -59,7 +61,7 @@ export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
     },
   ],
 
-  // OWNER: Manajemen portofolio properti & deposit escrow
+  // OWNER
   owner: [
     { label: "Overview", href: "/dashboard/owner", icon: LayoutDashboard },
     {
@@ -86,7 +88,7 @@ export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
       label: "Strategy Analytics",
       href: "/dashboard/owner/analytics",
       icon: BarChart3,
-      badge: "Pro", // Fitur Pro / Premium
+      badge: "PRO",
     },
     {
       label: "Report History",
@@ -95,7 +97,7 @@ export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
     },
   ],
 
-  // SUPPLIER: Katalog B2B & pesanan grosir
+  // SUPPLIER
   supplier: [
     { label: "Overview", href: "/dashboard/supplier", icon: LayoutDashboard },
     { label: "Catalog", href: "/dashboard/supplier/catalog", icon: Package },
@@ -109,7 +111,7 @@ export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
       label: "Demand Signals",
       href: "/dashboard/supplier/demand",
       icon: Radar,
-      badge: "Pro", // Fitur Pro / Premium
+      badge: "PRO",
     },
     {
       label: "Report History",
@@ -119,43 +121,40 @@ export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
   ],
 };
 
-// ── 2. BUSINESS WORKSPACE NAV (Khusus Operasional POS, Stok & Kasir Per Usaha) ──
-// Rute terpisah di bawah: /dashboard/business/[businessId]
+// ── 2. GENERAL MODE NAV (Menu Role di Bagian Atas) ─────────────────────────
+export const GENERAL_NAV: DashboardNavItem[] = [
+  {
+    label: "Tenant Mode",
+    href: "/dashboard/tenant",
+    icon: User,
+    role: "tenant",
+  },
+  {
+    label: "Stall Owner Mode",
+    href: "/dashboard/owner",
+    icon: Store,
+    role: "owner",
+  },
+  {
+    label: "Supplier Mode",
+    href: "/dashboard/supplier",
+    icon: Truck,
+    role: "supplier",
+  },
+];
+
+// ── 3. BUSINESS WORKSPACE NAV ──────────────────────────────────────────────
 export function getBusinessWorkspaceNav(
   businessId: string,
 ): DashboardNavItem[] {
   const base = `/dashboard/business/${businessId}`;
   return [
-    {
-      label: "Business Overview",
-      href: base,
-      icon: LayoutDashboard,
-    },
-    {
-      label: "POS Cashier",
-      href: `${base}/pos`,
-      icon: ShoppingCart,
-    },
-    {
-      label: "Products & Stock",
-      href: `${base}/products`,
-      icon: Package,
-    },
-    {
-      label: "Staff Accounts",
-      href: `${base}/staff`,
-      icon: Users,
-    },
-    {
-      label: "Supplier Procurement",
-      href: `${base}/marketplace`,
-      icon: Store,
-    },
-    {
-      label: "Business Settings",
-      href: `${base}/settings`,
-      icon: Settings,
-    },
+    { label: "Business Overview", href: base, icon: LayoutDashboard },
+    { label: "POS Cashier", href: `${base}/pos`, icon: ShoppingCart },
+    { label: "Products & Stock", href: `${base}/products`, icon: Package },
+    { label: "Staff Accounts", href: `${base}/staff`, icon: Users },
+    { label: "Supplier Procurement", href: `${base}/marketplace`, icon: Store },
+    { label: "Business Settings", href: `${base}/settings`, icon: Settings },
   ];
 }
 
