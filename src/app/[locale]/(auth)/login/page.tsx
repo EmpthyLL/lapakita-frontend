@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { LogIn } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 
 import { GoogleButton } from "@/components/common/GoogleButton";
@@ -27,6 +27,8 @@ import { AuthShell } from "../AuthShell";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
   const { control, handleSubmit } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -39,17 +41,13 @@ export default function LoginPage() {
       const authData = res.data;
 
       if (authData) {
-        const signInRes = await signIn("credentials", {
+        await signIn("credentials", {
           accessToken: authData.access_token,
           refreshToken: authData.refresh_token,
           userData: JSON.stringify(authData.user),
-          redirect: false,
+          callbackUrl,
+          redirect: true,
         });
-
-        if (signInRes?.error) {
-          handleError(signInRes.error);
-          return;
-        }
 
         showToast.success(res.message);
 

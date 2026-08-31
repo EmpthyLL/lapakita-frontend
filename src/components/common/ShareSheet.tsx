@@ -30,7 +30,6 @@ import {
   FacebookIcon,
   InstagramIcon,
   LineIcon,
-  LinkedinIcon,
   TelegramIcon,
   WhatsAppIcon,
   XIcon,
@@ -76,16 +75,10 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
 
   const secondaryChannels: ShareChannel[] = [
     {
-      name: "Facebook",
-      icon: FacebookIcon,
-      brandColor: "#1877F2",
-      href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-    },
-    {
-      name: "X",
-      icon: XIcon,
-      brandColor: "#0F1419",
-      href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodedUrl}`,
+      name: "LINE",
+      icon: LineIcon,
+      brandColor: "#06C755",
+      href: `https://social-plugins.line.me/lineit/share?url=${encodedUrl}`,
     },
     {
       name: "Telegram",
@@ -94,16 +87,16 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
       href: `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(shareText)}`,
     },
     {
-      name: "LINE",
-      icon: LineIcon,
-      brandColor: "#06C755",
-      href: `https://social-plugins.line.me/lineit/share?url=${encodedUrl}`,
+      name: "X",
+      icon: XIcon,
+      brandColor: "#0F1419",
+      href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodedUrl}`,
     },
     {
-      name: "LinkedIn",
-      icon: LinkedinIcon,
-      brandColor: "#0A66C2",
-      href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+      name: "Facebook",
+      icon: FacebookIcon,
+      brandColor: "#1877F2",
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
     },
     {
       name: "Email",
@@ -121,6 +114,7 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
 
   const body = (
     <div className="flex flex-col gap-3.5">
+      {/* Banner Utama: WhatsApp Redirect */}
       <a
         href={`https://wa.me/?text=${encodedText}`}
         target="_blank"
@@ -140,11 +134,12 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
         </span>
       </a>
 
-      <div className="grid grid-cols-4 gap-2">
+      {/* Grid Medsos Relevan */}
+      <div className="grid grid-cols-3 gap-2">
         {secondaryChannels.map((c) => {
           const Icon = c.icon;
           const commonClass =
-            "flex flex-col items-center justify-center gap-1 rounded-xl border border-border bg-card p-2.5 text-[10px] font-medium text-foreground transition-all active:scale-95 hover:border-primary/30 hover:bg-secondary/50";
+            "flex flex-col items-center justify-center gap-1.5 rounded-xl border border-border bg-card p-2.5 text-[11px] font-medium text-foreground transition-all active:scale-95 hover:border-primary/30 hover:bg-secondary/50";
 
           const iconWrap = (
             <span
@@ -187,6 +182,7 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
         })}
       </div>
 
+      {/* Copy Link Input */}
       <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/40 p-1 pl-3">
         <Link2 className="h-4 w-4 shrink-0 text-muted-foreground" />
         <Input
@@ -218,8 +214,7 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{trigger}</DialogTrigger>
-
-        <DialogContent className="w-full max-w-100 p-5 rounded-2xl gap-4 overflow-hidden">
+        <DialogContent className="w-full max-w-96 p-5 rounded-2xl gap-4 overflow-hidden">
           <DialogHeader className="p-0 space-y-1">
             <DialogTitle className="text-base font-semibold">
               {t("title")}
@@ -228,7 +223,6 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
               {title}
             </DialogDescription>
           </DialogHeader>
-
           {body}
         </DialogContent>
       </Dialog>

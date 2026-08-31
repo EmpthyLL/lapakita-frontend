@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { AreaHistoryItemResponse } from "@/lib/data/schema/master/area_history";
 import { AreaGeneralResponseData } from "@/lib/data/schema/master/location";
 import { cn, formatRelativeTime } from "@/lib/utils";
@@ -26,7 +27,6 @@ export function LocationHistoryItem({
 }: LocationHistoryItemProps) {
   const Icon = config.icon;
 
-  // Format searched_at: Tampil relatif ("2 hrs ago", "3 days ago"), jika >7 hari jadi tanggal "15 Aug 2026"
   const formattedTime = area.searched_at
     ? formatRelativeTime(area.searched_at, { maxRelativeDays: 7 })
     : "";
@@ -56,7 +56,6 @@ export function LocationHistoryItem({
         </span>
 
         <span className="min-w-0 flex-1">
-          {/* Header Baris Atas: Title + Badge Recent + Time */}
           <span className="flex items-center gap-1.5">
             <span className="truncate font-semibold text-foreground">
               {area.title || area.full_label}
@@ -71,7 +70,6 @@ export function LocationHistoryItem({
             )}
           </span>
 
-          {/* Subtitle Baris Bawah (Rata Kiri, Tidak di Tengah) */}
           {(area.subtitle || area.full_label) && (
             <span className="block truncate text-[11px] font-normal text-muted-foreground mt-0.5 text-left">
               {area.subtitle || area.full_label}
@@ -80,19 +78,20 @@ export function LocationHistoryItem({
         </span>
       </button>
 
-      {/* Tombol Hapus Single Item */}
-      <button
-        type="button"
+      {/* Tombol Hapus Single Item Menggunakan Button Ghost */}
+      <Button
+        variant="ghost"
+        size="icon-xs"
         onMouseDown={(e) => e.preventDefault()}
         onClick={(e) => {
           e.stopPropagation();
           onDelete(area.full_label);
         }}
         title="Delete history item"
-        className="opacity-0 group-hover/item:opacity-100 p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-opacity outline-none ml-2 cursor-pointer"
+        className="opacity-0 group-hover/item:opacity-100 text-muted-foreground hover:text-foreground transition-opacity ml-2"
       >
         <X className="size-3.5" />
-      </button>
+      </Button>
     </div>
   );
 }

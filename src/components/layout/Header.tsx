@@ -16,6 +16,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import {
+  ArrowUpRight,
   ChevronDown,
   LayoutDashboard,
   LogOut,
@@ -64,7 +65,7 @@ export function SiteHeader() {
   const userAvatarUrl =
     currentPersona?.avatar_url || session?.user?.defaultAvatarUrl || "";
 
-  const userEmail = session?.user.email;
+  const userEmail = session?.user?.email;
 
   const navLinks = [
     { label: t("home"), href: "/" },
@@ -125,26 +126,35 @@ export function SiteHeader() {
           {!isLoggedIn ? (
             <>
               <Link href="/login">
-                <Button variant="ghost">{t("login")}</Button>
+                <Button variant="ghost" size="sm">
+                  {t("login")}
+                </Button>
               </Link>
               <Link href="/register">
-                <Button variant="primary">{t("get_started")}</Button>
+                <Button variant="primary" size="sm">
+                  {t("get_started")}
+                </Button>
               </Link>
             </>
           ) : (
             <>
-              {/* Button Dashboard dengan Dynamic Role Variant */}
+              {/* Button Dashboard (Ukuran diperkecil: size="sm") */}
               <Link href={`/dashboard/${activeRole}`}>
-                <Button variant={activeRole}>
-                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                <Button
+                  variant={activeRole}
+                  size="sm"
+                  className="h-8 px-3 text-xs"
+                >
+                  <LayoutDashboard className="mr-1.5 size-3.5" />
                   {t("dashboard")}
+                  <ArrowUpRight />
                 </Button>
               </Link>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="relative flex items-center gap-1 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring/50">
-                    <Avatar className="h-9 w-9 border border-border">
+                    <Avatar className="h-8 w-8 border border-border">
                       <AvatarImage
                         src={userAvatarUrl}
                         alt={userName}
@@ -158,7 +168,7 @@ export function SiteHeader() {
                     {/* Status Dot Indicator Role Aktif */}
                     <span
                       className={cn(
-                        "absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background",
+                        "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-background",
                         {
                           "bg-tenant": activeRole === "tenant",
                           "bg-owner": activeRole === "owner",
@@ -166,7 +176,7 @@ export function SiteHeader() {
                         },
                       )}
                     />
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
@@ -328,7 +338,7 @@ export function SiteHeader() {
                       onClick={() => setMobileOpen(false)}
                       className="block"
                     >
-                      <Button variant="primary" className="w-full">
+                      <Button variant="primary" size="sm" className="w-full">
                         {t("get_started")}
                       </Button>
                     </Link>
@@ -337,7 +347,7 @@ export function SiteHeader() {
                       onClick={() => setMobileOpen(false)}
                       className="block"
                     >
-                      <Button variant="outline" className="w-full">
+                      <Button variant="outline" size="sm" className="w-full">
                         {t("login")}
                       </Button>
                     </Link>
@@ -349,15 +359,15 @@ export function SiteHeader() {
                       onClick={() => setMobileOpen(false)}
                       className="block"
                     >
-                      <Button variant={activeRole} className="w-full">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                      <Button variant={activeRole} size="sm">
                         {t("dashboard")}
+                        <LayoutDashboard className="mr-1.5 size-3.5" />
                       </Button>
                     </Link>
 
                     <div className="flex items-center gap-3 rounded-lg border border-border p-3">
                       <div className="relative">
-                        <Avatar className="h-9 w-9 border border-border">
+                        <Avatar className="h-8 w-8 border border-border">
                           <AvatarImage
                             src={userAvatarUrl}
                             alt={userName}
@@ -369,7 +379,7 @@ export function SiteHeader() {
                         </Avatar>
                         <span
                           className={cn(
-                            "absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background",
+                            "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-background",
                             {
                               "bg-tenant": activeRole === "tenant",
                               "bg-owner": activeRole === "owner",
