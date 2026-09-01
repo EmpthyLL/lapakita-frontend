@@ -5,15 +5,17 @@ import { useMutation } from "@tanstack/react-query";
 import { ArrowLeft, KeyRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
-import { Button } from "@/components/ui/button";
 import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/common/input/FormField";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { sendOTP } from "@/lib/data/api/auth";
 import {
@@ -27,7 +29,7 @@ import { AuthShell } from "../AuthShell";
 export default function ForgotPasswordPage() {
   const router = useRouter();
 
-  const { control, handleSubmit } = useForm<ForgotValues>({
+  const form = useForm<ForgotValues>({
     resolver: zodResolver(forgotSchema),
     defaultValues: { email: "" },
   });
@@ -79,39 +81,41 @@ export default function ForgotPasswordPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <FieldGroup>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@business.com"
-                  {...field}
-                />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="flex flex-col gap-5">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="email">Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="you@business.com"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Field>
-            <Button
-              type="submit"
-              isLoading={sendOtpMutation.isPending}
-              size="lg"
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              Send Verification Code
-            </Button>
-          </Field>
-        </FieldGroup>
-      </form>
+            <div className="pt-1">
+              <Button
+                type="submit"
+                isLoading={sendOtpMutation.isPending}
+                size="lg"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                Send Verification Code
+              </Button>
+            </div>
+          </div>
+        </form>
+      </Form>
     </AuthShell>
   );
 }

@@ -1,12 +1,13 @@
 "use client";
 
+import { DatePicker } from "@/components/common/input/DatePicker";
+import { DateRangePicker } from "@/components/common/long/date-range-picker";
+import { DisplayTable } from "@/components/common/long/display-table";
 import {
   ColumnDef,
-  DisplayTable,
   DisplayTableQuery,
-} from "@/components/common/DisplayTable";
-import { DatePicker } from "@/components/common/input/DatePicker";
-import { DateRangePicker } from "@/components/common/input/DateRangePicker";
+} from "@/components/common/long/display-table/Constant";
+
 import { Button } from "@/components/ui/button";
 import { PaginatedResponse } from "@/lib/data/schema/base";
 import { showToast } from "@/lib/toast";

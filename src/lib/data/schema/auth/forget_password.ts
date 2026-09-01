@@ -2,7 +2,7 @@ import { z } from "zod";
 import { ResponseData } from "../base";
 
 export const forgotSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.string().email("Email address is invalid"),
 });
 
 export type ForgotValues = z.infer<typeof forgotSchema>;

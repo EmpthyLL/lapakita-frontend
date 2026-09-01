@@ -7,16 +7,18 @@ import { ArrowRight, Phone, UserCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 import { AvatarInput } from "@/components/common/input/AvatarInput";
-import { Button } from "@/components/ui/button";
 import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/common/input/FormField";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { completeGoogleProfile } from "@/lib/data/api/auth";
 import {
@@ -33,25 +35,25 @@ export default function CompleteProfilePage() {
 
   const user = session?.user;
 
-  const { control, handleSubmit, setValue, watch } =
-    useForm<CompleteProfileValues>({
-      resolver: zodResolver(completeProfileSchema),
-      defaultValues: {
-        name: user?.defaultName || "",
-        phone: user?.defaultPhone || "",
-        avatarUrl: user?.defaultAvatarUrl || "",
-      },
-    });
+  const form = useForm<CompleteProfileValues>({
+    resolver: zodResolver(completeProfileSchema),
+    defaultValues: {
+      name: user?.defaultName || "",
+      phone: user?.defaultPhone || "",
+      avatarUrl: user?.defaultAvatarUrl || "",
+    },
+  });
 
-  const currentName = watch("name");
+  const currentName = form.watch("name");
 
   useEffect(() => {
     if (user) {
-      if (user.defaultName) setValue("name", user.defaultName);
-      if (user.defaultPhone) setValue("phone", user.defaultPhone);
-      if (user.defaultAvatarUrl) setValue("avatarUrl", user.defaultAvatarUrl);
+      if (user.defaultName) form.setValue("name", user.defaultName);
+      if (user.defaultPhone) form.setValue("phone", user.defaultPhone);
+      if (user.defaultAvatarUrl)
+        form.setValue("avatarUrl", user.defaultAvatarUrl);
     }
-  }, [user, setValue]);
+  }, [user, form]);
 
   const completeProfileMutation = useMutation({
     mutationFn: (values: CompleteProfileValues) =>
@@ -68,7 +70,6 @@ export default function CompleteProfilePage() {
           showToast.success(res.message);
         }
 
-        // Cukup kirim field profil user, token & expiry tidak tersentuh
         await updateSession({
           user: {
             defaultName: authData.default_name,
@@ -113,78 +114,85 @@ export default function CompleteProfilePage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="mb-6 rounded-xl border border-border bg-secondary/30 p-4">
-          <Controller
-            control={control}
-            name="avatarUrl"
-            render={({ field }) => (
-              <AvatarInput
-                value={field.value}
-                onChange={field.onChange}
-                name={currentName}
-                disabled={completeProfileMutation.isPending}
-              />
-            )}
-          />
-        </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="mb-6 rounded-xl border border-border bg-secondary/30 p-4">
+            <FormField
+              control={form.control}
+              name="avatarUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <AvatarInput
+                      value={field.value}
+                      onChange={field.onChange}
+                      name={currentName}
+                      disabled={completeProfileMutation.isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-        <FieldGroup className="space-y-3.5">
-          <Controller
-            control={control}
-            name="name"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <div className="flex items-center justify-between">
-                  <FieldLabel htmlFor="name">Full Name</FieldLabel>
-                  <span className="text-[11px] text-muted-foreground">
-                    From Google — editable
-                  </span>
-                </div>
-                <Input id="name" placeholder="e.g. John Doe" {...field} />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
+          <div className="flex flex-col gap-3.5">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between">
+                    <FormLabel htmlFor="name">Full Name</FormLabel>
+                    <span className="text-[11px] text-muted-foreground">
+                      From Google — editable
+                    </span>
+                  </div>
+                  <FormControl>
+                    <Input id="name" placeholder="e.g. John Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="phone"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="phone">Phone Number</FieldLabel>
-                <div className="relative flex items-center">
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="+62 812 3456 7890"
-                    className="pr-10"
-                    {...field}
-                  />
-                  <Phone className="pointer-events-none absolute right-3 size-4 text-muted-foreground" />
-                </div>
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="phone">Phone Number</FormLabel>
+                  <div className="relative flex items-center">
+                    <FormControl>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="+62 812 3456 7890"
+                        className="pr-10"
+                        {...field}
+                      />
+                    </FormControl>
+                    <Phone className="pointer-events-none absolute right-3 size-4 text-muted-foreground" />
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Field className="pt-2">
-            <Button
-              type="submit"
-              isLoading={completeProfileMutation.isPending}
-              size="lg"
-              className="group w-full font-semibold"
-            >
-              <span>Complete Setup</span>
-              <ArrowRight className="size-4 transition-transform duration-150 group-hover:translate-x-1" />
-            </Button>
-          </Field>
-        </FieldGroup>
-      </form>
+            <div className="pt-2">
+              <Button
+                type="submit"
+                isLoading={completeProfileMutation.isPending}
+                size="lg"
+                className="group w-full font-semibold"
+              >
+                <span>Complete Setup</span>
+                <ArrowRight className="size-4 transition-transform duration-150 group-hover:translate-x-1" />
+              </Button>
+            </div>
+          </div>
+        </form>
+      </Form>
     </AuthShell>
   );
 }

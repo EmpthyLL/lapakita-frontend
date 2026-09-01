@@ -5,18 +5,20 @@ import { useMutation } from "@tanstack/react-query";
 import { UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 import { GoogleButton } from "@/components/common/GoogleButton";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/common/input/FormField";
 import { PasswordInput } from "@/components/common/input/PasswordInput";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { registerUser } from "@/lib/data/api/auth";
 import {
@@ -31,7 +33,7 @@ import { AuthShell } from "../AuthShell";
 export default function RegisterPage() {
   const router = useRouter();
 
-  const { control, handleSubmit } = useForm<RegisterValues>({
+  const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       name: "",
@@ -52,9 +54,7 @@ export default function RegisterPage() {
         `/verify-otp?flow=register&email=${encodeURIComponent(variables.email)}`,
       );
     },
-    onError: (error) => {
-      handleError(error);
-    },
+    onError: handleError,
   });
 
   function onSubmit(values: RegisterValues) {
@@ -90,114 +90,118 @@ export default function RegisterPage() {
       <GoogleButton />
       <AuthDivider label="Or sign up with email" />
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <FieldGroup>
-          <Controller
-            control={control}
-            name="name"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="name">Full Name</FieldLabel>
-                <Input id="name" placeholder="e.g. John Doe" {...field} />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="flex flex-col gap-5">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="name">Full Name</FormLabel>
+                  <FormControl>
+                    <Input id="name" placeholder="e.g. John Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="email"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="email">Email Address</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@business.com"
-                  {...field}
-                />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="email">Email Address</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="you@business.com"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="phone"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="phone">Phone Number</FieldLabel>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="+62 812 3456 7890"
-                  {...field}
-                />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="phone">Phone Number</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="+62 812 3456 7890"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="password"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="password">Password</FieldLabel>
-                <PasswordInput
-                  id="password"
-                  placeholder="Create a password"
-                  {...field}
-                />
-                {fieldState.invalid ? (
-                  <FieldError errors={[fieldState.error]} />
-                ) : (
-                  <FieldDescription>
-                    At least 8 characters long.
-                  </FieldDescription>
-                )}
-              </Field>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel htmlFor="password">Password</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      id="password"
+                      placeholder="Create a password"
+                      {...field}
+                    />
+                  </FormControl>
+                  {fieldState.invalid ? (
+                    <FormMessage />
+                  ) : (
+                    <FormDescription>
+                      At least 8 characters long.
+                    </FormDescription>
+                  )}
+                </FormItem>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="confirm_password"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="confirm_password">
-                  Confirm Password
-                </FieldLabel>
-                <PasswordInput
-                  id="confirm_password"
-                  placeholder="Re-enter your password"
-                  {...field}
-                />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="confirm_password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="confirm_password">
+                    Confirm Password
+                  </FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      id="confirm_password"
+                      placeholder="Re-enter your password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Field className="pt-1.5">
-            <Button
-              type="submit"
-              isLoading={registerMutation.isPending}
-              size="lg"
-              className="w-full font-semibold"
-            >
-              Create Account
-            </Button>
-          </Field>
-        </FieldGroup>
-      </form>
+            <div className="pt-1.5">
+              <Button
+                type="submit"
+                isLoading={registerMutation.isPending}
+                size="lg"
+                className="w-full font-semibold"
+              >
+                Create Account
+              </Button>
+            </div>
+          </div>
+        </form>
+      </Form>
 
       <p className="mt-5 text-center text-xs text-muted-foreground">
         By creating an account, you agree to Lapakita&apos;s{" "}

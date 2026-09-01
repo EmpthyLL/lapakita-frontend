@@ -4,17 +4,19 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { ShieldCheck } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/common/input/FormField";
 import { PasswordInput } from "@/components/common/input/PasswordInput";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
 import { resetPassword } from "@/lib/data/api/auth";
 import {
   resetSchema,
@@ -31,7 +33,7 @@ export default function ResetPasswordPage() {
   const token = searchParams.get("token") || "";
   const email = searchParams.get("email") || "";
 
-  const { control, handleSubmit } = useForm<ResetValues>({
+  const form = useForm<ResetValues>({
     resolver: zodResolver(resetSchema),
     defaultValues: { password: "", confirmPassword: "" },
   });
@@ -83,62 +85,66 @@ export default function ResetPasswordPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <FieldGroup>
-          <Controller
-            control={control}
-            name="password"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="password">New Password</FieldLabel>
-                <PasswordInput
-                  id="password"
-                  placeholder="Create a new password"
-                  {...field}
-                />
-                {fieldState.invalid ? (
-                  <FieldError errors={[fieldState.error]} />
-                ) : (
-                  <FieldDescription>
-                    At least 6 characters long.
-                  </FieldDescription>
-                )}
-              </Field>
-            )}
-          />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="flex flex-col gap-5">
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel htmlFor="password">New Password</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      id="password"
+                      placeholder="Create a new password"
+                      {...field}
+                    />
+                  </FormControl>
+                  {fieldState.invalid ? (
+                    <FormMessage />
+                  ) : (
+                    <FormDescription>
+                      At least 6 characters long.
+                    </FormDescription>
+                  )}
+                </FormItem>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="confirmPassword"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="confirmPassword">
-                  Confirm New Password
-                </FieldLabel>
-                <PasswordInput
-                  id="confirmPassword"
-                  placeholder="Re-enter your new password"
-                  {...field}
-                />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="confirmPassword">
+                    Confirm New Password
+                  </FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      id="confirmPassword"
+                      placeholder="Re-enter your new password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Field>
-            <Button
-              type="submit"
-              isLoading={resetMutation.isPending}
-              size="lg"
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              Reset Password
-            </Button>
-          </Field>
-        </FieldGroup>
-      </form>
+            <div className="pt-1">
+              <Button
+                type="submit"
+                isLoading={resetMutation.isPending}
+                size="lg"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                Reset Password
+              </Button>
+            </div>
+          </div>
+        </form>
+      </Form>
     </AuthShell>
   );
 }

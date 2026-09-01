@@ -3,13 +3,6 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
-import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
@@ -19,20 +12,12 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -43,49 +28,16 @@ import {
 } from "@/components/ui/table";
 import { useInfiniteSearch } from "@/hooks/use-infinite-search";
 import { usePagination } from "@/hooks/use-pagination";
-import { BasePaginationQuery, PaginatedResponse } from "@/lib/data/schema/base";
+import { BasePaginationQuery } from "@/lib/data/schema/base";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import {
-  Calendar as CalendarIcon,
-  Inbox,
-  ListFilter,
-  Loader2,
-  LucideIcon,
-  Plus,
-  SlidersHorizontal,
-  Sparkles,
-  Trash2,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ReactNode, useState } from "react";
-import { Input } from "../ui/input";
-import { DatePicker } from "./input/DatePicker";
 
-export interface FilterOption<TData> {
-  id: keyof TData;
-  title: string;
-  type?: "input" | "date" | "select";
-  options?: { label: string; value: string | number }[];
-}
-
-export interface ColumnDef<TData> {
-  key: keyof TData;
-  header: string;
-  icon?: LucideIcon;
-  className?: string;
-  render?: (value: unknown, row: TData) => ReactNode;
-}
-
-export interface DisplayTableQuery<TData, TParams extends Record<string, any>> {
-  queryFn: (params: TParams) => Promise<PaginatedResponse<TData>>;
-  queryKey: (params: TParams) => any[];
-  enabled?: boolean;
-  defaultParams?: Omit<TParams, "limit">;
-  filterOptions?: FilterOption<TData>[];
-  filterToParamKey?: Record<string, keyof TParams>;
-  searchKey?: keyof TParams;
-}
+import { ColumnDef, DisplayTableQuery, FilterOption } from "./Constant";
+import { FilterItem } from "./FilterItem";
+import { FilterOptions } from "./FilterOptions";
+import { EmptyState, RowIndexBadge, SkeletonRows } from "./TableStates";
 
 interface DisplayTableProps<TData, TParams extends Record<string, any>> {
   columns: ColumnDef<TData>[];
@@ -96,353 +48,6 @@ interface DisplayTableProps<TData, TParams extends Record<string, any>> {
   showCount?: boolean;
   countList?: number[];
   paginationMode?: "load-more" | "pagination";
-}
-
-const FILTER_TYPE_ICON: Record<
-  NonNullable<FilterOption<any>["type"]>,
-  LucideIcon
-> = {
-  input: SlidersHorizontal,
-  date: CalendarIcon,
-  select: ListFilter,
-};
-
-interface FilterOptionsProps<TData> {
-  options: FilterOption<TData>[];
-  selectedOptions: FilterOption<TData>[];
-  setSelectedOptions: React.Dispatch<
-    React.SetStateAction<FilterOption<TData>[]>
-  >;
-}
-
-function FilterOptions<TData>({
-  options,
-  selectedOptions,
-  setSelectedOptions,
-}: FilterOptionsProps<TData>) {
-  const t = useTranslations("common.display_table");
-  const [open, setOpen] = useState(false);
-  const unselected = options.filter(
-    (o) => !selectedOptions.find((s) => s.id === o.id),
-  );
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-full border-dashed border-primary/40 text-primary hover:border-primary hover:bg-primary/5 hover:text-primary"
-        >
-          <Plus className="mr-1.5 h-3.5 w-3.5" />
-          {t("add_filter")}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-56 p-0" align="start">
-        <Command>
-          <CommandInput
-            className="border-b px-4 py-2"
-            placeholder={t("filter_by_placeholder")}
-          />
-          {unselected.length < 1 ? (
-            <div className="flex flex-col items-center gap-2 py-8 text-center text-sm text-muted-foreground">
-              <Sparkles className="h-4 w-4 text-primary/50" />
-              {t("all_filters_added")}
-            </div>
-          ) : (
-            <CommandEmpty>{t("nothing_found")}</CommandEmpty>
-          )}
-          <CommandGroup>
-            <ScrollArea className="max-h-[60vh] overflow-y-scroll">
-              {unselected.map((option, index) => {
-                const Icon = FILTER_TYPE_ICON[option.type ?? "input"];
-                return (
-                  <CommandItem
-                    key={String(index)}
-                    className="gap-2 capitalize"
-                    value={String(option.id).split("_").join(" ")}
-                    onSelect={() => {
-                      setOpen(false);
-                      setSelectedOptions((prev) => {
-                        const isSelected = prev.some(
-                          (item) => item.id === option.id,
-                        );
-                        if (isSelected)
-                          return prev.filter((item) => item.id !== option.id);
-                        return [...prev, option];
-                      });
-                    }}
-                  >
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <Icon className="h-3.5 w-3.5" />
-                    </span>
-                    {option.title}
-                  </CommandItem>
-                );
-              })}
-            </ScrollArea>
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-interface FilterItemProps<TData, TParams extends Record<string, unknown>> {
-  option: FilterOption<TData>;
-  filterValues: Partial<TParams>;
-  setFilterValues: React.Dispatch<React.SetStateAction<Partial<TParams>>>;
-  filterToParamKey: Record<string, keyof TParams>;
-  onRemove: (option: FilterOption<TData>) => void;
-}
-
-function FilterItem<TData, TParams extends Record<string, unknown>>({
-  option,
-  filterValues,
-  setFilterValues,
-  filterToParamKey,
-  onRemove,
-}: FilterItemProps<TData, TParams>) {
-  const t = useTranslations("common.display_table");
-  const [open, setOpen] = useState(true);
-  const paramKey = filterToParamKey[option.id as string];
-  const value = paramKey
-    ? ((filterValues[paramKey] as string | number | Date | undefined) ?? "")
-    : "";
-  const hasValue = value !== "" && value !== undefined && value !== null;
-  const Icon = FILTER_TYPE_ICON[option.type ?? "input"];
-
-  const handleChange = (val: string | number | Date | null | undefined) => {
-    if (!paramKey) return;
-    setFilterValues((prev) => ({
-      ...prev,
-      [paramKey]: val ?? undefined,
-    }));
-  };
-
-  const displayLabel = () => {
-    if (!value && value !== 0)
-      return <span className="capitalize">{option.title}</span>;
-
-    if (option.type === "date" && value instanceof Date) {
-      return (
-        <span>
-          {option.title} : {format(value, "dd MMM yyyy")}
-        </span>
-      );
-    }
-
-    if (option.type === "select" && option.options) {
-      const found = option.options.find((o) => o.value === value);
-      return (
-        <span>
-          {option.title} : {found?.label ?? String(value)}
-        </span>
-      );
-    }
-
-    return (
-      <span>
-        {option.title} : {String(value)}
-      </span>
-    );
-  };
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className={cn(
-            "gap-1.5 rounded-full transition-colors",
-            hasValue
-              ? "border-primary/40 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
-              : "border-border text-muted-foreground",
-          )}
-        >
-          <Icon className="h-3.5 w-3.5" />
-          {displayLabel()}
-        </Button>
-      </PopoverTrigger>
-
-      <PopoverContent className="w-60 space-y-2 text-sm" align="start">
-        <div className="flex items-center justify-between">
-          <span className="flex items-center gap-1.5 text-sm font-medium capitalize text-foreground">
-            <Icon className="h-3.5 w-3.5 text-primary" />
-            {option.title}
-          </span>
-          <Button
-            aria-label={t("remove_filter")}
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-            onClick={() => {
-              handleChange(undefined);
-              onRemove(option);
-            }}
-          >
-            <Trash2 className="size-3.5" />
-          </Button>
-        </div>
-
-        {option.type === "date" ? (
-          <DatePicker
-            value={
-              value instanceof Date
-                ? value
-                : value
-                  ? new Date(String(value))
-                  : null
-            }
-            onChange={(date) => {
-              handleChange(date ?? undefined);
-              if (date) setOpen(false);
-            }}
-          />
-        ) : option.type === "select" && option.options ? (
-          <Select
-            value={String(value)}
-            onValueChange={(val) => {
-              handleChange(val);
-              setOpen(false);
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t("select_option")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {option.options.map((op) => (
-                  <SelectItem key={op.value} value={String(op.value)}>
-                    {op.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        ) : (
-          <Input
-            placeholder={t("type_here")}
-            className="h-8"
-            value={String(value)}
-            autoFocus
-            onChange={(e) =>
-              handleChange(e.target.value === "" ? undefined : e.target.value)
-            }
-            onKeyDown={(e) => {
-              if (e.key === "Enter") setOpen(false);
-            }}
-          />
-        )}
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-interface ActiveFiltersProps<TData, TParams extends Record<string, unknown>> {
-  selectedOptions: FilterOption<TData>[];
-  filterValues: Partial<TParams>;
-  setFilterValues: React.Dispatch<React.SetStateAction<Partial<TParams>>>;
-  filterToParamKey: Record<string, keyof TParams>;
-  onRemove: (option: FilterOption<TData>) => void;
-}
-
-function ActiveFilters<TData, TParams extends Record<string, unknown>>({
-  selectedOptions,
-  filterValues,
-  setFilterValues,
-  filterToParamKey,
-  onRemove,
-}: ActiveFiltersProps<TData, TParams>) {
-  if (selectedOptions.length === 0) return null;
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {selectedOptions.map((option) => (
-        <FilterItem
-          key={option.id as string}
-          option={option}
-          filterValues={filterValues}
-          setFilterValues={setFilterValues}
-          filterToParamKey={filterToParamKey}
-          onRemove={onRemove}
-        />
-      ))}
-    </div>
-  );
-}
-
-function RowIndexBadge({ index }: { index: number }) {
-  const tints = [
-    "bg-primary/10 text-primary",
-    "bg-primary/15 text-primary",
-    "bg-primary/[0.08] text-primary/80",
-  ];
-  const tint = tints[index % tints.length];
-  return (
-    <span
-      className={cn(
-        "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold",
-        tint,
-      )}
-    >
-      {index + 1}
-    </span>
-  );
-}
-
-function SkeletonRows({
-  columnCount,
-  rows = 6,
-}: {
-  columnCount: number;
-  rows?: number;
-}) {
-  return (
-    <>
-      {Array.from({ length: rows }).map((_, r) => (
-        <TableRow key={`skeleton-${r}`} className="hover:bg-transparent">
-          {Array.from({ length: columnCount }).map((_, c) => (
-            <TableCell key={c}>
-              <Skeleton
-                className="h-4 rounded-full bg-primary/10"
-                style={{
-                  width: c === 0 ? "60%" : `${60 + ((r + c) % 3) * 10}%`,
-                }}
-              />
-            </TableCell>
-          ))}
-        </TableRow>
-      ))}
-    </>
-  );
-}
-
-function EmptyState({
-  columnCount,
-  text,
-}: {
-  columnCount: number;
-  text?: string;
-}) {
-  const t = useTranslations("common.display_table");
-
-  return (
-    <TableRow className="hover:bg-transparent">
-      <TableCell colSpan={columnCount} className="py-14 text-center">
-        <div className="flex flex-col items-center gap-2">
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Inbox className="h-5 w-5" />
-          </span>
-          <p className="text-sm font-medium text-foreground">
-            {text || t("empty_title")}
-          </p>
-          <p className="text-xs text-muted-foreground">{t("empty_subtitle")}</p>
-        </div>
-      </TableCell>
-    </TableRow>
-  );
 }
 
 function PageNumbers({
@@ -565,13 +170,18 @@ export function DisplayTable<TData, TParams extends BasePaginationQuery>({
               selectedOptions={selectedOptions}
               setSelectedOptions={setSelectedOptions}
             />
-            <ActiveFilters
-              selectedOptions={selectedOptions}
-              filterValues={filterValues}
-              setFilterValues={updateFilterValues}
-              filterToParamKey={query.filterToParamKey}
-              onRemove={handleRemoveFilter}
-            />
+            <div className="flex flex-wrap gap-2">
+              {selectedOptions.map((option) => (
+                <FilterItem
+                  key={option.id as string}
+                  option={option}
+                  filterValues={filterValues}
+                  setFilterValues={updateFilterValues}
+                  filterToParamKey={query.filterToParamKey!}
+                  onRemove={handleRemoveFilter}
+                />
+              ))}
+            </div>
           </div>
         )}
         {showCount && (

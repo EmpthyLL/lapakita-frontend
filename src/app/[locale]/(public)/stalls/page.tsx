@@ -1,4 +1,4 @@
-import StallSearch from "@/components/common/search/StallSearch";
+import StallSearch from "@/components/common/search";
 import { LayoutGrid } from "lucide-react";
 import { StallInfiniteList } from "./StallInfiniteList";
 

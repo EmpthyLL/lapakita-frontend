@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ResponseData } from "../base";
-import { AuthResponseData } from "./complete_profile";
+import { AuthResponseData } from "./login";
 
 export const otpSchema = z.object({
   code: z.string().length(6, "OTP code must be 6 digits"),

@@ -9,7 +9,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -21,206 +20,16 @@ import { cn } from "@/lib/utils";
 import { CheckIcon, ChevronDownIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import React, { useEffect, useRef, useState, type FC } from "react";
+import { DateRange } from "react-day-picker";
+
+import { CalendarCaption } from "./CalendarCaption";
+import { DateRangePickerProps, PRESET_KEYS } from "./Types";
 import {
-  DateRange,
-  Matcher,
-  useDayPicker,
-  type MonthCaptionProps,
-} from "react-day-picker";
-
-export interface DateRangePickerProps {
-  onUpdate?: (values: DateRange) => void;
-  value?: DateRange;
-  selectedDate?: DateRange | undefined;
-  onCancel?: () => void;
-  fixedCalender?: boolean;
-  align?: "start" | "center" | "end";
-  locale?: string;
-  disabled?: Matcher | Matcher[];
-  fromYear?: number;
-  toYear?: number;
-}
-
-const MONTH_LABELS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
-const PRESET_KEYS = [
-  "today",
-  "yesterday",
-  "last7",
-  "last14",
-  "last30",
-  "thisWeek",
-  "lastWeek",
-  "thisMonth",
-  "lastMonth",
-  "thisYear",
-] as const;
-
-const formatDate = (date: Date, locale: string = "en-US"): string => {
-  return date.toLocaleDateString(locale, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
-
-const isValidDate = (date: Date | string | undefined): boolean => {
-  if (date === undefined) return false;
-  const parsedDate = typeof date === "string" ? new Date(date) : date;
-  return parsedDate instanceof Date && !isNaN(parsedDate.getTime());
-};
-
-function CalendarCaption({
-  calendarMonth,
-  fromYear,
-  toYear,
-  minMonth,
-  maxMonth,
-  onMonthSelect,
-}: MonthCaptionProps & {
-  fromYear: number;
-  toYear: number;
-  minMonth?: Date;
-  maxMonth?: Date;
-  onMonthSelect?: (date: Date) => void;
-}) {
-  const { goToMonth } = useDayPicker();
-  const [open, setOpen] = useState(false);
-  const selectedYearRef = useRef<HTMLButtonElement | null>(null);
-  const locale = useLocale();
-
-  const displayMonth = calendarMonth.date;
-  const selectedYear = displayMonth.getFullYear();
-  const selectedMonth = displayMonth.getMonth();
-
-  const isDisabled = (year: number, month: number) => {
-    const targetDate = new Date(year, month, 1);
-
-    if (minMonth) {
-      const minDate = new Date(minMonth.getFullYear(), minMonth.getMonth(), 1);
-      if (targetDate < minDate) return true;
-    }
-    if (maxMonth) {
-      const maxDate = new Date(maxMonth.getFullYear(), maxMonth.getMonth(), 1);
-      if (targetDate > maxDate) return true;
-    }
-
-    return false;
-  };
-
-  const years: number[] = [];
-  for (let y = fromYear; y <= toYear; y++) years.push(y);
-
-  const handleSelect = (newDate: Date) => {
-    if (onMonthSelect) {
-      onMonthSelect(newDate);
-    } else {
-      goToMonth(newDate);
-    }
-    setOpen(false);
-  };
-
-  return (
-    <Popover
-      open={open}
-      onOpenChange={(next) => {
-        setOpen(next);
-        if (next) {
-          requestAnimationFrame(() => {
-            selectedYearRef.current?.scrollIntoView({ block: "center" });
-          });
-        }
-      }}
-    >
-      <div className="flex items-center justify-center px-1">
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            className="hover:bg-accent hover:text-accent-foreground flex items-center gap-1 rounded-md px-2 py-1 text-sm font-semibold capitalize"
-          >
-            {displayMonth.toLocaleDateString(locale, {
-              month: "long",
-              year: "numeric",
-            })}
-            <ChevronDownIcon
-              className={cn(
-                "h-3.5 w-3.5 opacity-60 transition-transform duration-200",
-                open && "rotate-180",
-              )}
-            />
-          </button>
-        </PopoverTrigger>
-      </div>
-
-      <PopoverContent align="center" className="w-56 p-0">
-        <ScrollArea className="h-40 border-b">
-          <div className="flex flex-col gap-0.5 p-1.5">
-            {years.map((y) => {
-              const disabled =
-                (minMonth && y < minMonth.getFullYear()) ||
-                (maxMonth && y > maxMonth.getFullYear());
-              return (
-                <button
-                  key={y}
-                  disabled={disabled}
-                  ref={y === selectedYear ? selectedYearRef : undefined}
-                  type="button"
-                  onClick={() => handleSelect(new Date(y, selectedMonth, 1))}
-                  className={cn(
-                    "rounded-md px-3 py-1.5 text-left text-sm",
-                    disabled
-                      ? "cursor-not-allowed opacity-40"
-                      : "hover:bg-accent hover:text-accent-foreground",
-                    y === selectedYear && "bg-accent font-semibold",
-                  )}
-                >
-                  {y}
-                </button>
-              );
-            })}
-          </div>
-        </ScrollArea>
-
-        <div className="grid grid-cols-4 gap-1 p-2">
-          {MONTH_LABELS.map((label, i) => {
-            const disabled = isDisabled(selectedYear, i);
-            return (
-              <button
-                disabled={disabled}
-                key={label}
-                type="button"
-                onClick={() => handleSelect(new Date(selectedYear, i, 1))}
-                className={cn(
-                  "rounded-md py-1.5 text-center text-sm",
-                  disabled
-                    ? "cursor-not-allowed opacity-40"
-                    : i === selectedMonth
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : "hover:bg-accent hover:text-accent-foreground",
-                )}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-}
+  areRangesEqual,
+  formatDate,
+  getPresetRange,
+  isValidDate,
+} from "./Utils";
 
 export const DateRangePicker: FC<DateRangePickerProps> & {
   filePath: string;
@@ -270,73 +79,6 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-
-  const getPresetRange = (presetName: string): DateRange => {
-    const from = new Date();
-    const to = new Date();
-    const first = from.getDate() - from.getDay();
-
-    switch (presetName) {
-      case "today":
-        from.setHours(0, 0, 0, 0);
-        to.setHours(23, 59, 59, 999);
-        break;
-      case "yesterday":
-        from.setDate(from.getDate() - 1);
-        from.setHours(0, 0, 0, 0);
-        to.setDate(to.getDate() - 1);
-        to.setHours(23, 59, 59, 999);
-        break;
-      case "last7":
-        from.setDate(from.getDate() - 6);
-        from.setHours(0, 0, 0, 0);
-        to.setHours(23, 59, 59, 999);
-        break;
-      case "last14":
-        from.setDate(from.getDate() - 13);
-        from.setHours(0, 0, 0, 0);
-        to.setHours(23, 59, 59, 999);
-        break;
-      case "last30":
-        from.setDate(from.getDate() - 29);
-        from.setHours(0, 0, 0, 0);
-        to.setHours(23, 59, 59, 999);
-        break;
-      case "thisWeek":
-        from.setDate(first);
-        from.setHours(0, 0, 0, 0);
-        to.setHours(23, 59, 59, 999);
-        break;
-      case "lastWeek":
-        from.setDate(from.getDate() - 7 - from.getDay());
-        to.setDate(to.getDate() - to.getDay() - 1);
-        from.setHours(0, 0, 0, 0);
-        to.setHours(23, 59, 59, 999);
-        break;
-      case "thisMonth":
-        from.setDate(1);
-        from.setHours(0, 0, 0, 0);
-        to.setHours(23, 59, 59, 999);
-        break;
-      case "lastMonth":
-        from.setMonth(from.getMonth() - 1);
-        from.setDate(1);
-        from.setHours(0, 0, 0, 0);
-        to.setDate(0);
-        to.setHours(23, 59, 59, 999);
-        break;
-      case "thisYear":
-        from.setMonth(0);
-        from.setDate(1);
-        from.setHours(0, 0, 0, 0);
-        to.setHours(23, 59, 59, 999);
-        break;
-      default:
-        throw new Error(`Unexpected preset name: ${presetName}`);
-    }
-
-    return { from, to };
-  };
 
   const setPreset = (preset: string): void => {
     const rangeValue = getPresetRange(preset);
@@ -499,14 +241,6 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
       </>
     </Button>
   );
-
-  const areRangesEqual = (a?: DateRange, b?: DateRange): boolean => {
-    if (!a || !b) return a === b;
-    return (
-      a?.from?.getTime() === b?.from?.getTime() &&
-      (!a?.to || !b?.to || a.to.getTime() === b.to.getTime())
-    );
-  };
 
   const handleSelect = (val: { from?: Date; to?: Date } | undefined) => {
     if (val?.from != null) {

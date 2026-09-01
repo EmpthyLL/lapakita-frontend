@@ -6,17 +6,19 @@ import { LogIn } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 import { GoogleButton } from "@/components/common/GoogleButton";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/common/input/FormField";
 import { PasswordInput } from "@/components/common/input/PasswordInput";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { loginUser } from "@/lib/data/api/auth";
 import { loginSchema, LoginValues } from "@/lib/data/schema/auth/login";
@@ -30,7 +32,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
-  const { control, handleSubmit } = useForm<LoginValues>({
+  const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
@@ -49,14 +51,11 @@ export default function LoginPage() {
           redirect: true,
         });
 
-        showToast.success(res.message);
-
+        if (res.message) showToast.success(res.message);
         router.push("/dashboard");
       }
     },
-    onError: (error) => {
-      handleError(error);
-    },
+    onError: handleError,
   });
 
   function onSubmit(values: LoginValues) {
@@ -93,65 +92,67 @@ export default function LoginPage() {
 
       <AuthDivider label="Or log in with email" />
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <FieldGroup>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@business.com"
-                  {...field}
-                />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="flex flex-col gap-5">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="email">Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="you@business.com"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="password"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <div className="flex items-center justify-between">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <Link
-                    href="/forget-password"
-                    className="text-xs font-medium text-primary hover:underline"
-                  >
-                    Forget password?
-                  </Link>
-                </div>
-                <PasswordInput
-                  id="password"
-                  placeholder="Enter your password"
-                  {...field}
-                />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between">
+                    <FormLabel htmlFor="password">Password</FormLabel>
+                    <Link
+                      href="/forget-password"
+                      className="text-xs font-medium text-primary hover:underline"
+                    >
+                      Forget password?
+                    </Link>
+                  </div>
+                  <FormControl>
+                    <PasswordInput
+                      id="password"
+                      placeholder="Enter your password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Field>
-            <Button
-              type="submit"
-              isLoading={loginMutation.isPending}
-              size="lg"
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              Log In
-            </Button>
-          </Field>
-        </FieldGroup>
-      </form>
+            <div className="pt-2">
+              <Button
+                type="submit"
+                isLoading={loginMutation.isPending}
+                size="lg"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                Log In
+              </Button>
+            </div>
+          </div>
+        </form>
+      </Form>
     </AuthShell>
   );
 }

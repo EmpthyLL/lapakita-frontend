@@ -8,10 +8,16 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/common/input/FormField";
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import {
   InputOTP,
   InputOTPGroup,
@@ -46,12 +52,12 @@ export default function VerifyOtpPage() {
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
   const hasAutoSubmitted = useRef(false);
 
-  const { control, handleSubmit, watch } = useForm<OtpValues>({
+  const form = useForm<OtpValues>({
     resolver: zodResolver(otpSchema),
     defaultValues: { code: "" },
   });
 
-  const codeValue = watch("code");
+  const codeValue = form.watch("code");
 
   useEffect(() => {
     if (secondsLeft <= 0) return;
@@ -121,7 +127,7 @@ export default function VerifyOtpPage() {
       !verifyOtpMutation.isPending
     ) {
       hasAutoSubmitted.current = true;
-      handleSubmit((vals) => verifyOtpMutation.mutate(vals))();
+      form.handleSubmit((vals) => verifyOtpMutation.mutate(vals))();
     }
     if (codeValue?.length !== 6) hasAutoSubmitted.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -160,49 +166,51 @@ export default function VerifyOtpPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <FieldGroup>
-          <Controller
-            control={control}
-            name="code"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid} className="items-center">
-                <InputOTP
-                  maxLength={6}
-                  value={field.value}
-                  onChange={field.onChange}
-                  disabled={verifyOtpMutation.isPending}
-                  containerClassName="justify-center"
-                >
-                  <InputOTPGroup>
-                    {[0, 1, 2, 3, 4, 5].map((i) => (
-                      <InputOTPSlot
-                        key={i}
-                        index={i}
-                        className="size-12 text-lg sm:size-14 sm:text-xl"
-                      />
-                    ))}
-                  </InputOTPGroup>
-                </InputOTP>
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="flex flex-col gap-5">
+            <FormField
+              control={form.control}
+              name="code"
+              render={({ field }) => (
+                <FormItem className="items-center">
+                  <FormControl>
+                    <InputOTP
+                      maxLength={6}
+                      value={field.value}
+                      onChange={field.onChange}
+                      disabled={verifyOtpMutation.isPending}
+                      containerClassName="justify-center"
+                    >
+                      <InputOTPGroup>
+                        {[0, 1, 2, 3, 4, 5].map((i) => (
+                          <InputOTPSlot
+                            key={i}
+                            index={i}
+                            className="size-12 text-lg sm:size-14 sm:text-xl"
+                          />
+                        ))}
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Field>
-            <Button
-              type="submit"
-              isLoading={verifyOtpMutation.isPending}
-              size="lg"
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              Verify Code
-            </Button>
-          </Field>
-        </FieldGroup>
-      </form>
+            <div className="pt-1">
+              <Button
+                type="submit"
+                isLoading={verifyOtpMutation.isPending}
+                size="lg"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                Verify Code
+              </Button>
+            </div>
+          </div>
+        </form>
+      </Form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Didn&apos;t get the code?{" "}
