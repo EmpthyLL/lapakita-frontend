@@ -2,23 +2,27 @@
 
 import { Autocomplete } from "@/components/common/input/Autocomplete";
 import { ArrowUpDown } from "lucide-react";
-import { useState } from "react";
 
 const SORT_OPTIONS = [
-  { value: "recommended", label: "Recommended" },
-  { value: "price-asc", label: "Price: Low to High" },
-  { value: "price-desc", label: "Price: High to Low" },
-  { value: "rating", label: "Highest Rated" },
-  { value: "size-desc", label: "Largest Space" },
+  { value: "recommended", label: "Recommended & Popular" },
+  { value: "price-asc", label: "Cheapest Price" },
+  { value: "price-desc", label: "Highest Price" },
+  { value: "rating", label: "Top Rated (4.8+)" },
+  { value: "reviews", label: "Most Reviewed" },
+  { value: "size-desc", label: "Largest Area / Size" },
 ];
 
 interface StallResultsToolbarProps {
   count: number;
+  sort: string;
+  onSortChange: (sort: string) => void;
 }
 
-export function StallResultsToolbar({ count }: StallResultsToolbarProps) {
-  const [sort, setSort] = useState("recommended");
-
+export function StallResultsToolbar({
+  count,
+  sort,
+  onSortChange,
+}: StallResultsToolbarProps) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <p className="text-sm text-muted-foreground">
@@ -30,11 +34,11 @@ export function StallResultsToolbar({ count }: StallResultsToolbarProps) {
         <ArrowUpDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         <Autocomplete
           value={sort}
-          onSelect={(v) => setSort(String(v))}
+          onSelect={(v) => onSortChange(String(v))}
           options={SORT_OPTIONS}
           placeholder="Sort by"
           mode="solid"
-          className="w-48"
+          className="w-52"
         />
       </div>
     </div>

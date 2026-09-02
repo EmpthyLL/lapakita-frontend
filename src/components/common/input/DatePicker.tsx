@@ -91,13 +91,13 @@ export function DatePicker({
           >
             <CalendarIcon className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
             {parsedValue ? (
-              <span className="font-semibold text-foreground">
+              <span className="text-foreground">
                 {format(parsedValue, "dd MMMM yyyy")}
               </span>
             ) : (
               <span
                 className={cn(
-                  "font-normal whitespace-nowrap text-muted-foreground/70 transition-colors",
+                  "whitespace-nowrap text-muted-foreground/70 transition-colors",
                   /* Red placeholder saat error */
                   "group-data-[invalid=true]/field:text-destructive/70",
                   "aria-invalid:text-destructive/70",

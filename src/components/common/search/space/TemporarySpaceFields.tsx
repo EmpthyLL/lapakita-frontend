@@ -4,24 +4,12 @@ import { cn } from "@/lib/utils";
 import { CalendarClock, Timer } from "lucide-react";
 import { useState } from "react";
 import { NumberInput } from "../../input/NumberInput";
-import { SegmentedToggle } from "../../input/SegmentedToggle";
-import { STALL_PLACEMENT_OPTIONS } from "../constants/permanance";
 import {
   EVENT_DURATION_PRESETS,
   REGISTRATION_DEADLINE_PRESETS,
 } from "../constants/range";
-import { StallPlacement } from "../constants/types";
-
-const SHORT_LABEL: Record<StallPlacement, string> = {
-  indoor: "Indoor",
-  "semi-outdoor": "Semi-Outdoor",
-  outdoor: "Outdoor",
-};
 
 interface TemporarySpaceFieldsProps {
-  allowedPlacements: StallPlacement[];
-  placement: StallPlacement | "";
-  onPlacementChange: (value: StallPlacement | "") => void;
   registrationDeadlineDays: number | null;
   onRegistrationDeadlineDaysChange: (value: number) => void;
   eventDurationDays: number | null;
@@ -29,22 +17,11 @@ interface TemporarySpaceFieldsProps {
 }
 
 export function TemporarySpaceFields({
-  allowedPlacements,
-  placement,
-  onPlacementChange,
   registrationDeadlineDays,
   onRegistrationDeadlineDaysChange,
   eventDurationDays,
   onEventDurationDaysChange,
 }: TemporarySpaceFieldsProps) {
-  const placementOptions = STALL_PLACEMENT_OPTIONS.filter((opt) =>
-    allowedPlacements.includes(opt.value),
-  ).map((opt) => ({
-    value: opt.value,
-    label: opt.label,
-    shortLabel: SHORT_LABEL[opt.value],
-  }));
-
   const isCustomDuration =
     eventDurationDays !== null &&
     !EVENT_DURATION_PRESETS.includes(
@@ -70,19 +47,6 @@ export function TemporarySpaceFields({
         Pop-up spots are schedule-bound. Filter by how much time is left to
         register and how long the spot runs.
       </p>
-
-      {placementOptions.length > 0 && (
-        <div>
-          <p className="mb-2 text-xs font-semibold text-muted-foreground">
-            Stall Placement
-          </p>
-          <SegmentedToggle
-            value={placement}
-            onChange={onPlacementChange}
-            options={placementOptions}
-          />
-        </div>
-      )}
 
       <div>
         <p className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">

@@ -13,7 +13,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Autocomplete } from "../input/Autocomplete";
 import { LocationAutocomplete } from "../long/location-autocomplete";
-import { LANDMARK_CATEGORIES } from "./constants/landmark";
+import { StallPermanenceTabs } from "./StallPermanenceTabs";
 import { StallPermanenceType } from "./constants/types";
 
 interface StallSearchPrimaryRowProps {
@@ -23,8 +23,7 @@ interface StallSearchPrimaryRowProps {
   businessType: string;
   onBusinessTypeChange: (value: string, selectedType?: BusinessType) => void;
   permanenceType: StallPermanenceType;
-  singleLandmark: string;
-  onSingleLandmarkChange: (value: string) => void;
+  onPermanenceChange: (value: StallPermanenceType) => void;
   onSearch: () => void;
 }
 
@@ -35,8 +34,7 @@ export function StallSearchPrimaryRow({
   businessType,
   onBusinessTypeChange,
   permanenceType,
-  singleLandmark,
-  onSingleLandmarkChange,
+  onPermanenceChange,
   onSearch,
 }: StallSearchPrimaryRowProps) {
   const t = useTranslations("common.search");
@@ -53,7 +51,7 @@ export function StallSearchPrimaryRow({
     queryFn: getBusinessTypes,
     search: searchTerm,
     searchKey: "search",
-    enabled: isFull,
+    enabled: true,
   });
 
   const businessTypeOptions = businessTypes
@@ -66,21 +64,15 @@ export function StallSearchPrimaryRow({
     }));
 
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-3",
-        isFull ? "lg:flex-row" : "sm:flex-row",
-      )}
-    >
-      <LocationAutocomplete
-        value={location}
-        onChange={onLocationChange}
-        onCommit={onSearch}
-        className="flex-1"
-        inputClassName="h-12"
-      />
+    <div className="flex flex-col gap-3">
+      <div className={cn("flex flex-col gap-3", "lg:flex-row")}>
+        <LocationAutocomplete
+          value={location}
+          onChange={onLocationChange}
+          className="flex-1"
+          inputClassName="h-12"
+        />
 
-      {isFull ? (
         <Autocomplete
           value={businessType}
           onSelect={(v, option) => onBusinessTypeChange(String(v), option)}
@@ -90,33 +82,34 @@ export function StallSearchPrimaryRow({
           groupKey="group"
           placeholder={t("business_type_placeholder")}
           mode="solid"
-          className="lg:w-90"
+          className={"lg:w-90"}
           onFilterChange={setSearchTerm}
           isLoading={isLoading}
           isFetchingMore={isFetchingNextPage}
           hasMore={hasNextPage}
           fetchMore={fetchNextPage}
         />
-      ) : (
-        <Autocomplete
-          value={singleLandmark}
-          onSelect={(v) => onSingleLandmarkChange(String(v))}
-          options={LANDMARK_CATEGORIES}
-          placeholder={t("any_landmark_placeholder")}
-          mode="solid"
-          className="lg:w-60"
-        />
-      )}
 
-      <Button
-        onClick={onSearch}
-        className="flex h-12 shrink-0 items-center justify-center gap-2 bg-primary px-6 text-primary-foreground hover:bg-primary/90"
-      >
-        <Search className="h-4 w-4" />
-        <span className={isFull ? undefined : "hidden sm:inline"}>
-          {isFull ? t("search_stalls") : t("search_button")}
-        </span>
-      </Button>
+        <Button
+          onClick={onSearch}
+          className="flex h-12 shrink-0 items-center justify-center gap-2 bg-primary px-6 text-primary-foreground hover:bg-primary/90"
+        >
+          <Search className="h-4 w-4" />
+          <span className={isFull ? undefined : "hidden sm:inline"}>
+            {isFull ? t("search_stalls") : t("search_button")}
+          </span>
+        </Button>
+      </div>
+
+      {!isFull && (
+        <div className="pt-1">
+          <StallPermanenceTabs
+            value={permanenceType}
+            onChange={onPermanenceChange}
+            mode="compact"
+          />
+        </div>
+      )}
     </div>
   );
 }

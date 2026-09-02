@@ -8,13 +8,50 @@ import { StallPermanenceType } from "./constants/types";
 interface StallPermanenceTabsProps {
   value: StallPermanenceType;
   onChange: (value: StallPermanenceType) => void;
+  mode?: "full" | "compact";
 }
 
 export function StallPermanenceTabs({
   value,
   onChange,
+  mode = "full",
 }: StallPermanenceTabsProps) {
   const active = STALL_PERMANENCE_TABS.find((t) => t.value === value);
+
+  if (mode === "compact") {
+    return (
+      <div className="flex flex-wrap items-center gap-1.5 sm:flex-nowrap">
+        {STALL_PERMANENCE_TABS.map((tab) => {
+          const isActive = tab.value === value;
+          const Icon = tab.icon;
+
+          return (
+            <button
+              key={tab.value}
+              type="button"
+              onClick={() => onChange(tab.value)}
+              className={cn(
+                "group relative flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all outline-none",
+                isActive
+                  ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20 ring-2 ring-primary/20"
+                  : "border border-border/60 bg-secondary/30 text-muted-foreground hover:border-primary/40 hover:bg-secondary/60 hover:text-foreground",
+              )}
+            >
+              <Icon
+                className={cn(
+                  "size-4 shrink-0 transition-colors",
+                  isActive
+                    ? "text-primary-foreground"
+                    : "text-muted-foreground group-hover:text-primary",
+                )}
+              />
+              <span>{tab.shortLabel}</span>
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <div>

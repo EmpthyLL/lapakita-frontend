@@ -1,13 +1,17 @@
 import { StallPermanenceType } from "@/components/common/search/constants/types";
-import { BasePaginationQuery, PaginatedResponse } from "../schema/base";
-import { MOCK_STALL_LIST, Stall } from "../schema/stall/get_stall";
+import { PaginatedResponse } from "../schema/base";
+import {
+  MOCK_STALL_LIST,
+  Stall,
+  StallSearchSchemaType,
+} from "../schema/stall/get_stall";
 import {
   MOCK_STALL_DETAILS,
   StallDetail,
 } from "../schema/stall/get_stall_detail";
 
 export async function getStalls(
-  params: BasePaginationQuery,
+  params: StallSearchSchemaType,
 ): Promise<PaginatedResponse<Stall>> {
   const page = params.page ?? 1;
   const limit = params.limit ?? 6;

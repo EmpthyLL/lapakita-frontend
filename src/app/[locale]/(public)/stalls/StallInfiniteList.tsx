@@ -1,16 +1,21 @@
 "use client";
 
+import { useStallSearchQuery } from "@/components/common/search/util/UseStallSearchQuery";
 import { Spinner } from "@/components/common/Spinner";
 import { StallCard } from "@/components/common/StallCard";
 import { useInfiniteScrollTrigger } from "@/hooks/use-infinite-scroll-trigger";
 import { useInfiniteSearch } from "@/hooks/use-infinite-search";
 import { getStalls } from "@/lib/data/api/stall";
-import { BasePaginationQuery } from "@/lib/data/schema/base";
-import { Stall } from "@/lib/data/schema/stall/get_stall";
+import {
+  Stall,
+  StallSearchSchemaType,
+} from "@/lib/data/schema/stall/get_stall";
 import { useCallback } from "react";
 import { StallResultsToolbar } from "./StallResultsToolbar";
 
 export function StallInfiniteList() {
+  const { params, setParamValues, commitSearch } = useStallSearchQuery();
+
   const {
     data: stalls,
     isLoading,
@@ -18,9 +23,9 @@ export function StallInfiniteList() {
     hasNextPage,
     fetchNextPage,
     meta,
-  } = useInfiniteSearch<Stall, BasePaginationQuery>({
-    queryKey: ["stalls"],
-    queryFn: getStalls,
+  } = useInfiniteSearch<Stall, StallSearchSchemaType>({
+    queryKey: ["stalls", params.sortBy],
+    queryFn: (query) => getStalls({ ...query, sortBy: params.sortBy }),
     initialLimit: 6,
   });
 
@@ -33,13 +38,22 @@ export function StallInfiniteList() {
     enabled: hasNextPage && !isLoading,
   });
 
+  function handleSortChange(sortBy: string) {
+    setParamValues({ sortBy });
+    commitSearch("full");
+  }
+
   if (isLoading) {
     return <Spinner className="py-24" />;
   }
 
   return (
     <div className="space-y-4">
-      <StallResultsToolbar count={meta?.totalItems ?? stalls.length} />
+      <StallResultsToolbar
+        count={meta?.totalItems ?? stalls.length}
+        sort={params.sortBy}
+        onSortChange={handleSortChange}
+      />
 
       <div className="flex flex-col gap-4">
         {stalls.map((stall) => (
@@ -47,7 +61,6 @@ export function StallInfiniteList() {
         ))}
       </div>
 
-      {/* Sentinel — as soon as this scrolls into view, the next page loads */}
       {hasNextPage && (
         <div ref={sentinelRef}>
           <Spinner />

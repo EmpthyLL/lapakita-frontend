@@ -1,35 +1,31 @@
 /* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BusinessType } from "@/lib/data/schema/master/business_type";
+import { useInfiniteSearch } from "@/hooks/use-infinite-search";
+import { getBusinessTypes } from "@/lib/data/api/business_type";
+import {
+  BusinessType,
+  GetBusinessTypesQuery,
+} from "@/lib/data/schema/master/business_type";
 import { cn } from "@/lib/utils";
 import { ChevronDown, RotateCcw, SlidersHorizontal, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ReactNode, useEffect, useState } from "react";
 import {
   getAllowedPlacements,
-  getContextualFacilities,
-  getPropertyTypesForPermanence,
   STALL_PERMANENCE_TABS,
 } from "./constants/permanance";
 import {
-  DEFAULT_ASSUMED_CAPITAL,
-  DEFAULT_BEP_MONTHS,
   DEFAULT_CAPITAL_BY_PERMANENCE,
   DEPOSIT_RANGE,
   FLOOR_COUNT_RANGE,
   GENERAL_RENT_RANGE,
-  RADIUS_PRESETS,
   STALL_SIZE_RANGE,
 } from "./constants/range";
-import {
-  PaymentCycle,
-  StallPermanenceType,
-  StallPlacement,
-  StallPropertyTypeValue,
-} from "./constants/types";
+import { StallPermanenceType } from "./constants/types";
 import { FacilityPicker } from "./FacilityPicker";
 import {
   createLandmarkRadiusEntry,
@@ -37,12 +33,13 @@ import {
   LandmarkRadiusPicker,
 } from "./LandmarkRadiusPicker";
 import { LeaseTermsPicker } from "./LeaseTermsPicker";
-import { StallSpaceFilter } from "./permanence";
 import { PropertyTypePicker } from "./PropertyTypePicker";
 import { StallSearchFooter } from "./SearchFooter";
+import { StallSpaceFilter } from "./space";
 import { StallPermanenceTabs } from "./StallPermanenceTabs";
 import { StallSearchBudgetFilters } from "./StallSearchBudgetFilters";
 import { StallSearchPrimaryRow } from "./StallSearchPrimaryRow";
+import { useStallSearchQuery } from "./util/UseStallSearchQuery";
 
 export interface StallSearchProps {
   mode?: "hero" | "full";
@@ -117,79 +114,44 @@ export default function StallSearch({
   const t = useTranslations("common.search.stall_search");
   const isFull = mode === "full";
 
-  const [location, setLocation] = useState("");
-  const radius = RADIUS_PRESETS[1];
-  const [singleLandmark, setSingleLandmark] = useState("any");
+  const { params, setParamValues, commitSearch } = useStallSearchQuery();
 
-  const [permanenceType, setPermanenceType] =
-    useState<StallPermanenceType>("permanent");
-
-  const [landmarkEntries, setLandmarkEntries] = useState<LandmarkRadiusEntry[]>(
-    [createLandmarkRadiusEntry()],
-  );
-
-  const [propertyType, setPropertyType] = useState<StallPropertyTypeValue[]>(
-    [],
-  );
-  const [placement, setPlacement] = useState<StallPlacement | "">("");
-  const [sizeRange, setSizeRange] = useState<[number, number]>([
-    STALL_SIZE_RANGE.min,
-    STALL_SIZE_RANGE.max,
-  ]);
-  const [floorCountRange, setFloorCountRange] = useState<[number, number]>([
-    FLOOR_COUNT_RANGE.min,
-    FLOOR_COUNT_RANGE.min,
-  ]);
-
-  const [businessType, setBusinessType] = useState("");
   const [selectedTypeObj, setSelectedTypeObj] = useState<BusinessType | null>(
     null,
   );
-
-  const [facilities, setFacilities] = useState<string[]>([]);
-  const [bepMonths, setBepMonths] = useState<string>(
-    String(DEFAULT_BEP_MONTHS),
-  );
-  const [customBepMonths, setCustomBepMonths] = useState<number | null>(null);
-  const [capital, setCapital] = useState<number>(DEFAULT_ASSUMED_CAPITAL);
-  const [rentRange, setRentRange] = useState<[number, number]>([
-    GENERAL_RENT_RANGE.min,
-    GENERAL_RENT_RANGE.max,
-  ]);
-  const [depositRange, setDepositRange] = useState<[number, number]>([
-    DEPOSIT_RANGE.min,
-    DEPOSIT_RANGE.max,
-  ]);
-
-  const [startDate, setStartDate] = useState("");
-  const [customStartDay, setCustomStartDay] = useState("");
-  const [minLeasePeriod, setMinLeasePeriod] = useState("");
-  const [customLeaseMonths, setCustomLeaseMonths] = useState("");
-  const [paymentCycle, setPaymentCycle] = useState<PaymentCycle | "">("");
-
-  const [eventOperatingDays, setEventOperatingDays] = useState("");
-  const [attendanceRequirement, setAttendanceRequirement] = useState("");
-  const [cancellationPolicy, setCancellationPolicy] = useState("");
-
-  const [openingTime, setOpeningTime] = useState("10:00");
-  const [closingTime, setClosingTime] = useState("22:00");
-  const [registrationDeadlineDays, setRegistrationDeadlineDays] = useState<
-    number | null
-  >(null);
-  const [eventDurationDays, setEventDurationDays] = useState<number | null>(
-    null,
-  );
-
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
+  const { data: businessTypes } = useInfiniteSearch<
+    BusinessType,
+    GetBusinessTypesQuery
+  >({
+    queryKey: ["business-types", params.permanenceType],
+    queryFn: getBusinessTypes,
+    search: "",
+    searchKey: "search",
+    enabled: true,
+  });
+
+  useEffect(() => {
+    if (params.businessType && !selectedTypeObj && businessTypes.length > 0) {
+      const found = businessTypes.find((bt) => bt.id === params.businessType);
+      if (found) {
+        setSelectedTypeObj(found);
+      }
+    }
+  }, [params.businessType, businessTypes]);
+
   const activeTabConfig = STALL_PERMANENCE_TABS.find(
-    (t) => t.value === permanenceType,
+    (t) => t.value === params.permanenceType,
   )!;
 
   function toggleFacility(value: string) {
-    setFacilities((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
-    );
+    const nextFacilities = params.facilities.includes(value)
+      ? params.facilities.filter((v) => v !== value)
+      : [...params.facilities, value];
+
+    setParamValues({ facilities: nextFacilities });
+    // [HAPUS commitSearch dari sini agar tidak auto-search saat klik fasilitas]
   }
 
   function applyPresetFor(
@@ -201,249 +163,285 @@ export default function StallSearch({
     const preset = typeDef.permanence_presets?.[forPermanence];
 
     if (preset) {
-      setPropertyType(
-        preset.allowedPropertyTypes?.length ? preset.allowedPropertyTypes : [],
-      );
-      setPlacement(preset.defaultPlacement);
-      setFacilities(preset.facilities || []);
-
-      if (forPermanence === "permanent" && "recommendedSizeSqm" in preset) {
-        setSizeRange([
-          preset.recommendedSizeSqm.min,
-          preset.recommendedSizeSqm.max,
-        ]);
-        setFloorCountRange([
-          preset.recommendedFloors.min,
-          preset.recommendedFloors.max,
-        ]);
-      }
-
-      if (
-        forPermanence === "semi-permanent" &&
-        "defaultOpeningTime" in preset
-      ) {
-        setOpeningTime(preset.defaultOpeningTime);
-        setClosingTime(preset.defaultClosingTime);
-      }
-
-      if (
-        forPermanence === "temporary" &&
-        "registrationWindowDaysBefore" in preset
-      ) {
-        setRegistrationDeadlineDays(preset.registrationWindowDaysBefore);
-        setEventDurationDays(preset.typicalDurationDays);
-      }
+      setParamValues({
+        propertyType: preset.allowedPropertyTypes?.length
+          ? preset.allowedPropertyTypes
+          : [],
+        placement: preset.defaultPlacement,
+        facilities: preset.facilities || [],
+        sizeRange:
+          forPermanence === "permanent" && "recommendedSizeSqm" in preset
+            ? [preset.recommendedSizeSqm.min, preset.recommendedSizeSqm.max]
+            : params.sizeRange,
+        floorCountRange:
+          forPermanence === "permanent" && "recommendedSizeSqm" in preset
+            ? [preset.recommendedFloors.min, preset.recommendedFloors.max]
+            : params.floorCountRange,
+        openingTime:
+          forPermanence === "semi-permanent" && "defaultOpeningTime" in preset
+            ? preset.defaultOpeningTime
+            : params.openingTime,
+        closingTime:
+          forPermanence === "semi-permanent" && "defaultOpeningTime" in preset
+            ? preset.defaultClosingTime
+            : params.closingTime,
+        registrationDeadlineDays:
+          forPermanence === "temporary" &&
+          "registrationWindowDaysBefore" in preset
+            ? preset.registrationWindowDaysBefore
+            : params.registrationDeadlineDays,
+        eventDurationDays:
+          forPermanence === "temporary" &&
+          "registrationWindowDaysBefore" in preset
+            ? preset.typicalDurationDays
+            : params.eventDurationDays,
+      });
     } else {
-      const defaultPropertyTypes = getPropertyTypesForPermanence(
-        forPermanence,
-      ).map((p) => p.value);
-      const defaultPlacements = getAllowedPlacements([], forPermanence);
-      const defaultFacilities = getContextualFacilities([], forPermanence).map(
-        (f) => f.value,
-      );
-
-      setPropertyType(defaultPropertyTypes);
-      setPlacement(defaultPlacements[0] ?? "");
-      setSizeRange([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]);
-      setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);
-      setFacilities(defaultFacilities);
-      setOpeningTime("10:00");
-      setClosingTime("22:00");
-      setRegistrationDeadlineDays(null);
-      setEventDurationDays(null);
+      setParamValues({
+        propertyType: [],
+        placement: "",
+        sizeRange: [STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max],
+        floorCountRange: [FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min],
+        facilities: [],
+        openingTime: "10:00",
+        closingTime: "22:00",
+        registrationDeadlineDays: null,
+        eventDurationDays: null,
+      });
     }
 
-    setPaymentCycle("");
-    setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
-    setDepositRange([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]);
+    setParamValues({
+      paymentCycle: "",
+      rentRange: [GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max],
+      depositRange: [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
+    });
 
     if (typeDef.recommended_landmarks?.length) {
-      setLandmarkEntries((prev) =>
-        isUntouchedLandmarkEntries(prev)
-          ? typeDef.recommended_landmarks.map((landmark) => ({
-              ...createLandmarkRadiusEntry(),
-              landmark,
-            }))
-          : prev,
-      );
+      if (isUntouchedLandmarkEntries(params.landmarkEntries)) {
+        setParamValues({
+          landmarkEntries: typeDef.recommended_landmarks.map((landmark) => ({
+            ...createLandmarkRadiusEntry(),
+            landmark,
+          })),
+        });
+      }
     }
     return true;
   }
 
   function handlePermanenceChange(next: StallPermanenceType) {
-    setPermanenceType(next);
+    if (selectedTypeObj) {
+      const nextPreset = selectedTypeObj.permanence_presets?.[next];
 
-    const applied = selectedTypeObj
-      ? applyPresetFor(selectedTypeObj, next)
-      : false;
-
-    if (!applied) {
-      setBusinessType("");
+      if (nextPreset) {
+        applyPresetFor(selectedTypeObj, next);
+        setParamValues({ permanenceType: next });
+      } else {
+        setParamValues({
+          permanenceType: next,
+          businessType: "",
+          propertyType: [],
+          placement: "",
+          sizeRange: [STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max],
+          floorCountRange: [FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min],
+          facilities: [],
+          paymentCycle: "",
+          rentRange: [GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max],
+          depositRange: [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
+          openingTime: "10:00",
+          closingTime: "22:00",
+          registrationDeadlineDays: null,
+          eventDurationDays: null,
+          capital: DEFAULT_CAPITAL_BY_PERMANENCE[next],
+          startDate: "",
+          customStartDay: "",
+          minLeasePeriod: "",
+          customLeaseMonths: "",
+          eventOperatingDays: "",
+          attendanceRequirement: "",
+          cancellationPolicy: "",
+        });
+        setSelectedTypeObj(null);
+      }
+    } else {
+      setParamValues({
+        permanenceType: next,
+        businessType: "",
+        propertyType: [],
+        placement: "",
+        sizeRange: [STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max],
+        floorCountRange: [FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min],
+        facilities: [],
+        paymentCycle: "",
+        rentRange: [GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max],
+        depositRange: [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
+        openingTime: "10:00",
+        closingTime: "22:00",
+        registrationDeadlineDays: null,
+        eventDurationDays: null,
+        capital: DEFAULT_CAPITAL_BY_PERMANENCE[next],
+        startDate: "",
+        customStartDay: "",
+        minLeasePeriod: "",
+        customLeaseMonths: "",
+        eventOperatingDays: "",
+        attendanceRequirement: "",
+        cancellationPolicy: "",
+      });
       setSelectedTypeObj(null);
-      setPropertyType([]);
-      setPlacement("");
-      setSizeRange([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]);
-      setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);
-      setFacilities([]);
-      setPaymentCycle("");
-      setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
-      setDepositRange([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]);
-      setOpeningTime("10:00");
-      setClosingTime("22:00");
-      setRegistrationDeadlineDays(null);
-      setEventDurationDays(null);
-      setCapital(DEFAULT_CAPITAL_BY_PERMANENCE[next]);
+    }
 
-      setStartDate("");
-      setCustomStartDay("");
-      setMinLeasePeriod("");
-      setCustomLeaseMonths("");
-      setEventOperatingDays("");
-      setAttendanceRequirement("");
-      setCancellationPolicy("");
+    // [DIUBAH]: Jangan auto-commit search saat ganti tab, biarkan user klik search button
+    if (!isFull) {
+      commitSearch("hero"); // Khusus mode hero di home page tetap boleh langsung push ke halaman utama jika diperlukan, atau hapus jika ingin murni manual
     }
   }
 
   function handleBusinessTypeChange(value: string, selectedObj?: BusinessType) {
-    setBusinessType(value);
     const typeDef = selectedObj ?? null;
     setSelectedTypeObj(typeDef);
 
-    if (!typeDef) return;
+    if (!typeDef) {
+      setParamValues({ businessType: value });
+      return;
+    }
 
-    setBepMonths(String(typeDef.default_bep_months));
-    setCustomBepMonths(null);
-    setCapital(typeDef.default_capital);
+    setParamValues({
+      businessType: value,
+      bepMonths: String(typeDef.default_bep_months),
+      customBepMonths: null,
+      capital: typeDef.default_capital,
+    });
 
-    applyPresetFor(typeDef, permanenceType);
+    applyPresetFor(typeDef, params.permanenceType);
+    // [HAPUS commitSearch("full") di sini agar perubahan business type hanya set state lokal saja]
   }
 
   useEffect(() => {
-    const allowed = getAllowedPlacements(propertyType, permanenceType);
-    if (placement && !allowed.includes(placement)) {
-      setPlacement("");
+    const allowed = getAllowedPlacements(
+      params.propertyType,
+      params.permanenceType,
+    );
+    if (params.placement && !allowed.includes(params.placement)) {
+      setParamValues({ placement: "" });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [propertyType, permanenceType]);
+  }, [params.propertyType, params.permanenceType]);
 
   useEffect(() => {
     if (
-      paymentCycle &&
-      !activeTabConfig.allowedPaymentCycles.includes(paymentCycle)
+      params.paymentCycle &&
+      !activeTabConfig.allowedPaymentCycles.includes(params.paymentCycle)
     ) {
-      setPaymentCycle("");
+      setParamValues({ paymentCycle: "" });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [permanenceType]);
+  }, [params.permanenceType]);
 
   function handleSearch() {
-    if (isFull) {
-      console.log({
-        location,
-        permanenceType,
-        landmarkEntries,
-        propertyType,
-        placement,
-        sizeRange,
-        floorCountRange,
-        businessType,
-        facilities,
-        bepMonths: bepMonths === "custom" ? customBepMonths : Number(bepMonths),
-        capital,
-        rentRange,
-        depositRange,
-        startDate,
-        customStartDay,
-        minLeasePeriod,
-        customLeaseMonths,
-        eventOperatingDays,
-        attendanceRequirement,
-        cancellationPolicy,
-        paymentCycle,
-      });
-    } else {
-      console.log({ location, landmark: singleLandmark, radius });
-    }
+    commitSearch(mode);
   }
 
   function resetAllFilters() {
-    setPropertyType([]);
-    setPlacement("");
-    setSizeRange([STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max]);
-    setFloorCountRange([FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min]);
-    setBusinessType("");
+    setParamValues({
+      permanenceType: "permanent",
+      location: "",
+      propertyType: [],
+      placement: "",
+      sizeRange: [STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max],
+      floorCountRange: [FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min],
+      businessType: "",
+      facilities: [],
+      capital: DEFAULT_CAPITAL_BY_PERMANENCE["permanent"],
+      rentRange: [GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max],
+      depositRange: [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
+      startDate: "",
+      customStartDay: "",
+      minLeasePeriod: "",
+      customLeaseMonths: "",
+      eventOperatingDays: "",
+      attendanceRequirement: "",
+      cancellationPolicy: "",
+      paymentCycle: "",
+      openingTime: "10:00",
+      closingTime: "22:00",
+      registrationDeadlineDays: null,
+      eventDurationDays: null,
+      landmarkEntries: [createLandmarkRadiusEntry()],
+    });
     setSelectedTypeObj(null);
-    setFacilities([]);
-    setCapital(DEFAULT_CAPITAL_BY_PERMANENCE[permanenceType]);
-    setRentRange([GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max]);
-    setDepositRange([DEPOSIT_RANGE.min, DEPOSIT_RANGE.max]);
-    setStartDate("");
-    setCustomStartDay("");
-    setMinLeasePeriod("");
-    setCustomLeaseMonths("");
-    setEventOperatingDays("");
-    setAttendanceRequirement("");
-    setCancellationPolicy("");
-    setPaymentCycle("");
-    setOpeningTime("10:00");
-    setClosingTime("22:00");
-    setRegistrationDeadlineDays(null);
-    setEventDurationDays(null);
+    if (isFull) commitSearch("full");
   }
 
   const activeFilterCount =
-    (propertyType.length > 0 ? 1 : 0) +
-    (placement ? 1 : 0) +
-    (floorCountRange[0] > FLOOR_COUNT_RANGE.min ||
-    floorCountRange[1] > FLOOR_COUNT_RANGE.min
+    (params.propertyType.length > 0 ? 1 : 0) +
+    (params.placement ? 1 : 0) +
+    (params.floorCountRange[0] > FLOOR_COUNT_RANGE.min ||
+    params.floorCountRange[1] > FLOOR_COUNT_RANGE.min
       ? 1
       : 0) +
-    (registrationDeadlineDays !== null ? 1 : 0) +
-    (eventDurationDays !== null ? 1 : 0) +
-    (businessType ? 1 : 0) +
-    facilities.length +
-    (startDate ? 1 : 0) +
-    (minLeasePeriod ? 1 : 0) +
-    (eventOperatingDays ? 1 : 0) +
-    (attendanceRequirement ? 1 : 0) +
-    (cancellationPolicy ? 1 : 0) +
-    (paymentCycle ? 1 : 0);
+    (params.registrationDeadlineDays !== null ? 1 : 0) +
+    (params.eventDurationDays !== null ? 1 : 0) +
+    (params.businessType ? 1 : 0) +
+    params.facilities.length +
+    (params.startDate ? 1 : 0) +
+    (params.minLeasePeriod ? 1 : 0) +
+    (params.eventOperatingDays ? 1 : 0) +
+    (params.attendanceRequirement ? 1 : 0) +
+    (params.cancellationPolicy ? 1 : 0) +
+    (params.paymentCycle ? 1 : 0);
 
   const renderSpaceFilters = () => (
     <>
       <FilterAccordionSection title={t("sections.landmarks_radius")}>
         <LandmarkRadiusPicker
-          entries={landmarkEntries}
-          onChange={setLandmarkEntries}
+          entries={params.landmarkEntries}
+          onChange={(entries) => {
+            setParamValues({ landmarkEntries: entries });
+          }}
         />
       </FilterAccordionSection>
 
       <FilterAccordionSection title={t("sections.space_details")}>
         <StallSpaceFilter
-          permanenceType={permanenceType}
-          selectedPropertyTypes={propertyType}
-          placement={placement}
-          onPlacementChange={setPlacement}
-          floorCount={floorCountRange}
-          onFloorCountChange={setFloorCountRange}
-          stallSize={sizeRange}
-          onStallSizeChange={setSizeRange}
-          openingTime={openingTime}
-          onOpeningTimeChange={setOpeningTime}
-          closingTime={closingTime}
-          onClosingTimeChange={setClosingTime}
-          registrationDeadlineDays={registrationDeadlineDays}
-          onRegistrationDeadlineDaysChange={setRegistrationDeadlineDays}
-          eventDurationDays={eventDurationDays}
-          onEventDurationDaysChange={setEventDurationDays}
+          permanenceType={params.permanenceType}
+          selectedPropertyTypes={params.propertyType}
+          placement={params.placement}
+          onPlacementChange={(placement) => {
+            setParamValues({ placement });
+          }}
+          floorCount={params.floorCountRange}
+          onFloorCountChange={(floorCountRange) => {
+            setParamValues({ floorCountRange });
+          }}
+          stallSize={params.sizeRange}
+          onStallSizeChange={(sizeRange) => {
+            setParamValues({ sizeRange });
+          }}
+          openingTime={params.openingTime}
+          onOpeningTimeChange={(openingTime) => {
+            setParamValues({ openingTime });
+          }}
+          closingTime={params.closingTime}
+          onClosingTimeChange={(closingTime) => {
+            setParamValues({ closingTime });
+          }}
+          registrationDeadlineDays={params.registrationDeadlineDays}
+          onRegistrationDeadlineDaysChange={(registrationDeadlineDays) => {
+            setParamValues({ registrationDeadlineDays });
+          }}
+          eventDurationDays={params.eventDurationDays}
+          onEventDurationDaysChange={(eventDurationDays) => {
+            setParamValues({ eventDurationDays });
+          }}
         />
       </FilterAccordionSection>
 
       <FilterAccordionSection title={t("sections.property_type")}>
         <PropertyTypePicker
-          value={propertyType}
-          onChange={setPropertyType}
-          permanenceType={permanenceType}
+          value={params.propertyType}
+          onChange={(propertyType) => {
+            setParamValues({ propertyType });
+          }}
+          permanenceType={params.permanenceType}
         />
       </FilterAccordionSection>
     </>
@@ -453,53 +451,79 @@ export default function StallSearch({
     <>
       <FilterAccordionSection title={t("sections.budget_roi")}>
         <StallSearchBudgetFilters
-          permanenceType={permanenceType}
+          permanenceType={params.permanenceType}
           businessTypeLabel={selectedTypeObj?.label ?? null}
-          bepMonths={bepMonths}
-          onBepMonthsChange={setBepMonths}
-          customBepMonths={customBepMonths}
-          onCustomBepMonthsChange={setCustomBepMonths}
-          capital={capital}
-          onCapitalChange={setCapital}
-          paymentCycle={paymentCycle}
-          onPaymentCycleChange={setPaymentCycle}
+          bepMonths={params.bepMonths}
+          onBepMonthsChange={(bepMonths) => {
+            setParamValues({ bepMonths });
+          }}
+          customBepMonths={params.customBepMonths}
+          onCustomBepMonthsChange={(customBepMonths) => {
+            setParamValues({ customBepMonths });
+          }}
+          capital={params.capital}
+          onCapitalChange={(capital) => {
+            setParamValues({ capital });
+          }}
+          paymentCycle={params.paymentCycle}
+          onPaymentCycleChange={(paymentCycle) => {
+            setParamValues({ paymentCycle });
+          }}
           allowedPaymentCycles={activeTabConfig.allowedPaymentCycles}
-          rentRange={rentRange}
-          onRentRangeChange={setRentRange}
-          depositRange={depositRange}
-          onDepositRangeChange={setDepositRange}
+          rentRange={params.rentRange}
+          onRentRangeChange={(rentRange) => {
+            setParamValues({ rentRange });
+          }}
+          depositRange={params.depositRange}
+          onDepositRangeChange={(depositRange) => {
+            setParamValues({ depositRange });
+          }}
         />
       </FilterAccordionSection>
 
       <FilterAccordionSection title={t("sections.lease_event_terms")}>
         <LeaseTermsPicker
-          permanenceType={permanenceType}
-          startDate={startDate}
-          onStartDateChange={setStartDate}
-          customStartDay={customStartDay}
-          onCustomStartDayChange={setCustomStartDay}
-          minLeasePeriod={minLeasePeriod}
-          onMinLeasePeriodChange={setMinLeasePeriod}
-          customLeaseMonths={customLeaseMonths}
-          onCustomLeaseMonthsChange={setCustomLeaseMonths}
-          eventOperatingDays={eventOperatingDays}
-          onEventOperatingDaysChange={setEventOperatingDays}
-          attendanceRequirement={attendanceRequirement}
-          onAttendanceRequirementChange={setAttendanceRequirement}
-          cancellationPolicy={cancellationPolicy}
-          onCancellationPolicyChange={setCancellationPolicy}
+          permanenceType={params.permanenceType}
+          startDate={params.startDate}
+          onStartDateChange={(startDate) => {
+            setParamValues({ startDate });
+          }}
+          customStartDay={params.customStartDay}
+          onCustomStartDayChange={(customStartDay) => {
+            setParamValues({ customStartDay });
+          }}
+          minLeasePeriod={params.minLeasePeriod}
+          onMinLeasePeriodChange={(minLeasePeriod) => {
+            setParamValues({ minLeasePeriod });
+          }}
+          customLeaseMonths={params.customLeaseMonths}
+          onCustomLeaseMonthsChange={(customLeaseMonths) => {
+            setParamValues({ customLeaseMonths });
+          }}
+          eventOperatingDays={params.eventOperatingDays}
+          onEventOperatingDaysChange={(eventOperatingDays) => {
+            setParamValues({ eventOperatingDays });
+          }}
+          attendanceRequirement={params.attendanceRequirement}
+          onAttendanceRequirementChange={(attendanceRequirement) => {
+            setParamValues({ attendanceRequirement });
+          }}
+          cancellationPolicy={params.cancellationPolicy}
+          onCancellationPolicyChange={(cancellationPolicy) => {
+            setParamValues({ cancellationPolicy });
+          }}
         />
       </FilterAccordionSection>
 
       <FilterAccordionSection
         title={t("sections.facilities")}
-        activeCount={facilities.length}
+        activeCount={params.facilities.length}
       >
         <FacilityPicker
-          selected={facilities}
+          selected={params.facilities}
           onToggle={toggleFacility}
-          selectedPropertyTypes={propertyType}
-          permanenceType={permanenceType}
+          selectedPropertyTypes={params.propertyType}
+          permanenceType={params.permanenceType}
           size="sidebar"
         />
       </FilterAccordionSection>
@@ -516,55 +540,32 @@ export default function StallSearch({
       >
         <StallSearchPrimaryRow
           isFull={isFull}
-          location={location}
-          onLocationChange={setLocation}
-          businessType={businessType}
+          location={params.location}
+          onLocationChange={(location) => {
+            setParamValues({ location });
+          }}
+          businessType={params.businessType}
           onBusinessTypeChange={handleBusinessTypeChange}
-          permanenceType={permanenceType}
-          singleLandmark={singleLandmark}
-          onSingleLandmarkChange={setSingleLandmark}
+          permanenceType={params.permanenceType}
+          onPermanenceChange={handlePermanenceChange}
           onSearch={handleSearch}
         />
-
-        {!isFull && (
-          <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
-            <span className="text-xs font-medium text-muted-foreground">
-              {t("radius")}
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {RADIUS_PRESETS.map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => {}}
-                  className={cn(
-                    "rounded-full px-3 py-1 text-xs font-medium transition-colors outline-none",
-                    radius === r
-                      ? "bg-primary text-primary-foreground"
-                      : "border border-border bg-secondary/50 text-muted-foreground hover:border-primary/40 hover:text-foreground",
-                  )}
-                >
-                  {r}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {isFull && (
         <StallPermanenceTabs
-          value={permanenceType}
+          value={params.permanenceType}
           onChange={handlePermanenceChange}
+          mode="full"
         />
       )}
 
       {isFull && (
-        <div className="flex items-center justify-between gap-3 lg:hidden">
+        <div className="flex items-center lg:hidden">
           <Button
             variant="outline"
             onClick={() => setShowMobileFilters((p) => !p)}
-            className="flex-1 justify-between rounded-xl border-primary/20 bg-primary/5 font-semibold text-primary"
+            className="w-full justify-between rounded-xl border-primary/20 bg-primary/5 font-semibold text-primary"
           >
             <span className="flex items-center gap-2">
               <SlidersHorizontal className="h-4 w-4" />
@@ -576,23 +577,21 @@ export default function StallSearch({
                   })}
             </span>
             {showMobileFilters ? (
-              <X className="h-4 w-4" />
+              <span className="flex items-center gap-2">
+                {activeFilterCount > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className="h-5 rounded-full bg-primary/10 px-2 text-[10px] font-bold text-primary"
+                  >
+                    {activeFilterCount}
+                  </Badge>
+                )}
+                <X className="h-4 w-4" />
+              </span>
             ) : (
               <ChevronDown className="h-4 w-4" />
             )}
           </Button>
-
-          {activeFilterCount > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={resetAllFilters}
-              className="gap-1.5 rounded-xl text-xs font-semibold text-muted-foreground hover:text-destructive"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-              {t("reset")}
-            </Button>
-          )}
         </div>
       )}
 
@@ -602,14 +601,16 @@ export default function StallSearch({
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
               {t("all_search_filters")}
             </span>
-            <button
-              type="button"
-              onClick={resetAllFilters}
-              className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
-            >
-              <RotateCcw className="h-3 w-3" />
-              {t("reset_all")}
-            </button>
+            {activeFilterCount > 0 && (
+              <button
+                type="button"
+                onClick={resetAllFilters}
+                className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+              >
+                <RotateCcw className="h-3 w-3" />
+                {t("reset_all")}
+              </button>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -627,19 +628,29 @@ export default function StallSearch({
                 <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   {t("space_filters")}
                 </span>
-                <button
-                  type="button"
-                  onClick={resetAllFilters}
-                  className="text-[11px] font-medium text-primary hover:underline"
-                >
-                  {t("reset")}
-                </button>
               </div>
               {renderSpaceFilters()}
             </div>
           </aside>
 
-          <main className="min-w-0">
+          <main className="min-w-0 space-y-4">
+            {activeFilterCount > 0 && (
+              <div className="hidden lg:flex items-center justify-between rounded-xl border border-border bg-card px-4 py-2.5 shadow-2xs">
+                <span className="text-xs font-medium text-muted-foreground">
+                  Active filters applied ({activeFilterCount})
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetAllFilters}
+                  className="h-7 gap-1.5 text-xs font-semibold text-primary hover:text-primary hover:bg-primary/10 hover:underline"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                  Reset all filters
+                </Button>
+              </div>
+            )}
+
             {children ?? (
               <div className="flex h-full min-h-60 items-center justify-center rounded-2xl border border-dashed border-border text-sm text-muted-foreground">
                 {t("listing_placeholder")}
@@ -653,13 +664,6 @@ export default function StallSearch({
                 <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   {t("budget_terms")}
                 </span>
-                <button
-                  type="button"
-                  onClick={resetAllFilters}
-                  className="text-[11px] font-medium text-primary hover:underline"
-                >
-                  {t("reset")}
-                </button>
               </div>
               {renderBudgetTermsFilters()}
             </div>

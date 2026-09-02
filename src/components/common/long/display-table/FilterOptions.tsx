@@ -44,34 +44,36 @@ export function FilterOptions<TData>({
         <Button
           variant="outline"
           size="sm"
-          className="rounded-full border-dashed border-primary/40 text-primary hover:border-primary hover:bg-primary/5 hover:text-primary"
+          className="h-8 rounded-full border-dashed border-primary/40 px-3 text-xs text-primary hover:border-primary hover:bg-primary/5 hover:text-primary"
         >
-          <Plus className="mr-1.5 h-3.5 w-3.5" />
+          <Plus className="mr-1.5 size-3.5" />
           {t("add_filter")}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-56 p-0" align="start">
-        <Command>
+      <PopoverContent className="w-52 p-0 text-xs" align="start">
+        <Command className="rounded-lg">
           <CommandInput
-            className="border-b px-4 py-2"
+            className="h-9 border-b px-3 text-xs"
             placeholder={t("filter_by_placeholder")}
           />
           {unselected.length < 1 ? (
-            <div className="flex flex-col items-center gap-2 py-8 text-center text-sm text-muted-foreground">
-              <Sparkles className="h-4 w-4 text-primary/50" />
+            <div className="flex flex-col items-center gap-1.5 py-6 text-center text-xs text-muted-foreground">
+              <Sparkles className="size-3.5 text-primary/50" />
               {t("all_filters_added")}
             </div>
           ) : (
-            <CommandEmpty>{t("nothing_found")}</CommandEmpty>
+            <CommandEmpty className="py-4 text-center text-xs text-muted-foreground">
+              {t("nothing_found")}
+            </CommandEmpty>
           )}
-          <CommandGroup>
-            <ScrollArea className="max-h-[60vh] overflow-y-scroll">
+          <CommandGroup className="p-1">
+            <ScrollArea className="max-h-52 overflow-y-auto">
               {unselected.map((option, index) => {
                 const Icon = FILTER_TYPE_ICON[option.type ?? "input"];
                 return (
                   <CommandItem
                     key={String(index)}
-                    className="gap-2 capitalize"
+                    className="gap-2 rounded-md px-2 py-1.5 text-xs capitalize cursor-pointer"
                     value={String(option.id).split("_").join(" ")}
                     onSelect={() => {
                       setOpen(false);
@@ -85,10 +87,10 @@ export function FilterOptions<TData>({
                       });
                     }}
                   >
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <Icon className="h-3.5 w-3.5" />
+                    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Icon className="size-3" />
                     </span>
-                    {option.title}
+                    <span className="truncate">{option.title}</span>
                   </CommandItem>
                 );
               })}
