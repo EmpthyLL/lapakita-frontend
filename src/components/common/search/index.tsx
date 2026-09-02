@@ -53,14 +53,12 @@ function FilterAccordionSection({
   defaultOpen = true,
   activeCount = 0,
   onApply,
-  onReset,
 }: {
   title: string;
   children: ReactNode;
   defaultOpen?: boolean;
   activeCount?: number;
   onApply?: () => void;
-  onReset?: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
@@ -86,16 +84,6 @@ function FilterAccordionSection({
         </button>
 
         <div className="flex items-center gap-2">
-          {activeCount > 0 && onReset && (
-            <button
-              type="button"
-              onClick={onReset}
-              title="Reset section"
-              className="text-muted-foreground hover:text-primary"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-            </button>
-          )}
           {onApply && (
             <button
               type="button"
@@ -464,10 +452,6 @@ export default function StallSearch({
         title={t("sections.landmarks_radius")}
         activeCount={landmarksActiveCount}
         onApply={() => commitLandmarksSearch(mode)}
-        onReset={() => {
-          setParamValues({ landmarkEntries: [] });
-          commitLandmarksSearch(mode);
-        }}
       >
         <LandmarkRadiusPicker
           entries={params.landmarkEntries}
@@ -598,16 +582,6 @@ export default function StallSearch({
         title={t("sections.budget_roi")}
         activeCount={budgetActiveCount}
         onApply={() => commitBudgetSearch(mode)}
-        onReset={() => {
-          setParamValues({
-            bepMonths: String(DEFAULT_BEP_MONTHS),
-            capital: DEFAULT_ASSUMED_CAPITAL,
-            paymentCycle: "",
-            rentRange: [GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max],
-            depositRange: [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
-          });
-          commitBudgetSearch(mode);
-        }}
       >
         <StallSearchBudgetFilters
           permanenceType={params.permanenceType}
