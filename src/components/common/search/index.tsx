@@ -19,6 +19,8 @@ import {
   STALL_PERMANENCE_TABS,
 } from "./constants/permanance";
 import {
+  DEFAULT_ASSUMED_CAPITAL,
+  DEFAULT_BEP_MONTHS,
   DEFAULT_CAPITAL_BY_PERMANENCE,
   DEPOSIT_RANGE,
   FLOOR_COUNT_RANGE,
@@ -28,7 +30,6 @@ import {
 import { StallPermanenceType } from "./constants/types";
 import { FacilityPicker } from "./FacilityPicker";
 import {
-  createLandmarkRadiusEntry,
   LandmarkRadiusEntry,
   LandmarkRadiusPicker,
 } from "./LandmarkRadiusPicker";
@@ -51,22 +52,26 @@ function FilterAccordionSection({
   children,
   defaultOpen = true,
   activeCount = 0,
+  onApply,
+  onReset,
 }: {
   title: string;
   children: ReactNode;
   defaultOpen?: boolean;
   activeCount?: number;
+  onApply?: () => void;
+  onReset?: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="border-b border-border/80 last:border-b-0">
-      <button
-        type="button"
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="flex w-full items-center justify-between py-3.5 text-left transition-colors hover:text-primary outline-none"
-      >
-        <div className="flex items-center gap-2">
+    <div className="border-b border-border/80 last:border-b-0 pb-3">
+      <div className="flex w-full items-center justify-between py-3.5 text-left">
+        <button
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
+          className="flex flex-1 items-center gap-2 outline-none transition-colors hover:text-primary"
+        >
           <span className="text-xs font-bold uppercase tracking-wider text-foreground">
             {title}
           </span>
@@ -78,26 +83,54 @@ function FilterAccordionSection({
               {activeCount}
             </Badge>
           )}
-        </div>
-        <ChevronDown
-          className={cn(
-            "shrink-0 text-muted-foreground transition-all duration-150",
-            "h-6 w-6 stroke-[2.5]",
-            isOpen && "rotate-180",
-            "opacity-20",
+        </button>
+
+        <div className="flex items-center gap-2">
+          {activeCount > 0 && onReset && (
+            <button
+              type="button"
+              onClick={onReset}
+              title="Reset section"
+              className="text-muted-foreground hover:text-primary"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+            </button>
           )}
-        />
-      </button>
+          {onApply && (
+            <button
+              type="button"
+              onClick={onApply}
+              className="text-xs font-semibold text-primary hover:underline"
+            >
+              Apply
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setIsOpen((prev) => !prev)}
+            className="outline-none"
+          >
+            <ChevronDown
+              className={cn(
+                "shrink-0 text-muted-foreground transition-all duration-150",
+                "h-6 w-6 stroke-[2.5]",
+                isOpen && "rotate-180",
+                "opacity-20",
+              )}
+            />
+          </button>
+        </div>
+      </div>
 
       <div
         className={cn(
           "grid transition-all duration-200 ease-in-out",
           isOpen
-            ? "grid-rows-[1fr] pb-4 opacity-100"
+            ? "grid-rows-[1fr] pb-3 opacity-100"
             : "grid-rows-[0fr] opacity-0",
         )}
       >
-        <div className="overflow-hidden">{children}</div>
+        <div className="overflow-hidden space-y-3">{children}</div>
       </div>
     </div>
   );
@@ -114,7 +147,17 @@ export default function StallSearch({
   const t = useTranslations("common.search.stall_search");
   const isFull = mode === "full";
 
-  const { params, setParamValues, commitSearch } = useStallSearchQuery();
+  const {
+    params,
+    setParamValues,
+    commitPrimarySearch,
+    commitLandmarksSearch,
+    commitSpaceDetailsSearch,
+    commitPropertyTypeSearch,
+    commitBudgetSearch,
+    commitLeaseTermsSearch,
+    commitFacilitiesSearch,
+  } = useStallSearchQuery();
 
   const [selectedTypeObj, setSelectedTypeObj] = useState<BusinessType | null>(
     null,
@@ -151,7 +194,6 @@ export default function StallSearch({
       : [...params.facilities, value];
 
     setParamValues({ facilities: nextFacilities });
-    // [HAPUS commitSearch dari sini agar tidak auto-search saat klik fasilitas]
   }
 
   function applyPresetFor(
@@ -210,18 +252,12 @@ export default function StallSearch({
       });
     }
 
-    setParamValues({
-      paymentCycle: "",
-      rentRange: [GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max],
-      depositRange: [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
-    });
-
     if (typeDef.recommended_landmarks?.length) {
       if (isUntouchedLandmarkEntries(params.landmarkEntries)) {
         setParamValues({
           landmarkEntries: typeDef.recommended_landmarks.map((landmark) => ({
-            ...createLandmarkRadiusEntry(),
             landmark,
+            radius: "3 km",
           })),
         });
       }
@@ -254,9 +290,7 @@ export default function StallSearch({
           eventDurationDays: null,
           capital: DEFAULT_CAPITAL_BY_PERMANENCE[next],
           startDate: "",
-          customStartDay: "",
           minLeasePeriod: "",
-          customLeaseMonths: "",
           eventOperatingDays: "",
           attendanceRequirement: "",
           cancellationPolicy: "",
@@ -281,19 +315,12 @@ export default function StallSearch({
         eventDurationDays: null,
         capital: DEFAULT_CAPITAL_BY_PERMANENCE[next],
         startDate: "",
-        customStartDay: "",
         minLeasePeriod: "",
-        customLeaseMonths: "",
         eventOperatingDays: "",
         attendanceRequirement: "",
         cancellationPolicy: "",
       });
       setSelectedTypeObj(null);
-    }
-
-    // [DIUBAH]: Jangan auto-commit search saat ganti tab, biarkan user klik search button
-    if (!isFull) {
-      commitSearch("hero"); // Khusus mode hero di home page tetap boleh langsung push ke halaman utama jika diperlukan, atau hapus jika ingin murni manual
     }
   }
 
@@ -309,12 +336,10 @@ export default function StallSearch({
     setParamValues({
       businessType: value,
       bepMonths: String(typeDef.default_bep_months),
-      customBepMonths: null,
       capital: typeDef.default_capital,
     });
 
     applyPresetFor(typeDef, params.permanenceType);
-    // [HAPUS commitSearch("full") di sini agar perubahan business type hanya set state lokal saja]
   }
 
   useEffect(() => {
@@ -327,71 +352,123 @@ export default function StallSearch({
     }
   }, [params.propertyType, params.permanenceType]);
 
-  useEffect(() => {
-    if (
-      params.paymentCycle &&
-      !activeTabConfig.allowedPaymentCycles.includes(params.paymentCycle)
-    ) {
-      setParamValues({ paymentCycle: "" });
-    }
-  }, [params.permanenceType]);
-
   function handleSearch() {
-    commitSearch(mode);
+    commitPrimarySearch(mode);
   }
 
+  // Reset All mencakup pembersihan state dan membersihkan URL sekaligus melalui commitPrimarySearch
   function resetAllFilters() {
     setParamValues({
       permanenceType: "permanent",
       location: "",
       propertyType: [],
       placement: "",
-      sizeRange: [STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max],
-      floorCountRange: [FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min],
       businessType: "",
       facilities: [],
-      capital: DEFAULT_CAPITAL_BY_PERMANENCE["permanent"],
+      landmarkEntries: [],
+      bepMonths: String(DEFAULT_BEP_MONTHS),
+      capital: DEFAULT_ASSUMED_CAPITAL,
       rentRange: [GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max],
       depositRange: [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
+      sizeRange: [STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max],
+      floorCountRange: [FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min],
       startDate: "",
-      customStartDay: "",
       minLeasePeriod: "",
-      customLeaseMonths: "",
+      paymentCycle: "",
       eventOperatingDays: "",
       attendanceRequirement: "",
       cancellationPolicy: "",
-      paymentCycle: "",
       openingTime: "10:00",
       closingTime: "22:00",
       registrationDeadlineDays: null,
       eventDurationDays: null,
-      landmarkEntries: [createLandmarkRadiusEntry()],
     });
-    setSelectedTypeObj(null);
-    if (isFull) commitSearch("full");
+
+    // Redirect bersih langsung ke query default / kosong tanpa filter lanjutan
+    window.history.pushState({}, "", window.location.pathname);
+    commitPrimarySearch(mode);
   }
 
-  const activeFilterCount =
-    (params.propertyType.length > 0 ? 1 : 0) +
+  // Active counts per individual section
+  const landmarksActiveCount = params.landmarkEntries.filter(
+    (e) => e.landmark,
+  ).length;
+
+  const spaceActiveCount =
     (params.placement ? 1 : 0) +
     (params.floorCountRange[0] > FLOOR_COUNT_RANGE.min ||
     params.floorCountRange[1] > FLOOR_COUNT_RANGE.min
       ? 1
       : 0) +
+    (params.sizeRange[0] > STALL_SIZE_RANGE.min ||
+    params.sizeRange[1] < STALL_SIZE_RANGE.max
+      ? 1
+      : 0) +
+    (params.openingTime !== "10:00" ? 1 : 0) +
+    (params.closingTime !== "22:00" ? 1 : 0) +
     (params.registrationDeadlineDays !== null ? 1 : 0) +
     (params.eventDurationDays !== null ? 1 : 0) +
-    (params.businessType ? 1 : 0) +
-    params.facilities.length +
+    (params.propertyType.length > 0 ? params.propertyType.length : 0);
+
+  const budgetActiveCount =
+    (params.bepMonths && params.bepMonths !== String(DEFAULT_BEP_MONTHS)
+      ? 1
+      : 0) +
+    (params.capital > 0 ? 1 : 0) +
+    (params.paymentCycle ? 1 : 0) +
+    (params.rentRange[0] > GENERAL_RENT_RANGE.min ||
+    params.rentRange[1] < GENERAL_RENT_RANGE.max
+      ? 1
+      : 0) +
+    (params.depositRange[0] > DEPOSIT_RANGE.min ||
+    params.depositRange[1] < DEPOSIT_RANGE.max
+      ? 1
+      : 0);
+
+  const leaseTermsActiveCount =
     (params.startDate ? 1 : 0) +
     (params.minLeasePeriod ? 1 : 0) +
     (params.eventOperatingDays ? 1 : 0) +
     (params.attendanceRequirement ? 1 : 0) +
     (params.cancellationPolicy ? 1 : 0) +
-    (params.paymentCycle ? 1 : 0);
+    params.facilities.length;
 
-  const renderSpaceFilters = () => (
-    <>
-      <FilterAccordionSection title={t("sections.landmarks_radius")}>
+  const totalActiveFilterCount =
+    landmarksActiveCount +
+    spaceActiveCount +
+    budgetActiveCount +
+    leaseTermsActiveCount;
+
+  // Bagian 1: Landmark
+  const renderLandmarkCard = () => (
+    <div className="space-y-1 rounded-2xl border border-border bg-card p-4 shadow-xs">
+      <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
+        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          {t("sections.landmarks_radius")}
+        </span>
+        {landmarksActiveCount > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              setParamValues({ landmarkEntries: [] });
+              commitLandmarksSearch(mode);
+            }}
+            className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+          >
+            <RotateCcw className="h-3 w-3" />
+            Reset
+          </button>
+        )}
+      </div>
+      <FilterAccordionSection
+        title={t("sections.landmarks_radius")}
+        activeCount={landmarksActiveCount}
+        onApply={() => commitLandmarksSearch(mode)}
+        onReset={() => {
+          setParamValues({ landmarkEntries: [] });
+          commitLandmarksSearch(mode);
+        }}
+      >
         <LandmarkRadiusPicker
           entries={params.landmarkEntries}
           onChange={(entries) => {
@@ -399,67 +476,145 @@ export default function StallSearch({
           }}
         />
       </FilterAccordionSection>
-
-      <FilterAccordionSection title={t("sections.space_details")}>
-        <StallSpaceFilter
-          permanenceType={params.permanenceType}
-          selectedPropertyTypes={params.propertyType}
-          placement={params.placement}
-          onPlacementChange={(placement) => {
-            setParamValues({ placement });
-          }}
-          floorCount={params.floorCountRange}
-          onFloorCountChange={(floorCountRange) => {
-            setParamValues({ floorCountRange });
-          }}
-          stallSize={params.sizeRange}
-          onStallSizeChange={(sizeRange) => {
-            setParamValues({ sizeRange });
-          }}
-          openingTime={params.openingTime}
-          onOpeningTimeChange={(openingTime) => {
-            setParamValues({ openingTime });
-          }}
-          closingTime={params.closingTime}
-          onClosingTimeChange={(closingTime) => {
-            setParamValues({ closingTime });
-          }}
-          registrationDeadlineDays={params.registrationDeadlineDays}
-          onRegistrationDeadlineDaysChange={(registrationDeadlineDays) => {
-            setParamValues({ registrationDeadlineDays });
-          }}
-          eventDurationDays={params.eventDurationDays}
-          onEventDurationDaysChange={(eventDurationDays) => {
-            setParamValues({ eventDurationDays });
-          }}
-        />
-      </FilterAccordionSection>
-
-      <FilterAccordionSection title={t("sections.property_type")}>
-        <PropertyTypePicker
-          value={params.propertyType}
-          onChange={(propertyType) => {
-            setParamValues({ propertyType });
-          }}
-          permanenceType={params.permanenceType}
-        />
-      </FilterAccordionSection>
-    </>
+    </div>
   );
 
-  const renderBudgetTermsFilters = () => (
-    <>
-      <FilterAccordionSection title={t("sections.budget_roi")}>
+  // Bagian 2: Space (Space Details + Property Type)
+  const renderSpaceCard = () => (
+    <div className="space-y-4 rounded-2xl border border-border bg-card p-4 shadow-xs">
+      <div className="flex items-center justify-between border-b border-border pb-2">
+        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Space
+        </span>
+        {spaceActiveCount > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              setParamValues({
+                placement: "",
+                propertyType: [],
+                sizeRange: [STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max],
+                floorCountRange: [FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min],
+                openingTime: "10:00",
+                closingTime: "22:00",
+                registrationDeadlineDays: null,
+                eventDurationDays: null,
+              });
+              // Commit kedua sub-bagian space agar bersih total dari URL
+              commitSpaceDetailsSearch(mode);
+              commitPropertyTypeSearch(mode);
+            }}
+            className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+          >
+            <RotateCcw className="h-3 w-3" />
+            Reset
+          </button>
+        )}
+      </div>
+
+      <div className="space-y-1">
+        <FilterAccordionSection
+          title={t("sections.space_details")}
+          onApply={() => commitSpaceDetailsSearch(mode)}
+        >
+          <StallSpaceFilter
+            permanenceType={params.permanenceType}
+            selectedPropertyTypes={params.propertyType}
+            placement={params.placement}
+            onPlacementChange={(placement) => {
+              setParamValues({ placement });
+            }}
+            floorCount={params.floorCountRange}
+            onFloorCountChange={(floorCountRange) => {
+              setParamValues({ floorCountRange });
+            }}
+            stallSize={params.sizeRange}
+            onStallSizeChange={(sizeRange) => {
+              setParamValues({ sizeRange });
+            }}
+            openingTime={params.openingTime}
+            onOpeningTimeChange={(openingTime) => {
+              setParamValues({ openingTime });
+            }}
+            closingTime={params.closingTime}
+            onClosingTimeChange={(closingTime) => {
+              setParamValues({ closingTime });
+            }}
+            registrationDeadlineDays={params.registrationDeadlineDays}
+            onRegistrationDeadlineDaysChange={(registrationDeadlineDays) => {
+              setParamValues({ registrationDeadlineDays });
+            }}
+            eventDurationDays={params.eventDurationDays}
+            onEventDurationDaysChange={(eventDurationDays) => {
+              setParamValues({ eventDurationDays });
+            }}
+          />
+        </FilterAccordionSection>
+
+        <FilterAccordionSection
+          title={t("sections.property_type")}
+          onApply={() => commitPropertyTypeSearch(mode)}
+        >
+          <PropertyTypePicker
+            value={params.propertyType}
+            onChange={(propertyType) => {
+              setParamValues({ propertyType });
+            }}
+            permanenceType={params.permanenceType}
+          />
+        </FilterAccordionSection>
+      </div>
+    </div>
+  );
+
+  // Bagian 3: Budget
+  const renderBudgetCard = () => (
+    <div className="space-y-1 rounded-2xl border border-border bg-card p-4 shadow-xs">
+      <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
+        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Budget
+        </span>
+        {budgetActiveCount > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              setParamValues({
+                bepMonths: String(DEFAULT_BEP_MONTHS),
+                capital: DEFAULT_ASSUMED_CAPITAL,
+                paymentCycle: "",
+                rentRange: [GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max],
+                depositRange: [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
+              });
+              commitBudgetSearch(mode);
+            }}
+            className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+          >
+            <RotateCcw className="h-3 w-3" />
+            Reset
+          </button>
+        )}
+      </div>
+      <FilterAccordionSection
+        title={t("sections.budget_roi")}
+        activeCount={budgetActiveCount}
+        onApply={() => commitBudgetSearch(mode)}
+        onReset={() => {
+          setParamValues({
+            bepMonths: String(DEFAULT_BEP_MONTHS),
+            capital: DEFAULT_ASSUMED_CAPITAL,
+            paymentCycle: "",
+            rentRange: [GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max],
+            depositRange: [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
+          });
+          commitBudgetSearch(mode);
+        }}
+      >
         <StallSearchBudgetFilters
           permanenceType={params.permanenceType}
           businessTypeLabel={selectedTypeObj?.label ?? null}
           bepMonths={params.bepMonths}
           onBepMonthsChange={(bepMonths) => {
             setParamValues({ bepMonths });
-          }}
-          customBepMonths={params.customBepMonths}
-          onCustomBepMonthsChange={(customBepMonths) => {
-            setParamValues({ customBepMonths });
           }}
           capital={params.capital}
           onCapitalChange={(capital) => {
@@ -480,54 +635,83 @@ export default function StallSearch({
           }}
         />
       </FilterAccordionSection>
+    </div>
+  );
 
-      <FilterAccordionSection title={t("sections.lease_event_terms")}>
-        <LeaseTermsPicker
-          permanenceType={params.permanenceType}
-          startDate={params.startDate}
-          onStartDateChange={(startDate) => {
-            setParamValues({ startDate });
-          }}
-          customStartDay={params.customStartDay}
-          onCustomStartDayChange={(customStartDay) => {
-            setParamValues({ customStartDay });
-          }}
-          minLeasePeriod={params.minLeasePeriod}
-          onMinLeasePeriodChange={(minLeasePeriod) => {
-            setParamValues({ minLeasePeriod });
-          }}
-          customLeaseMonths={params.customLeaseMonths}
-          onCustomLeaseMonthsChange={(customLeaseMonths) => {
-            setParamValues({ customLeaseMonths });
-          }}
-          eventOperatingDays={params.eventOperatingDays}
-          onEventOperatingDaysChange={(eventOperatingDays) => {
-            setParamValues({ eventOperatingDays });
-          }}
-          attendanceRequirement={params.attendanceRequirement}
-          onAttendanceRequirementChange={(attendanceRequirement) => {
-            setParamValues({ attendanceRequirement });
-          }}
-          cancellationPolicy={params.cancellationPolicy}
-          onCancellationPolicyChange={(cancellationPolicy) => {
-            setParamValues({ cancellationPolicy });
-          }}
-        />
-      </FilterAccordionSection>
+  // Bagian 4: Lease Term (Lease Terms + Facilities)
+  const renderLeaseTermCard = () => (
+    <div className="space-y-4 rounded-2xl border border-border bg-card p-4 shadow-xs">
+      <div className="flex items-center justify-between border-b border-border pb-2">
+        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Lease Term
+        </span>
+        {leaseTermsActiveCount > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              setParamValues({
+                startDate: "",
+                minLeasePeriod: "",
+                eventOperatingDays: "",
+                attendanceRequirement: "",
+                cancellationPolicy: "",
+                facilities: [],
+              });
+              commitLeaseTermsSearch(mode);
+              commitFacilitiesSearch(mode);
+            }}
+            className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+          >
+            <RotateCcw className="h-3 w-3" />
+            Reset
+          </button>
+        )}
+      </div>
 
-      <FilterAccordionSection
-        title={t("sections.facilities")}
-        activeCount={params.facilities.length}
-      >
-        <FacilityPicker
-          selected={params.facilities}
-          onToggle={toggleFacility}
-          selectedPropertyTypes={params.propertyType}
-          permanenceType={params.permanenceType}
-          size="sidebar"
-        />
-      </FilterAccordionSection>
-    </>
+      <div className="space-y-1">
+        <FilterAccordionSection
+          title={t("sections.lease_event_terms")}
+          onApply={() => commitLeaseTermsSearch(mode)}
+        >
+          <LeaseTermsPicker
+            permanenceType={params.permanenceType}
+            startDate={params.startDate}
+            onStartDateChange={(startDate) => {
+              setParamValues({ startDate });
+            }}
+            minLeasePeriod={params.minLeasePeriod}
+            onMinLeasePeriodChange={(minLeasePeriod) => {
+              setParamValues({ minLeasePeriod });
+            }}
+            eventOperatingDays={params.eventOperatingDays}
+            onEventOperatingDaysChange={(eventOperatingDays) => {
+              setParamValues({ eventOperatingDays });
+            }}
+            attendanceRequirement={params.attendanceRequirement}
+            onAttendanceRequirementChange={(attendanceRequirement) => {
+              setParamValues({ attendanceRequirement });
+            }}
+            cancellationPolicy={params.cancellationPolicy}
+            onCancellationPolicyChange={(cancellationPolicy) => {
+              setParamValues({ cancellationPolicy });
+            }}
+          />
+        </FilterAccordionSection>
+
+        <FilterAccordionSection
+          title={t("sections.facilities")}
+          onApply={() => commitFacilitiesSearch(mode)}
+        >
+          <FacilityPicker
+            selected={params.facilities}
+            onToggle={toggleFacility}
+            selectedPropertyTypes={params.propertyType}
+            permanenceType={params.permanenceType}
+            size="sidebar"
+          />
+        </FilterAccordionSection>
+      </div>
+    </div>
   );
 
   return (
@@ -573,17 +757,19 @@ export default function StallSearch({
                 ? t("hide_filters")
                 : t("show_filters", {
                     count:
-                      activeFilterCount > 0 ? `(${activeFilterCount})` : "",
+                      totalActiveFilterCount > 0
+                        ? `(${totalActiveFilterCount})`
+                        : "",
                   })}
             </span>
             {showMobileFilters ? (
               <span className="flex items-center gap-2">
-                {activeFilterCount > 0 && (
+                {totalActiveFilterCount > 0 && (
                   <Badge
                     variant="secondary"
                     className="h-5 rounded-full bg-primary/10 px-2 text-[10px] font-bold text-primary"
                   >
-                    {activeFilterCount}
+                    {totalActiveFilterCount}
                   </Badge>
                 )}
                 <X className="h-4 w-4" />
@@ -596,12 +782,12 @@ export default function StallSearch({
       )}
 
       {isFull && showMobileFilters && (
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-sm lg:hidden animate-in fade-in zoom-in-95">
-          <div className="mb-3 flex items-center justify-between border-b border-border pb-3">
+        <div className="rounded-2xl border border-border bg-card p-4 shadow-sm lg:hidden animate-in fade-in zoom-in-95 space-y-4">
+          <div className="flex items-center justify-between border-b border-border pb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
               {t("all_search_filters")}
             </span>
-            {activeFilterCount > 0 && (
+            {totalActiveFilterCount > 0 && (
               <button
                 type="button"
                 onClick={resetAllFilters}
@@ -613,31 +799,27 @@ export default function StallSearch({
             )}
           </div>
 
-          <div className="space-y-1">
-            {renderSpaceFilters()}
-            {renderBudgetTermsFilters()}
+          <div className="space-y-4">
+            {renderLandmarkCard()}
+            {renderSpaceCard()}
+            {renderBudgetCard()}
+            {renderLeaseTermCard()}
           </div>
         </div>
       )}
 
       {isFull && (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_minmax(0,1fr)_280px]">
-          <aside className="hidden lg:block">
-            <div className="space-y-1 rounded-2xl border border-border bg-card p-4 shadow-xs sticky top-4">
-              <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  {t("space_filters")}
-                </span>
-              </div>
-              {renderSpaceFilters()}
-            </div>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_minmax(0,1fr)_280px] items-start">
+          <aside className="hidden lg:block space-y-6 sticky top-4">
+            {renderLandmarkCard()}
+            {renderSpaceCard()}
           </aside>
 
           <main className="min-w-0 space-y-4">
-            {activeFilterCount > 0 && (
+            {totalActiveFilterCount > 0 && (
               <div className="hidden lg:flex items-center justify-between rounded-xl border border-border bg-card px-4 py-2.5 shadow-2xs">
                 <span className="text-xs font-medium text-muted-foreground">
-                  Active filters applied ({activeFilterCount})
+                  Active filters applied ({totalActiveFilterCount})
                 </span>
                 <Button
                   variant="ghost"
@@ -658,15 +840,9 @@ export default function StallSearch({
             )}
           </main>
 
-          <aside className="hidden lg:block">
-            <div className="space-y-1 rounded-2xl border border-border bg-card p-4 shadow-xs sticky top-4">
-              <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  {t("budget_terms")}
-                </span>
-              </div>
-              {renderBudgetTermsFilters()}
-            </div>
+          <aside className="hidden lg:block space-y-6 sticky top-4">
+            {renderBudgetCard()}
+            {renderLeaseTermCard()}
           </aside>
         </div>
       )}

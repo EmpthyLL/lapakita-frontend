@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { StallSearchSchemaType } from "@/lib/data/schema/stall/get_stall";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import {
-  DEFAULT_ASSUMED_CAPITAL,
   DEFAULT_BEP_MONTHS,
   DEPOSIT_RANGE,
   FLOOR_COUNT_RANGE,
@@ -17,7 +17,73 @@ import {
   StallPlacement,
   StallPropertyTypeValue,
 } from "../constants/types";
-import { createLandmarkRadiusEntry } from "../LandmarkRadiusPicker";
+
+// Mapping eksplisit agar key di URL konsisten dan sesuai dengan schema backend
+const URL_TO_SCHEMA_MAP: Record<string, keyof StallSearchSchemaType> = {
+  location: "location",
+  permanenceType: "permanenceType",
+  landmarks: "landmarkEntries",
+  propertyTypes: "propertyType",
+  placement: "placement",
+  businessType: "businessType",
+  facilities: "facilities",
+  bepMonths: "bepMonths",
+  capital: "capital",
+  minRent: "rentRange",
+  maxRent: "rentRange",
+  minDeposit: "depositRange",
+  maxDeposit: "depositRange",
+  startDate: "startDate",
+  minLease: "minLeasePeriod",
+  paymentCycle: "paymentCycle",
+  eventDays: "eventOperatingDays",
+  attendance: "attendanceRequirement",
+  cancellation: "cancellationPolicy",
+  minSize: "sizeRange",
+  maxSize: "sizeRange",
+  minFloor: "floorCountRange",
+  maxFloor: "floorCountRange",
+  openingTime: "openingTime",
+  closingTime: "closingTime",
+  regDeadline: "registrationDeadlineDays",
+  eventDuration: "eventDurationDays",
+  sortBy: "sortBy",
+};
+
+export function getCleanBackendQuery(
+  searchParams: URLSearchParams,
+): Record<string, any> {
+  const queryObj: Record<string, any> = {};
+
+  searchParams.forEach((val, key) => {
+    const schemaKey = URL_TO_SCHEMA_MAP[key] || key;
+
+    // Handle array / JSON parsing untuk schema tertentu
+    if (schemaKey === "landmarkEntries") {
+      try {
+        queryObj[schemaKey] = JSON.parse(val);
+      } catch {
+        queryObj[schemaKey] = [];
+      }
+    } else if (schemaKey === "propertyType" || schemaKey === "facilities") {
+      queryObj[schemaKey] = val ? val.split(",") : [];
+    } else if (
+      schemaKey === "rentRange" ||
+      schemaKey === "depositRange" ||
+      schemaKey === "sizeRange" ||
+      schemaKey === "floorCountRange"
+    ) {
+      // Range biasanya dikirim sebagai min & max terpisah di URL, di-mapping jika perlu atau biarkan sesuai struktur backend
+      if (!queryObj[schemaKey]) queryObj[schemaKey] = [0, 0];
+      if (key.startsWith("min")) queryObj[schemaKey][0] = Number(val);
+      if (key.startsWith("max")) queryObj[schemaKey][1] = Number(val);
+    } else {
+      queryObj[schemaKey] = val;
+    }
+  });
+
+  return queryObj;
+}
 
 export function useStallSearchQuery() {
   const router = useRouter();
@@ -27,14 +93,15 @@ export function useStallSearchQuery() {
     Omit<StallSearchSchemaType, "page" | "limit">
   >(() => {
     const permType =
-      (searchParams.get("permanence") as StallPermanenceType) || "permanent";
+      (searchParams.get("permanenceType") as StallPermanenceType) ||
+      "permanent";
 
     return {
       location: searchParams.get("location") || "",
       permanenceType: permType,
       landmarkEntries: searchParams.get("landmarks")
         ? JSON.parse(searchParams.get("landmarks")!)
-        : [createLandmarkRadiusEntry()],
+        : [],
       propertyType: searchParams.get("propertyTypes")
         ? (searchParams
             .get("propertyTypes")!
@@ -46,13 +113,12 @@ export function useStallSearchQuery() {
       facilities: searchParams.get("facilities")
         ? searchParams.get("facilities")!.split(",")
         : [],
-      bepMonths: searchParams.get("bepMonths") || String(DEFAULT_BEP_MONTHS),
-      customBepMonths: searchParams.get("customBep")
-        ? Number(searchParams.get("customBep"))
-        : null,
+
+      bepMonths: searchParams.get("bepMonths") || "",
       capital: searchParams.get("capital")
         ? Number(searchParams.get("capital"))
-        : DEFAULT_ASSUMED_CAPITAL,
+        : 0,
+
       rentRange:
         searchParams.get("minRent") && searchParams.get("maxRent")
           ? [
@@ -68,25 +134,15 @@ export function useStallSearchQuery() {
             ]
           : [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
 
-      // Lease terms hanya dibaca jika permanen/semi-permanen (bukan temporary)
       startDate:
         permType !== "temporary" ? searchParams.get("startDate") || "" : "",
-      customStartDay:
-        permType !== "temporary"
-          ? searchParams.get("customStartDay") || ""
-          : "",
       minLeasePeriod:
         permType !== "temporary" ? searchParams.get("minLease") || "" : "",
-      customLeaseMonths:
-        permType !== "temporary"
-          ? searchParams.get("customLeaseMonths") || ""
-          : "",
       paymentCycle:
         permType !== "temporary"
           ? (searchParams.get("paymentCycle") as PaymentCycle) || ""
           : "",
 
-      // Event terms khusus temporary
       eventOperatingDays:
         permType === "temporary" ? searchParams.get("eventDays") || "" : "",
       attendanceRequirement:
@@ -134,138 +190,6 @@ export function useStallSearchQuery() {
     };
   });
 
-  const buildQueryString = useCallback(
-    (currentParams: Omit<StallSearchSchemaType, "page" | "limit">) => {
-      const query = new URLSearchParams();
-
-      if (currentParams.location) query.set("location", currentParams.location);
-      if (currentParams.permanenceType)
-        query.set("permanence", currentParams.permanenceType);
-      if (currentParams.businessType)
-        query.set("businessType", currentParams.businessType);
-      if (currentParams.sortBy && currentParams.sortBy !== "recommended")
-        query.set("sortBy", currentParams.sortBy);
-
-      if (currentParams.propertyType.length)
-        query.set("propertyTypes", currentParams.propertyType.join(","));
-      if (currentParams.placement)
-        query.set("placement", currentParams.placement);
-      if (currentParams.facilities.length)
-        query.set("facilities", currentParams.facilities.join(","));
-
-      // Budget & Financial Parameters
-      if (
-        currentParams.bepMonths &&
-        currentParams.bepMonths !== String(DEFAULT_BEP_MONTHS)
-      )
-        query.set("bepMonths", currentParams.bepMonths);
-      if (currentParams.customBepMonths !== null)
-        query.set("customBep", String(currentParams.customBepMonths));
-      if (currentParams.capital !== DEFAULT_ASSUMED_CAPITAL)
-        query.set("capital", String(currentParams.capital));
-
-      if (
-        currentParams.rentRange &&
-        (currentParams.rentRange[0] > GENERAL_RENT_RANGE.min ||
-          currentParams.rentRange[1] < GENERAL_RENT_RANGE.max)
-      ) {
-        query.set("minRent", String(currentParams.rentRange[0]));
-        query.set("maxRent", String(currentParams.rentRange[1]));
-      }
-
-      if (
-        currentParams.depositRange &&
-        (currentParams.depositRange[0] > DEPOSIT_RANGE.min ||
-          currentParams.depositRange[1] < DEPOSIT_RANGE.max)
-      ) {
-        query.set("minDeposit", String(currentParams.depositRange[0]));
-        query.set("maxDeposit", String(currentParams.depositRange[1]));
-      }
-
-      // Parameter Lease & Event Terms dipisah secara ketat berdasarkan permanen vs temporary
-      if (currentParams.permanenceType !== "temporary") {
-        if (currentParams.paymentCycle)
-          query.set("paymentCycle", currentParams.paymentCycle);
-        if (currentParams.startDate)
-          query.set("startDate", currentParams.startDate);
-        if (currentParams.customStartDay)
-          query.set("customStartDay", currentParams.customStartDay);
-        if (currentParams.minLeasePeriod)
-          query.set("minLease", currentParams.minLeasePeriod);
-        if (currentParams.customLeaseMonths)
-          query.set("customLeaseMonths", currentParams.customLeaseMonths);
-      }
-
-      if (currentParams.permanenceType === "temporary") {
-        if (currentParams.eventOperatingDays)
-          query.set("eventDays", currentParams.eventOperatingDays);
-        if (currentParams.attendanceRequirement)
-          query.set("attendance", currentParams.attendanceRequirement);
-        if (currentParams.cancellationPolicy)
-          query.set("cancellation", currentParams.cancellationPolicy);
-      }
-
-      // Parameter Spesifik Permanence Lainnya
-      if (currentParams.permanenceType === "permanent") {
-        if (
-          currentParams.sizeRange &&
-          (currentParams.sizeRange[0] > STALL_SIZE_RANGE.min ||
-            currentParams.sizeRange[1] < STALL_SIZE_RANGE.max)
-        ) {
-          query.set("minSize", String(currentParams.sizeRange[0]));
-          query.set("maxSize", String(currentParams.sizeRange[1]));
-        }
-        if (
-          currentParams.floorCountRange &&
-          (currentParams.floorCountRange[0] > FLOOR_COUNT_RANGE.min ||
-            currentParams.floorCountRange[1] > FLOOR_COUNT_RANGE.min)
-        ) {
-          query.set("minFloor", String(currentParams.floorCountRange[0]));
-          query.set("maxFloor", String(currentParams.floorCountRange[1]));
-        }
-      }
-
-      if (currentParams.permanenceType === "semi-permanent") {
-        if (
-          currentParams.openingTime &&
-          currentParams.openingTime !== "10:00"
-        ) {
-          query.set("openingTime", currentParams.openingTime);
-        }
-        if (
-          currentParams.closingTime &&
-          currentParams.closingTime !== "22:00"
-        ) {
-          query.set("closingTime", currentParams.closingTime);
-        }
-      }
-
-      if (currentParams.permanenceType === "temporary") {
-        if (currentParams.registrationDeadlineDays !== null) {
-          query.set(
-            "regDeadline",
-            String(currentParams.registrationDeadlineDays),
-          );
-        }
-        if (currentParams.eventDurationDays !== null) {
-          query.set("eventDuration", String(currentParams.eventDurationDays));
-        }
-      }
-
-      if (currentParams.landmarkEntries?.length) {
-        const validEntries = currentParams.landmarkEntries.filter(
-          (e) => e.landmark,
-        );
-        if (validEntries.length > 0) {
-          query.set("landmarks", JSON.stringify(validEntries));
-        }
-      }
-
-      return query.toString();
-    },
-    [],
-  );
-
   const setParamValues = useCallback(
     (newValues: Partial<Omit<StallSearchSchemaType, "page" | "limit">>) => {
       setParams((prev) => ({ ...prev, ...newValues }));
@@ -273,17 +197,291 @@ export function useStallSearchQuery() {
     [],
   );
 
-  const commitSearch = useCallback(
+  const getExistingParams = useCallback(() => {
+    const query = new URLSearchParams(window.location.search);
+    query.delete("permanence"); // Hapus key sampah lama jika ada
+    return query;
+  }, []);
+
+  const commitPrimarySearch = useCallback(
     (mode: "hero" | "full") => {
-      const queryString = buildQueryString(params);
+      const query = getExistingParams();
+
+      if (params.location) query.set("location", params.location);
+      else query.delete("location");
+
+      if (params.permanenceType)
+        query.set("permanenceType", params.permanenceType);
+      else query.delete("permanenceType");
+
+      if (params.businessType) query.set("businessType", params.businessType);
+      else query.delete("businessType");
+
+      if (params.sortBy && params.sortBy !== "recommended") {
+        query.set("sortBy", params.sortBy);
+      } else {
+        query.delete("sortBy");
+      }
+
+      const queryString = query.toString();
       if (mode === "hero") {
         router.push(`/stalls?${queryString}`);
       } else {
         router.push(`?${queryString}`, { scroll: false });
       }
     },
-    [params, router, buildQueryString],
+    [
+      params.location,
+      params.permanenceType,
+      params.businessType,
+      params.sortBy,
+      router,
+      getExistingParams,
+    ],
   );
 
-  return { params, setParamValues, commitSearch };
+  const commitLandmarksSearch = useCallback(
+    (mode: "hero" | "full") => {
+      const query = getExistingParams();
+
+      if (params.landmarkEntries?.length) {
+        const validEntries = params.landmarkEntries
+          .filter((e) => e.landmark)
+          .map(({ landmark, radius }) => ({ landmark, radius }));
+
+        if (validEntries.length > 0) {
+          query.set("landmarks", JSON.stringify(validEntries));
+        } else {
+          query.delete("landmarks");
+        }
+      } else {
+        query.delete("landmarks");
+      }
+
+      const queryString = query.toString();
+      if (mode === "hero") {
+        router.push(`/stalls?${queryString}`);
+      } else {
+        router.push(`?${queryString}`, { scroll: false });
+      }
+    },
+    [params.landmarkEntries, router, getExistingParams],
+  );
+
+  const commitSpaceDetailsSearch = useCallback(
+    (mode: "hero" | "full") => {
+      const query = getExistingParams();
+
+      if (params.placement) query.set("placement", params.placement);
+      else query.delete("placement");
+
+      if (params.permanenceType === "permanent") {
+        if (
+          params.sizeRange &&
+          (params.sizeRange[0] > STALL_SIZE_RANGE.min ||
+            params.sizeRange[1] < STALL_SIZE_RANGE.max)
+        ) {
+          query.set("minSize", String(params.sizeRange[0]));
+          query.set("maxSize", String(params.sizeRange[1]));
+        } else {
+          query.delete("minSize");
+          query.delete("maxSize");
+        }
+
+        if (
+          params.floorCountRange &&
+          (params.floorCountRange[0] > FLOOR_COUNT_RANGE.min ||
+            params.floorCountRange[1] < FLOOR_COUNT_RANGE.min)
+        ) {
+          query.set("minFloor", String(params.floorCountRange[0]));
+          query.set("maxFloor", String(params.floorCountRange[1]));
+        } else {
+          query.delete("minFloor");
+          query.delete("maxFloor");
+        }
+      }
+
+      if (params.permanenceType === "semi-permanent") {
+        if (params.openingTime && params.openingTime !== "10:00") {
+          query.set("openingTime", params.openingTime);
+        } else {
+          query.delete("openingTime");
+        }
+        if (params.closingTime && params.closingTime !== "22:00") {
+          query.set("closingTime", params.closingTime);
+        } else {
+          query.delete("closingTime");
+        }
+      }
+
+      if (params.permanenceType === "temporary") {
+        if (params.registrationDeadlineDays !== null) {
+          query.set("regDeadline", String(params.registrationDeadlineDays));
+        } else {
+          query.delete("regDeadline");
+        }
+        if (params.eventDurationDays !== null) {
+          query.set("eventDuration", String(params.eventDurationDays));
+        } else {
+          query.delete("eventDuration");
+        }
+      }
+
+      const queryString = query.toString();
+      if (mode === "hero") {
+        router.push(`/stalls?${queryString}`);
+      } else {
+        router.push(`?${queryString}`, { scroll: false });
+      }
+    },
+    [params, router, getExistingParams],
+  );
+
+  const commitPropertyTypeSearch = useCallback(
+    (mode: "hero" | "full") => {
+      const query = getExistingParams();
+
+      if (params.propertyType.length) {
+        query.set("propertyTypes", params.propertyType.join(","));
+      } else {
+        query.delete("propertyTypes");
+      }
+
+      const queryString = query.toString();
+      if (mode === "hero") {
+        router.push(`/stalls?${queryString}`);
+      } else {
+        router.push(`?${queryString}`, { scroll: false });
+      }
+    },
+    [params.propertyType, router, getExistingParams],
+  );
+
+  const commitBudgetSearch = useCallback(
+    (mode: "hero" | "full") => {
+      const query = getExistingParams();
+
+      if (params.bepMonths && params.bepMonths !== String(DEFAULT_BEP_MONTHS)) {
+        query.set("bepMonths", params.bepMonths);
+      } else {
+        query.delete("bepMonths");
+      }
+
+      if (params.capital && params.capital > 0) {
+        query.set("capital", String(params.capital));
+      } else {
+        query.delete("capital");
+      }
+
+      if (
+        params.rentRange &&
+        (params.rentRange[0] > GENERAL_RENT_RANGE.min ||
+          params.rentRange[1] < GENERAL_RENT_RANGE.max)
+      ) {
+        query.set("minRent", String(params.rentRange[0]));
+        query.set("maxRent", String(params.rentRange[1]));
+      } else {
+        query.delete("minRent");
+        query.delete("maxRent");
+      }
+
+      if (
+        params.depositRange &&
+        (params.depositRange[0] > DEPOSIT_RANGE.min ||
+          params.depositRange[1] < DEPOSIT_RANGE.max)
+      ) {
+        query.set("minDeposit", String(params.depositRange[0]));
+        query.set("maxDeposit", String(params.depositRange[1]));
+      } else {
+        query.delete("minDeposit");
+        query.delete("maxDeposit");
+      }
+
+      const queryString = query.toString();
+      if (mode === "hero") {
+        router.push(`/stalls?${queryString}`);
+      } else {
+        router.push(`?${queryString}`, { scroll: false });
+      }
+    },
+    [
+      params.bepMonths,
+      params.capital,
+      params.rentRange,
+      params.depositRange,
+      router,
+      getExistingParams,
+    ],
+  );
+
+  const commitLeaseTermsSearch = useCallback(
+    (mode: "hero" | "full") => {
+      const query = getExistingParams();
+
+      if (params.permanenceType !== "temporary") {
+        if (params.paymentCycle) query.set("paymentCycle", params.paymentCycle);
+        else query.delete("paymentCycle");
+
+        if (params.startDate) query.set("startDate", params.startDate);
+        else query.delete("startDate");
+
+        if (params.minLeasePeriod) query.set("minLease", params.minLeasePeriod);
+        else query.delete("minLease");
+      }
+
+      if (params.permanenceType === "temporary") {
+        if (params.eventOperatingDays)
+          query.set("eventDays", params.eventOperatingDays);
+        else query.delete("eventDays");
+
+        if (params.attendanceRequirement)
+          query.set("attendance", params.attendanceRequirement);
+        else query.delete("attendance");
+
+        if (params.cancellationPolicy)
+          query.set("cancellation", params.cancellationPolicy);
+        else query.delete("cancellation");
+      }
+
+      const queryString = query.toString();
+      if (mode === "hero") {
+        router.push(`/stalls?${queryString}`);
+      } else {
+        router.push(`?${queryString}`, { scroll: false });
+      }
+    },
+    [params, router, getExistingParams],
+  );
+
+  const commitFacilitiesSearch = useCallback(
+    (mode: "hero" | "full") => {
+      const query = getExistingParams();
+
+      if (params.facilities.length) {
+        query.set("facilities", params.facilities.join(","));
+      } else {
+        query.delete("facilities");
+      }
+
+      const queryString = query.toString();
+      if (mode === "hero") {
+        router.push(`/stalls?${queryString}`);
+      } else {
+        router.push(`?${queryString}`, { scroll: false });
+      }
+    },
+    [params.facilities, router, getExistingParams],
+  );
+
+  return {
+    params,
+    setParamValues,
+    commitPrimarySearch,
+    commitLandmarksSearch,
+    commitSpaceDetailsSearch,
+    commitPropertyTypeSearch,
+    commitBudgetSearch,
+    commitLeaseTermsSearch,
+    commitFacilitiesSearch,
+  };
 }

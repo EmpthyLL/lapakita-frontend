@@ -25,13 +25,9 @@ interface LeaseTermsPickerProps {
   // Common / Permanent / Semi-Permanent Props
   startDate: string;
   onStartDateChange: (value: string) => void;
-  customStartDay: string;
-  onCustomStartDayChange: (value: string) => void;
 
   minLeasePeriod: string;
   onMinLeasePeriodChange: (value: string) => void;
-  customLeaseMonths: string;
-  onCustomLeaseMonthsChange: (value: string) => void;
 
   // Temporary / Pop-Up Specific Filters
   eventOperatingDays: string;
@@ -48,12 +44,8 @@ export function LeaseTermsPicker({
   permanenceType,
   startDate,
   onStartDateChange,
-  customStartDay,
-  onCustomStartDayChange,
   minLeasePeriod,
   onMinLeasePeriodChange,
-  customLeaseMonths,
-  onCustomLeaseMonthsChange,
   eventOperatingDays,
   onEventOperatingDaysChange,
   attendanceRequirement,
@@ -63,7 +55,18 @@ export function LeaseTermsPicker({
 }: LeaseTermsPickerProps) {
   const isTemporary = permanenceType === "temporary";
 
-  // Objek pencari deskripsi berdasarkan value terpilih
+  // Check if current startDate value is part of presets or acts as a custom day number
+  const isCustomStartDay =
+    startDate &&
+    !START_DATE_PRESETS.some((p) => p.value === startDate) &&
+    startDate !== "custom";
+
+  // Check if current minLeasePeriod value is part of presets or acts as a custom month count
+  const isCustomLeaseMonths =
+    minLeasePeriod &&
+    !MIN_LEASE_PERIOD_PRESETS.some((p) => p.value === minLeasePeriod) &&
+    minLeasePeriod !== "custom";
+
   const selectedAttendance = ATTENDANCE_REQUIREMENT_OPTIONS.find(
     (opt) => opt.value === attendanceRequirement,
   );
@@ -74,7 +77,6 @@ export function LeaseTermsPicker({
   if (isTemporary) {
     return (
       <div className="space-y-5">
-        {/* 1. Operating Days Schedule */}
         <div>
           <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
             <CalendarDays className="h-3.5 w-3.5" />
@@ -89,7 +91,6 @@ export function LeaseTermsPicker({
           />
         </div>
 
-        {/* 2. Attendance Requirement */}
         <div>
           <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
             <UserCheck className="h-3.5 w-3.5" />
@@ -109,7 +110,6 @@ export function LeaseTermsPicker({
           )}
         </div>
 
-        {/* 3. Cancellation / Early Exit Policy */}
         <div>
           <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
             <ShieldAlert className="h-3.5 w-3.5" />
@@ -132,7 +132,6 @@ export function LeaseTermsPicker({
     );
   }
 
-  // Tab Permanent / Semi-Permanent
   return (
     <div className="space-y-5">
       <div>
@@ -141,8 +140,15 @@ export function LeaseTermsPicker({
           Desired Start Date
         </p>
         <Autocomplete
-          value={startDate}
-          onSelect={(v) => onStartDateChange(String(v))}
+          value={isCustomStartDay ? "custom" : startDate}
+          onSelect={(v) => {
+            const val = String(v);
+            if (val === "custom") {
+              onStartDateChange("1");
+            } else {
+              onStartDateChange(val);
+            }
+          }}
           options={[
             ...START_DATE_PRESETS,
             { value: "custom", label: "Custom day" },
@@ -150,10 +156,10 @@ export function LeaseTermsPicker({
           placeholder="Any start date"
           mode="solid"
         />
-        {startDate === "custom" && (
+        {(startDate === "custom" || isCustomStartDay) && (
           <Autocomplete
-            value={customStartDay}
-            onSelect={(v) => onCustomStartDayChange(String(v))}
+            value={isCustomStartDay ? startDate : ""}
+            onSelect={(v) => onStartDateChange(String(v))}
             options={DAY_OF_MONTH_OPTIONS}
             placeholder="Pick a day (1–28)"
             mode="solid"
@@ -168,16 +174,23 @@ export function LeaseTermsPicker({
           Minimum Lease Period
         </p>
         <Autocomplete
-          value={minLeasePeriod}
-          onSelect={(v) => onMinLeasePeriodChange(String(v))}
+          value={isCustomLeaseMonths ? "custom" : minLeasePeriod}
+          onSelect={(v) => {
+            const val = String(v);
+            if (val === "custom") {
+              onMinLeasePeriodChange("1");
+            } else {
+              onMinLeasePeriodChange(val);
+            }
+          }}
           options={MIN_LEASE_PERIOD_PRESETS}
           placeholder="Any lease period"
           mode="solid"
         />
-        {minLeasePeriod === "custom" && (
+        {(minLeasePeriod === "custom" || isCustomLeaseMonths) && (
           <Autocomplete
-            value={customLeaseMonths}
-            onSelect={(v) => onCustomLeaseMonthsChange(String(v))}
+            value={isCustomLeaseMonths ? minLeasePeriod : ""}
+            onSelect={(v) => onMinLeasePeriodChange(String(v))}
             options={LEASE_MONTHS_OPTIONS}
             placeholder="Pick months (1–12)"
             mode="solid"

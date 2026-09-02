@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useDebounce } from "@/hooks/use-debounce";
@@ -28,8 +29,6 @@ interface StallSearchBudgetFiltersProps {
   businessTypeLabel: string | null;
   bepMonths: string;
   onBepMonthsChange: (value: string) => void;
-  customBepMonths: number | null;
-  onCustomBepMonthsChange: (value: number | null) => void;
   capital: number;
   onCapitalChange: (value: number) => void;
 
@@ -49,8 +48,6 @@ export function StallSearchBudgetFilters({
   businessTypeLabel,
   bepMonths,
   onBepMonthsChange,
-  customBepMonths,
-  onCustomBepMonthsChange,
   capital,
   onCapitalChange,
   paymentCycle,
@@ -72,29 +69,18 @@ export function StallSearchBudgetFilters({
     { value: "custom", label: t("custom") },
   ];
 
-  React.useEffect(() => {
-    if (
-      bepMonths &&
-      bepMonths !== "custom" &&
-      !PRESET_VALUES.includes(bepMonths)
-    ) {
-      const numVal = Number(bepMonths);
-      if (!isNaN(numVal)) {
-        onCustomBepMonthsChange(numVal);
-        onBepMonthsChange("custom");
-      }
-    }
-  }, [bepMonths, onBepMonthsChange, onCustomBepMonthsChange]);
+  const isCustomBep =
+    bepMonths && !PRESET_VALUES.includes(bepMonths) && bepMonths !== "custom";
 
   const debouncedCapital = useDebounce(capital, 450);
-  const debouncedCustomBepMonths = useDebounce(customBepMonths, 450);
+  const debouncedBepMonths = useDebounce(bepMonths, 450);
 
   React.useEffect(() => {
     const { rentRange: newRent, depositRange: newDeposit } =
       getCalculatedRangesForFilters(
         debouncedCapital,
-        bepMonths,
-        debouncedCustomBepMonths,
+        debouncedBepMonths,
+        null,
         paymentCycle,
         businessTypeObj,
         permanenceType,
@@ -102,11 +88,9 @@ export function StallSearchBudgetFilters({
 
     onRentRangeChange(newRent);
     onDepositRangeChange(newDeposit);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     debouncedCapital,
-    bepMonths,
-    debouncedCustomBepMonths,
+    debouncedBepMonths,
     paymentCycle,
     businessTypeObj,
     permanenceType,
@@ -126,10 +110,9 @@ export function StallSearchBudgetFilters({
 
   function handleBepSelect(selectedVal: string) {
     if (selectedVal === "custom") {
-      onBepMonthsChange("custom");
+      onBepMonthsChange("6");
     } else {
       onBepMonthsChange(selectedVal);
-      onCustomBepMonthsChange(null);
     }
   }
 
@@ -195,21 +178,21 @@ export function StallSearchBudgetFilters({
               </div>
             </div>
             <Autocomplete
-              value={bepMonths}
+              value={isCustomBep ? "custom" : bepMonths}
               onSelect={(v) => handleBepSelect(String(v))}
               options={bepOptions}
               placeholder={t("pick_bep_placeholder")}
               mode="solid"
               className="mt-2"
             />
-            {bepMonths === "custom" && (
+            {(bepMonths === "custom" || isCustomBep) && (
               <NumberInput
                 suffix={t("months_suffix")}
                 decimalScale={0}
                 placeholder={`e.g. 9${t("months_suffix")}`}
-                value={customBepMonths ?? ""}
+                value={isCustomBep ? bepMonths : ""}
                 onValueChange={(v) =>
-                  onCustomBepMonthsChange(v.floatValue ?? null)
+                  onBepMonthsChange(String(v.floatValue ?? ""))
                 }
                 className="mt-2 h-9 py-2 text-sm"
               />

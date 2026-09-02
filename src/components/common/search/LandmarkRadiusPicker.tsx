@@ -1,22 +1,21 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Autocomplete } from "../input/Autocomplete";
 import { LANDMARK_CATEGORIES } from "./constants/landmark";
 import { RADIUS_PRESETS } from "./constants/range";
 
 export interface LandmarkRadiusEntry {
-  id: string;
   landmark: string;
   radius: string;
 }
 
 export function createLandmarkRadiusEntry(): LandmarkRadiusEntry {
   return {
-    id: Math.random().toString(36).slice(2, 9),
     landmark: "",
     radius: RADIUS_PRESETS[1],
   };
@@ -40,24 +39,41 @@ export function LandmarkRadiusPicker({
   entries,
   onChange,
 }: LandmarkRadiusPickerProps) {
+  // Pastikan selalu ada minimal 1 slot default jika entries kosong
+  useEffect(() => {
+    if (!entries || entries.length === 0) {
+      onChange([createLandmarkRadiusEntry()]);
+    }
+  }, [entries]);
+
+  const activeEntries =
+    entries?.length > 0 ? entries : [createLandmarkRadiusEntry()];
+
   const usedLandmarks = useMemo(
-    () => new Set(entries.map((e) => e.landmark).filter(Boolean)),
-    [entries],
+    () => new Set(activeEntries.map((e) => e.landmark).filter(Boolean)),
+    [activeEntries],
   );
 
-  function updateEntry(id: string, patch: Partial<LandmarkRadiusEntry>) {
-    onChange(entries.map((e) => (e.id === id ? { ...e, ...patch } : e)));
+  function updateEntry(index: number, patch: Partial<LandmarkRadiusEntry>) {
+    onChange(
+      activeEntries.map((e, i) => (i === index ? { ...e, ...patch } : e)),
+    );
   }
 
-  function removeEntry(id: string) {
-    onChange(entries.filter((e) => e.id !== id));
+  function removeEntry(index: number) {
+    // Jika tinggal 1 slot, jangan biarkan kosong total, reset jadi kosong nilainya
+    if (activeEntries.length === 1) {
+      onChange([createLandmarkRadiusEntry()]);
+      return;
+    }
+    onChange(activeEntries.filter((_, i) => i !== index));
   }
 
   function addEntry() {
-    onChange([...entries, createLandmarkRadiusEntry()]);
+    onChange([...activeEntries, createLandmarkRadiusEntry()]);
   }
 
-  const allSelected = entries.length >= LANDMARK_CATEGORIES.length;
+  const allSelected = activeEntries.length >= LANDMARK_CATEGORIES.length;
 
   return (
     <div>
@@ -67,37 +83,33 @@ export function LandmarkRadiusPicker({
       </p>
 
       <div className="space-y-3">
-        {entries.map((entry, index) => {
-          // Hide landmarks already picked in other rows so the same one
-          // can't be selected twice with two conflicting radii.
+        {activeEntries.map((entry, index) => {
           const availableOptions = LANDMARK_CATEGORIES.filter(
             (l) => l.value === entry.landmark || !usedLandmarks.has(l.value),
           );
 
           return (
             <div
-              key={entry.id}
+              key={index}
               className="rounded-xl border border-border bg-secondary/20 p-3"
             >
               <div className="mb-2 flex items-center justify-between">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-secondary text-[11px] font-semibold text-muted-foreground">
                   {index + 1}
                 </span>
-                {entries.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeEntry(entry.id)}
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                    aria-label="Remove landmark"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => removeEntry(index)}
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                  aria-label="Remove landmark"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
               </div>
 
               <Autocomplete
                 value={entry.landmark}
-                onSelect={(v) => updateEntry(entry.id, { landmark: String(v) })}
+                onSelect={(v) => updateEntry(index, { landmark: String(v) })}
                 options={availableOptions}
                 placeholder="Search a landmark…"
                 mode="solid"
@@ -106,11 +118,9 @@ export function LandmarkRadiusPicker({
 
               <Input
                 value={entry.radius}
-                onChange={(e) =>
-                  updateEntry(entry.id, { radius: e.target.value })
-                }
+                onChange={(e) => updateEntry(index, { radius: e.target.value })}
                 onBlur={(e) =>
-                  updateEntry(entry.id, {
+                  updateEntry(index, {
                     radius: normalizeRadius(e.target.value),
                   })
                 }
@@ -123,7 +133,7 @@ export function LandmarkRadiusPicker({
                   <button
                     key={r}
                     type="button"
-                    onClick={() => updateEntry(entry.id, { radius: r })}
+                    onClick={() => updateEntry(index, { radius: r })}
                     className={cn(
                       "rounded-full border px-2.5 py-0.5 text-[11px] font-medium transition-colors",
                       entry.radius === r
