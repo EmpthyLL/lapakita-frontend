@@ -223,6 +223,7 @@ export default function StallSearch({
               "defaultOpeningTime" in preset
                 ? preset.defaultClosingTime
                 : params.closingTime,
+            is24hour: params.is24hour,
             registrationDeadlineDays:
               forPermanence === "temporary" &&
               "registrationWindowDaysBefore" in preset
@@ -242,6 +243,7 @@ export default function StallSearch({
             facilities: [],
             openingTime: "10:00",
             closingTime: "22:00",
+            is24hour: false,
             registrationDeadlineDays: null,
             eventDurationDays: null,
           };
@@ -292,6 +294,7 @@ export default function StallSearch({
           depositRange: [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
           openingTime: "10:00",
           closingTime: "22:00",
+          is24hour: false,
           registrationDeadlineDays: null,
           eventDurationDays: null,
           capital: DEFAULT_CAPITAL_BY_PERMANENCE[next],
@@ -317,6 +320,7 @@ export default function StallSearch({
         depositRange: [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
         openingTime: "10:00",
         closingTime: "22:00",
+        is24hour: false,
         registrationDeadlineDays: null,
         eventDurationDays: null,
         capital: DEFAULT_CAPITAL_BY_PERMANENCE[next],
@@ -402,6 +406,7 @@ export default function StallSearch({
       cancellationPolicy: "",
       openingTime: "10:00",
       closingTime: "22:00",
+      is24hour: false,
       registrationDeadlineDays: null,
       eventDurationDays: null,
     });
@@ -427,6 +432,7 @@ export default function StallSearch({
       : 0) +
     (params.openingTime !== "10:00" ? 1 : 0) +
     (params.closingTime !== "22:00" ? 1 : 0) +
+    (params.is24hour ? 1 : 0) +
     (params.registrationDeadlineDays !== null ? 1 : 0) +
     (params.eventDurationDays !== null ? 1 : 0) +
     (params.propertyType.length > 0 ? params.propertyType.length : 0);
@@ -521,6 +527,7 @@ export default function StallSearch({
                 floorCountRange: [FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min],
                 openingTime: "10:00",
                 closingTime: "22:00",
+                is24hour: false,
                 registrationDeadlineDays: null,
                 eventDurationDays: null,
               });
@@ -563,6 +570,10 @@ export default function StallSearch({
             closingTime={params.closingTime}
             onClosingTimeChange={(closingTime) => {
               setParamValues({ closingTime });
+            }}
+            is24hour={params.is24hour}
+            onIs24hourChange={(is24hour) => {
+              setParamValues({ is24hour });
             }}
             registrationDeadlineDays={params.registrationDeadlineDays}
             onRegistrationDeadlineDaysChange={(registrationDeadlineDays) => {

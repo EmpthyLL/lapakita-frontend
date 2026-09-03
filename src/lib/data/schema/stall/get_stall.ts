@@ -5,7 +5,7 @@ import {
   StallPropertyTypeValue,
 } from "@/components/common/search/constants/types";
 import z from "zod";
-import { basePaginationQuerySchema } from "../base";
+import { basePaginationQuerySchema, PaginatedResponse } from "../base";
 
 /* ─── 1. DISCRIMINATED INTERFACES FOR STALL ENTITY ─── */
 
@@ -58,6 +58,8 @@ export interface TemporaryStall extends BaseStall {
 // Union Type Utama untuk Entity Lapak
 export type Stall = PermanentStall | SemiPermanentStall | TemporaryStall;
 
+export type StallResponse = PaginatedResponse<Stall>;
+
 export const landmarkRadiusEntrySchema = z.object({
   landmark: z.string(),
   radius: z.string(),
@@ -85,6 +87,7 @@ export const stallSearchSchema = basePaginationQuerySchema.extend({
   floorCountRange: z.tuple([z.number(), z.number()]),
   openingTime: z.string(),
   closingTime: z.string(),
+  is24hour: z.boolean(),
   registrationDeadlineDays: z.number().nullable(),
   eventDurationDays: z.number().nullable(),
   sortBy: z.string(),

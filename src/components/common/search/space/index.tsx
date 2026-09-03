@@ -39,6 +39,8 @@ interface StallSpaceFilterProps {
   onOpeningTimeChange: (value: string) => void;
   closingTime: string;
   onClosingTimeChange: (value: string) => void;
+  is24hour: boolean;
+  onIs24hourChange: (value: boolean) => void;
 
   // Temporary-only
   registrationDeadlineDays: number | null;
@@ -84,6 +86,8 @@ export function StallSpaceFilter(props: StallSpaceFilterProps) {
           onOpeningTimeChange={props.onOpeningTimeChange}
           closingTime={props.closingTime}
           onClosingTimeChange={props.onClosingTimeChange}
+          is24hour={props.is24hour}
+          onIs24hourChange={props.onIs24hourChange}
         />
       ) : props.permanenceType === "temporary" ? (
         <TemporarySpaceFields

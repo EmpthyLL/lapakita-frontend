@@ -1,5 +1,6 @@
 "use client";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { Clock } from "lucide-react";
 import { TimePicker } from "../../input/TimePicker";
@@ -10,6 +11,8 @@ interface SemiPermanentSpaceFieldsProps {
   onOpeningTimeChange: (value: string) => void;
   closingTime: string;
   onClosingTimeChange: (value: string) => void;
+  is24hour: boolean;
+  onIs24hourChange: (value: boolean) => void;
 }
 
 export function SemiPermanentSpaceFields({
@@ -17,6 +20,8 @@ export function SemiPermanentSpaceFields({
   onOpeningTimeChange,
   closingTime,
   onClosingTimeChange,
+  is24hour,
+  onIs24hourChange,
 }: SemiPermanentSpaceFieldsProps) {
   return (
     <div className="flex flex-col gap-4">
@@ -34,6 +39,7 @@ export function SemiPermanentSpaceFields({
             value={openingTime}
             onChange={onOpeningTimeChange}
             maxTime={closingTime || undefined}
+            disabled={is24hour}
           />
         </div>
         <div>
@@ -44,9 +50,18 @@ export function SemiPermanentSpaceFields({
             value={closingTime}
             onChange={onClosingTimeChange}
             minTime={openingTime || undefined}
+            disabled={is24hour}
           />
         </div>
       </div>
+
+      <label className="flex items-center gap-2 text-xs font-semibold text-foreground">
+        <Checkbox
+          checked={is24hour}
+          onCheckedChange={(checked) => onIs24hourChange(checked === true)}
+        />
+        Open 24 hours
+      </label>
 
       <div>
         <p className="mb-2 text-xs font-semibold text-muted-foreground">

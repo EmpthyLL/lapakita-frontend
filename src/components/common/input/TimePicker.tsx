@@ -18,6 +18,7 @@ interface TimePickerProps {
   className?: string;
   placeholder?: string;
   hasError?: boolean;
+  disabled?: boolean;
 }
 
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
@@ -36,6 +37,7 @@ export function TimePicker({
   className,
   placeholder = "00:00",
   hasError,
+  disabled = false,
 }: TimePickerProps) {
   const [open, setOpen] = useState(false);
 
@@ -54,13 +56,16 @@ export function TimePicker({
     hasError || (minTime && value < minTime) || (maxTime && value > maxTime);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={disabled ? false : open} onOpenChange={setOpen}>
       <div className={cn("relative flex items-center", className)}>
         <Input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          onFocus={() => setOpen(true)}
+          onFocus={() => {
+            if (!disabled) setOpen(true);
+          }}
+          disabled={disabled}
           placeholder={placeholder}
           maxLength={5}
           hasError={isCurrentValueInvalid ? isCurrentValueInvalid : false}
@@ -70,6 +75,7 @@ export function TimePicker({
         <PopoverTrigger asChild>
           <button
             type="button"
+            disabled={disabled}
             className="absolute right-2.5 flex items-center justify-center text-muted-foreground hover:text-foreground outline-none"
           >
             <Clock className="h-4 w-4" />

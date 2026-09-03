@@ -46,6 +46,7 @@ const URL_TO_SCHEMA_MAP: Record<string, keyof StallSearchSchemaType> = {
   maxFloor: "floorCountRange",
   openingTime: "openingTime",
   closingTime: "closingTime",
+  is24hour: "is24hour",
   regDeadline: "registrationDeadlineDays",
   eventDuration: "eventDurationDays",
   sortBy: "sortBy",
@@ -68,6 +69,8 @@ export function getCleanBackendQuery(
       }
     } else if (schemaKey === "propertyType" || schemaKey === "facilities") {
       queryObj[schemaKey] = val ? val.split(",") : [];
+    } else if (schemaKey === "is24hour") {
+      queryObj[schemaKey] = val === "true";
     } else if (
       schemaKey === "rentRange" ||
       schemaKey === "depositRange" ||
@@ -189,6 +192,9 @@ export function useStallSearchQuery() {
         permType === "semi-permanent"
           ? searchParams.get("closingTime") || "22:00"
           : "22:00",
+      is24hour:
+        permType === "semi-permanent" &&
+        searchParams.get("is24hour") === "true",
 
       registrationDeadlineDays:
         permType === "temporary" && searchParams.get("regDeadline")
@@ -298,6 +304,8 @@ export function useStallSearchQuery() {
         }
       }
       if (next.permanenceType === "semi-permanent") {
+        if (next.is24hour) query.set("is24hour", "true");
+        else query.delete("is24hour");
         if (next.openingTime !== "10:00")
           query.set("openingTime", next.openingTime);
         else query.delete("openingTime");
@@ -410,6 +418,8 @@ export function useStallSearchQuery() {
       }
 
       if (params.permanenceType === "semi-permanent") {
+        if (params.is24hour) query.set("is24hour", "true");
+        else query.delete("is24hour");
         if (params.openingTime && params.openingTime !== "10:00") {
           query.set("openingTime", params.openingTime);
         } else {
