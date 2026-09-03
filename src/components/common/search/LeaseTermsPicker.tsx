@@ -64,8 +64,7 @@ export function LeaseTermsPicker({
   // Check if current minLeasePeriod value is part of presets or acts as a custom month count
   const isCustomLeaseMonths =
     minLeasePeriod &&
-    !MIN_LEASE_PERIOD_PRESETS.some((p) => p.value === minLeasePeriod) &&
-    minLeasePeriod !== "custom";
+    !MIN_LEASE_PERIOD_PRESETS.some((p) => p.value === minLeasePeriod);
 
   const selectedAttendance = ATTENDANCE_REQUIREMENT_OPTIONS.find(
     (opt) => opt.value === attendanceRequirement,
@@ -176,18 +175,13 @@ export function LeaseTermsPicker({
         <Autocomplete
           value={isCustomLeaseMonths ? "custom" : minLeasePeriod}
           onSelect={(v) => {
-            const val = String(v);
-            if (val === "custom") {
-              onMinLeasePeriodChange("1");
-            } else {
-              onMinLeasePeriodChange(val);
-            }
+            onMinLeasePeriodChange(String(v));
           }}
           options={MIN_LEASE_PERIOD_PRESETS}
           placeholder="Any lease period"
           mode="solid"
         />
-        {(minLeasePeriod === "custom" || isCustomLeaseMonths) && (
+        {isCustomLeaseMonths && (
           <Autocomplete
             value={isCustomLeaseMonths ? minLeasePeriod : ""}
             onSelect={(v) => onMinLeasePeriodChange(String(v))}

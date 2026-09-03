@@ -8,7 +8,7 @@ import {
   GetBusinessTypesQuery,
 } from "@/lib/data/schema/master/business_type";
 import { cn } from "@/lib/utils";
-import { Search } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Autocomplete } from "../input/Autocomplete";
@@ -22,6 +22,8 @@ interface StallSearchPrimaryRowProps {
   onLocationChange: (value: string) => void;
   businessType: string;
   onBusinessTypeChange: (value: string, selectedType?: BusinessType) => void;
+  hasBusinessTypePreset: boolean;
+  onApplyBusinessPreset: () => void;
   permanenceType: StallPermanenceType;
   onPermanenceChange: (value: StallPermanenceType) => void;
   onSearch: () => void;
@@ -33,6 +35,8 @@ export function StallSearchPrimaryRow({
   onLocationChange,
   businessType,
   onBusinessTypeChange,
+  hasBusinessTypePreset,
+  onApplyBusinessPreset,
   permanenceType,
   onPermanenceChange,
   onSearch,
@@ -100,6 +104,17 @@ export function StallSearchPrimaryRow({
           </span>
         </Button>
       </div>
+
+      {hasBusinessTypePreset && businessType && (
+        <button
+          type="button"
+          onClick={onApplyBusinessPreset}
+          className="flex w-fit items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+          {t("apply_business_preset")}
+        </button>
+      )}
 
       {!isFull && (
         <div className="pt-1">

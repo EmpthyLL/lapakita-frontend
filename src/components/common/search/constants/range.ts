@@ -89,7 +89,6 @@ export const MIN_LEASE_PERIOD_PRESETS: LeasePeriodOption[] = [
   { value: "3m", label: "3 months", months: 3 },
   { value: "6m", label: "6 months", months: 6 },
   { value: "12m", label: "12 months", months: 12 },
-  { value: "custom", label: "Custom", months: null },
 ];
 
 export const PAYMENT_CYCLE_OPTIONS: PaymentCycleOption[] = [

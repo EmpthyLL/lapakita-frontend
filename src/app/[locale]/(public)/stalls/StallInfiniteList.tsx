@@ -52,7 +52,7 @@ export function StallInfiniteList() {
 
   function handleSortChange(sortBy: string) {
     setParamValues({ sortBy });
-    commitPrimarySearch("full");
+    commitPrimarySearch("full", { sortBy });
   }
 
   function handleResetFilters() {

@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import {
   DEFAULT_BEP_MONTHS,
+  DEFAULT_CAPITAL_BY_PERMANENCE,
   DEPOSIT_RANGE,
   FLOOR_COUNT_RANGE,
   GENERAL_RENT_RANGE,
@@ -114,10 +115,10 @@ export function useStallSearchQuery() {
         ? searchParams.get("facilities")!.split(",")
         : [],
 
-      bepMonths: searchParams.get("bepMonths") || "",
+      bepMonths: searchParams.get("bepMonths") || String(DEFAULT_BEP_MONTHS),
       capital: searchParams.get("capital")
         ? Number(searchParams.get("capital"))
-        : 0,
+        : DEFAULT_CAPITAL_BY_PERMANENCE[permType],
 
       rentRange:
         searchParams.get("minRent") && searchParams.get("maxRent")
@@ -204,21 +205,24 @@ export function useStallSearchQuery() {
   }, []);
 
   const commitPrimarySearch = useCallback(
-    (mode: "hero" | "full") => {
+    (
+      mode: "hero" | "full",
+      overrides: Partial<Omit<StallSearchSchemaType, "page" | "limit">> = {},
+    ) => {
       const query = getExistingParams();
+      const next = { ...params, ...overrides };
 
-      if (params.location) query.set("location", params.location);
+      if (next.location) query.set("location", next.location);
       else query.delete("location");
 
-      if (params.permanenceType)
-        query.set("permanenceType", params.permanenceType);
+      if (next.permanenceType) query.set("permanenceType", next.permanenceType);
       else query.delete("permanenceType");
 
-      if (params.businessType) query.set("businessType", params.businessType);
+      if (next.businessType) query.set("businessType", next.businessType);
       else query.delete("businessType");
 
-      if (params.sortBy && params.sortBy !== "recommended") {
-        query.set("sortBy", params.sortBy);
+      if (next.sortBy && next.sortBy !== "recommended") {
+        query.set("sortBy", next.sortBy);
       } else {
         query.delete("sortBy");
       }
@@ -230,14 +234,106 @@ export function useStallSearchQuery() {
         router.push(`?${queryString}`, { scroll: false });
       }
     },
-    [
-      params.location,
-      params.permanenceType,
-      params.businessType,
-      params.sortBy,
-      router,
-      getExistingParams,
-    ],
+    [params, router, getExistingParams],
+  );
+
+  const commitPresetSearch = useCallback(
+    (
+      mode: "hero" | "full",
+      overrides: Partial<Omit<StallSearchSchemaType, "page" | "limit">>,
+    ) => {
+      const next = { ...params, ...overrides };
+      const query = getExistingParams();
+
+      if (next.businessType) query.set("businessType", next.businessType);
+      else query.delete("businessType");
+      if (next.propertyType.length)
+        query.set("propertyTypes", next.propertyType.join(","));
+      else query.delete("propertyTypes");
+      if (next.placement) query.set("placement", next.placement);
+      else query.delete("placement");
+      if (next.facilities.length)
+        query.set("facilities", next.facilities.join(","));
+      else query.delete("facilities");
+
+      const validLandmarks = next.landmarkEntries.filter(
+        (entry) => entry.landmark,
+      );
+      if (validLandmarks.length)
+        query.set("landmarks", JSON.stringify(validLandmarks));
+      else query.delete("landmarks");
+
+      if (next.permanenceType === "permanent") {
+        if (
+          next.sizeRange[0] > STALL_SIZE_RANGE.min ||
+          next.sizeRange[1] < STALL_SIZE_RANGE.max
+        ) {
+          query.set("minSize", String(next.sizeRange[0]));
+          query.set("maxSize", String(next.sizeRange[1]));
+        } else {
+          query.delete("minSize");
+          query.delete("maxSize");
+        }
+        if (
+          next.floorCountRange[0] > FLOOR_COUNT_RANGE.min ||
+          next.floorCountRange[1] < FLOOR_COUNT_RANGE.min
+        ) {
+          query.set("minFloor", String(next.floorCountRange[0]));
+          query.set("maxFloor", String(next.floorCountRange[1]));
+        } else {
+          query.delete("minFloor");
+          query.delete("maxFloor");
+        }
+      }
+      if (next.permanenceType === "semi-permanent") {
+        if (next.openingTime !== "10:00")
+          query.set("openingTime", next.openingTime);
+        else query.delete("openingTime");
+        if (next.closingTime !== "22:00")
+          query.set("closingTime", next.closingTime);
+        else query.delete("closingTime");
+      }
+      if (next.permanenceType === "temporary") {
+        if (next.registrationDeadlineDays !== null)
+          query.set("regDeadline", String(next.registrationDeadlineDays));
+        else query.delete("regDeadline");
+        if (next.eventDurationDays !== null)
+          query.set("eventDuration", String(next.eventDurationDays));
+        else query.delete("eventDuration");
+      }
+
+      if (next.bepMonths && next.bepMonths !== String(DEFAULT_BEP_MONTHS)) {
+        query.set("bepMonths", next.bepMonths);
+      } else query.delete("bepMonths");
+      if (next.capital > 0) query.set("capital", String(next.capital));
+      else query.delete("capital");
+
+      if (
+        next.rentRange[0] > GENERAL_RENT_RANGE.min ||
+        next.rentRange[1] < GENERAL_RENT_RANGE.max
+      ) {
+        query.set("minRent", String(next.rentRange[0]));
+        query.set("maxRent", String(next.rentRange[1]));
+      } else {
+        query.delete("minRent");
+        query.delete("maxRent");
+      }
+      if (
+        next.depositRange[0] > DEPOSIT_RANGE.min ||
+        next.depositRange[1] < DEPOSIT_RANGE.max
+      ) {
+        query.set("minDeposit", String(next.depositRange[0]));
+        query.set("maxDeposit", String(next.depositRange[1]));
+      } else {
+        query.delete("minDeposit");
+        query.delete("maxDeposit");
+      }
+
+      const queryString = query.toString();
+      if (mode === "hero") router.push(`/stalls?${queryString}`);
+      else router.push(`?${queryString}`, { scroll: false });
+    },
+    [params, router, getExistingParams],
   );
 
   const commitLandmarksSearch = useCallback(
@@ -477,6 +573,7 @@ export function useStallSearchQuery() {
     params,
     setParamValues,
     commitPrimarySearch,
+    commitPresetSearch,
     commitLandmarksSearch,
     commitSpaceDetailsSearch,
     commitPropertyTypeSearch,

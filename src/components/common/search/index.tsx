@@ -10,6 +10,7 @@ import {
   BusinessType,
   GetBusinessTypesQuery,
 } from "@/lib/data/schema/master/business_type";
+import type { StallSearchSchemaType } from "@/lib/data/schema/stall/get_stall";
 import { cn } from "@/lib/utils";
 import { ChevronDown, RotateCcw, SlidersHorizontal, X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -63,7 +64,7 @@ function FilterAccordionSection({
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="border-b border-border/80 last:border-b-0 pb-3">
+    <div className="border-b border-border/80 last:border-b-0">
       <div className="flex w-full items-center justify-between py-3.5 text-left">
         <button
           type="button"
@@ -112,13 +113,13 @@ function FilterAccordionSection({
 
       <div
         className={cn(
-          "grid transition-all duration-200 ease-in-out",
+          "grid min-h-0 transition-all duration-200 ease-in-out",
           isOpen
             ? "grid-rows-[1fr] pb-3 opacity-100"
             : "grid-rows-[0fr] opacity-0",
         )}
       >
-        <div className="overflow-hidden space-y-3">{children}</div>
+        <div className="min-h-0 overflow-hidden space-y-3">{children}</div>
       </div>
     </div>
   );
@@ -139,6 +140,7 @@ export default function StallSearch({
     params,
     setParamValues,
     commitPrimarySearch,
+    commitPresetSearch,
     commitLandmarksSearch,
     commitSpaceDetailsSearch,
     commitPropertyTypeSearch,
@@ -192,65 +194,69 @@ export default function StallSearch({
 
     const preset = typeDef.permanence_presets?.[forPermanence];
 
-    if (preset) {
-      setParamValues({
-        propertyType: preset.allowedPropertyTypes?.length
-          ? preset.allowedPropertyTypes
-          : [],
-        placement: preset.defaultPlacement,
-        facilities: preset.facilities || [],
-        sizeRange:
-          forPermanence === "permanent" && "recommendedSizeSqm" in preset
-            ? [preset.recommendedSizeSqm.min, preset.recommendedSizeSqm.max]
-            : params.sizeRange,
-        floorCountRange:
-          forPermanence === "permanent" && "recommendedSizeSqm" in preset
-            ? [preset.recommendedFloors.min, preset.recommendedFloors.max]
-            : params.floorCountRange,
-        openingTime:
-          forPermanence === "semi-permanent" && "defaultOpeningTime" in preset
-            ? preset.defaultOpeningTime
-            : params.openingTime,
-        closingTime:
-          forPermanence === "semi-permanent" && "defaultOpeningTime" in preset
-            ? preset.defaultClosingTime
-            : params.closingTime,
-        registrationDeadlineDays:
-          forPermanence === "temporary" &&
-          "registrationWindowDaysBefore" in preset
-            ? preset.registrationWindowDaysBefore
-            : params.registrationDeadlineDays,
-        eventDurationDays:
-          forPermanence === "temporary" &&
-          "registrationWindowDaysBefore" in preset
-            ? preset.typicalDurationDays
-            : params.eventDurationDays,
-      });
-    } else {
-      setParamValues({
-        propertyType: [],
-        placement: "",
-        sizeRange: [STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max],
-        floorCountRange: [FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min],
-        facilities: [],
-        openingTime: "10:00",
-        closingTime: "22:00",
-        registrationDeadlineDays: null,
-        eventDurationDays: null,
-      });
-    }
+    const presetValues: Partial<Omit<StallSearchSchemaType, "page" | "limit">> =
+      preset
+        ? {
+            propertyType: preset.allowedPropertyTypes?.length
+              ? preset.allowedPropertyTypes
+              : [],
+            placement: preset.defaultPlacement,
+            facilities: preset.facilities || [],
+            sizeRange:
+              forPermanence === "permanent" && "recommendedSizeSqm" in preset
+                ? [preset.recommendedSizeSqm.min, preset.recommendedSizeSqm.max]
+                : params.sizeRange,
+            floorCountRange:
+              forPermanence === "permanent" && "recommendedSizeSqm" in preset
+                ? [preset.recommendedFloors.min, preset.recommendedFloors.max]
+                : params.floorCountRange,
+            openingTime:
+              forPermanence === "semi-permanent" &&
+              "defaultOpeningTime" in preset
+                ? preset.defaultOpeningTime
+                : params.openingTime,
+            closingTime:
+              forPermanence === "semi-permanent" &&
+              "defaultOpeningTime" in preset
+                ? preset.defaultClosingTime
+                : params.closingTime,
+            registrationDeadlineDays:
+              forPermanence === "temporary" &&
+              "registrationWindowDaysBefore" in preset
+                ? preset.registrationWindowDaysBefore
+                : params.registrationDeadlineDays,
+            eventDurationDays:
+              forPermanence === "temporary" &&
+              "registrationWindowDaysBefore" in preset
+                ? preset.typicalDurationDays
+                : params.eventDurationDays,
+          }
+        : {
+            propertyType: [],
+            placement: "",
+            sizeRange: [STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max],
+            floorCountRange: [FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min],
+            facilities: [],
+            openingTime: "10:00",
+            closingTime: "22:00",
+            registrationDeadlineDays: null,
+            eventDurationDays: null,
+          };
+    setParamValues(presetValues);
 
     if (typeDef.recommended_landmarks?.length) {
       if (isUntouchedLandmarkEntries(params.landmarkEntries)) {
-        setParamValues({
-          landmarkEntries: typeDef.recommended_landmarks.map((landmark) => ({
+        const landmarkEntries = typeDef.recommended_landmarks.map(
+          (landmark) => ({
             landmark,
             radius: "3 km",
-          })),
-        });
+          }),
+        );
+        setParamValues({ landmarkEntries });
+        return { ...presetValues, landmarkEntries };
       }
     }
-    return true;
+    return presetValues;
   }
 
   function handlePermanenceChange(next: StallPermanenceType) {
@@ -321,13 +327,27 @@ export default function StallSearch({
       return;
     }
 
+    const presetValues = applyPresetFor(typeDef, params.permanenceType);
     setParamValues({
       businessType: value,
       bepMonths: String(typeDef.default_bep_months),
       capital: typeDef.default_capital,
+      ...presetValues,
     });
+  }
 
-    applyPresetFor(typeDef, params.permanenceType);
+  function handleApplyBusinessPreset() {
+    if (!selectedTypeObj || !params.businessType) return;
+
+    const presetValues = applyPresetFor(selectedTypeObj, params.permanenceType);
+    const nextValues = {
+      businessType: params.businessType,
+      bepMonths: String(selectedTypeObj.default_bep_months),
+      capital: selectedTypeObj.default_capital,
+      ...presetValues,
+    };
+    setParamValues(nextValues);
+    commitPresetSearch(mode, nextValues);
   }
 
   useEffect(() => {
@@ -346,6 +366,7 @@ export default function StallSearch({
 
   // Reset All mencakup pembersihan state dan membersihkan URL sekaligus melalui commitPrimarySearch
   function resetAllFilters() {
+    setSelectedTypeObj(null);
     setParamValues({
       permanenceType: "permanent",
       location: "",
@@ -374,7 +395,6 @@ export default function StallSearch({
 
     // Redirect bersih langsung ke query default / kosong tanpa filter lanjutan
     window.history.pushState({}, "", window.location.pathname);
-    commitPrimarySearch(mode);
   }
 
   // Active counts per individual section
@@ -402,7 +422,10 @@ export default function StallSearch({
     (params.bepMonths && params.bepMonths !== String(DEFAULT_BEP_MONTHS)
       ? 1
       : 0) +
-    (params.capital > 0 ? 1 : 0) +
+    (params.capital > 0 &&
+    params.capital !== DEFAULT_CAPITAL_BY_PERMANENCE[params.permanenceType]
+      ? 1
+      : 0) +
     (params.paymentCycle ? 1 : 0) +
     (params.rentRange[0] > GENERAL_RENT_RANGE.min ||
     params.rentRange[1] < GENERAL_RENT_RANGE.max
@@ -418,21 +441,24 @@ export default function StallSearch({
     (params.minLeasePeriod ? 1 : 0) +
     (params.eventOperatingDays ? 1 : 0) +
     (params.attendanceRequirement ? 1 : 0) +
-    (params.cancellationPolicy ? 1 : 0) +
-    params.facilities.length;
+    (params.cancellationPolicy ? 1 : 0);
+
+  const facilitiesActiveCount = params.facilities.length;
+  const budgetFacilitiesActiveCount = budgetActiveCount + facilitiesActiveCount;
 
   const totalActiveFilterCount =
     landmarksActiveCount +
     spaceActiveCount +
     budgetActiveCount +
-    leaseTermsActiveCount;
+    leaseTermsActiveCount +
+    facilitiesActiveCount;
 
   // Bagian 1: Landmark
   const renderLandmarkCard = () => (
     <div className="space-y-1 rounded-2xl border border-border bg-card p-4 shadow-xs">
       <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
         <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          {t("sections.landmarks_radius")}
+          {t("landmark_panel.title")}
         </span>
         {landmarksActiveCount > 0 && (
           <button
@@ -556,9 +582,9 @@ export default function StallSearch({
     <div className="space-y-1 rounded-2xl border border-border bg-card p-4 shadow-xs">
       <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
         <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          Budget
+          {t("sections.budget_facilities")}
         </span>
-        {budgetActiveCount > 0 && (
+        {budgetFacilitiesActiveCount > 0 && (
           <button
             type="button"
             onClick={() => {
@@ -568,8 +594,10 @@ export default function StallSearch({
                 paymentCycle: "",
                 rentRange: [GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max],
                 depositRange: [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
+                facilities: [],
               });
               commitBudgetSearch(mode);
+              commitFacilitiesSearch(mode);
             }}
             className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
           >
@@ -585,6 +613,7 @@ export default function StallSearch({
       >
         <StallSearchBudgetFilters
           permanenceType={params.permanenceType}
+          businessTypeObj={selectedTypeObj}
           businessTypeLabel={selectedTypeObj?.label ?? null}
           bepMonths={params.bepMonths}
           onBepMonthsChange={(bepMonths) => {
@@ -609,10 +638,24 @@ export default function StallSearch({
           }}
         />
       </FilterAccordionSection>
+
+      <FilterAccordionSection
+        title={t("facility_panel.options")}
+        activeCount={facilitiesActiveCount}
+        onApply={() => commitFacilitiesSearch(mode)}
+      >
+        <FacilityPicker
+          selected={params.facilities}
+          onToggle={toggleFacility}
+          selectedPropertyTypes={params.propertyType}
+          permanenceType={params.permanenceType}
+          size="sidebar"
+        />
+      </FilterAccordionSection>
     </div>
   );
 
-  // Bagian 4: Lease Term (Lease Terms + Facilities)
+  // Bagian 4: Lease Term
   const renderLeaseTermCard = () => (
     <div className="space-y-4 rounded-2xl border border-border bg-card p-4 shadow-xs">
       <div className="flex items-center justify-between border-b border-border pb-2">
@@ -629,10 +672,8 @@ export default function StallSearch({
                 eventOperatingDays: "",
                 attendanceRequirement: "",
                 cancellationPolicy: "",
-                facilities: [],
               });
               commitLeaseTermsSearch(mode);
-              commitFacilitiesSearch(mode);
             }}
             className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
           >
@@ -671,19 +712,6 @@ export default function StallSearch({
             }}
           />
         </FilterAccordionSection>
-
-        <FilterAccordionSection
-          title={t("sections.facilities")}
-          onApply={() => commitFacilitiesSearch(mode)}
-        >
-          <FacilityPicker
-            selected={params.facilities}
-            onToggle={toggleFacility}
-            selectedPropertyTypes={params.propertyType}
-            permanenceType={params.permanenceType}
-            size="sidebar"
-          />
-        </FilterAccordionSection>
       </div>
     </div>
   );
@@ -704,6 +732,8 @@ export default function StallSearch({
           }}
           businessType={params.businessType}
           onBusinessTypeChange={handleBusinessTypeChange}
+          hasBusinessTypePreset={Boolean(selectedTypeObj)}
+          onApplyBusinessPreset={handleApplyBusinessPreset}
           permanenceType={params.permanenceType}
           onPermanenceChange={handlePermanenceChange}
           onSearch={handleSearch}
@@ -774,8 +804,8 @@ export default function StallSearch({
           </div>
 
           <div className="space-y-4">
-            {renderLandmarkCard()}
             {renderSpaceCard()}
+            {renderLandmarkCard()}
             {renderBudgetCard()}
             {renderLeaseTermCard()}
           </div>
@@ -785,8 +815,8 @@ export default function StallSearch({
       {isFull && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_minmax(0,1fr)_280px] items-start">
           <aside className="hidden lg:block space-y-6 sticky top-4">
-            {renderLandmarkCard()}
             {renderSpaceCard()}
+            {renderLandmarkCard()}
           </aside>
 
           <main className="min-w-0 space-y-4">

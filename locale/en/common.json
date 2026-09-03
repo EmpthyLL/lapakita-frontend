@@ -80,6 +80,7 @@
     "any_landmark_placeholder": "Any landmark",
     "search_stalls": "Search Stalls",
     "search_button": "Search",
+    "apply_business_preset": "Apply all business type recommendations",
     "stall_search": {
       "radius": "Radius:",
       "hide_filters": "Hide Filters",
@@ -95,8 +96,47 @@
         "space_details": "Space Details",
         "property_type": "Property Type",
         "budget_roi": "Budget & ROI",
+        "budget_facilities": "Budget & Facilities",
         "lease_event_terms": "Lease & Event Terms",
         "facilities": "Facilities"
+      },
+      "facility_panel": {
+        "title": "Amenities",
+        "options": "Available Facilities"
+      },
+      "landmark_panel": {
+        "title": "Location"
+      },
+      "facility_picker": {
+        "empty": "No facilities are available for this selection yet.",
+        "filtered_by_property": "Showing facilities available for the selected property type(s).",
+        "groups": {
+          "utilities": "Utilities",
+          "customer": "Customer & Access",
+          "operations": "Operations & Safety"
+        },
+        "items": {
+          "power": "Standard Power Supply (PLN)",
+          "high-power": "High Power Capacity (>2200W)",
+          "water": "Clean Water Supply",
+          "drainage": "Drainage & Waste Water",
+          "grease-trap": "Grease Trap (F&B)",
+          "ventilation": "Exhaust & Ventilation System",
+          "air-conditioner": "Air Conditioner (AC)",
+          "gas-pipeline": "LPG / Gas Line Access",
+          "wifi": "High-Speed Wi-Fi",
+          "seating": "Customer Seating Area",
+          "parking": "Customer & Staff Parking",
+          "toilet": "Restroom / Shared Toilet",
+          "display-case": "Storefront Window / Display Case",
+          "storage": "Private Storage Room",
+          "trash-area": "Daily Waste Disposal Area",
+          "cleaning-service": "Shared Area Cleaning Service",
+          "security": "24/7 Security Guard",
+          "cctv": "CCTV Surveillance",
+          "reception": "Shared Lobby / Reception",
+          "tv-display": "Digital Signage / Display Area"
+        }
       }
     },
     "budget_filters": {

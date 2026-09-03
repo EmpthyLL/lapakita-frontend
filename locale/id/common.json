@@ -80,6 +80,7 @@
     "any_landmark_placeholder": "Semua Landmark",
     "search_stalls": "Cari Lapak",
     "search_button": "Cari",
+    "apply_business_preset": "Terapkan semua rekomendasi jenis usaha",
     "stall_search": {
       "radius": "Radius:",
       "hide_filters": "Sembunyikan Filter",
@@ -95,8 +96,47 @@
         "space_details": "Detail Ruang",
         "property_type": "Tipe Properti",
         "budget_roi": "Anggaran & ROI",
+        "budget_facilities": "Anggaran & Fasilitas",
         "lease_event_terms": "Ketentuan Sewa & Acara",
         "facilities": "Fasilitas"
+      },
+      "facility_panel": {
+        "title": "Fasilitas Lapak",
+        "options": "Pilihan Fasilitas"
+      },
+      "landmark_panel": {
+        "title": "Lokasi"
+      },
+      "facility_picker": {
+        "empty": "Belum ada fasilitas untuk pilihan ini.",
+        "filtered_by_property": "Menampilkan fasilitas yang tersedia untuk tipe properti yang dipilih.",
+        "groups": {
+          "utilities": "Utilitas",
+          "customer": "Pelanggan & Akses",
+          "operations": "Operasional & Keamanan"
+        },
+        "items": {
+          "power": "Listrik Standar (PLN)",
+          "high-power": "Kapasitas Listrik Tinggi (>2200W)",
+          "water": "Pasokan Air Bersih",
+          "drainage": "Drainase & Air Limbah",
+          "grease-trap": "Grease Trap (F&B)",
+          "ventilation": "Sistem Pembuangan & Ventilasi",
+          "air-conditioner": "Pendingin Ruangan (AC)",
+          "gas-pipeline": "Akses LPG / Saluran Gas",
+          "wifi": "Wi-Fi Berkecepatan Tinggi",
+          "seating": "Area Tempat Duduk Pelanggan",
+          "parking": "Parkir Pelanggan & Staf",
+          "toilet": "Toilet / Kamar Mandi Bersama",
+          "display-case": "Jendela Toko / Etalase",
+          "storage": "Ruang Penyimpanan Pribadi",
+          "trash-area": "Area Pembuangan Sampah Harian",
+          "cleaning-service": "Layanan Kebersihan Area Bersama",
+          "security": "Petugas Keamanan 24 Jam",
+          "cctv": "Pengawasan CCTV",
+          "reception": "Lobi / Resepsionis Bersama",
+          "tv-display": "Papan Digital / Area Display"
+        }
       }
     },
     "budget_filters": {

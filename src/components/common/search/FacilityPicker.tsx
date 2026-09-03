@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Check, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { getContextualFacilities } from "./constants/permanance";
 import { StallPermanenceType, StallPropertyTypeValue } from "./constants/types";
 
@@ -20,6 +21,7 @@ export function FacilityPicker({
   permanenceType,
   size = "default",
 }: FacilityPickerProps) {
+  const t = useTranslations("common.search.stall_search.facility_picker");
   const facilities = getContextualFacilities(
     selectedPropertyTypes,
     permanenceType,
@@ -28,67 +30,118 @@ export function FacilityPicker({
   if (facilities.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
-        No facility data for this selection yet.
+        {t("empty")}
       </p>
     );
   }
+
+  const facilityGroups = [
+    {
+      key: "utilities",
+      values: [
+        "power",
+        "high-power",
+        "water",
+        "drainage",
+        "grease-trap",
+        "ventilation",
+        "air-conditioner",
+        "gas-pipeline",
+      ],
+    },
+    {
+      key: "customer",
+      values: ["wifi", "seating", "parking", "toilet", "display-case"],
+    },
+    {
+      key: "operations",
+      values: [
+        "storage",
+        "trash-area",
+        "cleaning-service",
+        "security",
+        "cctv",
+        "reception",
+        "tv-display",
+      ],
+    },
+  ];
 
   return (
     <div className="space-y-3 p-2">
       {selectedPropertyTypes.length > 0 && (
         <p className="flex items-start gap-1.5 rounded-lg bg-primary/5 px-2.5 py-2 text-[11px] text-primary">
           <Sparkles className="mt-0.5 h-3 w-3 shrink-0" />
-          Showing facilities available for your selected property type(s).
+          {t("filtered_by_property")}
         </p>
       )}
-      <div
-        className={cn(
-          "grid gap-3",
-          size === "sidebar" && "grid-cols-2",
-          size === "compact" && "grid-cols-3 sm:grid-cols-4 lg:grid-cols-5",
-          size === "default" && "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5",
-        )}
-      >
-        {facilities.map((facility) => {
-          const active = selected.includes(facility.value);
-          const Icon = facility.icon;
+      <div className="space-y-5">
+        {facilityGroups.map((group) => {
+          const groupFacilities = facilities.filter((facility) =>
+            group.values.includes(facility.value),
+          );
+
+          if (groupFacilities.length === 0) return null;
 
           return (
-            <button
-              key={facility.value}
-              type="button"
-              onClick={() => onToggle(facility.value)}
-              className={cn(
-                "group relative flex flex-col items-center gap-2 overflow-hidden rounded-2xl border p-4 text-center transition-all outline-none",
-                active
-                  ? "border-primary bg-primary-secondary/40 ring-1 ring-primary shadow-xs"
-                  : "border-border bg-card hover:border-primary/40 hover:bg-muted/50",
-              )}
-            >
-              {active && (
-                <span className="absolute right-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs">
-                  <Check className="h-3 w-3 stroke-[2.5]" />
-                </span>
-              )}
-              <span
+            <section key={group.key} className="space-y-2">
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                {t(`groups.${group.key}`)}
+              </h4>
+              <div
                 className={cn(
-                  "flex h-12 w-12 items-center justify-center rounded-xl transition-colors",
-                  active
-                    ? "bg-primary/20 text-primary"
-                    : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+                  "grid gap-3",
+                  size === "sidebar" && "grid-cols-2 ",
+                  size === "compact" &&
+                    "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
+                  size === "default" &&
+                    "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
                 )}
               >
-                <Icon className="h-6 w-6" />
-              </span>
-              <span
-                className={cn(
-                  "text-xs font-semibold leading-tight transition-colors",
-                  active ? "text-primary" : "text-foreground",
-                )}
-              >
-                {facility.label}
-              </span>
-            </button>
+                {groupFacilities.map((facility) => {
+                  const active = selected.includes(facility.value);
+                  const Icon = facility.icon;
+
+                  return (
+                    <button
+                      key={facility.value}
+                      type="button"
+                      onClick={() => onToggle(facility.value)}
+                      className={cn(
+                        "group relative flex flex-col items-center gap-2 overflow-hidden rounded-2xl border p-4 text-center transition-all outline-none",
+                        active
+                          ? "border-primary bg-primary-secondary/40 ring-1 ring-primary shadow-xs"
+                          : "border-border bg-card hover:border-primary/40 hover:bg-muted/50",
+                      )}
+                    >
+                      {active && (
+                        <span className="absolute right-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs">
+                          <Check className="h-3 w-3 stroke-[2.5]" />
+                        </span>
+                      )}
+                      <span
+                        className={cn(
+                          "flex h-12 w-12 items-center justify-center rounded-xl transition-colors",
+                          active
+                            ? "bg-primary/20 text-primary"
+                            : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+                        )}
+                      >
+                        <Icon className="h-6 w-6" />
+                      </span>
+                      <span
+                        className={cn(
+                          "text-xs font-semibold leading-tight transition-colors",
+                          active ? "text-primary" : "text-foreground",
+                        )}
+                      >
+                        {t(`items.${facility.value}`)}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
           );
         })}
       </div>
