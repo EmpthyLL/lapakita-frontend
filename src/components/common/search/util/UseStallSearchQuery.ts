@@ -89,6 +89,17 @@ export function getCleanBackendQuery(
 export function useStallSearchQuery() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [budgetApplied, setBudgetApplied] = useState(() =>
+    Boolean(
+      searchParams.get("bepMonths") ||
+      searchParams.get("capital") ||
+      searchParams.get("paymentCycle") ||
+      searchParams.get("minRent") ||
+      searchParams.get("maxRent") ||
+      searchParams.get("minDeposit") ||
+      searchParams.get("maxDeposit"),
+    ),
+  );
 
   const [params, setParams] = useState<
     Omit<StallSearchSchemaType, "page" | "limit">
@@ -242,6 +253,7 @@ export function useStallSearchQuery() {
       mode: "hero" | "full",
       overrides: Partial<Omit<StallSearchSchemaType, "page" | "limit">>,
     ) => {
+      setBudgetApplied(true);
       const next = { ...params, ...overrides };
       const query = getExistingParams();
 
@@ -455,6 +467,7 @@ export function useStallSearchQuery() {
 
   const commitBudgetSearch = useCallback(
     (mode: "hero" | "full") => {
+      setBudgetApplied(true);
       const query = getExistingParams();
 
       if (params.bepMonths && params.bepMonths !== String(DEFAULT_BEP_MONTHS)) {
@@ -508,6 +521,31 @@ export function useStallSearchQuery() {
       router,
       getExistingParams,
     ],
+  );
+
+  const clearBudgetApplied = useCallback(() => {
+    setBudgetApplied(false);
+  }, []);
+
+  const clearBudgetSearch = useCallback(
+    (mode: "hero" | "full") => {
+      setBudgetApplied(false);
+      const query = getExistingParams();
+      [
+        "bepMonths",
+        "capital",
+        "paymentCycle",
+        "minRent",
+        "maxRent",
+        "minDeposit",
+        "maxDeposit",
+      ].forEach((key) => query.delete(key));
+
+      const queryString = query.toString();
+      if (mode === "hero") router.push(`/stalls?${queryString}`);
+      else router.push(`?${queryString}`, { scroll: false });
+    },
+    [router, getExistingParams],
   );
 
   const commitLeaseTermsSearch = useCallback(
@@ -574,6 +612,9 @@ export function useStallSearchQuery() {
     setParamValues,
     commitPrimarySearch,
     commitPresetSearch,
+    budgetApplied,
+    clearBudgetApplied,
+    clearBudgetSearch,
     commitLandmarksSearch,
     commitSpaceDetailsSearch,
     commitPropertyTypeSearch,

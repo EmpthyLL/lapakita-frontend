@@ -141,6 +141,9 @@ export default function StallSearch({
     setParamValues,
     commitPrimarySearch,
     commitPresetSearch,
+    budgetApplied,
+    clearBudgetApplied,
+    clearBudgetSearch,
     commitLandmarksSearch,
     commitSpaceDetailsSearch,
     commitPropertyTypeSearch,
@@ -260,12 +263,21 @@ export default function StallSearch({
   }
 
   function handlePermanenceChange(next: StallPermanenceType) {
+    clearBudgetSearch(mode);
+
     if (selectedTypeObj) {
       const nextPreset = selectedTypeObj.permanence_presets?.[next];
 
       if (nextPreset) {
         applyPresetFor(selectedTypeObj, next);
-        setParamValues({ permanenceType: next });
+        setParamValues({
+          permanenceType: next,
+          bepMonths: String(DEFAULT_BEP_MONTHS),
+          capital: DEFAULT_CAPITAL_BY_PERMANENCE[next],
+          paymentCycle: "",
+          rentRange: [GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max],
+          depositRange: [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
+        });
       } else {
         setParamValues({
           permanenceType: next,
@@ -367,6 +379,7 @@ export default function StallSearch({
   // Reset All mencakup pembersihan state dan membersihkan URL sekaligus melalui commitPrimarySearch
   function resetAllFilters() {
     setSelectedTypeObj(null);
+    clearBudgetApplied();
     setParamValues({
       permanenceType: "permanent",
       location: "",
@@ -418,23 +431,24 @@ export default function StallSearch({
     (params.eventDurationDays !== null ? 1 : 0) +
     (params.propertyType.length > 0 ? params.propertyType.length : 0);
 
-  const budgetActiveCount =
-    (params.bepMonths && params.bepMonths !== String(DEFAULT_BEP_MONTHS)
-      ? 1
-      : 0) +
-    (params.capital > 0 &&
-    params.capital !== DEFAULT_CAPITAL_BY_PERMANENCE[params.permanenceType]
-      ? 1
-      : 0) +
-    (params.paymentCycle ? 1 : 0) +
-    (params.rentRange[0] > GENERAL_RENT_RANGE.min ||
-    params.rentRange[1] < GENERAL_RENT_RANGE.max
-      ? 1
-      : 0) +
-    (params.depositRange[0] > DEPOSIT_RANGE.min ||
-    params.depositRange[1] < DEPOSIT_RANGE.max
-      ? 1
-      : 0);
+  const budgetActiveCount = budgetApplied
+    ? (params.bepMonths && params.bepMonths !== String(DEFAULT_BEP_MONTHS)
+        ? 1
+        : 0) +
+      (params.capital > 0 &&
+      params.capital !== DEFAULT_CAPITAL_BY_PERMANENCE[params.permanenceType]
+        ? 1
+        : 0) +
+      (params.paymentCycle ? 1 : 0) +
+      (params.rentRange[0] > GENERAL_RENT_RANGE.min ||
+      params.rentRange[1] < GENERAL_RENT_RANGE.max
+        ? 1
+        : 0) +
+      (params.depositRange[0] > DEPOSIT_RANGE.min ||
+      params.depositRange[1] < DEPOSIT_RANGE.max
+        ? 1
+        : 0)
+    : 0;
 
   const leaseTermsActiveCount =
     (params.startDate ? 1 : 0) +

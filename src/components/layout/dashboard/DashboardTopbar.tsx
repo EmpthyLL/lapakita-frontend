@@ -41,16 +41,24 @@ const VALID_ROLES: Role[] = ["tenant", "owner", "supplier"];
 
 function useBreadcrumb(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
-  return segments.map((seg, i) => {
-    const cleanedLabel = seg
-      .replace(/[_-]/g, " ")
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+  const hasDashboard = segments[0]?.toLowerCase() === "dashboard";
+
+  const filteredSegments = hasDashboard ? segments.slice(1) : segments;
+
+  return filteredSegments.map((seg, i) => {
+    const isRoleRoot = i === 0;
+
+    const cleanedLabel = isRoleRoot
+      ? "Dashboard"
+      : seg
+          .replace(/[_-]/g, " ")
+          .split(" ")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
 
     return {
       label: cleanedLabel,
-      href: "/" + segments.slice(0, i + 1).join("/"),
+      href: "/" + segments.slice(0, (hasDashboard ? 1 : 0) + i + 1).join("/"),
     };
   });
 }

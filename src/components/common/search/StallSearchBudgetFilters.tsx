@@ -13,9 +13,7 @@ import { RangeInput } from "../input/RangeInput";
 import { SegmentedToggle } from "../input/SegmentedToggle";
 import {
   BEP_PRESETS_MONTHS,
-  DEFAULT_CAPITAL_BY_PERMANENCE,
   DEPOSIT_RANGE,
-  GENERAL_RENT_RANGE,
   PAYMENT_CYCLE_OPTIONS,
   RENT_RANGE_BY_CYCLE,
   getAllowedRentRange,
@@ -76,26 +74,8 @@ export function StallSearchBudgetFilters({
 
   const debouncedCapital = useDebounce(capital, 450);
   const debouncedBepMonths = useDebounce(bepMonths, 450);
-  const hasMountedRef = React.useRef(false);
 
   React.useEffect(() => {
-    const isInitialRender = !hasMountedRef.current;
-    hasMountedRef.current = true;
-    const hasExplicitBudgetInput =
-      Boolean(businessTypeObj) ||
-      (capital !== 0 &&
-        capital !== DEFAULT_CAPITAL_BY_PERMANENCE[permanenceType]) ||
-      (bepMonths !== "" && bepMonths !== "6") ||
-      Boolean(paymentCycle);
-
-    const hasSavedRange =
-      rentRange[0] > GENERAL_RENT_RANGE.min ||
-      rentRange[1] < GENERAL_RENT_RANGE.max ||
-      depositRange[0] > DEPOSIT_RANGE.min ||
-      depositRange[1] < DEPOSIT_RANGE.max;
-
-    if (!hasExplicitBudgetInput && (!isInitialRender || hasSavedRange)) return;
-
     const { rentRange: newRent, depositRange: newDeposit } =
       getCalculatedRangesForFilters(
         debouncedCapital,
@@ -114,8 +94,6 @@ export function StallSearchBudgetFilters({
     paymentCycle,
     businessTypeObj,
     permanenceType,
-    rentRange,
-    depositRange,
   ]);
 
   const cycleOptions = PAYMENT_CYCLE_OPTIONS.filter((opt) =>
