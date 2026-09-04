@@ -28,6 +28,8 @@ export function StallGallery({
   const [isDragging, setIsDragging] = useState(false);
 
   const hasPanorama = Boolean(media.virtualTour360Url);
+  const hasExtraThumbnails = allImages.length > 1 || hasPanorama;
+
   const smallThumbCount = hasPanorama ? 2 : 3;
   const smallThumbs = media.facilityImages.slice(0, smallThumbCount);
   const remainingCount = media.facilityImages.length - smallThumbs.length;
@@ -86,15 +88,23 @@ export function StallGallery({
 
   return (
     <div>
-      {/* Gallery Grid */}
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-4 sm:gap-3">
+      {/* Gallery Layout: Jika tidak ada foto tambahan / 360 tour, ambil full width (col-span-full) */}
+      <div
+        className={cn(
+          "grid grid-cols-1 gap-2 sm:gap-3",
+          hasExtraThumbnails ? "sm:grid-cols-4" : "grid-cols-1",
+        )}
+      >
         <button
           type="button"
           onClick={() => {
             setActive(0);
             setLightboxOpen(true);
           }}
-          className="relative col-span-1 h-72 overflow-hidden rounded-2xl sm:col-span-3 sm:h-96"
+          className={cn(
+            "relative h-72 overflow-hidden rounded-2xl sm:h-96",
+            hasExtraThumbnails ? "col-span-1 sm:col-span-3" : "w-full",
+          )}
         >
           <Image
             src={allImages[0]}
@@ -105,59 +115,61 @@ export function StallGallery({
           />
         </button>
 
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-1 sm:gap-3">
-          {smallThumbs.map((img, i) => {
-            const isLastFacilityThumb = i === smallThumbs.length - 1;
-            return (
+        {hasExtraThumbnails && (
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-1 sm:gap-3">
+            {smallThumbs.map((img, i) => {
+              const isLastFacilityThumb = i === smallThumbs.length - 1;
+              return (
+                <button
+                  key={img.id}
+                  type="button"
+                  onClick={() => {
+                    setActive(i + 1);
+                    setLightboxOpen(true);
+                  }}
+                  className="relative h-24 overflow-hidden rounded-xl sm:h-30"
+                >
+                  <Image
+                    src={img.url}
+                    alt={img.caption}
+                    fill
+                    className="object-cover"
+                  />
+                  {isLastFacilityThumb && remainingCount > 0 && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-sm font-semibold text-white">
+                      +{remainingCount} more
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+
+            {/* 360° tour tile */}
+            {hasPanorama && (
               <button
-                key={img.id}
                 type="button"
-                onClick={() => {
-                  setActive(i + 1);
-                  setLightboxOpen(true);
-                }}
-                className="relative h-24 overflow-hidden rounded-xl sm:h-30"
+                onClick={() => setPanoramaOpen(true)}
+                className="group relative h-24 overflow-hidden rounded-xl sm:h-30"
               >
                 <Image
-                  src={img.url}
-                  alt={img.caption}
+                  src={media.virtualTour360Url!}
+                  alt={`${title} — 360° tour preview`}
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                {isLastFacilityThumb && remainingCount > 0 && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-sm font-semibold text-white">
-                    +{remainingCount} more
-                  </div>
-                )}
+                <div className="absolute inset-0 bg-black/45 transition-colors group-hover:bg-black/55" />
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-white">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm">
+                    <Rotate3d className="h-4 w-4" />
+                  </span>
+                  <span className="text-[11px] font-bold tracking-wide">
+                    360°
+                  </span>
+                </div>
               </button>
-            );
-          })}
-
-          {/* 360° tour tile */}
-          {hasPanorama && (
-            <button
-              type="button"
-              onClick={() => setPanoramaOpen(true)}
-              className="group relative h-24 overflow-hidden rounded-xl sm:h-30"
-            >
-              <Image
-                src={media.virtualTour360Url!}
-                alt={`${title} — 360° tour preview`}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black/45 transition-colors group-hover:bg-black/55" />
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-white">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm">
-                  <Rotate3d className="h-4 w-4" />
-                </span>
-                <span className="text-[11px] font-bold tracking-wide">
-                  360°
-                </span>
-              </div>
-            </button>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Lightbox Modal dengan Fitur Swipe & Keyboard Nav */}

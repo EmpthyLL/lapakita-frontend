@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import {
@@ -6,6 +7,7 @@ import {
   ShieldAlert,
   UserCheck,
 } from "lucide-react";
+import { useState } from "react";
 
 import { Autocomplete } from "../input/Autocomplete";
 import {
@@ -55,21 +57,20 @@ export function LeaseTermsPicker({
 }: LeaseTermsPickerProps) {
   const isTemporary = permanenceType === "temporary";
 
-  // Check if current startDate value is part of presets or acts as a custom day number
-  const isCustomStartDay =
-    startDate &&
-    !START_DATE_PRESETS.some((p) => p.value === startDate) &&
-    startDate !== "custom";
-
-  const matchingLeasePreset = MIN_LEASE_PERIOD_PRESETS.find(
-    (preset) =>
-      preset.value === minLeasePeriod ||
-      String(preset.months) === minLeasePeriod,
+  // Cek apakah nilai startDate saat ini adalah angka murni (hari 1-28)
+  const isNumericDay = Boolean(startDate) && !isNaN(Number(startDate));
+  const isPresetStartDate = START_DATE_PRESETS.some(
+    (p) => String(p.value) === startDate,
   );
 
-  // Numeric values outside the presets are custom lease periods.
-  const isCustomLeaseMonths =
-    minLeasePeriod === "custom" || (!!minLeasePeriod && !matchingLeasePreset);
+  // State lokal untuk melacak apakah user sedang membuka mode custom
+  const [isCustomStartMode, setIsCustomStartMode] = useState(
+    isNumericDay && !isPresetStartDate,
+  );
+  const [isCustomLeaseMode, setIsCustomLeaseMode] = useState(
+    Boolean(minLeasePeriod) &&
+      !MIN_LEASE_PERIOD_PRESETS.some((p) => p.value === minLeasePeriod),
+  );
 
   const selectedAttendance = ATTENDANCE_REQUIREMENT_OPTIONS.find(
     (opt) => opt.value === attendanceRequirement,
@@ -144,27 +145,35 @@ export function LeaseTermsPicker({
           Desired Start Date
         </p>
         <Autocomplete
-          value={isCustomStartDay ? "custom" : startDate}
+          value={isCustomStartMode ? "custom" : startDate}
           onSelect={(v) => {
             const val = String(v);
             if (val === "custom") {
-              onStartDateChange("1");
+              setIsCustomStartMode(true);
+              onStartDateChange("1"); // Set default ke hari ke-1
             } else {
+              setIsCustomStartMode(false);
               onStartDateChange(val);
             }
           }}
           options={[
-            ...START_DATE_PRESETS,
+            ...START_DATE_PRESETS.map((p) => ({
+              value: String(p.value),
+              label: p.label,
+            })),
             { value: "custom", label: "Custom day" },
           ]}
           placeholder="Any start date"
           mode="solid"
         />
-        {(startDate === "custom" || isCustomStartDay) && (
+        {isCustomStartMode && (
           <Autocomplete
-            value={isCustomStartDay ? startDate : ""}
+            value={startDate}
             onSelect={(v) => onStartDateChange(String(v))}
-            options={DAY_OF_MONTH_OPTIONS}
+            options={DAY_OF_MONTH_OPTIONS.map((d) => ({
+              value: String(d.value),
+              label: d.label,
+            }))}
             placeholder="Pick a day (1–28)"
             mode="solid"
             className="mt-2"
@@ -178,23 +187,35 @@ export function LeaseTermsPicker({
           Minimum Lease Period
         </p>
         <Autocomplete
-          value={isCustomLeaseMonths ? "custom" : minLeasePeriod}
+          value={isCustomLeaseMode ? "custom" : minLeasePeriod}
           onSelect={(v) => {
             const value = String(v);
-            onMinLeasePeriodChange(value === "custom" ? "custom" : value);
+            if (value === "custom") {
+              setIsCustomLeaseMode(true);
+              onMinLeasePeriodChange("1"); // Set default ke 1 bulan
+            } else {
+              setIsCustomLeaseMode(false);
+              onMinLeasePeriodChange(value);
+            }
           }}
           options={[
-            ...MIN_LEASE_PERIOD_PRESETS,
-            { value: "custom", label: "Custom", months: null },
+            ...MIN_LEASE_PERIOD_PRESETS.map((p) => ({
+              value: p.value,
+              label: p.label,
+            })),
+            { value: "custom", label: "Custom" },
           ]}
           placeholder="Any lease period"
           mode="solid"
         />
-        {isCustomLeaseMonths && (
+        {isCustomLeaseMode && (
           <Autocomplete
-            value={minLeasePeriod === "custom" ? "" : minLeasePeriod}
+            value={minLeasePeriod}
             onSelect={(v) => onMinLeasePeriodChange(String(v))}
-            options={LEASE_MONTHS_OPTIONS}
+            options={LEASE_MONTHS_OPTIONS.map((m) => ({
+              value: String(m.value),
+              label: m.label,
+            }))}
             placeholder="Pick months (1–12)"
             mode="solid"
             className="mt-2"

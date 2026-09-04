@@ -6,7 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, Phone, UserCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 
 import { AvatarInput } from "@/components/common/input/AvatarInput";
@@ -34,6 +34,7 @@ export default function CompleteProfilePage() {
   const { data: session, update: updateSession } = useSession();
 
   const user = session?.user;
+  const isInitializedRef = useRef(false);
 
   const form = useForm<CompleteProfileValues>({
     resolver: zodResolver(completeProfileSchema),
@@ -46,12 +47,16 @@ export default function CompleteProfilePage() {
 
   const currentName = form.watch("name");
 
+  // Gunakan ref agar sinkronisasi data dari session hanya terjadi sekali di awal,
+  // sehingga tidak akan menimpa pilihan foto/input baru saat session ter-update.
   useEffect(() => {
-    if (user) {
+    if (user && !isInitializedRef.current) {
       if (user.defaultName) form.setValue("name", user.defaultName);
       if (user.defaultPhone) form.setValue("phone", user.defaultPhone);
-      if (user.defaultAvatarUrl)
+      if (user.defaultAvatarUrl) {
         form.setValue("avatarUrl", user.defaultAvatarUrl);
+      }
+      isInitializedRef.current = true;
     }
   }, [user, form]);
 
