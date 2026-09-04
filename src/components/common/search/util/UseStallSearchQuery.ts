@@ -52,6 +52,40 @@ const URL_TO_SCHEMA_MAP: Record<string, keyof StallSearchSchemaType> = {
   sortBy: "sortBy",
 };
 
+const PERMANENCE_QUERY_KEYS = {
+  permanent: ["minSize", "maxSize", "minFloor", "maxFloor"],
+  "semi-permanent": ["openingTime", "closingTime", "is24hour"],
+  temporary: [
+    "eventDays",
+    "attendance",
+    "cancellation",
+    "regDeadline",
+    "eventDuration",
+  ],
+} as const;
+
+const LEASE_QUERY_KEYS = {
+  permanent: ["paymentCycle", "startDate", "minLease"],
+  "semi-permanent": ["paymentCycle", "startDate", "minLease"],
+  temporary: ["eventDays", "attendance", "cancellation"],
+} as const;
+
+function removeIrrelevantPermanenceQuery(
+  query: URLSearchParams,
+  permanenceType: StallPermanenceType,
+) {
+  const relevantKeys = new Set([
+    ...PERMANENCE_QUERY_KEYS[permanenceType],
+    ...LEASE_QUERY_KEYS[permanenceType],
+  ]);
+
+  Object.values(PERMANENCE_QUERY_KEYS)
+    .flat()
+    .concat(Object.values(LEASE_QUERY_KEYS).flat())
+    .filter((key) => !relevantKeys.has(key))
+    .forEach((key) => query.delete(key));
+}
+
 export function getCleanBackendQuery(
   searchParams: URLSearchParams,
 ): Record<string, any> {
@@ -220,6 +254,30 @@ export function useStallSearchQuery() {
     query.delete("permanence"); // Hapus key sampah lama jika ada
     return query;
   }, []);
+
+  const commitPermanenceChange = useCallback(
+    (mode: "hero" | "full", permanenceType: StallPermanenceType) => {
+      const query = getExistingParams();
+      query.set("permanenceType", permanenceType);
+      [
+        "bepMonths",
+        "capital",
+        "paymentCycle",
+        "minRent",
+        "maxRent",
+        "minDeposit",
+        "maxDeposit",
+        "propertyTypes",
+        "placement",
+      ].forEach((key) => query.delete(key));
+      removeIrrelevantPermanenceQuery(query, permanenceType);
+
+      const queryString = query.toString();
+      if (mode === "hero") router.push(`/stalls?${queryString}`);
+      else router.push(`?${queryString}`, { scroll: false });
+    },
+    [router, getExistingParams],
+  );
 
   const commitPrimarySearch = useCallback(
     (
@@ -561,6 +619,7 @@ export function useStallSearchQuery() {
   const commitLeaseTermsSearch = useCallback(
     (mode: "hero" | "full") => {
       const query = getExistingParams();
+      removeIrrelevantPermanenceQuery(query, params.permanenceType);
 
       if (params.permanenceType !== "temporary") {
         if (params.paymentCycle) query.set("paymentCycle", params.paymentCycle);
@@ -621,6 +680,7 @@ export function useStallSearchQuery() {
     params,
     setParamValues,
     commitPrimarySearch,
+    commitPermanenceChange,
     commitPresetSearch,
     budgetApplied,
     clearBudgetApplied,

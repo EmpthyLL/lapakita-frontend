@@ -140,10 +140,10 @@ export default function StallSearch({
     params,
     setParamValues,
     commitPrimarySearch,
+    commitPermanenceChange,
     commitPresetSearch,
     budgetApplied,
     clearBudgetApplied,
-    clearBudgetSearch,
     commitLandmarksSearch,
     commitSpaceDetailsSearch,
     commitPropertyTypeSearch,
@@ -265,7 +265,8 @@ export default function StallSearch({
   }
 
   function handlePermanenceChange(next: StallPermanenceType) {
-    clearBudgetSearch(mode);
+    clearBudgetApplied();
+    commitPermanenceChange(mode, next);
 
     if (selectedTypeObj) {
       const nextPreset = selectedTypeObj.permanence_presets?.[next];
