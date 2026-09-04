@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { ArrowRight, Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LanguageSwitcher } from "../common/LanguageSwitcher";
 import {
@@ -39,10 +40,9 @@ const SOCIALS = [
 
 export function SiteFooter() {
   const t = useTranslations("common.footer");
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
 
-  // roleLinks menggunakan key roleVariant resmi ("tenant", "owner", "supplier")
   const roleLinks: Record<
     RoleVariant,
     {
@@ -104,11 +104,12 @@ export function SiteFooter() {
     { label: t("links.cookies"), href: "/cookies" },
   ];
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handlePartnerRedirect = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    setSubmitted(true);
-    setEmail("");
+    router.push(
+      `/contact?intent=partnership&email=${encodeURIComponent(email)}#contact-form`,
+    );
   };
 
   return (
@@ -116,7 +117,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         {/* Main Grid */}
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8 items-start">
-          {/* Brand & Newsletter */}
+          {/* Brand & Partnership Redirect */}
           <div className="lg:col-span-5 pr-0 xl:pr-6">
             <Logo />
 
@@ -124,7 +125,7 @@ export function SiteFooter() {
               {t("tagline")}
             </p>
 
-            <form onSubmit={handleSubscribe} className="mt-6 max-w-sm">
+            <form onSubmit={handlePartnerRedirect} className="mt-6 max-w-sm">
               <label
                 htmlFor="footer-email"
                 className="text-sm font-medium text-foreground"
@@ -150,7 +151,7 @@ export function SiteFooter() {
                   type="submit"
                   size="icon"
                   className="h-10 w-10 shrink-0 bg-primary text-primary-foreground hover:bg-primary/90"
-                  aria-label="Contact us"
+                  aria-label="Submit partnership inquiry"
                 >
                   <ArrowRight className="h-4 w-4" />
                 </Button>
@@ -159,12 +160,6 @@ export function SiteFooter() {
               <p className="mt-2 text-xs text-muted-foreground">
                 {t("newsletter_desc")}
               </p>
-
-              {submitted && (
-                <p className="mt-2 text-xs text-primary font-medium">
-                  {t("newsletter_success")}
-                </p>
-              )}
             </form>
           </div>
 
@@ -172,7 +167,6 @@ export function SiteFooter() {
           <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-8">
             {Object.values(roleLinks).map((group) => (
               <div key={group.role}>
-                {/* Judul Role menggunakan kelas warna token dari globals.css */}
                 <h4
                   className={cn(
                     "mb-4 text-sm font-semibold uppercase tracking-wide",
