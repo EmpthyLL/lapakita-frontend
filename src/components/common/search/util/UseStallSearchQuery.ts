@@ -352,7 +352,7 @@ export function useStallSearchQuery() {
         }
         if (
           next.floorCountRange[0] > FLOOR_COUNT_RANGE.min ||
-          next.floorCountRange[1] < FLOOR_COUNT_RANGE.min
+          next.floorCountRange[1] < FLOOR_COUNT_RANGE.max
         ) {
           query.set("minFloor", String(next.floorCountRange[0]));
           query.set("maxFloor", String(next.floorCountRange[1]));
@@ -364,12 +364,8 @@ export function useStallSearchQuery() {
       if (next.permanenceType === "semi-permanent") {
         if (next.is24hour) query.set("is24hour", "true");
         else query.delete("is24hour");
-        if (next.openingTime !== "10:00")
-          query.set("openingTime", next.openingTime);
-        else query.delete("openingTime");
-        if (next.closingTime !== "22:00")
-          query.set("closingTime", next.closingTime);
-        else query.delete("closingTime");
+        query.set("openingTime", next.openingTime);
+        query.set("closingTime", next.closingTime);
       }
       if (next.permanenceType === "temporary") {
         if (next.registrationDeadlineDays !== null)
@@ -465,7 +461,7 @@ export function useStallSearchQuery() {
         if (
           params.floorCountRange &&
           (params.floorCountRange[0] > FLOOR_COUNT_RANGE.min ||
-            params.floorCountRange[1] < FLOOR_COUNT_RANGE.min)
+            params.floorCountRange[1] < FLOOR_COUNT_RANGE.max)
         ) {
           query.set("minFloor", String(params.floorCountRange[0]));
           query.set("maxFloor", String(params.floorCountRange[1]));
@@ -478,16 +474,8 @@ export function useStallSearchQuery() {
       if (params.permanenceType === "semi-permanent") {
         if (params.is24hour) query.set("is24hour", "true");
         else query.delete("is24hour");
-        if (params.openingTime && params.openingTime !== "10:00") {
-          query.set("openingTime", params.openingTime);
-        } else {
-          query.delete("openingTime");
-        }
-        if (params.closingTime && params.closingTime !== "22:00") {
-          query.set("closingTime", params.closingTime);
-        } else {
-          query.delete("closingTime");
-        }
+        query.set("openingTime", params.openingTime);
+        query.set("closingTime", params.closingTime);
       }
 
       if (params.permanenceType === "temporary") {
@@ -628,7 +616,8 @@ export function useStallSearchQuery() {
         if (params.startDate) query.set("startDate", params.startDate);
         else query.delete("startDate");
 
-        if (params.minLeasePeriod) query.set("minLease", params.minLeasePeriod);
+        if (params.minLeasePeriod && params.minLeasePeriod !== "custom")
+          query.set("minLease", params.minLeasePeriod);
         else query.delete("minLease");
       }
 

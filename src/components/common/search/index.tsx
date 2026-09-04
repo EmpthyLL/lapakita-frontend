@@ -210,7 +210,7 @@ export default function StallSearch({
                 ? [preset.recommendedSizeSqm.min, preset.recommendedSizeSqm.max]
                 : params.sizeRange,
             floorCountRange:
-              forPermanence === "permanent" && "recommendedSizeSqm" in preset
+              forPermanence === "permanent" && "recommendedFloors" in preset
                 ? [preset.recommendedFloors.min, preset.recommendedFloors.max]
                 : params.floorCountRange,
             openingTime:
