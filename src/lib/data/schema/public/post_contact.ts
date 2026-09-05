@@ -21,3 +21,11 @@ export const contactSchema = z
   );
 
 export type ContactValues = z.infer<typeof contactSchema>;
+
+export interface SubmitContactInquiryResponse {
+  id: string;
+  name: string;
+  email: string;
+  status: string;
+  created_at: string;
+}

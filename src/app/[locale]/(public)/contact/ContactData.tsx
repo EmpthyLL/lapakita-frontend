@@ -1,4 +1,3 @@
-// app/contact/ContactData.ts
 import type { LucideIcon } from "lucide-react";
 import {
   Briefcase,
@@ -171,7 +170,7 @@ export const PARTNERSHIP_OPTIONS: InquiryOption[] = [
     value: "financial_bank",
     label: "Banking / Payment Gateway",
     description:
-      "Business loan facilitation, QRIS, & transaction solutions collaboration",
+      "Escrow settlement, merchant acquiring, QRIS, & payout processing solutions",
   },
   {
     value: "sme_community",

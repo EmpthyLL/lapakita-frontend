@@ -1,3 +1,4 @@
+// app/contact/ContactFormCard.tsx
 "use client";
 
 import { Autocomplete } from "@/components/common/input/Autocomplete";
@@ -14,15 +15,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+import { submitContactInquiry } from "@/lib/data/api/public";
 import {
   contactSchema,
   ContactValues,
 } from "@/lib/data/schema/public/post_contact";
+import { handleError } from "@/lib/error";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Check, CheckCircle2, MessageSquare, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { toast } from "sonner";
 import {
   INQUIRY_OPTIONS_BY_PERSONA,
   PARTNERSHIP_OPTIONS,
@@ -39,7 +44,6 @@ export function ContactFormCard({
   defaultIntent,
   defaultEmail = "",
 }: ContactFormCardProps) {
-  const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const isPartnership = defaultIntent === "partnership";
@@ -84,20 +88,28 @@ export function ContactFormCard({
     }
   }, [persona, isPartnership, form]);
 
-  async function onSubmit() {
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-    setIsLoading(false);
-    setSubmitted(true);
-    form.reset({
-      name: "",
-      email: "",
-      whatsapp: "",
-      persona: isPartnership ? "partner" : "",
-      inquiryType: "",
-      message: "",
-    });
-  }
+  const { mutate: postContact, isPending: isLoading } = useMutation({
+    mutationFn: (values: ContactValues) => submitContactInquiry(values),
+    onSuccess: () => {
+      setSubmitted(true);
+      form.reset({
+        name: "",
+        email: "",
+        whatsapp: "",
+        persona: isPartnership ? "partner" : "",
+        inquiryType: "",
+        message: "",
+      });
+      toast.success(
+        isPartnership
+          ? "Proposal submitted successfully!"
+          : "Message sent successfully!",
+      );
+    },
+    onError: (error) => {
+      handleError(error);
+    },
+  });
 
   if (submitted) {
     return (
@@ -151,10 +163,12 @@ export function ContactFormCard({
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <form
+          onSubmit={form.handleSubmit((values) => postContact(values))}
+          className="space-y-5"
+        >
           {isPartnership ? (
             <>
-              {/* Baris 1 Partnership: Company Name full width */}
               <FormField
                 control={form.control}
                 name="name"
@@ -173,7 +187,6 @@ export function ContactFormCard({
                 )}
               />
 
-              {/* Baris 2 Partnership: Email & WhatsApp 50:50 */}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -221,7 +234,6 @@ export function ContactFormCard({
             </>
           ) : (
             <>
-              {/* Layout Support Biasa */}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <FormField
                   control={form.control}
