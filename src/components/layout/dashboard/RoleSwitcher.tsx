@@ -7,13 +7,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Role } from "@/types";
-import { Check, ChevronDown, Repeat } from "lucide-react";
-import Link from "next/link";
+import type { RoleAndAll } from "@/types";
+import { Check, ChevronDown, Settings } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export const ROLES_CONFIG: Record<
-  Role,
+  RoleAndAll,
   {
     label: string;
     colorClass: string;
@@ -21,6 +21,12 @@ export const ROLES_CONFIG: Record<
     borderClass: string;
   }
 > = {
+  all: {
+    label: "General Mode",
+    colorClass: "bg-muted-foreground text-background",
+    bgSoftClass: "bg-secondary text-foreground",
+    borderClass: "border-border hover:border-foreground/40",
+  },
   tenant: {
     label: "Tenant",
     colorClass: "bg-tenant text-tenant-foreground",
@@ -42,19 +48,23 @@ export const ROLES_CONFIG: Record<
 };
 
 interface RoleSwitcherProps {
-  activeRole: Role;
-  isGeneralPage?: boolean;
+  activeRole: RoleAndAll;
   className?: string;
 }
 
-export function RoleSwitcher({
-  activeRole,
-  isGeneralPage = false,
-  className,
-}: RoleSwitcherProps) {
+export function RoleSwitcher({ activeRole, className }: RoleSwitcherProps) {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
-  const currentRoleConfig = ROLES_CONFIG[activeRole] ?? ROLES_CONFIG.tenant;
+  const currentConfig = ROLES_CONFIG[activeRole] ?? ROLES_CONFIG.tenant;
+  const isGeneral = activeRole === "all";
+
+  const options: Array<{ key: RoleAndAll; href: string }> = [
+    { key: "all", href: "/dashboard/settings" },
+    { key: "tenant", href: "/dashboard/tenant" },
+    { key: "owner", href: "/dashboard/owner" },
+    { key: "supplier", href: "/dashboard/supplier" },
+  ];
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -64,25 +74,26 @@ export function RoleSwitcher({
           size="sm"
           className={cn(
             "flex h-8 cursor-pointer items-center justify-between gap-1.5 rounded-md px-2.5 text-xs font-semibold outline-none transition-all duration-150 shadow-none border",
-            isGeneralPage
-              ? "border-border text-muted-foreground"
-              : currentRoleConfig.borderClass,
+            isGeneral
+              ? "border-border text-foreground"
+              : currentConfig.borderClass,
             open && "ring-2 ring-primary/20",
             className,
           )}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <Repeat className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            <span
-              className={cn(
-                "h-2 w-2 rounded-full shrink-0",
-                isGeneralPage
-                  ? "bg-muted-foreground"
-                  : currentRoleConfig.colorClass,
-              )}
-            />
-            <span className="text-foreground font-semibold text-xs capitalize truncate">
-              {isGeneralPage ? "General Mode" : currentRoleConfig.label}
+            {isGeneral ? (
+              <Settings className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            ) : (
+              <span
+                className={cn(
+                  "h-2 w-2 rounded-full shrink-0",
+                  currentConfig.colorClass,
+                )}
+              />
+            )}
+            <span className="text-foreground font-semibold text-xs truncate">
+              {currentConfig.label}
             </span>
           </div>
 
@@ -96,35 +107,37 @@ export function RoleSwitcher({
       </PopoverTrigger>
 
       <PopoverContent align="end" className="w-48 rounded-md p-1 shadow-md">
-        <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-          Workspace Mode
-        </div>
-        <div className="my-1 h-px bg-border" />
-
-        {(Object.keys(ROLES_CONFIG) as Role[]).map((roleKey) => {
-          const config = ROLES_CONFIG[roleKey];
-          const isSelected = !isGeneralPage && activeRole === roleKey;
+        {options.map((opt) => {
+          const config = ROLES_CONFIG[opt.key];
+          const isSelected = activeRole === opt.key;
 
           return (
-            <Link
-              key={roleKey}
-              href={`/dashboard/${roleKey}`}
-              onClick={() => setOpen(false)}
+            <button
+              key={opt.key}
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                router.push(opt.href);
+              }}
               className={cn(
-                "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors outline-none",
+                "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors outline-none cursor-pointer",
                 isSelected
                   ? `${config.bgSoftClass} font-bold`
                   : "text-foreground hover:bg-secondary",
               )}
             >
               <div className="flex items-center gap-2">
-                <span
-                  className={cn("h-2 w-2 rounded-full", config.colorClass)}
-                />
+                {opt.key === "all" ? (
+                  <Settings className="h-3.5 w-3.5 text-muted-foreground" />
+                ) : (
+                  <span
+                    className={cn("h-2 w-2 rounded-full", config.colorClass)}
+                  />
+                )}
                 <span>{config.label}</span>
               </div>
               {isSelected && <Check className="h-3.5 w-3.5" />}
-            </Link>
+            </button>
           );
         })}
       </PopoverContent>

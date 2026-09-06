@@ -19,20 +19,14 @@ import { useState } from "react";
 import {
   DASHBOARD_FOOTER_NAV,
   DASHBOARD_NAV,
-  GENERAL_NAV,
+  SETTINGS_NAV,
+  WALLET_NAV,
 } from "./DashboardNav";
 
 function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-const GENERAL_ROUTES = [
-  "/dashboard/profile",
-  "/dashboard/wallet",
-  "/dashboard/settings",
-];
-
-// Mappings untuk warna hover kustom tiap role berbasis token global CSS
 const ROLE_HOVER_CLASSES: Record<Role, string> = {
   tenant: "hover:bg-tenant-secondary hover:text-tenant",
   owner: "hover:bg-owner-secondary hover:text-owner",
@@ -48,9 +42,9 @@ export function DashboardSidebar() {
   const plan = session?.user?.subscriptionPlan;
   const expiresAt = session?.user?.subscriptionExpiresAt;
 
-  const isGeneralPage = GENERAL_ROUTES.some((route) =>
-    pathname.startsWith(route),
-  );
+  const isWalletPage = pathname.startsWith("/dashboard/wallet");
+  const isSettingsPage = pathname.startsWith("/dashboard/settings");
+  const isGeneralPage = isWalletPage || isSettingsPage;
 
   function canAccessMenuItem(itemBadge?: string): boolean {
     if (itemBadge !== "PRO") return true;
@@ -61,9 +55,21 @@ export function DashboardSidebar() {
     return new Date(expiresAt).getTime() > Date.now();
   }
 
-  const rawNavItems = isGeneralPage
-    ? GENERAL_NAV
-    : (DASHBOARD_NAV[role as Role] ?? DASHBOARD_NAV.tenant);
+  let rawNavItems = DASHBOARD_NAV[role as Role] ?? DASHBOARD_NAV.tenant;
+  let sectionLabel =
+    role === "tenant"
+      ? "Tenant Mode"
+      : role === "owner"
+        ? "Stall Owner Mode"
+        : "Supplier Mode";
+
+  if (isWalletPage) {
+    rawNavItems = WALLET_NAV;
+    sectionLabel = "General Mode";
+  } else if (isSettingsPage) {
+    rawNavItems = SETTINGS_NAV;
+    sectionLabel = "General Mode";
+  }
 
   const navItems = rawNavItems.filter((item) => canAccessMenuItem(item.badge));
 
@@ -75,7 +81,6 @@ export function DashboardSidebar() {
           collapsed ? "w-18" : "w-64",
         )}
       >
-        {/* Logo / Collapse Toggle */}
         <div className="flex h-16 shrink-0 items-center justify-between border-b border-border px-4">
           {!collapsed && <Logo variant="full" className="h-7 w-auto" />}
           <button
@@ -95,7 +100,6 @@ export function DashboardSidebar() {
           </button>
         </div>
 
-        {/* Mode Indicator Badge */}
         {!collapsed && (
           <div className="px-4 pt-4">
             <span
@@ -106,27 +110,19 @@ export function DashboardSidebar() {
                   : "bg-primary-secondary text-primary",
               )}
             >
-              {isGeneralPage
-                ? "General Mode"
-                : role === "tenant"
-                  ? "Tenant Mode"
-                  : role === "owner"
-                    ? "Stall Owner Mode"
-                    : "Supplier Mode"}
+              {sectionLabel}
             </span>
           </div>
         )}
 
-        {/* Main Navigation (Atas) */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
           {navItems.map((item) => {
             const active = isActive(pathname, item.href);
 
-            // Tentukan style hover: khusus di general page gunakan warna role masing-masing
-            const hoverClass =
-              isGeneralPage && item.role
-                ? ROLE_HOVER_CLASSES[item.role]
-                : "hover:bg-secondary hover:text-foreground";
+            const hoverClass = isGeneralPage
+              ? "hover:bg-secondary hover:text-foreground"
+              : (ROLE_HOVER_CLASSES[role as Role] ??
+                "hover:bg-secondary hover:text-foreground");
 
             const linkEl = (
               <Link
@@ -175,7 +171,6 @@ export function DashboardSidebar() {
           })}
         </nav>
 
-        {/* Footer Navigation (Bawah: Wallet & Settings) */}
         <div className="space-y-1 border-t border-border px-3 py-4">
           {DASHBOARD_FOOTER_NAV.map((item) => {
             const active = isActive(pathname, item.href);

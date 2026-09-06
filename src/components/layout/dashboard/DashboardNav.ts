@@ -2,22 +2,32 @@ import type { Role } from "@/types";
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
+  Bell,
   Building2,
   CalendarCheck,
   ClipboardList,
+  CreditCard,
+  FileCheck2,
   FileSpreadsheet,
   Handshake,
+  History,
   KeyRound,
   LayoutDashboard,
+  Lock,
   Package,
+  Phone,
   Radar,
+  Receipt,
   Settings,
+  ShieldCheck,
   ShoppingCart,
   Store,
   Truck,
-  User,
+  UserCheck,
+  UserCog,
   Users,
   Wallet,
+  WalletCards,
 } from "lucide-react";
 
 export interface DashboardNavItem {
@@ -121,25 +131,92 @@ export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
   ],
 };
 
-// ── 2. GENERAL MODE NAV (Menu Role di Bagian Atas) ─────────────────────────
-export const GENERAL_NAV: DashboardNavItem[] = [
+export const SETTINGS_NAV: DashboardNavItem[] = [
   {
-    label: "Tenant Mode",
-    href: "/dashboard/tenant",
-    icon: User,
+    label: "General Profile",
+    href: "/dashboard/settings",
+    icon: UserCog,
+  },
+  {
+    label: "Phone & Contact",
+    href: "/dashboard/settings/phone",
+    icon: Phone,
+  },
+  {
+    label: "Security & Password",
+    href: "/dashboard/settings/security",
+    icon: Lock,
+  },
+  {
+    label: "Documents & KYC",
+    href: "/dashboard/settings/documents",
+    icon: FileCheck2,
+  },
+  {
+    label: "Persona Preferences",
+    href: "/dashboard/settings/preferences",
+    icon: UserCheck,
+  },
+  {
+    label: "Notifications",
+    href: "/dashboard/settings/notifications",
+    icon: Bell,
+  },
+];
+
+// ── PERSONA PROFILES SUB-NAV (Dipisah Per Role) ─────────────────────────────
+export const PERSONA_PROFILES_NAV: DashboardNavItem[] = [
+  {
+    label: "Tenant Profile",
+    href: "/dashboard/settings/profile/tenant",
+    icon: UserCog,
     role: "tenant",
   },
   {
-    label: "Stall Owner Mode",
-    href: "/dashboard/owner",
-    icon: Store,
+    label: "Owner Profile",
+    href: "/dashboard/settings/profile/owner",
+    icon: UserCog,
     role: "owner",
   },
   {
-    label: "Supplier Mode",
-    href: "/dashboard/supplier",
-    icon: Truck,
+    label: "Supplier Profile",
+    href: "/dashboard/settings/profile/supplier",
+    icon: UserCog,
     role: "supplier",
+  },
+];
+
+// ── WALLET & SUBSCRIPTION NAV (Sidebar / Tab Wallet) ────────────────────────
+export const WALLET_NAV: DashboardNavItem[] = [
+  {
+    label: "Overview & Balance",
+    href: "/dashboard/wallet",
+    icon: WalletCards,
+  },
+  {
+    label: "Subscriptions & Plans",
+    href: "/dashboard/wallet/subscription",
+    icon: CreditCard,
+  },
+  {
+    label: "Payout Accounts",
+    href: "/dashboard/wallet/payout-methods",
+    icon: ShieldCheck,
+  },
+  {
+    label: "Escrow Deposits",
+    href: "/dashboard/wallet/escrow",
+    icon: KeyRound,
+  },
+  {
+    label: "Transaction History",
+    href: "/dashboard/wallet/history",
+    icon: History,
+  },
+  {
+    label: "Invoices & Receipts",
+    href: "/dashboard/wallet/invoices",
+    icon: Receipt,
   },
 ];
 
@@ -159,6 +236,6 @@ export function getBusinessWorkspaceNav(
 }
 
 export const DASHBOARD_FOOTER_NAV: DashboardNavItem[] = [
-  { label: "Wallet & Payouts", href: "/dashboard/wallet", icon: Wallet },
   { label: "Account Settings", href: "/dashboard/settings", icon: Settings },
+  { label: "Wallet & Payouts", href: "/dashboard/wallet", icon: Wallet },
 ];

@@ -55,7 +55,7 @@ export function ContactFormCard({
       email: defaultEmail,
       whatsapp: "",
       persona: isPartnership ? "partner" : "",
-      inquiryType: "",
+      inquiry_type: "",
       message: "",
     },
   });
@@ -79,12 +79,12 @@ export function ContactFormCard({
 
   useEffect(() => {
     form.setValue("persona", isPartnership ? "partner" : "");
-    form.setValue("inquiryType", "");
+    form.setValue("inquiry_type", "");
   }, [isPartnership, form]);
 
   useEffect(() => {
     if (!isPartnership) {
-      form.setValue("inquiryType", "");
+      form.setValue("inquiry_type", "");
     }
   }, [persona, isPartnership, form]);
 
@@ -97,7 +97,7 @@ export function ContactFormCard({
         email: "",
         whatsapp: "",
         persona: isPartnership ? "partner" : "",
-        inquiryType: "",
+        inquiry_type: "",
         message: "",
       });
       toast.success(
@@ -325,7 +325,7 @@ export function ContactFormCard({
 
           <FormField
             control={form.control}
-            name="inquiryType"
+            name="inquiry_type"
             render={({ field, fieldState }) => (
               <FormItem data-invalid={fieldState.invalid}>
                 <FormLabel htmlFor="inquiryType">

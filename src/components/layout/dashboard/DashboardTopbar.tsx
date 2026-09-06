@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { Role } from "@/types";
+import { Role, RoleAndAll } from "@/types";
 import {
   Bell,
   ChevronDown,
@@ -30,12 +30,6 @@ interface DashboardTopbarProps {
   userName?: string;
   userAvatarUrl?: string;
 }
-
-const GENERAL_ROUTES = [
-  "/dashboard/profile",
-  "/dashboard/wallet",
-  "/dashboard/settings",
-];
 
 const VALID_ROLES: Role[] = ["tenant", "owner", "supplier"];
 
@@ -71,9 +65,8 @@ export function DashboardTopbar({
   const breadcrumb = useBreadcrumb(pathname);
   const { data: session } = useSession();
 
-  const isGeneralPage = GENERAL_ROUTES.some((route) =>
-    pathname.startsWith(route),
-  );
+  const isWalletPage = pathname.startsWith("/dashboard/wallet");
+  const isSettingsPage = pathname.startsWith("/dashboard/settings");
 
   const segments = pathname.split("/").filter(Boolean);
   const currentPathRole = segments[1] as Role;
@@ -82,8 +75,12 @@ export function DashboardTopbar({
     ? currentPathRole
     : (session?.user?.activeRole as Role) || "tenant";
 
+  const activeRole: RoleAndAll =
+    isWalletPage || isSettingsPage ? "all" : currentRole;
+
   const userName = session?.user?.defaultName || propUserName || "User";
   const userAvatarUrl = session?.user?.defaultAvatarUrl || propAvatarUrl || "";
+  const profileRoutePath = `/dashboard/${currentRole}/profile`;
 
   const getInitials = (str: string) => {
     if (!str) return "U";
@@ -97,7 +94,6 @@ export function DashboardTopbar({
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur">
-      {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
         {breadcrumb.map((crumb, i) => (
           <span key={crumb.href} className="flex items-center gap-1.5">
@@ -116,7 +112,6 @@ export function DashboardTopbar({
         ))}
       </nav>
 
-      {/* Right Actions */}
       <div className="flex items-center gap-2">
         <LanguageSwitcher showLabel={false} />
 
@@ -131,15 +126,8 @@ export function DashboardTopbar({
 
         <div className="mx-1 h-4 w-px bg-border" />
 
-        {/* Render Role Switcher HANYA jika bukan halaman General */}
-        {!isGeneralPage && (
-          <RoleSwitcher
-            activeRole={currentRole}
-            isGeneralPage={isGeneralPage}
-          />
-        )}
+        <RoleSwitcher activeRole={activeRole} />
 
-        {/* User Profile Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-1.5 rounded-full outline-none ring-primary/40 focus-visible:ring-2 cursor-pointer">
@@ -167,10 +155,12 @@ export function DashboardTopbar({
                   <span
                     className={cn(
                       "font-semibold",
-                      isGeneralPage ? "text-muted-foreground" : "text-primary",
+                      activeRole === "all"
+                        ? "text-muted-foreground"
+                        : "text-primary",
                     )}
                   >
-                    {isGeneralPage ? "General" : currentRole}
+                    {activeRole === "all" ? "General Mode" : currentRole}
                   </span>
                 </p>
               </div>
@@ -179,19 +169,10 @@ export function DashboardTopbar({
 
             <DropdownMenuItem asChild className="cursor-pointer">
               <Link
-                href="/dashboard/profile"
+                href={profileRoutePath}
                 className="flex items-center w-full"
               >
                 <User className="mr-2 h-4 w-4" /> Profile
-              </Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem asChild className="cursor-pointer">
-              <Link
-                href="/dashboard/wallet"
-                className="flex items-center w-full"
-              >
-                <Wallet className="mr-2 h-4 w-4" /> Wallet
               </Link>
             </DropdownMenuItem>
 
@@ -201,6 +182,15 @@ export function DashboardTopbar({
                 className="flex items-center w-full"
               >
                 <Settings className="mr-2 h-4 w-4" /> Settings
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <Link
+                href="/dashboard/wallet"
+                className="flex items-center w-full"
+              >
+                <Wallet className="mr-2 h-4 w-4" /> Wallet
               </Link>
             </DropdownMenuItem>
 

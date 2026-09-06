@@ -1,9 +1,17 @@
 import type { Role } from "@/types";
 import { Check, X } from "lucide-react";
-import { PRICING_FEATURE_TABLES } from "./PricingData";
+import { PRICING_FEATURE_TABLES, PricingFeatureRow } from "./PricingData";
 
-export function PricingFeatureTable({ role }: { role: Role }) {
-  const rows = PRICING_FEATURE_TABLES[role];
+interface PricingFeatureTableProps {
+  role: Role;
+  customRows?: PricingFeatureRow[];
+}
+
+export function PricingFeatureTable({
+  role,
+  customRows,
+}: PricingFeatureTableProps) {
+  const rows = customRows || PRICING_FEATURE_TABLES[role];
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-border shadow-sm">

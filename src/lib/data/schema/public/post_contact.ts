@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ResponseData } from "../base";
 
 export const contactSchema = z
   .object({
@@ -6,7 +7,7 @@ export const contactSchema = z
     email: z.string().email("Enter a valid email address"),
     whatsapp: z.string().optional(),
     persona: z.string().min(1, "Select who you are"),
-    inquiryType: z.string().min(1, "Select an inquiry type"),
+    inquiry_type: z.string().min(1, "Select an inquiry type"),
     message: z.string(),
   })
   .refine(
@@ -22,10 +23,12 @@ export const contactSchema = z
 
 export type ContactValues = z.infer<typeof contactSchema>;
 
-export interface SubmitContactInquiryResponse {
+export interface SubmitContact {
   id: string;
   name: string;
   email: string;
   status: string;
   created_at: string;
 }
+
+export type SubmitContactResponse = ResponseData<SubmitContact>;
