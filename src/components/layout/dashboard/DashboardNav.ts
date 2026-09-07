@@ -2,7 +2,6 @@ import type { Role } from "@/types";
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
-  Bell,
   Building2,
   CalendarCheck,
   ClipboardList,
@@ -17,7 +16,6 @@ import {
   Package,
   Phone,
   Radar,
-  Receipt,
   Settings,
   ShieldCheck,
   ShoppingCart,
@@ -27,7 +25,6 @@ import {
   UserCog,
   Users,
   Wallet,
-  WalletCards,
 } from "lucide-react";
 
 export interface DashboardNavItem {
@@ -35,7 +32,7 @@ export interface DashboardNavItem {
   href: string;
   icon: LucideIcon;
   badge?: string;
-  role?: Role; // Added role field to map custom hover colors
+  role?: Role;
 }
 
 // ── 1. DASHBOARD UTAMA BERDASARKAN ROLE AKUN ────────────────────────────────
@@ -131,6 +128,7 @@ export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
   ],
 };
 
+// ── 2. SETTINGS SUB-NAV ─────────────────────────────────────────────────────
 export const SETTINGS_NAV: DashboardNavItem[] = [
   {
     label: "General Profile",
@@ -157,11 +155,6 @@ export const SETTINGS_NAV: DashboardNavItem[] = [
     href: "/dashboard/settings/preferences",
     icon: UserCheck,
   },
-  {
-    label: "Notifications",
-    href: "/dashboard/settings/notifications",
-    icon: Bell,
-  },
 ];
 
 // ── PERSONA PROFILES SUB-NAV (Dipisah Per Role) ─────────────────────────────
@@ -186,12 +179,12 @@ export const PERSONA_PROFILES_NAV: DashboardNavItem[] = [
   },
 ];
 
-// ── WALLET & SUBSCRIPTION NAV (Sidebar / Tab Wallet) ────────────────────────
+// ── WALLET & SUBSCRIPTION NAV (Tanpa Saldo/Balance & Invoice Terpisah) ───────
 export const WALLET_NAV: DashboardNavItem[] = [
   {
-    label: "Overview & Balance",
-    href: "/dashboard/wallet",
-    icon: WalletCards,
+    label: "Transaction History",
+    href: "/dashboard/wallet/history",
+    icon: History,
   },
   {
     label: "Subscriptions & Plans",
@@ -199,24 +192,9 @@ export const WALLET_NAV: DashboardNavItem[] = [
     icon: CreditCard,
   },
   {
-    label: "Payout Accounts",
+    label: "Payout Bank Accounts",
     href: "/dashboard/wallet/payout-methods",
     icon: ShieldCheck,
-  },
-  {
-    label: "Escrow Deposits",
-    href: "/dashboard/wallet/escrow",
-    icon: KeyRound,
-  },
-  {
-    label: "Transaction History",
-    href: "/dashboard/wallet/history",
-    icon: History,
-  },
-  {
-    label: "Invoices & Receipts",
-    href: "/dashboard/wallet/invoices",
-    icon: Receipt,
   },
 ];
 
