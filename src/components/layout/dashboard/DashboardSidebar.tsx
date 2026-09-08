@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { Role } from "@/types";
-import { ChevronsLeft, ChevronsRight } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, LayoutDashboard } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -41,6 +41,8 @@ export function DashboardSidebar() {
 
   const plan = session?.user?.subscriptionPlan;
   const expiresAt = session?.user?.subscriptionExpiresAt;
+  const sessionActiveRole =
+    (session?.user?.activeRole as Role) || role || "tenant";
 
   const isWalletPage = pathname.startsWith("/dashboard/wallet");
   const isSettingsPage = pathname.startsWith("/dashboard/settings");
@@ -116,6 +118,44 @@ export function DashboardSidebar() {
         )}
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+          {isGeneralPage && (
+            <div className="mb-3 pb-3 border-b border-border">
+              {(() => {
+                const workspaceHref = `/dashboard/${sessionActiveRole}`;
+                const label =
+                  sessionActiveRole === "tenant"
+                    ? "Tenant Workspace"
+                    : sessionActiveRole === "owner"
+                      ? "Stall Owner Workspace"
+                      : "Supplier Workspace";
+
+                const shortcutEl = (
+                  <Link
+                    href={workspaceHref}
+                    className={cn(
+                      "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground",
+                      collapsed && "justify-center px-0",
+                    )}
+                  >
+                    <LayoutDashboard className="h-4.5 w-4.5 shrink-0" />
+                    {!collapsed && (
+                      <span className="min-w-0 flex-1 truncate">{label}</span>
+                    )}
+                  </Link>
+                );
+
+                if (!collapsed) return shortcutEl;
+
+                return (
+                  <Tooltip>
+                    <TooltipTrigger asChild>{shortcutEl}</TooltipTrigger>
+                    <TooltipContent side="right">{label}</TooltipContent>
+                  </Tooltip>
+                );
+              })()}
+            </div>
+          )}
+
           {navItems.map((item) => {
             const active = isActive(pathname, item.href);
 

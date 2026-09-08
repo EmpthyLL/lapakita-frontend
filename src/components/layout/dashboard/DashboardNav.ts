@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   ShoppingCart,
   Store,
+  SummaryIcon,
   Truck,
   UserCheck,
   UserCog,
@@ -146,7 +147,7 @@ export const SETTINGS_NAV: DashboardNavItem[] = [
     icon: Lock,
   },
   {
-    label: "Documents & KYC",
+    label: "Legal Documents",
     href: "/dashboard/settings/documents",
     icon: FileCheck2,
   },
@@ -179,8 +180,13 @@ export const PERSONA_PROFILES_NAV: DashboardNavItem[] = [
   },
 ];
 
-// ── WALLET & SUBSCRIPTION NAV (Tanpa Saldo/Balance & Invoice Terpisah) ───────
+// ── WALLET & SUBSCRIPTION NAV  ───────
 export const WALLET_NAV: DashboardNavItem[] = [
+  {
+    label: "Wallet Overview",
+    href: "/dashboard/wallet",
+    icon: SummaryIcon,
+  },
   {
     label: "Transaction History",
     href: "/dashboard/wallet/history",
