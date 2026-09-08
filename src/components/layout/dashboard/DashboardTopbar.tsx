@@ -1,6 +1,7 @@
 "use client";
 
 import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
+import { RoleSelectPopover } from "@/components/common/input/RoleSelectPopover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -24,7 +25,6 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { RoleSwitcher } from "./RoleSwitcher";
 
 interface DashboardTopbarProps {
   userName?: string;
@@ -126,7 +126,15 @@ export function DashboardTopbar({
 
         <div className="mx-1 h-4 w-px bg-border" />
 
-        <RoleSwitcher activeRole={activeRole} />
+        <RoleSelectPopover
+          value={activeRole}
+          onChange={(role) => {
+            window.location.href =
+              role === "all" ? "/dashboard/settings" : `/dashboard/${role}`;
+          }}
+          mode="topbar"
+          showGeneral={true}
+        />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

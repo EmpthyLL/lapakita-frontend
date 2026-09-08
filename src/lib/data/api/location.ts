@@ -1,10 +1,7 @@
 import api from "@/lib/api";
 import {
-  ClearAreaHistoryResponse,
-  DeleteHistoryItemResponse,
   GetAreaHistoryResponse,
   SaveAreaHistoryPayload,
-  SaveAreaHistoryResponse,
 } from "@/lib/data/schema/master/area_history";
 import {
   AreaDetailResponse,
@@ -38,29 +35,19 @@ export async function getAreaHistory(): Promise<GetAreaHistoryResponse> {
   return res.data;
 }
 
-export async function saveAreaHistory(
-  payload: SaveAreaHistoryPayload,
-): Promise<SaveAreaHistoryResponse> {
-  const res = await api.post<SaveAreaHistoryResponse>(
-    "/areas/history",
-    payload,
-  );
+export async function saveAreaHistory(payload: SaveAreaHistoryPayload) {
+  const res = await api.post("/areas/history", payload);
   return res.data;
 }
 
-export async function clearAreaHistory(): Promise<ClearAreaHistoryResponse> {
-  const res = await api.delete<ClearAreaHistoryResponse>("/areas/history");
+export async function clearAreaHistory() {
+  const res = await api.delete("/areas/history");
   return res.data;
 }
 
-export async function deleteAreaHistoryItem(
-  fullLabel: string,
-): Promise<DeleteHistoryItemResponse> {
-  const res = await api.delete<DeleteHistoryItemResponse>(
-    "/areas/history/item",
-    {
-      data: { full_label: fullLabel },
-    },
-  );
+export async function deleteAreaHistoryItem(fullLabel: string) {
+  const res = await api.delete("/areas/history/item", {
+    data: { full_label: fullLabel },
+  });
   return res.data;
 }

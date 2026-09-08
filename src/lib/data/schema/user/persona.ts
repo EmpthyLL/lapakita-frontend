@@ -18,4 +18,3 @@ export interface PersonaProfileResponse {
 }
 
 export type PersonaProfilePayload = ResponseData<PersonaProfileResponse>;
-export type UpdatePersonaPayload = ResponseData<null>;

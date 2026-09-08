@@ -1,4 +1,3 @@
-// lib/data/schema/public/user/document.ts
 import { z } from "zod";
 import { ResponseData } from "../base";
 
@@ -22,5 +21,3 @@ export interface GetDocumentResponse {
 }
 
 export type GetDocumentPayload = ResponseData<GetDocumentResponse>;
-export type UploadDocumentPayload = ResponseData<null>;
-export type DeleteDocumentPayload = ResponseData<null>;

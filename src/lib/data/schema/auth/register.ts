@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { ResponseData } from "../base";
 
 export const registerSchema = z
   .object({
@@ -22,5 +21,3 @@ export interface RegisterPayload {
   password: string;
   phone: string;
 }
-
-export type RegisterResponse = ResponseData<null>;

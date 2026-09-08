@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
         hostname: "pannellum.org",
         pathname: "/images/**",
       },
+      {
+        protocol: "https",
+        hostname: "ik.imagekit.io",
+      },
     ],
   },
 };

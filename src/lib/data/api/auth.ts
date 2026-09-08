@@ -1,9 +1,6 @@
 import api from "@/lib/api";
 import { CompleteProfileResponse } from "../schema/auth/complete_profile";
-import {
-  SendOtpPayload,
-  SendOtpResponse,
-} from "../schema/auth/forget_password";
+import { SendOtpPayload } from "../schema/auth/forget_password";
 import { GoogleAuthPayload, GoogleAuthResponse } from "../schema/auth/google";
 import {
   CompleteProfilePayload,
@@ -11,11 +8,8 @@ import {
   LoginResponse,
 } from "../schema/auth/login";
 import { VerifyOtpPayload, VerifyOtpResponse } from "../schema/auth/otp";
-import { RegisterPayload, RegisterResponse } from "../schema/auth/register";
-import {
-  ResetPasswordPayload,
-  ResetPasswordResponse,
-} from "../schema/auth/reset_password";
+import { RegisterPayload } from "../schema/auth/register";
+import { ResetPasswordPayload } from "../schema/auth/reset_password";
 
 export async function googleAuth(payload: GoogleAuthPayload) {
   const res = await api.post<GoogleAuthResponse>("/auth/google", payload);
@@ -28,7 +22,7 @@ export async function loginUser(payload: LoginPayload) {
 }
 
 export async function registerUser(payload: RegisterPayload) {
-  const res = await api.post<RegisterResponse>("/auth/register", payload);
+  const res = await api.post("/auth/register", payload);
   return res.data;
 }
 
@@ -41,7 +35,7 @@ export async function completeGoogleProfile(payload: CompleteProfilePayload) {
 }
 
 export async function sendOTP(payload: SendOtpPayload) {
-  const res = await api.post<SendOtpResponse>("/auth/otp/send", payload);
+  const res = await api.post("/auth/otp/send", payload);
   return res.data;
 }
 
@@ -52,7 +46,7 @@ export async function verifyOTP(payload: VerifyOtpPayload) {
 
 export async function resetPassword(payload: ResetPasswordPayload) {
   const { email, ...rest } = payload;
-  const res = await api.post<ResetPasswordResponse>(
+  const res = await api.post(
     `/auth/reset-password/${encodeURIComponent(email)}`,
     rest,
   );

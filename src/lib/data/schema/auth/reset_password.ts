@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { ResponseData } from "../base";
 
 export const resetSchema = z
   .object({
@@ -18,5 +17,3 @@ export interface ResetPasswordPayload {
   verification_token: string;
   new_password: string;
 }
-
-export type ResetPasswordResponse = ResponseData<null>;

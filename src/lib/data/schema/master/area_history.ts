@@ -30,6 +30,3 @@ export const deleteHistoryItemSchema = z.object({
 export type DeleteHistoryItemPayload = z.infer<typeof deleteHistoryItemSchema>;
 
 export type GetAreaHistoryResponse = ResponseData<AreaHistoryItemResponse[]>;
-export type SaveAreaHistoryResponse = ResponseData<null>;
-export type ClearAreaHistoryResponse = ResponseData<null>;
-export type DeleteHistoryItemResponse = ResponseData<null>;

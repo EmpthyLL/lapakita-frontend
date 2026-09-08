@@ -1,3 +1,4 @@
+import type { Role } from "@/types";
 import { z } from "zod";
 import { ResponseData } from "../base";
 
@@ -12,6 +13,7 @@ export const updateGeneralProfileSchema = z.object({
     .refine((val) => !val || val.length >= 10, {
       message: "Phone number must be at least 10 digits",
     }),
+  active_role: z.enum(["tenant", "owner", "supplier"] as const),
 });
 
 export type UpdateGeneralProfileValues = z.infer<
@@ -24,6 +26,7 @@ export interface GetGeneralProfileResponse {
   email: string;
   default_avatar_url: string;
   primary_phone: string;
+  active_role: Role;
 }
 
 export type GetGeneralProfilePayload = ResponseData<GetGeneralProfileResponse>;
