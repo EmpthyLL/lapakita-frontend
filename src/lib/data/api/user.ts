@@ -17,7 +17,7 @@ import {
 import {
   GetPhoneNumbersResponse,
   PhoneNumberItem,
-  SavePhoneNumbersValues,
+  PhoneValues,
 } from "../schema/user/phone_number";
 
 export async function getGeneralProfile(): Promise<GetGeneralProfileResponse> {
@@ -40,9 +40,19 @@ export async function getPhoneNumbers(): Promise<PhoneNumberItem[]> {
   return response.data.data;
 }
 
-export async function savePhoneNumbers(payload: SavePhoneNumbersValues) {
-  const response = await api.put("/users/phone", payload);
-  return response.data;
+export async function addPhoneNumber(payload: PhoneValues): Promise<void> {
+  await api.post("/users/phone", payload);
+}
+
+export async function updatePhoneNumber(
+  index: string | number,
+  payload: PhoneValues,
+): Promise<void> {
+  await api.put(`/users/phone/${index}`, payload);
+}
+
+export async function deletePhoneNumber(index: string | number): Promise<void> {
+  await api.delete(`/users/phone/${index}`);
 }
 
 export async function updatePassword(

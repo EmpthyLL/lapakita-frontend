@@ -14,12 +14,7 @@ export const phoneRequestSchema = z.object({
   roles: z.array(z.string()),
 });
 
-export const savePhoneNumbersSchema = z.object({
-  phone_numbers: z.array(phoneRequestSchema),
-});
-
 export type PhoneValues = z.infer<typeof phoneRequestSchema>;
-export type SavePhoneNumbersValues = z.infer<typeof savePhoneNumbersSchema>;
 
 export const phoneQueryParamsSchema = basePaginationQuerySchema.extend({
   number: z.string().optional(),

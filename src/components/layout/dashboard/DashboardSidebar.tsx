@@ -23,7 +23,15 @@ import {
   WALLET_NAV,
 } from "./DashboardNav";
 
-function isActive(pathname: string, href: string) {
+function isNavActive(pathname: string, href: string) {
+  return pathname === href;
+}
+
+function isFooterActive(pathname: string, href: string) {
+  if (href === "/dashboard") {
+    return pathname === "/dashboard";
+  }
+
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -157,7 +165,7 @@ export function DashboardSidebar() {
           )}
 
           {navItems.map((item) => {
-            const active = isActive(pathname, item.href);
+            const active = isNavActive(pathname, item.href);
 
             const hoverClass = isGeneralPage
               ? "hover:bg-secondary hover:text-foreground"
@@ -213,7 +221,7 @@ export function DashboardSidebar() {
 
         <div className="space-y-1 border-t border-border px-3 py-4">
           {DASHBOARD_FOOTER_NAV.map((item) => {
-            const active = isActive(pathname, item.href);
+            const active = isFooterActive(pathname, item.href);
             const linkEl = (
               <Link
                 href={item.href}
