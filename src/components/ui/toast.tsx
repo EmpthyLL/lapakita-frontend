@@ -32,7 +32,7 @@ export function Toaster() {
             "!bg-[var(--success)] hover:!bg-[var(--success)] !text-white",
           error:
             "!bg-[var(--destructive)] hover:!bg-[var(--destructive)] !text-white",
-          info: "!bg-[var(--primary)] hover:!bg-[var(--primary)] !text-white",
+          info: "!bg-[var(--info)] hover:!bg-[var(--info)] !text-white",
           warning:
             "!bg-[var(--warning)] hover:!bg-[var(--warning)] !text-white",
 

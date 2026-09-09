@@ -1,12 +1,13 @@
+// app/dashboard/sandbox/page.tsx
 "use client";
 
 import { DatePicker } from "@/components/common/input/DatePicker";
-import { DateRangePicker } from "@/components/common/long/date-range-picker";
-import { DisplayTable } from "@/components/common/long/display-table";
+import { DataDisplay } from "@/components/common/long/data-display";
 import {
   ColumnDef,
-  DisplayTableQuery,
-} from "@/components/common/long/display-table/Constant";
+  DataDisplayQuery,
+} from "@/components/common/long/data-display/Constant";
+import { DateRangePicker } from "@/components/common/long/date-range-picker";
 
 import { Button } from "@/components/ui/button";
 import { PaginatedResponse } from "@/lib/data/schema/base";
@@ -50,11 +51,10 @@ interface StallQueryParams {
   createdAt?: Date;
 }
 
-// Simulated API Call dengan metadata standar PaginatedResponse
 const fetchStallsApi = async (
   params: StallQueryParams,
 ): Promise<PaginatedResponse<StallOwnerDummy>> => {
-  await new Promise((resolve) => setTimeout(resolve, 500)); // Latency simulasi
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
   let filtered = [...MOCK_STALLS];
 
@@ -89,12 +89,12 @@ const fetchStallsApi = async (
   };
 };
 
-// Config Columns
 const columns: ColumnDef<StallOwnerDummy>[] = [
   {
     key: "stallName",
     header: "Stall Name",
     icon: Building,
+    primary: true,
     className: "font-semibold text-foreground",
   },
   {
@@ -140,16 +140,13 @@ const columns: ColumnDef<StallOwnerDummy>[] = [
     key: "createdAt",
     header: "Registered",
     icon: Calendar,
+    hideInPreset: true,
     render: (val) =>
       val instanceof Date ? val.toLocaleDateString("id-ID") : "-",
   },
 ];
 
-// Query Config & Filters
-const displayTableQueryConfig: DisplayTableQuery<
-  StallOwnerDummy,
-  StallQueryParams
-> = {
+const queryConfig: DataDisplayQuery<StallOwnerDummy, StallQueryParams> = {
   queryFn: fetchStallsApi,
   queryKey: (params) => ["stalls-list", params],
   defaultParams: { page: 1 },
@@ -187,15 +184,33 @@ const displayTableQueryConfig: DisplayTableQuery<
   },
 };
 
+function Demo({
+  title,
+  desc,
+  children,
+}: {
+  title: string;
+  desc: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-xs">
+      <div>
+        <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+        <p className="text-xs text-muted-foreground">{desc}</p>
+      </div>
+      {children}
+    </section>
+  );
+}
+
 // ─── 2. Halaman Sandbox Utama ───────────────────────────────────────────────
 
 export default function ComponentSandboxPage() {
-  // Single DatePicker State
   const [singleDate, setSingleDate] = useState<Date | null | undefined>(
     new Date(),
   );
 
-  // DateRangePicker State
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(2026, 7, 1),
     to: new Date(2026, 7, 15),
@@ -207,14 +222,12 @@ export default function ComponentSandboxPage() {
       <div className="border-b border-border pb-5">
         <h1 className="text-2xl font-bold tracking-tight">Component Sandbox</h1>
         <p className="text-sm text-muted-foreground">
-          Pengujian integrasi DatePicker, DateRangePicker, dan DisplayTable (2
-          Mode Pagination).
+          Pengujian integrasi DatePicker, DateRangePicker, dan DataDisplay.
         </p>
       </div>
 
       {/* Date Pickers Section */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* DatePicker */}
         <section className="space-y-3 rounded-2xl border border-border bg-card p-5 shadow-xs">
           <h2 className="text-base font-semibold text-foreground">
             1. DatePicker (Single Date)
@@ -234,7 +247,6 @@ export default function ComponentSandboxPage() {
           </div>
         </section>
 
-        {/* DateRangePicker */}
         <section className="space-y-3 rounded-2xl border border-border bg-card p-5 shadow-xs">
           <h2 className="text-base font-semibold text-foreground">
             2. DateRangePicker (Range)
@@ -260,54 +272,53 @@ export default function ComponentSandboxPage() {
         </section>
       </div>
 
-      {/* DisplayTable Mode 1: Load More */}
-      <section className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-xs">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">
-            3. DisplayTable (Mode:{" "}
-            <code className="text-primary font-mono text-sm">load-more</code>)
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Akumulasi data secara bertahap saat menekan tombol &quot;Load
-            more&quot;.
-          </p>
-        </div>
-
-        <DisplayTable
+      {/* DataDisplay Demos */}
+      <Demo
+        title="3. DataDisplay (Variant: list + infinite-scroll)"
+        desc="Playful row cards, auto-loads on scroll."
+      >
+        <DataDisplay
           columns={columns}
-          query={displayTableQueryConfig}
+          query={queryConfig}
           rowKey="id"
-          paginationMode="load-more"
+          variant="list"
+          loadMode="infinite-scroll"
           showFilter
           showCount
         />
-      </section>
+      </Demo>
 
-      {/* DisplayTable Mode 2: Pagination */}
-      <section className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-xs">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">
-            4. DisplayTable (Mode:{" "}
-            <code className="text-primary font-mono text-sm">pagination</code>)
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Menampilkan halaman per halaman dengan bilah angka halaman dan
-            navigasi Previous/Next.
-          </p>
-        </div>
-
-        <DisplayTable
+      <Demo
+        title="4. DataDisplay (Variant: card + pagination)"
+        desc="Grid preset dengan navigasi halaman bernomor."
+      >
+        <DataDisplay
           columns={columns}
-          query={displayTableQueryConfig}
+          query={queryConfig}
           rowKey="id"
-          paginationMode="pagination"
+          variant="card"
+          loadMode="pagination"
           showFilter
           showCount
         />
-      </section>
+      </Demo>
+
+      <Demo
+        title="5. DataDisplay (Variant: table + load-more)"
+        desc="Classic data grid dengan tombol manual load-more di bagian bawah."
+      >
+        <DataDisplay
+          columns={columns}
+          query={queryConfig}
+          rowKey="id"
+          variant="table"
+          loadMode="load-more"
+          showFilter
+          showCount
+        />
+      </Demo>
 
       <div className="flex flex-wrap gap-3">
-        {/* Success */}
         <Button
           variant="outline"
           onClick={() =>
@@ -319,7 +330,6 @@ export default function ComponentSandboxPage() {
           Test Success
         </Button>
 
-        {/* Error */}
         <Button
           variant="outline"
           onClick={() =>
@@ -331,7 +341,6 @@ export default function ComponentSandboxPage() {
           Test Error
         </Button>
 
-        {/* Info */}
         <Button
           variant="outline"
           onClick={() =>
@@ -344,7 +353,6 @@ export default function ComponentSandboxPage() {
           Test Info
         </Button>
 
-        {/* Warning */}
         <Button
           variant="outline"
           onClick={() =>

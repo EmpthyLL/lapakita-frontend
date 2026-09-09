@@ -55,7 +55,11 @@
     "rows": "baris",
     "updating": "Memperbarui...",
     "loading": "Memuat...",
-    "load_more": "Muat lagi"
+    "load_more": "Muat lagi",
+    "filters": "Filter",
+    "no_filters_applied": "Tidak ada filter yang diterapkan",
+    "search_placeholder": "Cari...",
+    "page_indicator": "Halaman {current} dari {total}"
   },
   "date_range_picker": {
     "select_date": "Pilih Tanggal",

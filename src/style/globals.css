@@ -46,6 +46,10 @@
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
 
   /* SHADCN DEFAULTS */
   --color-sidebar-ring: var(--sidebar-ring);
@@ -64,7 +68,6 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
-  --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -114,6 +117,10 @@
   --success-foreground: oklch(0.985 0 0);
   --warning: oklch(0.78 0.17 85);
   --warning-foreground: oklch(0.2 0.03 85);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --info: oklch(0.58 0.22 250);
+  --info-foreground: oklch(0.985 0 0);
 
   /* SHADCN DEFAULTS */
   --background: oklch(1 0 0);
@@ -128,7 +135,6 @@
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: var(--primary);
@@ -174,6 +180,10 @@
   --success-foreground: oklch(0.985 0 0);
   --warning: oklch(0.7 0.16 85);
   --warning-foreground: oklch(0.98 0.01 85);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
+  --info: oklch(0.58 0.22 250);
+  --info-foreground: oklch(0.985 0 0);
 
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -187,7 +197,6 @@
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: var(--primary);
@@ -200,6 +209,7 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: var(--primary);
 }
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

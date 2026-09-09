@@ -44,9 +44,13 @@ const buttonVariants = cva(
           "border-warning/30 bg-warning/10 text-warning hover:bg-warning/20 focus-visible:ring-warning/20 dark:bg-warning/20 dark:hover:bg-warning/30",
 
         destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-destructive/50",
         "outline-destructive":
           "border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30",
+
+        info: "bg-info text-info-foreground hover:bg-info/90 focus-visible:ring-info/50",
+        "outline-info":
+          "border-info/30 bg-info/10 text-info hover:bg-info/20 focus-visible:ring-info/20 dark:bg-info/20 dark:hover:bg-info/30",
 
         /* Standards */
         outline:

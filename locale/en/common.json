@@ -55,7 +55,11 @@
     "rows": "rows",
     "updating": "Updating...",
     "loading": "Loading...",
-    "load_more": "Load more"
+    "load_more": "Load more",
+    "filters": "Filters",
+    "no_filters_applied": "No filters applied",
+    "search_placeholder": "Search...",
+    "page_indicator": "Page {current} of {total}"
   },
   "date_range_picker": {
     "select_date": "Select Date",
