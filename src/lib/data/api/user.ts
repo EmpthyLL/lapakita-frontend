@@ -16,7 +16,6 @@ import {
 } from "../schema/user/persona";
 import {
   GetPhoneNumbersResponse,
-  PhoneNumberItem,
   PhoneValues,
 } from "../schema/user/phone_number";
 
@@ -35,9 +34,9 @@ export async function updateGeneralProfile(
   return response.data.data;
 }
 
-export async function getPhoneNumbers(): Promise<PhoneNumberItem[]> {
+export async function getPhoneNumbers() {
   const response = await api.get<GetPhoneNumbersResponse>("/users/phone");
-  return response.data.data;
+  return response.data;
 }
 
 export async function addPhoneNumber(payload: PhoneValues): Promise<void> {

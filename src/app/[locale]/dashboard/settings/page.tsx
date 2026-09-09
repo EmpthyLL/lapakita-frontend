@@ -14,6 +14,7 @@ import { RoleSelectPopover } from "@/components/common/input/RoleSelectPopover";
 import { Spinner } from "@/components/common/Spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useInfiniteSearch } from "@/hooks/use-infinite-search";
 import {
   getGeneralProfile,
   getPhoneNumbers,
@@ -23,6 +24,10 @@ import {
   updateGeneralProfileSchema,
   UpdateGeneralProfileValues,
 } from "@/lib/data/schema/user/general_profile";
+import {
+  PhoneNumberItem,
+  PhoneQueryParams,
+} from "@/lib/data/schema/user/phone_number";
 import { handleError } from "@/lib/error";
 import { showToast } from "@/lib/toast";
 import type { Role } from "@/types";
@@ -30,21 +35,32 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AtSign, Phone, Save, ShieldCheck, UserCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function GeneralProfilePage() {
   const queryClient = useQueryClient();
   const { update: updateSession } = useSession();
 
+  const [phoneSearch, setPhoneSearch] = useState("");
+
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ["user-general-profile"],
     queryFn: getGeneralProfile,
   });
 
-  const { data: phoneData, isLoading: isPhoneLoading } = useQuery({
-    queryKey: ["user-phone-numbers"],
+  const {
+    data: phoneList,
+    isLoading: isPhoneLoading,
+    hasNextPage: hasMorePhone,
+    fetchNextPage: fetchMorePhone,
+    isFetchingNextPage: isFetchingMorePhone,
+  } = useInfiniteSearch<PhoneNumberItem, PhoneQueryParams, PhoneNumberItem>({
+    queryKey: ["user-phone-autocomplete"],
     queryFn: getPhoneNumbers,
+    search: phoneSearch,
+    searchKey: "number",
+    initialLimit: 10,
   });
 
   const isInitializedRef = useRef(false);
@@ -260,10 +276,14 @@ export default function GeneralProfilePage() {
                       <Autocomplete
                         value={field.value ?? ""}
                         onSelect={(v) => field.onChange(String(v))}
-                        options={phoneData ?? []}
+                        options={phoneList ?? []}
                         labelKey="number"
                         valueKey="number"
                         isLoading={isPhoneLoading}
+                        isFetchingMore={isFetchingMorePhone}
+                        hasMore={hasMorePhone}
+                        fetchMore={() => fetchMorePhone()}
+                        onFilterChange={(q) => setPhoneSearch(q)}
                         placeholder="Select or enter phone number"
                         indicatorIcon={<Phone className="size-4" />}
                       />
