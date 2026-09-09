@@ -58,6 +58,7 @@ interface DataDisplayProps<TData, TParams extends Record<string, any>> {
   showFilter?: boolean;
   showCount?: boolean;
   countList?: number[];
+  toolbarExtraAction?: React.ReactNode;
 }
 
 export function DataDisplay<TData, TParams extends BasePaginationQuery>({
@@ -71,8 +72,9 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   showFilter = false,
   showCount = false,
   countList = [10, 20, 50, 100],
+  toolbarExtraAction,
 }: DataDisplayProps<TData, TParams>) {
-  const t = useTranslations("common.display_table");
+  const t = useTranslations("common.data_display");
   const [searchValue, setSearchValue] = useState("");
   const [selectedOptions, setSelectedOptions] = useState<any[]>([]);
   const [filterValues, setFilterValues] = useState<Partial<TParams>>({});
@@ -199,6 +201,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
               filterValues={filterValues}
               setFilterValues={updateFilterValues}
               filterToParamKey={query.filterToParamKey}
+              toolbarExtraAction={toolbarExtraAction}
             />
           </div>
 

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PaginatedResponse } from "../base";
+import { basePaginationQuerySchema, PaginatedResponse } from "../base";
 
 export const phoneRequestSchema = z.object({
   number: z
@@ -21,6 +21,11 @@ export const savePhoneNumbersSchema = z.object({
 export type PhoneValues = z.infer<typeof phoneRequestSchema>;
 export type SavePhoneNumbersValues = z.infer<typeof savePhoneNumbersSchema>;
 
+export const phoneQueryParamsSchema = basePaginationQuerySchema.extend({
+  number: z.string().optional(),
+});
+
+export type PhoneQueryParams = z.infer<typeof phoneQueryParamsSchema>;
 export interface PhoneNumberItem {
   number: string;
   is_primary: boolean;

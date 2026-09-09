@@ -11,7 +11,7 @@ export function LoadMoreFooter({
   onClick: () => void;
   isLoading: boolean;
 }) {
-  const t = useTranslations("common.display_table");
+  const t = useTranslations("common.data_display");
 
   return (
     <div className="relative">

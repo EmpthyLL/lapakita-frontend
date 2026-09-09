@@ -59,7 +59,7 @@ export function EmptyState({
   columnCount: number;
   text?: string;
 }) {
-  const t = useTranslations("common.display_table");
+  const t = useTranslations("common.data_display");
 
   return (
     <TableRow className="hover:bg-transparent">

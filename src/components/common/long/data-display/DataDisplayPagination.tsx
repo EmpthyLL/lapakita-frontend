@@ -28,7 +28,7 @@ export function DataDisplayPagination({
   hasNextPage,
   onPageChange,
 }: DataDisplayPaginationProps) {
-  const t = useTranslations("common.display_table");
+  const t = useTranslations("common.data_display");
   if (totalPages <= 1) return null;
   const pageList = getPageList(currentPage, totalPages);
 

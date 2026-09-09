@@ -28,7 +28,7 @@ import { showToast } from "@/lib/toast";
 import type { Role } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AtSign, Save, ShieldCheck, UserCheck } from "lucide-react";
+import { AtSign, Phone, Save, ShieldCheck, UserCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
@@ -265,6 +265,7 @@ export default function GeneralProfilePage() {
                         valueKey="number"
                         isLoading={isPhoneLoading}
                         placeholder="Select or enter phone number"
+                        indicatorIcon={<Phone className="size-4" />}
                       />
                     </FormControl>
                     <FormMessage />

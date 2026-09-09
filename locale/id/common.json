@@ -38,7 +38,7 @@
     "owner": "Pemilik Lapak",
     "supplier": "Pemasok"
   },
-  "display_table": {
+  "data_display": {
     "add_filter": "Tambah filter",
     "filter_by_placeholder": "Filter berdasarkan...",
     "all_filters_added": "Semua filter telah ditambahkan",
@@ -59,7 +59,8 @@
     "filters": "Filter",
     "no_filters_applied": "Tidak ada filter yang diterapkan",
     "search_placeholder": "Cari...",
-    "page_indicator": "Halaman {current} dari {total}"
+    "page_indicator": "Halaman {current} dari {total}",
+    "clear_all_filters": "Hapus semua"
   },
   "date_range_picker": {
     "select_date": "Pilih Tanggal",

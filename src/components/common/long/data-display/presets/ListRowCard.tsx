@@ -4,11 +4,11 @@ import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { ColumnDef } from "../Constant";
 
-const ACCENT_TINTS = [
-  "bg-info/10 text-info",
-  "bg-destructive/10 text-destructive",
-  "bg-success/10 text-success",
-  "bg-warning/10 text-warning",
+const NUMBER_BADGE_COLORS = [
+  "text-info bg-info/10 border-info/20",
+  "text-destructive bg-destructive/10 border-destructive/20",
+  "text-success bg-success/10 border-success/20",
+  "text-warning bg-warning/10 border-warning/20",
 ];
 
 export function ListRowCard<TData>({
@@ -31,20 +31,19 @@ export function ListRowCard<TData>({
       : String(row[titleColumn.key] ?? "")
     : null;
 
-  const initial =
-    typeof titleValue === "string" && titleValue.length > 0
-      ? titleValue.charAt(0).toUpperCase()
-      : "•";
+  const displayIndex = String(index + 1).padStart(2, "0");
+  const badgeColorClass =
+    NUMBER_BADGE_COLORS[index % NUMBER_BADGE_COLORS.length];
 
   return (
     <div className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md hover:shadow-primary/5">
       <span
         className={cn(
-          "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-sm font-bold",
-          ACCENT_TINTS[index % ACCENT_TINTS.length],
+          "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border font-mono  font-bold",
+          badgeColorClass,
         )}
       >
-        {initial}
+        {displayIndex}
       </span>
 
       <div className="min-w-0 flex-1">

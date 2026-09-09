@@ -8,17 +8,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Trash2 } from "lucide-react";
+import { Check, ChevronDown, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { FILTER_TYPE_ICON, FilterOption } from "./Constant";
@@ -38,8 +30,10 @@ export function FilterItem<TData, TParams extends Record<string, unknown>>({
   filterToParamKey,
   onRemove,
 }: FilterItemProps<TData, TParams>) {
-  const t = useTranslations("common.display_table");
+  const t = useTranslations("common.data_display");
   const [open, setOpen] = useState(true);
+  const [selectPopoverOpen, setSelectPopoverOpen] = useState(false);
+
   const paramKey = filterToParamKey[option.id as string];
   const value = paramKey
     ? ((filterValues[paramKey] as string | number | Date | undefined) ?? "")
@@ -136,26 +130,57 @@ export function FilterItem<TData, TParams extends Record<string, unknown>>({
             }}
           />
         ) : option.type === "select" && option.options ? (
-          <Select
-            value={String(value)}
-            onValueChange={(val) => {
-              handleChange(val);
-              setOpen(false);
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t("select_option")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {option.options.map((op) => (
-                  <SelectItem key={op.value} value={String(op.value)}>
-                    {op.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <Popover open={selectPopoverOpen} onOpenChange={setSelectPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="flex w-full items-center justify-between h-9 px-3 text-xs font-normal border-border bg-background hover:bg-secondary/50 rounded-lg"
+              >
+                <span className="truncate">
+                  {option.options.find((o) => String(o.value) === String(value))
+                    ?.label || t("select_option")}
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-200",
+                    selectPopoverOpen && "rotate-180",
+                  )}
+                />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              side="bottom"
+              align="center"
+              sideOffset={4}
+              className="w-(--radix-popover-trigger-width) p-1 shadow-md rounded-xl"
+            >
+              <div className="space-y-0.5">
+                {option.options.map((op) => {
+                  const isSelected = String(value) === String(op.value);
+                  return (
+                    <button
+                      key={op.value}
+                      type="button"
+                      onClick={() => {
+                        handleChange(op.value);
+                        setSelectPopoverOpen(false);
+                        setOpen(false);
+                      }}
+                      className={cn(
+                        "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors outline-none cursor-pointer",
+                        isSelected
+                          ? "bg-primary/10 text-primary font-semibold"
+                          : "text-foreground hover:bg-secondary",
+                      )}
+                    >
+                      <span>{op.label}</span>
+                      {isSelected && <Check className="h-3.5 w-3.5" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </PopoverContent>
+          </Popover>
         ) : (
           <Input
             placeholder={t("type_here")}

@@ -52,7 +52,7 @@ export function CardSkeleton({ count = 6 }: { count?: number }) {
 }
 
 export function DataEmptyState({ text }: { text?: string }) {
-  const t = useTranslations("common.display_table");
+  const t = useTranslations("common.data_display");
   return (
     <div className="flex flex-col items-center justify-center gap-2 rounded-3xl border border-dashed border-border bg-card py-20 text-center">
       <span className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-xs">
@@ -79,7 +79,7 @@ export function ListFooterCount({
   updating?: boolean;
   className?: string;
 }) {
-  const t = useTranslations("common.display_table");
+  const t = useTranslations("common.data_display");
   return (
     <div
       className={cn(

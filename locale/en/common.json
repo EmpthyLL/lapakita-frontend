@@ -38,7 +38,7 @@
     "owner": "Stall Owner",
     "supplier": "Supplier"
   },
-  "display_table": {
+  "data_display": {
     "add_filter": "Add filter",
     "filter_by_placeholder": "Filter by...",
     "all_filters_added": "All filters added",
@@ -59,7 +59,8 @@
     "filters": "Filters",
     "no_filters_applied": "No filters applied",
     "search_placeholder": "Search...",
-    "page_indicator": "Page {current} of {total}"
+    "page_indicator": "Page {current} of {total}",
+    "clear_all_filters": "Clear all"
   },
   "date_range_picker": {
     "select_date": "Select Date",

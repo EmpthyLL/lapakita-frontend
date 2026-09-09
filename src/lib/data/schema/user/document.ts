@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PaginatedResponse } from "../base";
+import { basePaginationQuerySchema, PaginatedResponse } from "../base";
 
 export const uploadDocumentSchema = z.object({
   full_name_ktp: z
@@ -12,6 +12,13 @@ export const uploadDocumentSchema = z.object({
 });
 
 export type UploadDocumentValues = z.infer<typeof uploadDocumentSchema>;
+
+export const documentQueryParamsSchema = basePaginationQuerySchema.extend({
+  name: z.string().optional(),
+  nik: z.string().optional(),
+});
+
+export type DocumentQueryParams = z.infer<typeof documentQueryParamsSchema>;
 
 export interface GetDocumentData {
   id: string;

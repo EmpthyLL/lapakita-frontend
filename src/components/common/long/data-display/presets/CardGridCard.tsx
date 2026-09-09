@@ -10,6 +10,13 @@ const GLOW_TINTS = [
   "bg-warning/15",
 ];
 
+const NUMBER_BADGE_COLORS = [
+  "text-info bg-info/10 border-info/20",
+  "text-destructive bg-destructive/10 border-destructive/20",
+  "text-success bg-success/10 border-success/20",
+  "text-warning bg-warning/10 border-warning/20",
+];
+
 export function CardGridCard<TData>({
   row,
   index,
@@ -36,10 +43,10 @@ export function CardGridCard<TData>({
       : String(row[titleColumn.key] ?? "")
     : null;
 
-  const initial =
-    typeof titleValue === "string" && titleValue.length > 0
-      ? titleValue.charAt(0).toUpperCase()
-      : "•";
+  // Format nomor urut menjadi 2 digit (contoh: 01, 02, dst.)
+  const displayIndex = String(index + 1).padStart(2, "0");
+  const badgeColorClass =
+    NUMBER_BADGE_COLORS[index % NUMBER_BADGE_COLORS.length];
 
   return (
     <div className="group relative overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-xs transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
@@ -51,8 +58,13 @@ export function CardGridCard<TData>({
       />
 
       <div className="relative flex min-w-0 items-center gap-3">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-base font-bold text-primary shadow-xs transition-transform group-hover:scale-105">
-          {initial}
+        <span
+          className={cn(
+            "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border font-mono font-bold shadow-xs transition-transform group-hover:scale-105",
+            badgeColorClass,
+          )}
+        >
+          {displayIndex}
         </span>
         <div className="min-w-0">
           <h3 className="truncate text-sm font-bold text-foreground">

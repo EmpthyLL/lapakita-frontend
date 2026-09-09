@@ -32,7 +32,7 @@ export function FilterOptions<TData>({
   selectedOptions,
   setSelectedOptions,
 }: FilterOptionsProps<TData>) {
-  const t = useTranslations("common.display_table");
+  const t = useTranslations("common.data_display");
   const [open, setOpen] = useState(false);
   const unselected = options.filter(
     (o) => !selectedOptions.find((s) => s.id === o.id),
