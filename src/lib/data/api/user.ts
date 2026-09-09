@@ -1,6 +1,5 @@
 import api from "@/lib/api";
 import {
-  GetDocumentPayload,
   GetDocumentResponse,
   UploadDocumentValues,
 } from "../schema/user/document";
@@ -16,9 +15,9 @@ import {
   UpdatePersonaValues,
 } from "../schema/user/persona";
 import {
-  GetPhoneNumbersPayload,
+  GetPhoneNumbersResponse,
   PhoneNumberItem,
-  PhoneValues,
+  SavePhoneNumbersValues,
 } from "../schema/user/phone_number";
 
 export async function getGeneralProfile(): Promise<GetGeneralProfileResponse> {
@@ -37,23 +36,13 @@ export async function updateGeneralProfile(
 }
 
 export async function getPhoneNumbers(): Promise<PhoneNumberItem[]> {
-  const response = await api.get<GetPhoneNumbersPayload>("/users/phone");
+  const response = await api.get<GetPhoneNumbersResponse>("/users/phone");
   return response.data.data;
 }
 
-export async function addPhoneNumber(payload: PhoneValues): Promise<void> {
-  await api.post("/users/phone", payload);
-}
-
-export async function updatePhoneNumber(
-  index: string | number,
-  payload: PhoneValues,
-): Promise<void> {
-  await api.put(`/users/phone/${index}`, payload);
-}
-
-export async function deletePhoneNumber(index: string | number): Promise<void> {
-  await api.delete(`/users/phone/${index}`);
+export async function savePhoneNumbers(payload: SavePhoneNumbersValues) {
+  const response = await api.put("/users/phone", payload);
+  return response.data;
 }
 
 export async function updatePassword(
@@ -78,8 +67,8 @@ export async function updatePersonaProfile(
   await api.put(`/users/persona/${role}`, payload);
 }
 
-export async function getDocument(): Promise<GetDocumentResponse> {
-  const response = await api.get<GetDocumentPayload>("/users/document");
+export async function getDocument() {
+  const response = await api.get<GetDocumentResponse>("/users/document");
   return response.data.data;
 }
 

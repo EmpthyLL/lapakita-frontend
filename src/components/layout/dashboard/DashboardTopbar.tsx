@@ -33,6 +33,28 @@ interface DashboardTopbarProps {
 
 const VALID_ROLES: Role[] = ["tenant", "owner", "supplier"];
 
+// Helper untuk mendapatkan class warna teks & background sesuai role aktif
+const getRoleThemeClasses = (role: Role) => {
+  switch (role) {
+    case "owner":
+      return {
+        text: "text-owner",
+        bgSoft: "bg-owner/10",
+      };
+    case "supplier":
+      return {
+        text: "text-supplier",
+        bgSoft: "bg-supplier/10",
+      };
+    case "tenant":
+    default:
+      return {
+        text: "text-tenant",
+        bgSoft: "bg-tenant/10",
+      };
+  }
+};
+
 function useBreadcrumb(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
   const hasDashboard = segments[0]?.toLowerCase() === "dashboard";
@@ -80,7 +102,10 @@ export function DashboardTopbar({
 
   const userName = session?.user?.defaultName || propUserName || "User";
   const userAvatarUrl = session?.user?.defaultAvatarUrl || propAvatarUrl || "";
+  const sessionActiveRole = (session?.user?.activeRole as Role) || currentRole;
   const profileRoutePath = `/dashboard/${currentRole}/profile`;
+
+  const theme = getRoleThemeClasses(sessionActiveRole);
 
   const getInitials = (str: string) => {
     if (!str) return "U";
@@ -145,7 +170,13 @@ export function DashboardTopbar({
                   alt={userName}
                   className="object-cover"
                 />
-                <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+                <AvatarFallback
+                  className={cn(
+                    "font-bold text-xs transition-colors",
+                    theme.bgSoft,
+                    theme.text,
+                  )}
+                >
                   {getInitials(userName)}
                 </AvatarFallback>
               </Avatar>
@@ -159,16 +190,9 @@ export function DashboardTopbar({
                   {userName}
                 </p>
                 <p className="text-xs leading-none text-muted-foreground capitalize">
-                  Mode:{" "}
-                  <span
-                    className={cn(
-                      "font-semibold",
-                      activeRole === "all"
-                        ? "text-muted-foreground"
-                        : "text-primary",
-                    )}
-                  >
-                    {activeRole === "all" ? "General Mode" : currentRole}
+                  Active Role:{" "}
+                  <span className={cn("font-semibold capitalize", theme.text)}>
+                    {sessionActiveRole}
                   </span>
                 </p>
               </div>

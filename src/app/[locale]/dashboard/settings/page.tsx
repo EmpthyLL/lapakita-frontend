@@ -28,8 +28,9 @@ import { showToast } from "@/lib/toast";
 import type { Role } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Mail, Save, ShieldCheck, UserCheck } from "lucide-react";
+import { AtSign, Save, ShieldCheck, UserCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 
 export default function GeneralProfilePage() {
@@ -46,33 +47,70 @@ export default function GeneralProfilePage() {
     queryFn: getPhoneNumbers,
   });
 
+  const isInitializedRef = useRef(false);
+
   const form = useForm<UpdateGeneralProfileValues>({
     resolver: zodResolver(updateGeneralProfileSchema),
-    values: {
-      name: profile?.name ?? "",
-      default_avatar_url: profile?.default_avatar_url ?? "",
-      phone_number: profile?.primary_phone ?? "",
-      active_role: profile?.active_role ?? "tenant",
+    defaultValues: {
+      name: "",
+      default_avatar_url: "",
+      phone_number: "",
+      active_role: "tenant",
     },
   });
+
+  useEffect(() => {
+    if (profile && !isInitializedRef.current) {
+      form.reset({
+        name: profile.name ?? "",
+        default_avatar_url: profile.default_avatar_url ?? "",
+        phone_number: profile.primary_phone ?? "",
+        active_role: profile.active_role ?? "tenant",
+      });
+      isInitializedRef.current = true;
+    }
+  }, [profile, form]);
+
+  const activeRole = form.watch("active_role");
+  const currentName = form.watch("name");
+
+  const getRoleColorClass = (role?: Role) => {
+    switch (role) {
+      case "owner":
+        return "text-owner bg-owner/10";
+      case "supplier":
+        return "text-supplier bg-supplier/10";
+      case "tenant":
+      default:
+        return "text-tenant bg-tenant/10";
+    }
+  };
+
+  const currentRoleColorClass = getRoleColorClass(activeRole);
 
   const updateMutation = useMutation({
     mutationFn: updateGeneralProfile,
     onSuccess: async (res) => {
       showToast.success("General profile updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["user-general-profile"] });
 
       await updateSession({
         user: {
           defaultName: res.name,
           defaultPhone: res.primary_phone,
           defaultAvatarUrl: res.default_avatar_url,
-          activeRole: res.active_role,
+          activeRole: res.active_role || activeRole,
         },
       });
 
-      // Reset form state agar isDirty kembali ke false setelah berhasil disimpan
-      form.reset(res);
+      form.reset({
+        name: res.name ?? form.getValues("name"),
+        default_avatar_url:
+          res.default_avatar_url ?? form.getValues("default_avatar_url"),
+        phone_number: res.primary_phone ?? form.getValues("phone_number"),
+        active_role: res.active_role ?? activeRole,
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["user-general-profile"] });
     },
     onError: (error) => {
       handleError(error);
@@ -95,7 +133,9 @@ export default function GeneralProfilePage() {
         <div className="absolute top-0 right-0 h-32 w-32 -translate-y-8 translate-x-8 rounded-full bg-gradient-brand opacity-10 blur-2xl pointer-events-none" />
 
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <div
+            className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${currentRoleColorClass}`}
+          >
             <UserCheck className="h-5 w-5" />
           </div>
           <div>
@@ -125,9 +165,10 @@ export default function GeneralProfilePage() {
                         <AvatarInput
                           value={field.value ?? ""}
                           onChange={field.onChange}
-                          name={form.watch("name") || "User"}
+                          name={currentName || "User"}
                           mode="edit"
                           size="lg"
+                          disabled={updateMutation.isPending}
                         />
                       </FormControl>
                       <FormMessage className="text-center" />
@@ -143,7 +184,6 @@ export default function GeneralProfilePage() {
                 photo.
               </p>
 
-              {/* Role Select Popover tepat di bawah Avatar */}
               <div className="w-full max-w-xs">
                 <FormField
                   control={form.control}
@@ -169,7 +209,10 @@ export default function GeneralProfilePage() {
             <div className="space-y-1.5 rounded-2xl bg-secondary/40 p-4 border border-border/60">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                  <Mail className="h-3.5 w-3.5 text-primary" /> Email Address
+                  <AtSign
+                    className={`h-3.5 w-3.5 transition-colors ${activeRole === "owner" ? "text-owner" : activeRole === "supplier" ? "text-supplier" : "text-tenant"}`}
+                  />{" "}
+                  Email Address
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">
                   <ShieldCheck className="h-3 w-3" /> Verified Account
@@ -234,10 +277,9 @@ export default function GeneralProfilePage() {
               <Button
                 type="submit"
                 size="lg"
-                variant="default"
+                variant={activeRole}
                 disabled={!isDirty || updateMutation.isPending}
                 isLoading={updateMutation.isPending}
-                className="w-full sm:w-auto min-w-40 rounded-xl bg-primary text-primary-foreground font-semibold shadow-sm hover:opacity-95 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Save className="mr-2 h-4 w-4" /> Save Changes
               </Button>

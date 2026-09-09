@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ResponseData } from "../base";
+import { PaginatedResponse } from "../base";
 
 export const uploadDocumentSchema = z.object({
   full_name_ktp: z
@@ -13,11 +13,12 @@ export const uploadDocumentSchema = z.object({
 
 export type UploadDocumentValues = z.infer<typeof uploadDocumentSchema>;
 
-export interface GetDocumentResponse {
+export interface GetDocumentData {
+  id: string;
   full_name_ktp: string;
   nik: string;
   ktp_photo_url: string;
   domicile_city: string;
 }
 
-export type GetDocumentPayload = ResponseData<GetDocumentResponse>;
+export type GetDocumentResponse = PaginatedResponse<GetDocumentData>;

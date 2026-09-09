@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ResponseData } from "../base";
+import { PaginatedResponse } from "../base";
 
 export const phoneRequestSchema = z.object({
   number: z
@@ -14,7 +14,12 @@ export const phoneRequestSchema = z.object({
   roles: z.array(z.string()),
 });
 
+export const savePhoneNumbersSchema = z.object({
+  phone_numbers: z.array(phoneRequestSchema),
+});
+
 export type PhoneValues = z.infer<typeof phoneRequestSchema>;
+export type SavePhoneNumbersValues = z.infer<typeof savePhoneNumbersSchema>;
 
 export interface PhoneNumberItem {
   number: string;
@@ -22,4 +27,4 @@ export interface PhoneNumberItem {
   roles: string[];
 }
 
-export type GetPhoneNumbersPayload = ResponseData<PhoneNumberItem[]>;
+export type GetPhoneNumbersResponse = PaginatedResponse<PhoneNumberItem>;

@@ -42,6 +42,31 @@ function isNavLinkActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+// Helper untuk mendapatkan class warna teks & background sesuai role aktif
+const getRoleThemeClasses = (role: RoleVariant) => {
+  switch (role) {
+    case "owner":
+      return {
+        text: "text-owner",
+        bgSoft: "bg-owner/10",
+        border: "border-owner/30",
+      };
+    case "supplier":
+      return {
+        text: "text-supplier",
+        bgSoft: "bg-supplier/10",
+        border: "border-supplier/30",
+      };
+    case "tenant":
+    default:
+      return {
+        text: "text-tenant",
+        bgSoft: "bg-tenant/10",
+        border: "border-tenant/30",
+      };
+  }
+};
+
 export function SiteHeader() {
   const t = useTranslations("common.nav");
   const pathname = usePathname();
@@ -53,6 +78,8 @@ export function SiteHeader() {
   // 1. Role Aktif (Default: tenant)
   const activeRole: RoleVariant =
     (session?.user?.activeRole as RoleVariant) || "tenant";
+
+  const theme = getRoleThemeClasses(activeRole);
 
   // 2. Ambil detail Persona berdasarkan activeRole
   const currentPersona = session?.user?.personas?.[activeRole];
@@ -138,7 +165,7 @@ export function SiteHeader() {
             </>
           ) : (
             <>
-              {/* Button Dashboard (Ukuran diperkecil: size="sm") */}
+              {/* Button Dashboard */}
               <Link href={`/dashboard/${activeRole}`}>
                 <Button
                   variant={activeRole}
@@ -160,7 +187,13 @@ export function SiteHeader() {
                         alt={userName}
                         className="object-cover"
                       />
-                      <AvatarFallback className="bg-primary-secondary text-primary font-bold text-xs">
+                      <AvatarFallback
+                        className={cn(
+                          "font-bold text-xs transition-colors",
+                          theme.bgSoft,
+                          theme.text,
+                        )}
+                      >
                         {getInitials(userName)}
                       </AvatarFallback>
                     </Avatar>
@@ -191,13 +224,9 @@ export function SiteHeader() {
                         </p>
                       )}
                       <p className="text-xs leading-none text-muted-foreground capitalize pt-0.5">
-                        Role:{" "}
+                        Active Role:{" "}
                         <span
-                          className={cn("font-semibold", {
-                            "text-tenant": activeRole === "tenant",
-                            "text-owner": activeRole === "owner",
-                            "text-supplier": activeRole === "supplier",
-                          })}
+                          className={cn("font-semibold capitalize", theme.text)}
                         >
                           {activeRole}
                         </span>
@@ -373,7 +402,13 @@ export function SiteHeader() {
                             alt={userName}
                             className="object-cover"
                           />
-                          <AvatarFallback className="bg-primary-secondary text-primary font-bold text-xs">
+                          <AvatarFallback
+                            className={cn(
+                              "font-bold text-xs transition-colors",
+                              theme.bgSoft,
+                              theme.text,
+                            )}
+                          >
                             {getInitials(userName)}
                           </AvatarFallback>
                         </Avatar>
@@ -398,13 +433,12 @@ export function SiteHeader() {
                           </p>
                         )}
                         <p className="text-xs text-muted-foreground capitalize">
-                          Role:{" "}
+                          Active Role:{" "}
                           <span
-                            className={cn("font-semibold", {
-                              "text-tenant": activeRole === "tenant",
-                              "text-owner": activeRole === "owner",
-                              "text-supplier": activeRole === "supplier",
-                            })}
+                            className={cn(
+                              "font-semibold capitalize",
+                              theme.text,
+                            )}
                           >
                             {activeRole}
                           </span>
