@@ -1,15 +1,10 @@
-// components/common/input/AvatarInput.tsx
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
+import DialogWrapper from "@/components/common/DialogWrapper";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { DialogFooter } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Camera, Trash2 } from "lucide-react";
 import Image from "next/image";
@@ -257,55 +252,52 @@ export function AvatarInput({
         </div>
       </div>
 
-      <Dialog open={isOpenCropModal} onOpenChange={setIsOpenCropModal}>
-        <DialogContent className="max-w-md rounded-2xl p-6">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold">
-              Crop Profile Picture
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="flex max-h-[70vh] w-full items-center justify-center overflow-hidden py-2">
-            {imgSrc && (
-              <ReactCrop
-                crop={crop}
-                onChange={(c) => setCrop(c)}
-                onComplete={(c) => setCompletedCrop(c)}
-                aspect={1}
-                circularCrop
-                className="max-h-[60vh] flex items-center justify-center"
-              >
-                <img
-                  ref={imgRef}
-                  src={imgSrc}
-                  alt="Crop Preview"
-                  onLoad={handleImageLoad}
-                  className="max-h-[60vh] w-auto object-contain block"
-                />
-              </ReactCrop>
-            )}
-          </div>
-
-          <DialogFooter className="flex gap-2 sm:justify-end pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsOpenCropModal(false)}
-              className="rounded-xl"
+      <DialogWrapper
+        open={isOpenCropModal}
+        onOpenChange={setIsOpenCropModal}
+        title="Crop Profile Picture"
+        size="md"
+      >
+        <div className="flex max-h-[70vh] w-full items-center justify-center overflow-hidden py-2">
+          {imgSrc && (
+            <ReactCrop
+              crop={crop}
+              onChange={(c) => setCrop(c)}
+              onComplete={(c) => setCompletedCrop(c)}
+              aspect={1}
+              circularCrop
+              className="max-h-[60vh] flex items-center justify-center"
             >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              variant="default"
-              onClick={handleConfirmCrop}
-              className="rounded-xl bg-primary text-primary-foreground font-semibold"
-            >
-              Apply & Save
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <img
+                ref={imgRef}
+                src={imgSrc}
+                alt="Crop Preview"
+                onLoad={handleImageLoad}
+                className="max-h-[60vh] w-auto object-contain block"
+              />
+            </ReactCrop>
+          )}
+        </div>
+
+        <DialogFooter className="flex gap-2 sm:justify-end pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsOpenCropModal(false)}
+            className="rounded-xl"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="default"
+            onClick={handleConfirmCrop}
+            className="rounded-xl bg-primary text-primary-foreground font-semibold"
+          >
+            Apply & Save
+          </Button>
+        </DialogFooter>
+      </DialogWrapper>
     </>
   );
 }

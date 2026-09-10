@@ -25,6 +25,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Spinner } from "../../Spinner";
 import {
+  ActionColumnDef,
   ColumnDef,
   DataDisplayLoadMode,
   DataDisplayQuery,
@@ -39,6 +40,7 @@ import {
   ListRowSkeleton,
 } from "./ListStates";
 import { LoadMoreFooter } from "./LoadMoreFooter";
+import { renderActionConfig } from "./presets/ActionRenderer";
 import { CardGridCard } from "./presets/CardGridCard";
 import { ListRowCard } from "./presets/ListRowCard";
 import { SearchFilterBar } from "./SearchFilterBar";
@@ -177,6 +179,13 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
     ? paginated.meta?.totalItems
     : infinite.meta?.totalItems;
 
+  const actionColumns: ActionColumnDef<TData>[] = [];
+  for (const column of columns) {
+    if ("kind" in column && column.kind === "action") {
+      actionColumns.push(column);
+    }
+  }
+
   function renderPresetItem(row: TData, index: number) {
     if (renderItem) return renderItem(row, index);
     return variant === "card" ? (
@@ -237,6 +246,8 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
                 <TableRow className="border-b border-primary/15 bg-primary/5 hover:bg-primary/5">
                   <TableHead className="w-10" />
                   {columns.map((col) => {
+                    if (col.kind === "action") return null;
+
                     const Icon = col.icon;
                     return (
                       <TableHead
@@ -247,14 +258,28 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
                         )}
                       >
                         <span className="flex items-center gap-1.5">
-                          {Icon && (
-                            <Icon className="h-3.5 w-3.5 text-primary" />
-                          )}
+                          {Icon && <Icon className="h-3 w-3 text-primary" />}
                           {col.header}
                         </span>
                       </TableHead>
                     );
                   })}
+                  {actionColumns.length > 0 && (
+                    <TableHead
+                      className={cn(
+                        "w-24 text-right text-xs font-semibold tracking-wide text-primary/80",
+                      )}
+                    >
+                      <span className="flex items-center justify-end gap-1.5">
+                        {actionColumns[0].icon &&
+                          (() => {
+                            const Icon = actionColumns[0].icon;
+                            return <Icon className="h-3 w-3" />;
+                          })()}
+                        {actionColumns[0].header ?? "Actions"}
+                      </span>
+                    </TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
 
@@ -281,16 +306,34 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
                       <TableCell className="w-10">
                         <RowIndexBadge index={index} />
                       </TableCell>
-                      {columns.map((col) => (
-                        <TableCell
-                          key={String(col.key)}
-                          className={col.className}
-                        >
-                          {col.render
-                            ? col.render(row[col.key as keyof TData], row)
-                            : String(row[col.key as keyof TData] ?? "")}
+                      {columns.map((col) => {
+                        if (col.kind === "action") return null;
+
+                        return (
+                          <TableCell
+                            key={String(col.key)}
+                            className={col.className}
+                          >
+                            {col.render
+                              ? col.render(row[col.key as keyof TData], row)
+                              : String(row[col.key as keyof TData] ?? "")}
+                          </TableCell>
+                        );
+                      })}
+                      {actionColumns.length > 0 && (
+                        <TableCell className="w-24 text-right">
+                          {actionColumns.map((col) => {
+                            return (
+                              <div
+                                key={String(col.header ?? "action")}
+                                className="flex justify-end"
+                              >
+                                {renderActionConfig(row, col.action)}
+                              </div>
+                            );
+                          })}
                         </TableCell>
-                      ))}
+                      )}
                     </TableRow>
                   ))
                 )}

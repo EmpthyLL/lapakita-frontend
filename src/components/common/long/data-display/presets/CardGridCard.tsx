@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ColumnDef } from "../Constant";
+import { ActionColumnDef, ColumnDef, FieldColumnDef } from "../Constant";
+import { renderActionConfig } from "./ActionRenderer";
 
 const GLOW_TINTS = [
   "bg-info/15",
@@ -26,21 +27,34 @@ export function CardGridCard<TData>({
   index: number;
   columns: ColumnDef<TData>[];
 }) {
-  const titleColumn = columns.find((c) => c.primary) ?? columns[0];
-  const badgeColumn = columns.find(
-    (c) => c.key !== titleColumn?.key && !c.hideInPreset,
-  );
-  const metaColumns = columns.filter(
-    (c) =>
-      c.key !== titleColumn?.key &&
-      c.key !== badgeColumn?.key &&
-      !c.hideInPreset,
+  const titleColumn =
+    columns.find((c) => "key" in c && c.primary) ?? columns[0];
+  const titleKey = "key" in titleColumn ? titleColumn.key : undefined;
+
+  const allFieldColumns: FieldColumnDef<TData, keyof TData>[] = [];
+  for (const column of columns) {
+    if ("key" in column && column.key !== titleKey) {
+      allFieldColumns.push(column as FieldColumnDef<TData, keyof TData>);
+    }
+  }
+  const badgeColumn = allFieldColumns.find((c) => !c.hideInPreset);
+  const metaColumns = allFieldColumns.filter(
+    (c) => c.key !== badgeColumn?.key && !c.hideInPreset,
   );
 
+  const actionColumns: ActionColumnDef<TData>[] = [];
+  for (const column of columns) {
+    if ("kind" in column && column.kind === "action" && !column.hideInPreset) {
+      actionColumns.push(column);
+    }
+  }
+
   const titleValue = titleColumn
-    ? titleColumn.render
+    ? "key" in titleColumn && titleColumn.render
       ? titleColumn.render(row[titleColumn.key], row)
-      : String(row[titleColumn.key] ?? "")
+      : "key" in titleColumn
+        ? String(row[titleColumn.key] ?? "")
+        : ""
     : null;
 
   // Format nomor urut menjadi 2 digit (contoh: 01, 02, dst.)
@@ -95,6 +109,40 @@ export function CardGridCard<TData>({
                 {Icon && <Icon className="h-3 w-3 text-primary" />}
                 {value}
               </span>
+            );
+          })}
+
+          {actionColumns.length > 0 && (
+            <div className="ml-auto flex items-center justify-end gap-2 pt-1">
+              {actionColumns.map((col) => {
+                const actionRenderer = renderActionConfig(row, col.action);
+
+                return (
+                  <div
+                    key={String(col.header ?? "action")}
+                    className="flex items-center justify-end"
+                  >
+                    {actionRenderer}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {metaColumns.length === 0 && actionColumns.length > 0 && (
+        <div className="relative mt-4 flex justify-end border-t border-border/60 pt-3">
+          {actionColumns.map((col) => {
+            const actionRenderer = renderActionConfig(row, col.action);
+
+            return (
+              <div
+                key={String(col.header ?? "action")}
+                className="flex items-center justify-end"
+              >
+                {actionRenderer}
+              </div>
             );
           })}
         </div>

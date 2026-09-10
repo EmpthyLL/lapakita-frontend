@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
-import { ColumnDef } from "../Constant";
+import { ActionColumnDef, ColumnDef, FieldColumnDef } from "../Constant";
+import { renderActionConfig } from "./ActionRenderer";
 
 const NUMBER_BADGE_COLORS = [
   "text-info bg-info/10 border-info/20",
@@ -20,15 +21,30 @@ export function ListRowCard<TData>({
   index: number;
   columns: ColumnDef<TData>[];
 }) {
-  const titleColumn = columns.find((c) => c.primary) ?? columns[0];
-  const metaColumns = columns.filter(
-    (c) => c.key !== titleColumn?.key && !c.hideInPreset,
-  );
+  const titleColumn =
+    columns.find((c) => "key" in c && c.primary) ?? columns[0];
+  const titleKey = "key" in titleColumn ? titleColumn.key : undefined;
+
+  const metaColumns: FieldColumnDef<TData, keyof TData>[] = [];
+  for (const column of columns) {
+    if ("key" in column && column.key !== titleKey && !column.hideInPreset) {
+      metaColumns.push(column as FieldColumnDef<TData, keyof TData>);
+    }
+  }
+
+  const actionColumns: ActionColumnDef<TData>[] = [];
+  for (const column of columns) {
+    if ("kind" in column && column.kind === "action" && !column.hideInPreset) {
+      actionColumns.push(column);
+    }
+  }
 
   const titleValue = titleColumn
-    ? titleColumn.render
+    ? "key" in titleColumn && titleColumn.render
       ? titleColumn.render(row[titleColumn.key], row)
-      : String(row[titleColumn.key] ?? "")
+      : "key" in titleColumn
+        ? String(row[titleColumn.key] ?? "")
+        : ""
     : null;
 
   const displayIndex = String(index + 1).padStart(2, "0");
@@ -69,7 +85,22 @@ export function ListRowCard<TData>({
         </div>
       </div>
 
-      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+      <div className="ml-auto flex items-center gap-2">
+        {actionColumns.map((col) => {
+          const actionRenderer = renderActionConfig(row, col.action);
+
+          return (
+            <div
+              key={String(col.header ?? "action")}
+              className="flex items-center justify-end"
+            >
+              {actionRenderer}
+            </div>
+          );
+        })}
+
+        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+      </div>
     </div>
   );
 }
