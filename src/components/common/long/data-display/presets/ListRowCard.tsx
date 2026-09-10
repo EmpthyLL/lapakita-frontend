@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { ActionColumnDef, ColumnDef, FieldColumnDef } from "../Constant";
-import { renderActionConfig } from "./ActionRenderer";
 
 const NUMBER_BADGE_COLORS = [
   "text-info bg-info/10 border-info/20",
@@ -21,14 +20,18 @@ export function ListRowCard<TData>({
   index: number;
   columns: ColumnDef<TData>[];
 }) {
-  const titleColumn =
-    columns.find((c) => "key" in c && c.primary) ?? columns[0];
-  const titleKey = "key" in titleColumn ? titleColumn.key : undefined;
+  const fieldColumns = columns.filter(
+    (c): c is FieldColumnDef<TData, keyof TData> =>
+      !("kind" in c && c.kind === "action"),
+  ) as FieldColumnDef<TData, keyof TData>[];
+
+  const titleColumn = fieldColumns.find((c) => c.primary) ?? fieldColumns[0];
+  const titleKey = titleColumn?.key;
 
   const metaColumns: FieldColumnDef<TData, keyof TData>[] = [];
-  for (const column of columns) {
-    if ("key" in column && column.key !== titleKey && !column.hideInPreset) {
-      metaColumns.push(column as FieldColumnDef<TData, keyof TData>);
+  for (const column of fieldColumns) {
+    if (column.key !== titleKey && !column.hideInPreset) {
+      metaColumns.push(column);
     }
   }
 
@@ -40,11 +43,9 @@ export function ListRowCard<TData>({
   }
 
   const titleValue = titleColumn
-    ? "key" in titleColumn && titleColumn.render
-      ? titleColumn.render(row[titleColumn.key], row)
-      : "key" in titleColumn
-        ? String(row[titleColumn.key] ?? "")
-        : ""
+    ? titleColumn.render
+      ? titleColumn.render(row[titleColumn.key], row, index)
+      : String(row[titleColumn.key] ?? "")
     : null;
 
   const displayIndex = String(index + 1).padStart(2, "0");
@@ -55,7 +56,7 @@ export function ListRowCard<TData>({
     <div className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md hover:shadow-primary/5">
       <span
         className={cn(
-          "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border font-mono  font-bold",
+          "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border font-mono font-bold",
           badgeColorClass,
         )}
       >
@@ -70,7 +71,7 @@ export function ListRowCard<TData>({
           {metaColumns.map((col) => {
             const Icon = col.icon;
             const value = col.render
-              ? col.render(row[col.key], row)
+              ? col.render(row[col.key], row, index)
               : String(row[col.key] ?? "");
             return (
               <span
@@ -86,15 +87,15 @@ export function ListRowCard<TData>({
       </div>
 
       <div className="ml-auto flex items-center gap-2">
-        {actionColumns.map((col) => {
-          const actionRenderer = renderActionConfig(row, col.action);
+        {actionColumns.map((col, cIdx) => {
+          const actionNode = col.render(row, index);
 
           return (
             <div
-              key={String(col.header ?? "action")}
+              key={`list-action-${cIdx}`}
               className="flex items-center justify-end"
             >
-              {actionRenderer}
+              {actionNode}
             </div>
           );
         })}

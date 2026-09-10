@@ -143,7 +143,7 @@ export const SETTINGS_NAV: DashboardNavItem[] = [
   },
   {
     label: "Security & Password",
-    href: "/dashboard/settings/security",
+    href: "/dashboard/settings/password",
     icon: Lock,
   },
   {
@@ -155,28 +155,6 @@ export const SETTINGS_NAV: DashboardNavItem[] = [
     label: "Persona Preferences",
     href: "/dashboard/settings/preferences",
     icon: UserCheck,
-  },
-];
-
-// ── PERSONA PROFILES SUB-NAV (Dipisah Per Role) ─────────────────────────────
-export const PERSONA_PROFILES_NAV: DashboardNavItem[] = [
-  {
-    label: "Tenant Profile",
-    href: "/dashboard/settings/profile/tenant",
-    icon: UserCog,
-    role: "tenant",
-  },
-  {
-    label: "Owner Profile",
-    href: "/dashboard/settings/profile/owner",
-    icon: UserCog,
-    role: "owner",
-  },
-  {
-    label: "Supplier Profile",
-    href: "/dashboard/settings/profile/supplier",
-    icon: UserCog,
-    role: "supplier",
   },
 ];
 
@@ -201,6 +179,28 @@ export const WALLET_NAV: DashboardNavItem[] = [
     label: "Payout Bank Accounts",
     href: "/dashboard/wallet/payout-methods",
     icon: ShieldCheck,
+  },
+];
+
+// ── PERSONA PROFILES SUB-NAV (Dipisah Per Role) ─────────────────────────────
+export const PERSONA_PROFILES_NAV: DashboardNavItem[] = [
+  {
+    label: "Tenant Profile",
+    href: "/dashboard/settings/profile/tenant",
+    icon: UserCog,
+    role: "tenant",
+  },
+  {
+    label: "Owner Profile",
+    href: "/dashboard/settings/profile/owner",
+    icon: UserCog,
+    role: "owner",
+  },
+  {
+    label: "Supplier Profile",
+    href: "/dashboard/settings/profile/supplier",
+    icon: UserCog,
+    role: "supplier",
   },
 ];
 

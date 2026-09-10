@@ -46,7 +46,7 @@ const AVAILABLE_ROLES = [
 
 interface PhoneFormProps {
   mode: "create" | "edit";
-  initialData?: PhoneNumberItem | null;
+  initialData?: (PhoneNumberItem & { index: number }) | null;
   onSuccess: () => void;
   onCancel?: () => void;
 }
@@ -87,7 +87,7 @@ export function PhoneForm({
   const mutation = useMutation({
     mutationFn: async (values: PhoneValues) => {
       if (mode === "edit" && initialData) {
-        await updatePhoneNumber(initialData.number, values);
+        await updatePhoneNumber(initialData.index, values);
       } else {
         await addPhoneNumber(values);
       }

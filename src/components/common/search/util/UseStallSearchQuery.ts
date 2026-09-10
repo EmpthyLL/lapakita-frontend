@@ -74,16 +74,22 @@ function removeIrrelevantPermanenceQuery(
   query: URLSearchParams,
   permanenceType: StallPermanenceType,
 ) {
-  const relevantKeys = new Set([
+  const relevantKeys = new Set<string>([
     ...PERMANENCE_QUERY_KEYS[permanenceType],
     ...LEASE_QUERY_KEYS[permanenceType],
   ]);
 
   Object.values(PERMANENCE_QUERY_KEYS)
     .flat()
-    .concat(Object.values(LEASE_QUERY_KEYS).flat())
-    .filter((key) => !relevantKeys.has(key))
-    .forEach((key) => query.delete(key));
+    .forEach((key) => {
+      if (!relevantKeys.has(key)) query.delete(key);
+    });
+
+  Object.values(LEASE_QUERY_KEYS)
+    .flat()
+    .forEach((key) => {
+      if (!relevantKeys.has(key)) query.delete(key);
+    });
 }
 
 export function getCleanBackendQuery(

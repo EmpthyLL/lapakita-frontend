@@ -115,7 +115,7 @@ function Calendar({
           defaultClassNames.range_start,
         ),
         range_middle: cn(
-          "rounded-none bg-primary-secondary text-primary font-semibold",
+          "rounded-md bg-primary-secondary text-primary font-semibold",
           defaultClassNames.range_middle,
         ),
         range_end: cn(
@@ -221,7 +221,7 @@ function CalendarDayButton({
         "data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md",
         "data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground",
         // Trail tengah dipastikan selalu berwarna role/primary-secondary walaupun melewati 'today'
-        "data-[range-middle=true]:bg-primary-secondary! data-[range-middle=true]:text-primary! data-[range-middle=true]:font-semibold data-[range-middle=true]:rounded-none",
+        "data-[range-middle=true]:bg-primary-secondary! data-[range-middle=true]:text-primary! data-[range-middle=true]:font-semibold data-[range-middle=true]:rounded-md",
         "flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-[3px] [&>span]:text-sm [&>span]:opacity-70",
         defaultClassNames.day,
         className,

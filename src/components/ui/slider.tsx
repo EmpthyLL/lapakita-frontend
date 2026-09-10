@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
+import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -31,7 +31,7 @@ const Slider = React.forwardRef<
     >
       <SliderPrimitive.Track
         data-slot="slider-track"
-        className="relative grow overflow-hidden rounded-none bg-muted select-none data-[orientation=horizontal]:h-1 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1"
+        className="relative grow overflow-hidden rounded-md bg-muted select-none data-[orientation=horizontal]:h-1 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1"
       >
         <SliderPrimitive.Range
           data-slot="slider-range"
@@ -42,7 +42,7 @@ const Slider = React.forwardRef<
         <SliderPrimitive.Thumb
           key={index}
           data-slot="slider-thumb"
-          className="relative block size-3 shrink-0 rounded-none border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none hover:ring-1 focus-visible:ring-1 focus-visible:outline-hidden active:ring-1 disabled:pointer-events-none disabled:opacity-50"
+          className="relative block size-3 shrink-0 rounded-md border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none hover:ring-1 focus-visible:ring-1 focus-visible:outline-hidden active:ring-1 disabled:pointer-events-none disabled:opacity-50"
         />
       ))}
     </SliderPrimitive.Root>

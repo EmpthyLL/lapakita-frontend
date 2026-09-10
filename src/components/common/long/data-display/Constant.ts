@@ -15,66 +15,6 @@ export interface FilterOption<TData> {
   options?: { label: string; value: string | number }[];
 }
 
-export type ActionButtonVariant =
-  | "default"
-  | "primary"
-  | "secondary"
-  | "outline"
-  | "destructive"
-  | "ghost";
-
-export interface DropdownActionItem<TData> {
-  id: string;
-  label: string;
-  icon?: LucideIcon;
-  action?: (row: TData) => void;
-  onClick?: (row: TData) => void;
-  href?: string;
-  disabled?: boolean;
-  destructive?: boolean;
-  render?: (row: TData) => ReactNode;
-}
-
-export interface ActionItem<TData> {
-  id: string;
-  label?: string;
-  icon?: LucideIcon;
-  variant?: ActionButtonVariant;
-  size?: ActionSize;
-  action?: (row: TData) => void;
-  onClick?: (row: TData) => void;
-  href?: string;
-  disabled?: boolean;
-  render?: (row: TData) => ReactNode;
-}
-
-export type ActionSize =
-  | "xs"
-  | "sm"
-  | "default"
-  | "lg"
-  | "icon"
-  | "icon-xs"
-  | "icon-sm"
-  | "icon-lg";
-
-export type ActionConfig<TData> =
-  | {
-      variant: "buttons";
-      size?: ActionSize;
-      items: ActionItem<TData>[];
-    }
-  | {
-      variant: "dropdown";
-      size?: ActionSize;
-      items: DropdownActionItem<TData>[];
-      align?: "start" | "end";
-    }
-  | {
-      variant: "custom";
-      render: (row: TData) => ReactNode;
-    };
-
 export interface BaseColumnDef {
   header?: string;
   icon?: LucideIcon;
@@ -83,22 +23,36 @@ export interface BaseColumnDef {
   hideInPreset?: boolean;
 }
 
-export interface FieldColumnDef<
+export type FieldColumnDef<
   TData,
   K extends keyof TData = keyof TData,
-> extends BaseColumnDef {
+> = BaseColumnDef & {
   key: K;
-  render?: (value: TData[K], row: TData) => ReactNode;
-}
+  render?: (value: TData[K], row: TData, index: number) => ReactNode;
+};
 
-export interface ActionColumnDef<TData> extends BaseColumnDef {
+export type ActionColumnDef<TData> = BaseColumnDef & {
   kind: "action";
-  action: ActionConfig<TData>;
-}
+  render: (row: TData, index: number) => ReactNode;
+};
 
 export type ColumnDef<TData> =
   | FieldColumnDef<TData, keyof TData>
   | ActionColumnDef<TData>;
+
+export function createColumnHelpers<TData>() {
+  function field<K extends keyof TData>(
+    def: FieldColumnDef<TData, K>,
+  ): ColumnDef<TData> {
+    return def as ColumnDef<TData>;
+  }
+
+  function action(def: Omit<ActionColumnDef<TData>, "kind">): ColumnDef<TData> {
+    return { kind: "action", ...def };
+  }
+
+  return { field, action };
+}
 
 export interface DataDisplayQuery<TData, TParams extends Record<string, any>> {
   queryFn: (params: TParams) => Promise<PaginatedResponse<TData>>;

@@ -47,8 +47,6 @@ export function SearchFilterBar<
   };
 
   const handleClearAll = () => {
-    // Unset every currently-selected filter's underlying param, then empty
-    // the chip list — a single action instead of removing them one by one.
     setFilterValues((prev) => {
       const next = { ...prev };
       selectedOptions.forEach((option) => {
@@ -118,7 +116,9 @@ export function SearchFilterBar<
                 option={option}
                 filterValues={filterValues}
                 setFilterValues={setFilterValues}
-                filterToParamKey={filterToParamKey!}
+                filterToParamKey={
+                  filterToParamKey as Record<string, keyof Partial<TParams>>
+                }
                 onRemove={handleRemoveFilter}
               />
             ))}

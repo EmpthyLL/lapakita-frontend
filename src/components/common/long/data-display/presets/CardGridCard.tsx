@@ -1,8 +1,8 @@
+// components/common/long/data-display/presets/CardGridCard.tsx
 "use client";
 
 import { cn } from "@/lib/utils";
 import { ActionColumnDef, ColumnDef, FieldColumnDef } from "../Constant";
-import { renderActionConfig } from "./ActionRenderer";
 
 const GLOW_TINTS = [
   "bg-info/15",
@@ -27,16 +27,15 @@ export function CardGridCard<TData>({
   index: number;
   columns: ColumnDef<TData>[];
 }) {
-  const titleColumn =
-    columns.find((c) => "key" in c && c.primary) ?? columns[0];
-  const titleKey = "key" in titleColumn ? titleColumn.key : undefined;
+  const fieldColumns = columns.filter(
+    (c): c is FieldColumnDef<TData, keyof TData> =>
+      !("kind" in c && c.kind === "action"),
+  ) as FieldColumnDef<TData, keyof TData>[];
 
-  const allFieldColumns: FieldColumnDef<TData, keyof TData>[] = [];
-  for (const column of columns) {
-    if ("key" in column && column.key !== titleKey) {
-      allFieldColumns.push(column as FieldColumnDef<TData, keyof TData>);
-    }
-  }
+  const titleColumn = fieldColumns.find((c) => c.primary) ?? fieldColumns[0];
+  const titleKey = titleColumn?.key;
+
+  const allFieldColumns = fieldColumns.filter((c) => c.key !== titleKey);
   const badgeColumn = allFieldColumns.find((c) => !c.hideInPreset);
   const metaColumns = allFieldColumns.filter(
     (c) => c.key !== badgeColumn?.key && !c.hideInPreset,
@@ -50,14 +49,11 @@ export function CardGridCard<TData>({
   }
 
   const titleValue = titleColumn
-    ? "key" in titleColumn && titleColumn.render
-      ? titleColumn.render(row[titleColumn.key], row)
-      : "key" in titleColumn
-        ? String(row[titleColumn.key] ?? "")
-        : ""
+    ? titleColumn.render
+      ? titleColumn.render(row[titleColumn.key], row, index)
+      : String(row[titleColumn.key] ?? "")
     : null;
 
-  // Format nomor urut menjadi 2 digit (contoh: 01, 02, dst.)
   const displayIndex = String(index + 1).padStart(2, "0");
   const badgeColorClass =
     NUMBER_BADGE_COLORS[index % NUMBER_BADGE_COLORS.length];
@@ -87,7 +83,7 @@ export function CardGridCard<TData>({
           {badgeColumn && (
             <p className="mt-0.5 truncate text-xs text-muted-foreground">
               {badgeColumn.render
-                ? badgeColumn.render(row[badgeColumn.key], row)
+                ? badgeColumn.render(row[badgeColumn.key], row, index)
                 : String(row[badgeColumn.key] ?? "")}
             </p>
           )}
@@ -99,7 +95,7 @@ export function CardGridCard<TData>({
           {metaColumns.map((col) => {
             const Icon = col.icon;
             const value = col.render
-              ? col.render(row[col.key], row)
+              ? col.render(row[col.key], row, index)
               : String(row[col.key] ?? "");
             return (
               <span
@@ -114,15 +110,15 @@ export function CardGridCard<TData>({
 
           {actionColumns.length > 0 && (
             <div className="ml-auto flex items-center justify-end gap-2 pt-1">
-              {actionColumns.map((col) => {
-                const actionRenderer = renderActionConfig(row, col.action);
+              {actionColumns.map((col, cIdx) => {
+                const actionNode = col.render(row, index);
 
                 return (
                   <div
-                    key={String(col.header ?? "action")}
+                    key={`card-action-${cIdx}`}
                     className="flex items-center justify-end"
                   >
-                    {actionRenderer}
+                    {actionNode}
                   </div>
                 );
               })}
@@ -133,15 +129,15 @@ export function CardGridCard<TData>({
 
       {metaColumns.length === 0 && actionColumns.length > 0 && (
         <div className="relative mt-4 flex justify-end border-t border-border/60 pt-3">
-          {actionColumns.map((col) => {
-            const actionRenderer = renderActionConfig(row, col.action);
+          {actionColumns.map((col, cIdx) => {
+            const actionNode = col.render(row, index);
 
             return (
               <div
-                key={String(col.header ?? "action")}
+                key={`card-action-${cIdx}`}
                 className="flex items-center justify-end"
               >
-                {actionRenderer}
+                {actionNode}
               </div>
             );
           })}

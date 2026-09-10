@@ -47,8 +47,6 @@ export default function CompleteProfilePage() {
 
   const currentName = form.watch("name");
 
-  // Gunakan ref agar sinkronisasi data dari session hanya terjadi sekali di awal,
-  // sehingga tidak akan menimpa pilihan foto/input baru saat session ter-update.
   useEffect(() => {
     if (user && !isInitializedRef.current) {
       if (user.defaultName) form.setValue("name", user.defaultName);

@@ -128,6 +128,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.phoneNumbers = updateData.phoneNumbers;
         if (updateData.personas !== undefined)
           token.personas = updateData.personas;
+        if (updateData.isPasswordSet !== undefined)
+          token.isPasswordSet = updateData.isPasswordSet;
         if (updateData.activeRole !== undefined)
           token.activeRole = updateData.activeRole;
         if (updateData.subscriptionPlan !== undefined)

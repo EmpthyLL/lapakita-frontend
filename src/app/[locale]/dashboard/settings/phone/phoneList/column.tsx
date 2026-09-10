@@ -1,46 +1,48 @@
 "use client";
 
-import { ColumnDef } from "@/components/common/long/data-display/Constant";
+import { createColumnHelpers } from "@/components/common/long/data-display/Constant";
 import { Badge } from "@/components/ui/badge";
 import { PhoneNumberItem } from "@/lib/data/schema/user/phone_number";
 import { Role } from "@/types";
 import {
   CheckCircle2,
   MoreVertical,
-  Pencil,
   Phone as PhoneIcon,
   ShieldCheck,
-  Trash2,
 } from "lucide-react";
-import { PhoneDeleteAction, PhoneEditAction } from "./phoneActions";
+import { PhoneRowActions } from "./rowAction";
 
-export function usePhoneColumns(): ColumnDef<PhoneNumberItem>[] {
+export function usePhoneColumns() {
+  const { field, action } = createColumnHelpers<PhoneNumberItem>();
+
   return [
-    {
+    field({
       key: "number",
       header: "Phone Number",
       icon: PhoneIcon,
       primary: true,
       className: "font-mono font-semibold text-foreground",
-    },
-    {
+    }),
+
+    field({
       key: "is_primary",
       header: "Status Primary",
       icon: ShieldCheck,
       render: (val) =>
-        Boolean(val) ? (
+        val ? (
           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
             <CheckCircle2 className="h-3 w-3" /> Primary
           </span>
         ) : (
           <span className="text-xs text-muted-foreground">Secondary</span>
         ),
-    },
-    {
+    }),
+
+    field({
       key: "roles",
       header: "Connected Roles",
       render: (val) => {
-        const roles: string[] = Array.isArray(val) ? val : [];
+        const roles = val ?? [];
         if (roles.length === 0) {
           return (
             <span className="text-xs text-muted-foreground italic">
@@ -62,31 +64,13 @@ export function usePhoneColumns(): ColumnDef<PhoneNumberItem>[] {
           </div>
         );
       },
-    },
-    {
-      kind: "action",
+    }),
+
+    action({
       header: "Actions",
       icon: MoreVertical,
       className: "w-20 text-right",
-      action: {
-        variant: "dropdown",
-        size: "icon-sm",
-        items: [
-          {
-            id: "edit",
-            label: "Edit",
-            icon: Pencil,
-            render: (row) => <PhoneEditAction row={row} />,
-          },
-          {
-            id: "delete",
-            label: "Delete",
-            icon: Trash2,
-            destructive: true,
-            render: (row) => <PhoneDeleteAction row={row} />,
-          },
-        ],
-      },
-    },
+      render: (row, index) => <PhoneRowActions row={{ ...row, index }} />,
+    }),
   ];
 }
