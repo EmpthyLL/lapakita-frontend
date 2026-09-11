@@ -1,5 +1,6 @@
 import api from "@/lib/api";
 import {
+  DocumentQueryParams,
   GetDocumentResponse,
   UploadDocumentValues,
 } from "../schema/user/document";
@@ -16,6 +17,7 @@ import {
 } from "../schema/user/persona";
 import {
   GetPhoneNumbersResponse,
+  PhoneQueryParams,
   PhoneValues,
 } from "../schema/user/phone_number";
 
@@ -34,8 +36,10 @@ export async function updateGeneralProfile(
   return response.data.data;
 }
 
-export async function getPhoneNumbers() {
-  const response = await api.get<GetPhoneNumbersResponse>("/users/phone");
+export async function getPhoneNumbers(params?: PhoneQueryParams) {
+  const response = await api.get<GetPhoneNumbersResponse>("/users/phone", {
+    params,
+  });
   return response.data;
 }
 
@@ -58,9 +62,11 @@ export async function updatePassword(payload: PasswordValues): Promise<void> {
   await api.put("/users/password", payload);
 }
 
-export async function getDocument() {
-  const response = await api.get<GetDocumentResponse>("/users/document");
-  return response.data.data;
+export async function getDocument(params?: DocumentQueryParams) {
+  const response = await api.get<GetDocumentResponse>("/users/document", {
+    params,
+  });
+  return response.data;
 }
 
 export async function uploadDocument(

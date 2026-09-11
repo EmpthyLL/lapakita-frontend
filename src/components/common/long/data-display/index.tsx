@@ -174,7 +174,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
     : infinite.meta?.totalItems;
 
   function renderPresetItem(row: TData, index: number) {
-    if (renderItem) return renderItem(row, index);
+    if (renderItem) return renderItem(row, index, columns);
     return variant === "card" ? (
       <CardGridCard row={row} index={index} columns={columns} />
     ) : (

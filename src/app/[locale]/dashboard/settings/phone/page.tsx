@@ -1,5 +1,5 @@
 import { Phone as PhoneIcon } from "lucide-react";
-import { PhoneTable } from "./phoneList";
+import PhoneList from "./phoneList";
 
 export default function PhonePage() {
   return (
@@ -22,7 +22,7 @@ export default function PhonePage() {
         </div>
       </div>
 
-      <PhoneTable />
+      <PhoneList />
     </div>
   );
 }

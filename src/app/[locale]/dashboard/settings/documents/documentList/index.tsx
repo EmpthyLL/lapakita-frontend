@@ -4,45 +4,52 @@ import DialogWrapper from "@/components/common/DialogWrapper";
 import { DataDisplay } from "@/components/common/long/data-display";
 import { DataDisplayQuery } from "@/components/common/long/data-display/Constant";
 import { Button } from "@/components/ui/button";
-import { getPhoneNumbers } from "@/lib/data/api/user";
+import { getDocument } from "@/lib/data/api/user";
 import {
-  PhoneNumberItem,
-  PhoneQueryParams,
-} from "@/lib/data/schema/user/phone_number";
+  DocumentQueryParams,
+  GetDocumentData,
+} from "@/lib/data/schema/user/document";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { PhoneForm } from "../component/form";
-import { usePhoneColumns } from "./column";
+import { DocumentCard } from "../component/card";
+import { DocumentForm } from "../component/form";
+import { useDocumentColumns } from "./column";
 
-export default function PhoneList() {
+export default function DocumentList() {
   const [createOpen, setCreateOpen] = useState(false);
+  const columns = useDocumentColumns();
 
-  const queryConfig: DataDisplayQuery<PhoneNumberItem, PhoneQueryParams> = {
-    queryFn: getPhoneNumbers,
-    queryKey: (params) => ["phone-numbers", params],
-    searchKey: "number",
+  const queryConfig: DataDisplayQuery<GetDocumentData, DocumentQueryParams> = {
+    queryFn: async (params) => {
+      const response = await getDocument(params);
+      return response;
+    },
+    queryKey: (params) => ["user-document", params],
+    searchKey: "name",
     defaultParams: { page: 1 },
   };
-
-  const columns = usePhoneColumns();
 
   return (
     <>
       <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
         <DataDisplay
-          columns={columns}
           query={queryConfig}
-          rowKey="number"
-          variant="list"
+          columns={columns}
+          rowKey="id"
+          variant="card"
           loadMode="pagination"
+          showFilter
           showCount
+          renderItem={(row, index, itemColumns) => (
+            <DocumentCard row={row} index={index} columns={itemColumns} />
+          )}
           toolbarExtraAction={
             <Button
               onClick={() => setCreateOpen(true)}
               size="sm"
               className="h-10 gap-1.5 rounded-xl px-3.5 text-xs"
             >
-              <Plus className="h-4 w-4" /> Add Phone Number
+              <Plus className="h-4 w-4" /> Upload Document
             </Button>
           }
         />
@@ -51,12 +58,11 @@ export default function PhoneList() {
       <DialogWrapper
         open={createOpen}
         onOpenChange={setCreateOpen}
-        title="Add Phone Number"
-        desc="Pastikan nomor minimal 10 digit. Setiap role hanya boleh terikat ke satu nomor unik."
-        size="sm"
+        title="Upload Verification Document"
+        desc="Lengkapi data diri dan unggah foto KTP Anda untuk verifikasi akun."
+        size="md"
       >
-        <PhoneForm
-          mode="create"
+        <DocumentForm
           onSuccess={() => setCreateOpen(false)}
           onCancel={() => setCreateOpen(false)}
         />

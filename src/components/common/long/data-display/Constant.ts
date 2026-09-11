@@ -74,7 +74,11 @@ export const FILTER_TYPE_ICON: Record<
   select: ListFilter,
 };
 
-export type ListItemRenderer<TData> = (row: TData, index: number) => ReactNode;
+export type ListItemRenderer<TData> = (
+  row: TData,
+  index: number,
+  columns: ColumnDef<TData>[],
+) => ReactNode;
 
 export type DataDisplayVariant = "table" | "list" | "card";
 export type DataDisplayLoadMode =

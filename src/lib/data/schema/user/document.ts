@@ -2,10 +2,7 @@ import { z } from "zod";
 import { basePaginationQuerySchema, PaginatedResponse } from "../base";
 
 export const uploadDocumentSchema = z.object({
-  full_name_ktp: z
-    .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(255),
+  full_name_ktp: z.string().min(2, "Name must be at least 2 characters"),
   nik: z.string().length(16, "NIK must be exactly 16 digits"),
   domicile_city: z.string().min(2, "Domicile city is required").max(128),
   ktp_photo: z.string().min(1, "KTP photo is required"),
