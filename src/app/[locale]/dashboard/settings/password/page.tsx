@@ -1,3 +1,4 @@
+// app/dashboard/settings/password/page.tsx
 "use client";
 
 import {
@@ -10,6 +11,7 @@ import {
 } from "@/components/common/input/FormField";
 import { PasswordInput } from "@/components/common/input/PasswordInput";
 import { Spinner } from "@/components/common/Spinner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { updatePassword } from "@/lib/data/api/user";
 import {
@@ -59,7 +61,9 @@ export default function PasswordManagementPage() {
         confirm_password: "",
       });
       await updateSession({
+        ...session,
         user: {
+          ...(session?.user || {}),
           isPasswordSet: true,
         },
       });
@@ -102,13 +106,13 @@ export default function PasswordManagementPage() {
 
           <div className="self-start sm:self-auto">
             {isPasswordSet ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <Badge variant="success" className="gap-1.5 px-3 py-3 text-xs">
                 <ShieldCheck className="h-3.5 w-3.5" /> Password Set
-              </span>
+              </Badge>
             ) : (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              <Badge variant="warning" className="gap-1.5 px-3 py-3 text-xs">
                 <ShieldAlert className="h-3.5 w-3.5" /> Password Not Set
-              </span>
+              </Badge>
             )}
           </div>
         </div>
@@ -137,7 +141,7 @@ export default function PasswordManagementPage() {
                       <FormControl>
                         <PasswordInput
                           placeholder="Enter current password"
-                          className="h-11 rounded-xl bg-background border-border focus-visible:ring-primary"
+                          className="h-11 bg-background border-border focus-visible:ring-primary"
                           {...field}
                           value={field.value ?? ""}
                         />
@@ -161,7 +165,7 @@ export default function PasswordManagementPage() {
                       <FormControl>
                         <PasswordInput
                           placeholder="Enter new password"
-                          className="h-11 rounded-xl bg-background border-border focus-visible:ring-primary"
+                          className="h-11 bg-background border-border focus-visible:ring-primary"
                           {...field}
                           value={field.value ?? ""}
                         />
@@ -183,7 +187,7 @@ export default function PasswordManagementPage() {
                       <FormControl>
                         <PasswordInput
                           placeholder="Confirm new password"
-                          className="h-11 rounded-xl bg-background border-border focus-visible:ring-primary"
+                          className="h-11 bg-background border-border focus-visible:ring-primary"
                           {...field}
                           value={field.value ?? ""}
                         />
@@ -202,9 +206,9 @@ export default function PasswordManagementPage() {
               <Button
                 type="submit"
                 size="lg"
-                disabled={!isDirty || mutation.isPending}
+                disabled={!isDirty}
                 isLoading={mutation.isPending}
-                className="rounded-xl px-6"
+                className="px-6"
               >
                 <Save className="mr-2 h-4 w-4" />{" "}
                 {isPasswordSet ? "Update Password" : "Set Password"}

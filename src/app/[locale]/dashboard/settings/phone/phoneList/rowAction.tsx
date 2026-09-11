@@ -15,24 +15,61 @@ import { handleError } from "@/lib/error";
 import { showToast } from "@/lib/toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { PhoneForm } from "../component/form";
 
 interface PhoneRowActionsProps {
-  row: PhoneNumberItem & { index: number };
+  row: PhoneNumberItem;
 }
 
 export function PhoneRowActions({ row }: PhoneRowActionsProps) {
   const queryClient = useQueryClient();
+  const { data: session, update: updateSession } = useSession();
   const [editOpen, setEditOpen] = useState(false);
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
       await deletePhoneNumber(row.index);
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       showToast.success("Phone number deleted successfully");
-      queryClient.invalidateQueries({ queryKey: ["phone-numbers-paginated"] });
+
+      if (session?.user) {
+        const updatedPersonas = { ...(session.user.personas || {}) };
+        const deletedNumber = row.number;
+        const linkedRoles = row.roles || [];
+
+        linkedRoles.forEach((role) => {
+          const persona = updatedPersonas[role];
+          if (persona && persona.phone === deletedNumber) {
+            const hasDisplayName = Boolean(
+              persona.display_name && persona.display_name.trim() !== "",
+            );
+            const hasAvatarUrl = Boolean(
+              persona.avatar_url && persona.avatar_url.trim() !== "",
+            );
+
+            if (!hasDisplayName && !hasAvatarUrl) {
+              delete updatedPersonas[role];
+            } else {
+              updatedPersonas[role] = {
+                ...persona,
+                phone: "",
+              };
+            }
+          }
+        });
+
+        await updateSession({
+          ...session,
+          user: {
+            ...session.user,
+            personas: updatedPersonas,
+          },
+        });
+        queryClient.invalidateQueries({ queryKey: ["phone-numbers"] });
+      }
     },
     onError: handleError,
   });

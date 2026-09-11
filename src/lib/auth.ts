@@ -82,7 +82,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             activeRole,
             subscriptionPlan: userPayload.subscription_plan || "free",
             subscriptionExpiresAt: userPayload.subscription_expires_at,
-            phoneNumbers: userPayload.phone_numbers || [],
             personas: userPayload.personas || {},
             token: accessToken,
             refreshToken,
@@ -106,7 +105,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.activeRole = user.activeRole;
         token.subscriptionPlan = user.subscriptionPlan;
         token.subscriptionExpiresAt = user.subscriptionExpiresAt;
-        token.phoneNumbers = user.phoneNumbers;
         token.personas = user.personas;
         token.token = user.token;
         token.refreshToken = user.refreshToken;
@@ -124,8 +122,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.defaultPhone = updateData.defaultPhone;
         if (updateData.defaultAvatarUrl !== undefined)
           token.defaultAvatarUrl = updateData.defaultAvatarUrl;
-        if (updateData.phoneNumbers !== undefined)
-          token.phoneNumbers = updateData.phoneNumbers;
         if (updateData.personas !== undefined)
           token.personas = updateData.personas;
         if (updateData.isPasswordSet !== undefined)
@@ -155,7 +151,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.activeRole = token.activeRole;
         session.user.subscriptionPlan = token.subscriptionPlan;
         session.user.subscriptionExpiresAt = token.subscriptionExpiresAt;
-        session.user.phoneNumbers = token.phoneNumbers;
         session.user.personas = token.personas;
         session.user.token = token.token;
         session.user.refreshToken = token.refreshToken;

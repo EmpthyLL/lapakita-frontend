@@ -21,32 +21,34 @@ import {
 import { handleError } from "@/lib/error";
 import { showToast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
+import { Role } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 const AVAILABLE_ROLES = [
   {
     label: "Tenant",
-    value: "tenant",
+    value: "tenant" as Role,
     activeClass: "border-tenant bg-tenant/10 text-tenant",
   },
   {
     label: "Owner",
-    value: "owner",
+    value: "owner" as Role,
     activeClass: "border-owner bg-owner/10 text-owner",
   },
   {
     label: "Supplier",
-    value: "supplier",
+    value: "supplier" as Role,
     activeClass: "border-supplier bg-supplier/10 text-supplier",
   },
 ];
 
 interface PhoneFormProps {
   mode: "create" | "edit";
-  initialData?: (PhoneNumberItem & { index: number }) | null;
+  initialData?: PhoneNumberItem | null;
   onSuccess: () => void;
   onCancel?: () => void;
 }
@@ -58,6 +60,7 @@ export function PhoneForm({
   onCancel,
 }: PhoneFormProps) {
   const queryClient = useQueryClient();
+  const { data: session, update: updateSession } = useSession();
 
   const form = useForm<PhoneValues>({
     resolver: zodResolver(phoneRequestSchema),
@@ -91,13 +94,47 @@ export function PhoneForm({
       } else {
         await addPhoneNumber(values);
       }
+      return values;
     },
-    onSuccess: () => {
+    onSuccess: async (values) => {
       showToast.success(
         mode === "edit"
           ? "Phone number updated successfully"
           : "Phone number added successfully",
       );
+
+      if (session?.user) {
+        let newDefaultPhone = session.user.defaultPhone;
+        const updatedPersonas = { ...(session.user.personas || {}) };
+
+        if (values.is_primary) {
+          newDefaultPhone = values.number;
+        }
+
+        values.roles.forEach((role) => {
+          const existingPersona = updatedPersonas[role];
+          if (existingPersona) {
+            updatedPersonas[role] = {
+              ...existingPersona,
+              phone: values.number,
+            };
+          } else {
+            updatedPersonas[role] = {
+              display_name: "",
+              avatar_url: "",
+              phone: values.number,
+            };
+          }
+        });
+
+        await updateSession({
+          user: {
+            defaultPhone: newDefaultPhone,
+            personas: updatedPersonas,
+          },
+        });
+      }
+
       queryClient.invalidateQueries({ queryKey: ["phone-numbers"] });
       onSuccess();
     },

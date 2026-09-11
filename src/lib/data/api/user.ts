@@ -8,7 +8,7 @@ import {
   GetGeneralProfileResponse,
   UpdateGeneralProfileValues,
 } from "../schema/user/general_profile";
-import { ChangePasswordValues } from "../schema/user/password";
+import { PasswordValues } from "../schema/user/password";
 import {
   PersonaProfilePayload,
   PersonaProfileResponse,
@@ -54,10 +54,23 @@ export async function deletePhoneNumber(index: string | number): Promise<void> {
   await api.delete(`/users/phone/${index}`);
 }
 
-export async function updatePassword(
-  payload: ChangePasswordValues,
-): Promise<void> {
+export async function updatePassword(payload: PasswordValues): Promise<void> {
   await api.put("/users/password", payload);
+}
+
+export async function getDocument() {
+  const response = await api.get<GetDocumentResponse>("/users/document");
+  return response.data.data;
+}
+
+export async function uploadDocument(
+  payload: UploadDocumentValues,
+): Promise<void> {
+  await api.post("/users/document", payload);
+}
+
+export async function deleteDocument(): Promise<void> {
+  await api.delete("/users/document");
 }
 
 export async function getPersonaProfile(
@@ -74,19 +87,4 @@ export async function updatePersonaProfile(
   payload: UpdatePersonaValues,
 ): Promise<void> {
   await api.put(`/users/persona/${role}`, payload);
-}
-
-export async function getDocument() {
-  const response = await api.get<GetDocumentResponse>("/users/document");
-  return response.data.data;
-}
-
-export async function uploadDocument(
-  payload: UploadDocumentValues,
-): Promise<void> {
-  await api.post("/users/document", payload);
-}
-
-export async function deleteDocument(): Promise<void> {
-  await api.delete("/users/document");
 }

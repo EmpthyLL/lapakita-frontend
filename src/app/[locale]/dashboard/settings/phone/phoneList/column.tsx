@@ -34,7 +34,7 @@ export function usePhoneColumns() {
             <CheckCircle2 className="h-3 w-3" /> Primary
           </span>
         ) : (
-          <span className="text-xs text-muted-foreground">Secondary</span>
+          <span className="text-xs text-muted-foreground">Backup</span>
         ),
     }),
 
@@ -70,7 +70,7 @@ export function usePhoneColumns() {
       header: "Actions",
       icon: MoreVertical,
       className: "w-20 text-right",
-      render: (row, index) => <PhoneRowActions row={{ ...row, index }} />,
+      render: (row) => <PhoneRowActions row={row} />,
     }),
   ];
 }

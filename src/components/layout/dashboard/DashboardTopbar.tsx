@@ -100,12 +100,25 @@ export function DashboardTopbar({
   const activeRole: RoleAndAll =
     isWalletPage || isSettingsPage ? "all" : currentRole;
 
-  const userName = session?.user?.defaultName || propUserName || "User";
-  const userAvatarUrl = session?.user?.defaultAvatarUrl || propAvatarUrl || "";
   const sessionActiveRole = (session?.user?.activeRole as Role) || currentRole;
   const profileRoutePath = `/dashboard/${currentRole}/profile`;
 
   const theme = getRoleThemeClasses(sessionActiveRole);
+
+  // Ambil persona berdasarkan role yang sedang aktif di URL (currentRole), bukan activeRole dari session
+  const persona = session?.user?.personas?.[currentRole];
+
+  const userName =
+    persona?.display_name ||
+    session?.user?.defaultName ||
+    propUserName ||
+    "User";
+  const userAvatarUrl =
+    persona?.avatar_url ||
+    session?.user?.defaultAvatarUrl ||
+    propAvatarUrl ||
+    "";
+  const userPhone = persona?.phone || session?.user?.defaultPhone || "";
 
   const getInitials = (str: string) => {
     if (!str) return "U";
@@ -183,18 +196,43 @@ export function DashboardTopbar({
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-60">
             <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-semibold leading-none text-foreground truncate">
-                  {userName}
-                </p>
-                <p className="text-xs leading-none text-muted-foreground capitalize">
-                  Active Role:{" "}
-                  <span className={cn("font-semibold capitalize", theme.text)}>
-                    {sessionActiveRole}
-                  </span>
-                </p>
+              <div className="flex items-center gap-3 py-1">
+                <Avatar className="h-10 w-10 border border-border shrink-0">
+                  <AvatarImage
+                    src={userAvatarUrl}
+                    alt={userName}
+                    className="object-cover"
+                  />
+                  <AvatarFallback
+                    className={cn(
+                      "font-bold text-xs transition-colors",
+                      theme.bgSoft,
+                      theme.text,
+                    )}
+                  >
+                    {getInitials(userName)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col space-y-0.5 overflow-hidden">
+                  <p className="text-sm font-semibold leading-tight text-foreground truncate">
+                    {userName}
+                  </p>
+                  {userPhone && (
+                    <p className="text-[11px] leading-tight text-muted-foreground truncate font-mono">
+                      {userPhone}
+                    </p>
+                  )}
+                  <p className="text-[11px] leading-tight text-muted-foreground capitalize pt-0.5">
+                    Active Role:{" "}
+                    <span
+                      className={cn("font-semibold capitalize", theme.text)}
+                    >
+                      {sessionActiveRole}
+                    </span>
+                  </p>
+                </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

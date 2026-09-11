@@ -1,6 +1,10 @@
 "use client";
 
 import { DatePicker } from "@/components/common/input/DatePicker";
+import {
+  DocumentFileItem,
+  DocumentInput,
+} from "@/components/common/input/DocumentInput";
 import { DataDisplay } from "@/components/common/long/data-display";
 import { DateRangePicker } from "@/components/common/long/date-range-picker";
 import { Button } from "@/components/ui/button";
@@ -8,7 +12,7 @@ import { showToast } from "@/lib/toast";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
-import { stallColumns, stallQueryConfig } from "./data";
+import { stallQueryConfig, useStallColumns } from "./data";
 
 function Demo({
   title,
@@ -31,6 +35,8 @@ function Demo({
 }
 
 export default function ComponentSandboxPage() {
+  const stallColumns = useStallColumns();
+
   const [singleDate, setSingleDate] = useState<Date | null | undefined>(
     new Date(),
   );
@@ -40,12 +46,19 @@ export default function ComponentSandboxPage() {
     to: new Date(2026, 7, 15),
   });
 
+  const [singleDoc, setSingleDoc] = useState<DocumentFileItem | null>(null);
+  const [multipleDocs, setMultipleDocs] = useState<DocumentFileItem[] | null>(
+    null,
+  );
+  const [isMultipleMode, setIsMultipleMode] = useState(false);
+
   return (
     <div className="container mx-auto max-w-6xl space-y-10 p-6">
       <div className="border-b border-border pb-5">
         <h1 className="text-2xl font-bold tracking-tight">Component Sandbox</h1>
         <p className="text-sm text-muted-foreground">
-          Pengujian integrasi DatePicker, DateRangePicker, dan DataDisplay.
+          Pengujian integrasi DatePicker, DateRangePicker, DocumentInput, dan
+          DataDisplay.
         </p>
       </div>
 
@@ -95,7 +108,65 @@ export default function ComponentSandboxPage() {
       </div>
 
       <Demo
-        title="3. DataDisplay (Variant: list + infinite-scroll + Toolbar Action)"
+        title="3. DocumentInput (Base64 Support - Single & Multiple)"
+        desc="Komponen input file universal untuk Foto, PDF, Word, Excel dengan pemrosesan Base64 otomatis."
+      >
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">
+              Mode saat ini:{" "}
+              <strong className="text-foreground">
+                {isMultipleMode ? "Multiple Files" : "Single File"}
+              </strong>
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsMultipleMode((prev) => !prev)}
+              className="h-8 text-xs rounded-lg"
+            >
+              Toggle ke {isMultipleMode ? "Single" : "Multiple"}
+            </Button>
+          </div>
+
+          {!isMultipleMode ? (
+            <div className="space-y-2">
+              <DocumentInput
+                title="Upload Dokumen Tunggal (KTP / Surat)"
+                multiple={false}
+                value={singleDoc}
+                onChange={(val) => setSingleDoc(val as DocumentFileItem | null)}
+              />
+              <p className="text-xs text-muted-foreground">
+                File terpilih:{" "}
+                <span className="font-medium text-foreground">
+                  {singleDoc ? singleDoc.name : "Belum ada file"}
+                </span>
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <DocumentInput
+                title="Upload Dokumen Banyak (Multiple PDF, Excel, Foto)"
+                multiple={true}
+                value={multipleDocs}
+                onChange={(val) =>
+                  setMultipleDocs(val as DocumentFileItem[] | null)
+                }
+              />
+              <p className="text-xs text-muted-foreground">
+                Total file terpilih:{" "}
+                <span className="font-medium text-foreground">
+                  {multipleDocs?.length ?? 0} file
+                </span>
+              </p>
+            </div>
+          )}
+        </div>
+      </Demo>
+
+      <Demo
+        title="4. DataDisplay (Variant: list + infinite-scroll + Toolbar Action)"
         desc="Playful row cards, auto-loads on scroll, dilengkapi primary search & custom toolbar action."
       >
         <DataDisplay
@@ -120,7 +191,7 @@ export default function ComponentSandboxPage() {
       </Demo>
 
       <Demo
-        title="4. DataDisplay (Variant: card + pagination)"
+        title="5. DataDisplay (Variant: card + pagination)"
         desc="Grid preset dengan navigasi halaman bernomor dan search bar terintegrasi."
       >
         <DataDisplay
@@ -135,7 +206,7 @@ export default function ComponentSandboxPage() {
       </Demo>
 
       <Demo
-        title="5. DataDisplay (Variant: table + load-more)"
+        title="6. DataDisplay (Variant: table + load-more)"
         desc="Classic data grid dengan tombol manual load-more di bagian bawah."
       >
         <DataDisplay

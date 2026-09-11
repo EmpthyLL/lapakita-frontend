@@ -299,7 +299,7 @@ export default function GeneralProfilePage() {
                 type="submit"
                 size="lg"
                 variant={activeRole}
-                disabled={!isDirty || updateMutation.isPending}
+                disabled={!isDirty}
                 isLoading={updateMutation.isPending}
               >
                 <Save className="mr-2 h-4 w-4" /> Save Changes

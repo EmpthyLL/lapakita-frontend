@@ -231,10 +231,7 @@ export function AvatarInput({
 
             {!disabled && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100">
-                <Camera className="size-5 mb-0.5" />
-                <span className="text-[10px] font-medium tracking-tight">
-                  Change
-                </span>
+                <Camera className="size-6" />
               </div>
             )}
           </div>
@@ -243,7 +240,7 @@ export function AvatarInput({
             <button
               type="button"
               onClick={handleRemove}
-              className="absolute -top-1 -right-1 flex size-7 items-center justify-center rounded-full bg-destructive/15 text-destructive border border-destructive/30 shadow-md transition-transform hover:scale-110 active:scale-95 outline-none z-30"
+              className="absolute -top-3 -right-3 flex size-7 items-center justify-center rounded-full bg-destructive/15 text-destructive border border-destructive/30 shadow-md transition-transform hover:scale-110 active:scale-95 outline-none z-30"
               title="Remove Avatar"
             >
               <Trash2 className="size-3.5" />

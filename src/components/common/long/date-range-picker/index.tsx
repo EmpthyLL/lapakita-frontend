@@ -151,11 +151,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
       openedRangeRef.current = range;
 
       const fromDate = range.from ?? new Date();
-      const leftAnchor = new Date(
-        fromDate.getFullYear(),
-        fromDate.getMonth(),
-        1,
-      );
+      let leftAnchor = new Date(fromDate.getFullYear(), fromDate.getMonth(), 1);
 
       let rightAnchor: Date;
       if (range.to) {
@@ -164,9 +160,9 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
           rightAnchor.getFullYear() === leftAnchor.getFullYear() &&
           rightAnchor.getMonth() === leftAnchor.getMonth()
         ) {
-          rightAnchor = new Date(
+          leftAnchor = new Date(
             leftAnchor.getFullYear(),
-            leftAnchor.getMonth() + 1,
+            leftAnchor.getMonth() - 1,
             1,
           );
         }

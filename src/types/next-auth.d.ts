@@ -10,12 +10,6 @@ export interface PersonaDetail {
   phone: string;
 }
 
-export interface PhonePayload {
-  number: string;
-  is_primary: boolean;
-  roles: Role[];
-}
-
 export type PersonaMap = Partial<Record<Role, PersonaDetail>>;
 
 declare module "next-auth" {
@@ -29,7 +23,6 @@ declare module "next-auth" {
     activeRole: Role;
     subscriptionPlan: SubscriptionPlan;
     subscriptionExpiresAt?: string | null;
-    phoneNumbers?: PhonePayload[];
     personas?: PersonaMap;
     token: string;
     refreshToken: string;
@@ -47,7 +40,6 @@ declare module "next-auth" {
       activeRole: Role;
       subscriptionPlan: SubscriptionPlan;
       subscriptionExpiresAt?: string | null;
-      phoneNumbers?: PhonePayload[];
       personas?: PersonaMap;
       token: string;
       refreshToken: string;
@@ -66,7 +58,6 @@ declare module "next-auth/jwt" {
     activeRole: Role;
     subscriptionPlan: SubscriptionPlan;
     subscriptionExpiresAt?: string | null;
-    phoneNumbers?: PhonePayload[];
     personas?: PersonaMap;
     token: string;
     refreshToken: string;

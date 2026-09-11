@@ -128,7 +128,7 @@ function Calendar({
           defaultClassNames.today,
         ),
         outside: cn(
-          "text-muted-foreground aria-selected:text-muted-foreground",
+          "text-muted-foreground/50 aria-selected:text-muted-foreground/50",
           defaultClassNames.outside,
         ),
         disabled: cn(
