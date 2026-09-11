@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
-import { Building2, FileText, Hash, ShieldCheck, User } from "lucide-react";
+import { Building2, FileText, Hash, User } from "lucide-react";
 
 interface DocumentDetailProps {
   document: GetDocumentData;
@@ -13,7 +13,6 @@ interface DocumentDetailProps {
 export function DocumentDetail({ document, onClose }: DocumentDetailProps) {
   return (
     <div className="space-y-6 pt-2">
-      {/* Kartu Informasi Grid yang Lebih Rapi & Estetik */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-3xl bg-linear-to-br from-secondary/50 to-secondary/10 p-5 border border-border/80 shadow-xs">
         <div className="space-y-1">
           <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -43,16 +42,10 @@ export function DocumentDetail({ document, onClose }: DocumentDetailProps) {
         </div>
       </div>
 
-      {/* Bagian Pratinjau Foto KTP */}
       <div className="space-y-2.5">
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <FileText className="h-3.5 w-3.5 text-primary" /> KTP Photo Preview
-          </label>
-          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
-            <ShieldCheck className="h-3 w-3" /> Verified Document
-          </span>
-        </div>
+        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+          <FileText className="h-3.5 w-3.5 text-primary" /> KTP Photo Preview
+        </label>
 
         <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-border/80 bg-muted/50 shadow-inner flex items-center justify-center group">
           {document.ktp_photo_url ? (
@@ -75,14 +68,8 @@ export function DocumentDetail({ document, onClose }: DocumentDetailProps) {
         </div>
       </div>
 
-      {/* Tombol Aksi */}
       <div className="pt-4 border-t border-border flex justify-end">
-        <Button
-          type="button"
-          variant="default"
-          onClick={onClose}
-          className="rounded-2xl px-6 font-semibold shadow-sm transition-all hover:shadow"
-        >
+        <Button type="button" variant="outline" onClick={onClose}>
           Close Detail
         </Button>
       </div>

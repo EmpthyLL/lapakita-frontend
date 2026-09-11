@@ -5,9 +5,8 @@ import {
   ColumnDef,
   FieldColumnDef,
 } from "@/components/common/long/data-display/Constant";
-import { Badge } from "@/components/ui/badge";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
-import { FileText, ShieldCheck } from "lucide-react";
+import { FileText } from "lucide-react";
 
 interface DocumentCardProps {
   row: GetDocumentData;
@@ -41,7 +40,6 @@ export function DocumentCard({ row, index, columns }: DocumentCardProps) {
 
   return (
     <div className="group relative overflow-hidden rounded-3xl border border-border bg-card shadow-xs transition-all hover:shadow-md hover:border-primary/40 flex flex-col justify-between">
-      {/* Pratinjau Foto KTP di Bagian Atas Card */}
       <div className="relative aspect-video w-full overflow-hidden bg-muted/40 border-b border-border flex items-center justify-center">
         {row.ktp_photo_url ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -58,7 +56,6 @@ export function DocumentCard({ row, index, columns }: DocumentCardProps) {
         )}
       </div>
 
-      {/* Bagian Keterangan Data di Bawah */}
       <div className="p-5 space-y-4">
         <div className="space-y-3">
           <div className="flex items-start justify-between gap-2">
@@ -75,12 +72,6 @@ export function DocumentCard({ row, index, columns }: DocumentCardProps) {
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
-              <Badge
-                variant="success"
-                className="gap-1 px-2 py-0.5 text-[10px]"
-              >
-                <ShieldCheck className="h-3 w-3" /> Verified
-              </Badge>
               {actionColumns.map((column, actionIndex) => (
                 <div key={`action-${actionIndex}`}>
                   {column.render(row, index)}

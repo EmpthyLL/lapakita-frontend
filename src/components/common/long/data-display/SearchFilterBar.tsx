@@ -44,6 +44,12 @@ export function SearchFilterBar<
 
   const handleRemoveFilter = (option: FilterOption<TData>) => {
     setSelectedOptions((prev) => prev.filter((o) => o.id !== option.id));
+    setFilterValues((prev) => {
+      const next = { ...prev };
+      const paramKey = filterToParamKey?.[option.id as string];
+      if (paramKey) delete next[paramKey];
+      return next;
+    });
   };
 
   const handleClearAll = () => {
@@ -60,6 +66,12 @@ export function SearchFilterBar<
 
   const hasFilterOptions = Boolean(filterOptions && filterOptions.length > 0);
   const hasSelected = selectedOptions.length > 0;
+  const hasSearch = Boolean(searchValue && searchValue.trim() !== "");
+  const showClearSearch = hasSearch;
+
+  const handleClearSearch = () => {
+    onSearchChange("");
+  };
 
   return (
     <div className="space-y-2.5">
@@ -70,8 +82,21 @@ export function SearchFilterBar<
             value={searchValue}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={searchPlaceholder ?? t("search_placeholder")}
-            className="h-11 rounded-full border-border bg-secondary/30 pl-10 text-sm shadow-none focus-visible:bg-background"
+            className={cn(
+              "h-11 rounded-full border-border bg-secondary/30 pl-10 text-sm shadow-none focus-visible:bg-background",
+              showClearSearch ? "pr-9" : "",
+            )}
           />
+          {showClearSearch && (
+            <button
+              type="button"
+              onClick={handleClearSearch}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         {hasFilterOptions && (

@@ -59,7 +59,7 @@ export interface DataDisplayQuery<TData, TParams extends Record<string, any>> {
   queryKey: (params: TParams) => any[];
   enabled?: boolean;
   defaultParams?: Omit<TParams, "limit">;
-  filterOptions?: FilterOption<TData>[];
+  filterOptions?: FilterOption<TParams>[];
   filterToParamKey?: Record<string, keyof TParams>;
   searchKey?: keyof TParams;
   searchPlaceholder?: string;

@@ -25,8 +25,18 @@ export default function DocumentList() {
       return response;
     },
     queryKey: (params) => ["user-document", params],
-    searchKey: "name",
+    searchKey: "nik",
     defaultParams: { page: 1 },
+    filterOptions: [
+      {
+        id: "name",
+        type: "input",
+        title: "Full Name",
+      },
+    ],
+    filterToParamKey: {
+      name: "name",
+    },
   };
 
   return (
