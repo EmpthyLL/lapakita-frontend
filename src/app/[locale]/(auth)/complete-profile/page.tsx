@@ -118,8 +118,8 @@ export default function CompleteProfilePage() {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="mb-6 rounded-xl border border-border bg-secondary/30 p-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <div className="flex justify-center rounded-3xl border border-border/80 bg-card p-6 shadow-xs">
             <FormField
               control={form.control}
               name="avatarUrl"
@@ -131,6 +131,7 @@ export default function CompleteProfilePage() {
                       onChange={field.onChange}
                       name={currentName}
                       disabled={completeProfileMutation.isPending}
+                      size="lg"
                     />
                   </FormControl>
                   <FormMessage />
@@ -139,20 +140,25 @@ export default function CompleteProfilePage() {
             />
           </div>
 
-          <div className="flex flex-col gap-3.5">
+          <div className="flex flex-col gap-4">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
                   <div className="flex items-center justify-between">
-                    <FormLabel htmlFor="name">Full Name</FormLabel>
+                    <FormLabel>Full Name</FormLabel>
                     <span className="text-[11px] text-muted-foreground">
                       From Google — editable
                     </span>
                   </div>
                   <FormControl>
-                    <Input id="name" placeholder="e.g. John Doe" {...field} />
+                    <Input
+                      placeholder="e.g. John Doe"
+                      className="h-11 rounded-2xl bg-background border-border focus-visible:ring-primary"
+                      {...field}
+                      value={field.value ?? ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -164,15 +170,15 @@ export default function CompleteProfilePage() {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="phone">Phone Number</FormLabel>
+                  <FormLabel>Phone Number</FormLabel>
                   <div className="relative flex items-center">
                     <FormControl>
                       <Input
-                        id="phone"
                         type="tel"
                         placeholder="+62 812 3456 7890"
-                        className="pr-10"
+                        className="h-11 rounded-2xl bg-background border-border pr-10 focus-visible:ring-primary"
                         {...field}
+                        value={field.value ?? ""}
                       />
                     </FormControl>
                     <Phone className="pointer-events-none absolute right-3 size-4 text-muted-foreground" />
@@ -187,7 +193,7 @@ export default function CompleteProfilePage() {
                 type="submit"
                 isLoading={completeProfileMutation.isPending}
                 size="lg"
-                className="group w-full font-semibold"
+                className="group w-full h-11 rounded-2xl font-semibold shadow-sm transition-all hover:shadow"
               >
                 <span>Complete Setup</span>
                 <ArrowRight className="size-4 transition-transform duration-150 group-hover:translate-x-1" />
