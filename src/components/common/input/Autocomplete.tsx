@@ -81,6 +81,7 @@ export interface AutocompleteProps<T extends Record<string, any>> {
   disabled?: boolean;
   isLoading?: boolean;
   isFetchingMore?: boolean;
+  isFetchingPrev?: boolean;
   hasError?: boolean;
 
   showClearButton?: boolean;
@@ -89,6 +90,8 @@ export interface AutocompleteProps<T extends Record<string, any>> {
 
   hasMore?: boolean;
   fetchMore?: () => void;
+  hasPrev?: boolean;
+  fetchPrev?: () => void;
   onFilterChange?: (query: string) => void;
   debounceDelay?: number;
   className?: string;
@@ -114,12 +117,15 @@ export function Autocomplete<T extends Record<string, any>>({
   disabled = false,
   isLoading = false,
   isFetchingMore = false,
+  isFetchingPrev = false,
   hasError = false,
   showClearButton = false,
   indicatorIcon,
   addButton,
   hasMore = false,
   fetchMore,
+  hasPrev = false,
+  fetchPrev,
   onFilterChange,
   debounceDelay = 300,
   className,
@@ -155,11 +161,35 @@ export function Autocomplete<T extends Record<string, any>>({
   const hasValue = selectedOption != null;
   const s = SIZE_STYLES[size];
 
-  // Lock scroll event handling + infinite scroll detection
+  // Keep the selected value at the top of the scrollable list.
+  React.useEffect(() => {
+    if (!open) return;
+
+    const scrollSelectedToTop = () => {
+      const listEl = refs.commandListRef.current;
+      const selectedEl = refs.selectedItemRef.current;
+      if (!listEl || !selectedEl) return;
+
+      const listRect = listEl.getBoundingClientRect();
+      const selectedRect = selectedEl.getBoundingClientRect();
+      listEl.scrollTop += selectedRect.top - listRect.top;
+    };
+
+    const frame = requestAnimationFrame(scrollSelectedToTop);
+    const timeout = setTimeout(scrollSelectedToTop, 100);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(timeout);
+    };
+  }, [open, filteredOptions.length, refs.commandListRef, refs.selectedItemRef]);
+
+  // Lock scroll event handling + infinite scroll detection (atas & bawah)
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget;
     const { scrollTop, scrollHeight, clientHeight } = el;
 
+    // Fetch More (Bottom)
     if (
       hasMore &&
       fetchMore &&
@@ -167,6 +197,11 @@ export function Autocomplete<T extends Record<string, any>>({
       scrollHeight - scrollTop - clientHeight <= 20
     ) {
       fetchMore();
+    }
+
+    // Fetch Prev (Top)
+    if (hasPrev && fetchPrev && !isFetchingPrev && scrollTop <= 20) {
+      fetchPrev();
     }
   };
 
@@ -422,6 +457,12 @@ export function Autocomplete<T extends Record<string, any>>({
                     : "var(--border) transparent",
                 }}
               >
+                {isFetchingPrev && (
+                  <div className="flex items-center justify-center p-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  </div>
+                )}
+
                 {filteredOptions.length === 0 ? (
                   <CommandEmpty className="mx-6 my-4 max-h-max font-medium text-muted-foreground">
                     {emptyText}

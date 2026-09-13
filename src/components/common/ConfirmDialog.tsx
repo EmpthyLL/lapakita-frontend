@@ -103,7 +103,6 @@ export default function ConfirmDialog({
     e.preventDefault();
     if (remark) onRemarkChange(remarkValue);
     onContinue();
-    setOpen(false);
   };
 
   const handleCancel = () => {

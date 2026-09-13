@@ -136,18 +136,6 @@ export function useAutocomplete<T extends Record<string, any>>({
     setOpen(false);
   }
 
-  // scroll active/selected item into view when opened
-  React.useEffect(() => {
-    if (!open || value == null) return;
-    const timer = setTimeout(() => {
-      selectedItemRef.current?.scrollIntoView({
-        block: "center",
-        behavior: "instant",
-      });
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [open, value]);
-
   // reset search on close, focus trigger input on open
   React.useEffect(() => {
     if (!open) {

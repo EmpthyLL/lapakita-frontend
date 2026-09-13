@@ -145,7 +145,7 @@ export function PhoneForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
-        className="space-y-5 pt-3"
+        className="space-y-5 pt-3 px-2"
       >
         <FormField
           control={form.control}

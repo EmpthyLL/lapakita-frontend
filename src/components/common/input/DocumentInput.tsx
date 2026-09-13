@@ -27,6 +27,7 @@ interface DocumentInputProps {
   onChange: (value: DocumentFileItem | DocumentFileItem[] | null) => void;
   accept?: string;
   maxSizeMB?: number;
+  hasError?: boolean;
 }
 
 export function DocumentInput({
@@ -36,6 +37,7 @@ export function DocumentInput({
   onChange,
   accept = "image/*,application/pdf,.doc,.docx,.xls,.xlsx,.csv",
   maxSizeMB = 5,
+  hasError,
 }: DocumentInputProps) {
   const [items, setItems] = useState<DocumentFileItem[]>([]);
   const [isDragActive, setIsDragActive] = useState(false);
@@ -179,6 +181,12 @@ export function DocumentInput({
             : hasFiles && multiple
               ? "border-border bg-secondary/20 cursor-default"
               : "border-border/80 hover:border-primary/50 hover:bg-muted/50 cursor-pointer shadow-xs",
+
+          /* Error states (matches parent <Field data-invalid="true">, aria-invalid, or hasError prop) */
+          "group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:bg-destructive/5 group-data-[invalid=true]/field:hover:border-destructive",
+          "aria-invalid:border-destructive aria-invalid:bg-destructive/5 aria-invalid:hover:border-destructive",
+          hasError &&
+            "border-destructive bg-destructive/5 hover:border-destructive",
         )}
       >
         <input
@@ -192,7 +200,13 @@ export function DocumentInput({
 
         {!hasFiles && (
           <div className="flex flex-col items-center justify-center text-center p-6 sm:p-8">
-            <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-3 shadow-inner transition-transform hover:scale-105">
+            <div
+              className={cn(
+                "flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-3 shadow-inner transition-transform hover:scale-105",
+                "group-data-[invalid=true]/field:bg-destructive/10 group-data-[invalid=true]/field:text-destructive",
+                hasError && "bg-destructive/10 text-destructive",
+              )}
+            >
               <UploadCloud className="size-7" />
             </div>
             <p className="text-sm font-semibold text-foreground">

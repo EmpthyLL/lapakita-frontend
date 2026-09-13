@@ -119,7 +119,7 @@ function FilterAccordionSection({
             : "grid-rows-[0fr] opacity-0",
         )}
       >
-        <div className="min-h-0 overflow-hidden space-y-3">{children}</div>
+        <div className="min-h-0 overflow-hidden space-y-3 p-1">{children}</div>
       </div>
     </div>
   );

@@ -75,8 +75,8 @@ export async function uploadDocument(
   await api.post("/users/document", payload);
 }
 
-export async function deleteDocument(): Promise<void> {
-  await api.delete("/users/document");
+export async function deleteDocument(id: string): Promise<void> {
+  await api.delete(`/users/document/${id}`);
 }
 
 export async function getPersonaProfile(

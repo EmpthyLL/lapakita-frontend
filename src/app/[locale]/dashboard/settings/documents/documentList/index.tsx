@@ -25,17 +25,28 @@ export default function DocumentList() {
       return response;
     },
     queryKey: (params) => ["user-document", params],
-    searchKey: "nik",
+    searchKey: "document_number",
     defaultParams: { page: 1 },
     filterOptions: [
       {
         id: "name",
-        type: "input",
         title: "Full Name",
+        type: "input",
+      },
+      {
+        id: "document_type",
+        title: "Document Type",
+        type: "select",
+        options: [
+          { label: "National ID (KTP)", value: "national_id" },
+          { label: "Passport", value: "passport" },
+          { label: "Residence Permit", value: "residence_permit" },
+        ],
       },
     ],
     filterToParamKey: {
       name: "name",
+      document_type: "document_type",
     },
   };
 
@@ -69,7 +80,7 @@ export default function DocumentList() {
         open={createOpen}
         onOpenChange={setCreateOpen}
         title="Upload Verification Document"
-        desc="Lengkapi data diri dan unggah foto KTP Anda untuk verifikasi akun."
+        desc="Lengkapi data diri dan unggah foto/scan dokumen Anda untuk verifikasi akun."
         size="md"
       >
         <DocumentForm

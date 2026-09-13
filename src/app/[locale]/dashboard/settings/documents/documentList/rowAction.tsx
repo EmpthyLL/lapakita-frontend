@@ -28,7 +28,7 @@ export function DocumentRowActions({ row }: DocumentRowActionsProps) {
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      await deleteDocument();
+      await deleteDocument(row.id);
     },
     onSuccess: () => {
       showToast.success("Document deleted successfully");
@@ -58,7 +58,7 @@ export function DocumentRowActions({ row }: DocumentRowActionsProps) {
           </DropdownMenuItem>
           <DeleteConfirmDialog
             onConfirm={() => deleteMutation.mutate()}
-            itemName={row.full_name_ktp}
+            itemName={row.full_name_identity}
             isLoading={deleteMutation.isPending}
           >
             <DropdownMenuItem

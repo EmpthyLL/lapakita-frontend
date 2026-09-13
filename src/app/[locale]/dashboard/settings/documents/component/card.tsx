@@ -7,6 +7,7 @@ import {
 } from "@/components/common/long/data-display/Constant";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
 import { FileText } from "lucide-react";
+import { formatDocType, getDocumentNumberLabel } from "./config";
 
 interface DocumentCardProps {
   row: GetDocumentData;
@@ -38,14 +39,16 @@ export function DocumentCard({ row, index, columns }: DocumentCardProps) {
       ? column.render(row[column.key], row, index)
       : String(row[column.key] ?? "");
 
+  const numLabel = getDocumentNumberLabel(row.document_type);
+
   return (
     <div className="group relative overflow-hidden rounded-3xl border border-border bg-card shadow-xs transition-all hover:shadow-md hover:border-primary/40 flex flex-col justify-between">
       <div className="relative aspect-video w-full overflow-hidden bg-muted/40 border-b border-border flex items-center justify-center">
-        {row.ktp_photo_url ? (
+        {row.document_photo_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={row.ktp_photo_url}
-            alt="KTP Preview"
+            src={row.document_photo_url}
+            alt="Document Preview"
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
@@ -63,15 +66,12 @@ export function DocumentCard({ row, index, columns }: DocumentCardProps) {
               <h4 className="truncate text-sm font-semibold text-foreground">
                 {primaryColumn ? renderField(primaryColumn) : ""}
               </h4>
-              {secondaryColumns[0] && (
-                <p className="truncate text-[11px] text-muted-foreground font-mono">
-                  {secondaryColumns[0].header}:{" "}
-                  {renderField(secondaryColumns[0])}
-                </p>
-              )}
+              <p className="truncate text-[11px] text-muted-foreground font-mono mt-0.5">
+                {numLabel}: {row.document_number}
+              </p>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 items-center gap-1">
               {actionColumns.map((column, actionIndex) => (
                 <div key={`action-${actionIndex}`}>
                   {column.render(row, index)}
@@ -81,22 +81,30 @@ export function DocumentCard({ row, index, columns }: DocumentCardProps) {
           </div>
 
           <div className="grid gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
-            {secondaryColumns.slice(1).map((column) => (
-              <div
-                key={String(column.key)}
-                className="flex min-w-0 items-start gap-2"
-              >
-                {column.icon && (
-                  <column.icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-                )}
-                <span className="min-w-0 truncate">
-                  {column.header}:{" "}
+            {secondaryColumns
+              .filter(
+                (col) =>
+                  col.key !== "document_number" &&
+                  col.key !== "full_name_identity",
+              )
+              .map((column) => (
+                <div
+                  key={String(column.key)}
+                  className="flex min-w-0 items-center justify-between gap-2"
+                >
+                  <span className="flex items-center gap-1.5 truncate">
+                    {column.icon && (
+                      <column.icon className="h-3.5 w-3.5 shrink-0 text-primary" />
+                    )}
+                    {column.header}
+                  </span>
                   <strong className="font-medium text-foreground">
-                    {renderField(column)}
+                    {column.key === "document_type"
+                      ? formatDocType(row.document_type)
+                      : renderField(column)}
                   </strong>
-                </span>
-              </div>
-            ))}
+                </div>
+              ))}
           </div>
         </div>
       </div>
