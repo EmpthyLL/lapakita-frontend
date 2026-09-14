@@ -19,6 +19,7 @@ export interface PaginatedResponse<T> {
 export const basePaginationQuerySchema = z.object({
   limit: z.number().optional(),
   page: z.number().optional(),
+  selectedId: z.union([z.string(), z.number()]).optional(),
 });
 
 export type BasePaginationQuery = z.infer<typeof basePaginationQuerySchema>;

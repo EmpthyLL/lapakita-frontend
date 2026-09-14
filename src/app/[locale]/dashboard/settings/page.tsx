@@ -56,11 +56,12 @@ export default function GeneralProfilePage() {
     fetchNextPage: fetchMorePhone,
     isFetchingNextPage: isFetchingMorePhone,
   } = useInfiniteSearch<PhoneNumberItem, PhoneQueryParams, PhoneNumberItem>({
-    queryKey: ["user-phone-autocomplete"],
+    queryKey: ["phone-numbers"],
     queryFn: getPhoneNumbers,
     search: phoneSearch,
     searchKey: "number",
     initialLimit: 10,
+    selectedId: profile?.primary_phone,
   });
 
   const isInitializedRef = useRef(false);

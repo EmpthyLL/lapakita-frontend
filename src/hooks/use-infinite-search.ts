@@ -21,6 +21,7 @@ type UseInfiniteSearchProps<
   mapFn?: (data: TData[]) => TOutput[];
   initialLimit?: number;
   initialPageParam?: number;
+  selectedId?: string | number; // Ditambahkan di sini
 };
 
 export function useInfiniteSearch<
@@ -36,15 +37,24 @@ export function useInfiniteSearch<
   params = {} as TQuery,
   mapFn,
   initialLimit = 10,
-  initialPageParam = 1,
+  initialPageParam = 0,
+  selectedId,
 }: UseInfiniteSearchProps<TData, TQuery, TOutput>) {
   const query = useInfiniteQuery({
-    queryKey: [...queryKey, search, initialLimit, initialPageParam, params],
+    queryKey: [
+      ...queryKey,
+      search,
+      initialLimit,
+      initialPageParam,
+      params,
+      selectedId,
+    ],
     queryFn: async ({ pageParam = initialPageParam }) => {
       const finalParams: TQuery = {
         ...params,
         page: pageParam,
         limit: initialLimit,
+        ...(selectedId !== undefined ? { selectedId } : {}),
       } as TQuery;
 
       if (search && searchKey) {
@@ -56,18 +66,20 @@ export function useInfiniteSearch<
       return {
         data: raw.data,
         hasMore: raw.meta.hasNextPage,
+        hasPrev: raw.meta.hasPrevPage,
         page: pageParam,
         meta: raw.meta,
       };
     },
     getNextPageParam: (lastPage) =>
       lastPage.hasMore ? lastPage.page + 1 : undefined,
+    getPreviousPageParam: (firstPage) =>
+      firstPage.hasPrev ? firstPage.page - 1 : undefined,
     initialPageParam,
     enabled,
     placeholderData: (prev) => prev,
   });
 
-  // flatten ALL pages, not just the last one
   const flatData = query.data?.pages.flatMap((p) => p.data) ?? [];
   const lastPage = query.data?.pages.at(-1);
 
@@ -79,9 +91,12 @@ export function useInfiniteSearch<
     data: finalData,
     isLoading: query.isLoading,
     fetchNextPage: query.fetchNextPage,
+    fetchPreviousPage: query.fetchPreviousPage,
     isFetching: query.isFetching,
     hasNextPage: query.hasNextPage,
+    hasPreviousPage: query.hasPreviousPage,
     isFetchingNextPage: query.isFetchingNextPage,
+    isFetchingPreviousPage: query.isFetchingPreviousPage,
     meta: lastPage?.meta,
   };
 }
