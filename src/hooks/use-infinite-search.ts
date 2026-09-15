@@ -21,7 +21,7 @@ type UseInfiniteSearchProps<
   mapFn?: (data: TData[]) => TOutput[];
   initialLimit?: number;
   initialPageParam?: number;
-  selectedId?: string | number; // Ditambahkan di sini
+  selected_id?: string | number;
 };
 
 export function useInfiniteSearch<
@@ -37,8 +37,8 @@ export function useInfiniteSearch<
   params = {} as TQuery,
   mapFn,
   initialLimit = 10,
-  initialPageParam = 0,
-  selectedId,
+  initialPageParam = 1, // Reset ke 1 agar selaras dengan 1-based index backend
+  selected_id,
 }: UseInfiniteSearchProps<TData, TQuery, TOutput>) {
   const query = useInfiniteQuery({
     queryKey: [
@@ -47,14 +47,16 @@ export function useInfiniteSearch<
       initialLimit,
       initialPageParam,
       params,
-      selectedId,
+      selected_id,
     ],
     queryFn: async ({ pageParam = initialPageParam }) => {
+      const isInitialPage = pageParam === initialPageParam;
+
       const finalParams: TQuery = {
         ...params,
         page: pageParam,
         limit: initialLimit,
-        ...(selectedId !== undefined ? { selectedId } : {}),
+        ...(isInitialPage && selected_id !== undefined ? { selected_id } : {}),
       } as TQuery;
 
       if (search && searchKey) {

@@ -53,15 +53,13 @@ export default function GeneralProfilePage() {
     data: phoneList,
     isLoading: isPhoneLoading,
     hasNextPage: hasMorePhone,
-    fetchNextPage: fetchMorePhone,
+    fetchNextPage: fetchNextPhone,
     isFetchingNextPage: isFetchingMorePhone,
   } = useInfiniteSearch<PhoneNumberItem, PhoneQueryParams, PhoneNumberItem>({
     queryKey: ["phone-numbers"],
     queryFn: getPhoneNumbers,
     search: phoneSearch,
     searchKey: "number",
-    initialLimit: 10,
-    selectedId: profile?.primary_phone,
   });
 
   const isInitializedRef = useRef(false);
@@ -128,6 +126,7 @@ export default function GeneralProfilePage() {
       });
 
       queryClient.invalidateQueries({ queryKey: ["user-general-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["phone-numbers"] });
     },
     onError: (error) => {
       handleError(error);
@@ -281,9 +280,9 @@ export default function GeneralProfilePage() {
                         labelKey="number"
                         valueKey="number"
                         isLoading={isPhoneLoading}
-                        isFetchingMore={isFetchingMorePhone}
-                        hasMore={hasMorePhone}
-                        fetchMore={() => fetchMorePhone()}
+                        isFetchingNext={isFetchingMorePhone}
+                        hasNext={hasMorePhone}
+                        fetchNext={() => fetchNextPhone()}
                         onFilterChange={(q) => setPhoneSearch(q)}
                         placeholder="Select or enter phone number"
                         indicatorIcon={<Phone className="size-4" />}

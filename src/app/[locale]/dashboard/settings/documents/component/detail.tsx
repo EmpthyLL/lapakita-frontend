@@ -1,6 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
+import FileViewer from "@/components/common/FileViewer";
 import { Button } from "@/components/ui/button";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
 import { CreditCard, FileText, Hash, User } from "lucide-react";
@@ -51,22 +51,13 @@ export function DocumentDetail({ document, onClose }: DocumentDetailProps) {
           Preview
         </label>
 
-        <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-border/80 bg-muted/50 shadow-inner flex items-center justify-center group">
-          {document.document_photo_url ? (
-            <img
-              src={document.document_photo_url}
-              alt="Document Preview"
-              className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
-            />
-          ) : (
-            <div className="text-muted-foreground text-xs flex flex-col items-center justify-center p-6 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground mb-2 shadow-xs">
-                <FileText className="h-6 w-6" />
-              </div>
-              <span className="font-medium">No image available</span>
-            </div>
-          )}
-        </div>
+        <FileViewer
+          src={document.document_photo_url}
+          title={document.full_name_identity}
+          documentType={formatDocType(document.document_type)}
+          subtitle={`No: ${document.document_number}`}
+          type="display"
+        />
       </div>
 
       <div className="pt-4 border-t border-border flex justify-end">

@@ -89,9 +89,9 @@ export function StallSearchPrimaryRow({
           className={"lg:w-90"}
           onFilterChange={setSearchTerm}
           isLoading={isLoading}
-          isFetchingMore={isFetchingNextPage}
-          hasMore={hasNextPage}
-          fetchMore={fetchNextPage}
+          isFetchingNext={isFetchingNextPage}
+          hasNext={hasNextPage}
+          fetchNext={fetchNextPage}
         />
 
         <Button

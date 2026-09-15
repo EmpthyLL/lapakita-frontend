@@ -80,7 +80,7 @@ export interface AutocompleteProps<T extends Record<string, any>> {
 
   disabled?: boolean;
   isLoading?: boolean;
-  isFetchingMore?: boolean;
+  isFetchingNext?: boolean;
   isFetchingPrev?: boolean;
   hasError?: boolean;
 
@@ -88,8 +88,8 @@ export interface AutocompleteProps<T extends Record<string, any>> {
   indicatorIcon?: React.ReactNode;
   addButton?: React.ReactNode;
 
-  hasMore?: boolean;
-  fetchMore?: () => void;
+  hasNext?: boolean;
+  fetchNext?: () => void;
   hasPrev?: boolean;
   fetchPrev?: () => void;
   onFilterChange?: (query: string) => void;
@@ -116,14 +116,14 @@ export function Autocomplete<T extends Record<string, any>>({
   emptyText = "No option found.",
   disabled = false,
   isLoading = false,
-  isFetchingMore = false,
+  isFetchingNext = false,
   isFetchingPrev = false,
   hasError = false,
   showClearButton = false,
   indicatorIcon,
   addButton,
-  hasMore = false,
-  fetchMore,
+  hasNext = false,
+  fetchNext,
   hasPrev = false,
   fetchPrev,
   onFilterChange,
@@ -189,14 +189,14 @@ export function Autocomplete<T extends Record<string, any>>({
     const el = e.currentTarget;
     const { scrollTop, scrollHeight, clientHeight } = el;
 
-    // Fetch More (Bottom)
+    // Fetch Next (Bottom)
     if (
-      hasMore &&
-      fetchMore &&
-      !isFetchingMore &&
+      hasNext &&
+      fetchNext &&
+      !isFetchingNext &&
       scrollHeight - scrollTop - clientHeight <= 20
     ) {
-      fetchMore();
+      fetchNext();
     }
 
     // Fetch Prev (Top)
@@ -491,7 +491,7 @@ export function Autocomplete<T extends Record<string, any>>({
                   </CommandGroup>
                 )}
 
-                {isFetchingMore && (
+                {isFetchingNext && (
                   <div className="flex items-center justify-center p-2 text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin text-primary" />
                   </div>
