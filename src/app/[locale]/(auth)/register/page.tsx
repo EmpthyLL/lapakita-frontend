@@ -1,12 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import { UserPlus } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-
 import { GoogleButton } from "@/components/common/GoogleButton";
 import {
   Form,
@@ -18,6 +11,7 @@ import {
   FormMessage,
 } from "@/components/common/input/FormField";
 import { PasswordInput } from "@/components/common/input/PasswordInput";
+import { PhoneInput } from "@/components/common/input/PhoneInput";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { registerUser } from "@/lib/data/api/auth";
@@ -27,6 +21,13 @@ import {
 } from "@/lib/data/schema/auth/register";
 import { handleError } from "@/lib/error";
 import { showToast } from "@/lib/toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { parsePhoneNumberWithError } from "libphonenumber-js";
+import { UserPlus } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import { AuthDivider } from "../AuthDivider";
 import { AuthShell } from "../AuthShell";
 
@@ -133,11 +134,27 @@ export default function RegisterPage() {
                 <FormItem>
                   <FormLabel htmlFor="phone">Phone Number</FormLabel>
                   <FormControl>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="+62 812 3456 7890"
-                      {...field}
+                    <PhoneInput
+                      value={field.value}
+                      onChange={(val) => {
+                        if (val) {
+                          try {
+                            const parsed = parsePhoneNumberWithError(val);
+                            if (parsed) {
+                              form.setValue(
+                                "dial_code",
+                                `+${parsed.countryCallingCode}`,
+                              );
+                              form.setValue("phone", parsed.nationalNumber);
+                              return;
+                            }
+                          } catch {
+                            // Fallback jika parsing gagal
+                          }
+                        }
+                        field.onChange(val ?? "");
+                      }}
+                      placeholder="812 3456 7890"
                     />
                   </FormControl>
                   <FormMessage />

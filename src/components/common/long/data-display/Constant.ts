@@ -80,6 +80,8 @@ export type ListItemRenderer<TData> = (
   columns: ColumnDef<TData>[],
 ) => ReactNode;
 
+export type RowAction<TData> = (row: TData, index: number) => void;
+
 export type DataDisplayVariant = "table" | "list" | "card";
 export type DataDisplayLoadMode =
   | "infinite-scroll"

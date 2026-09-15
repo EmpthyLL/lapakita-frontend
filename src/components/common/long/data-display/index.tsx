@@ -31,6 +31,7 @@ import {
   DataDisplayVariant,
   FieldColumnDef,
   ListItemRenderer,
+  RowAction,
 } from "./Constant";
 import { DataDisplayPagination } from "./DataDisplayPagination";
 import {
@@ -52,6 +53,7 @@ interface DataDisplayProps<TData, TParams extends Record<string, any>> {
   variant?: DataDisplayVariant;
   loadMode?: DataDisplayLoadMode;
   renderItem?: ListItemRenderer<TData>;
+  onRowClick?: RowAction<TData>;
   columns?: ColumnDef<TData>[];
   showFilter?: boolean;
   showCount?: boolean;
@@ -66,6 +68,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   variant = "list",
   loadMode = "infinite-scroll",
   renderItem,
+  onRowClick,
   columns = [],
   showFilter = false,
   showCount = false,
@@ -289,8 +292,21 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
                       className={cn(
                         "group border-l-2 border-l-transparent transition-colors",
                         "hover:border-l-primary hover:bg-primary/4",
+                        onRowClick && "cursor-pointer",
                         index % 2 === 1 && "bg-secondary/20",
                       )}
+                      onClick={() => onRowClick?.(row, index)}
+                      onKeyDown={(event) => {
+                        if (
+                          onRowClick &&
+                          (event.key === "Enter" || event.key === " ")
+                        ) {
+                          event.preventDefault();
+                          onRowClick(row, index);
+                        }
+                      }}
+                      tabIndex={onRowClick ? 0 : undefined}
+                      role={onRowClick ? "button" : undefined}
                     >
                       <TableCell className="w-10">
                         <RowIndexBadge index={index} />
@@ -301,6 +317,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
                             <TableCell
                               key={`action-cell-${colIdx}`}
                               className={cn("w-24 text-right", col.className)}
+                              onClick={(event) => event.stopPropagation()}
                             >
                               <div className="flex justify-end">
                                 {col.render(row, index)}
@@ -352,7 +369,24 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
           )}
         >
           {rows.map((row, index) => (
-            <div key={String(row[rowKey])}>{renderPresetItem(row, index)}</div>
+            <div
+              key={String(row[rowKey])}
+              className={cn(onRowClick && "cursor-pointer")}
+              onClick={() => onRowClick?.(row, index)}
+              onKeyDown={(event) => {
+                if (
+                  onRowClick &&
+                  (event.key === "Enter" || event.key === " ")
+                ) {
+                  event.preventDefault();
+                  onRowClick(row, index);
+                }
+              }}
+              tabIndex={onRowClick ? 0 : undefined}
+              role={onRowClick ? "button" : undefined}
+            >
+              {renderPresetItem(row, index)}
+            </div>
           ))}
         </div>
       )}

@@ -87,6 +87,7 @@ export interface AutocompleteProps<T extends Record<string, any>> {
   showClearButton?: boolean;
   indicatorIcon?: React.ReactNode;
   addButton?: React.ReactNode;
+  renderItem?: (option: T) => React.ReactNode;
 
   hasNext?: boolean;
   fetchNext?: () => void;
@@ -122,6 +123,7 @@ export function Autocomplete<T extends Record<string, any>>({
   showClearButton = false,
   indicatorIcon,
   addButton,
+  renderItem,
   hasNext = false,
   fetchNext,
   hasPrev = false,
@@ -241,7 +243,11 @@ export function Autocomplete<T extends Record<string, any>>({
         key={String(option[valueKey])}
         ref={isSelected ? refs.selectedItemRef : undefined}
         value={String(option[valueKey])}
-        keywords={[String(option[labelKey])]}
+        keywords={[
+          String(option[labelKey]),
+          String(option["name"] ?? ""),
+          String(option["value"] ?? ""),
+        ]}
         onSelect={handlers.selectOption}
         className={cn(
           "relative flex cursor-pointer items-center justify-between rounded-md transition-colors",
@@ -250,24 +256,28 @@ export function Autocomplete<T extends Record<string, any>>({
           isSelected && "bg-primary/10 font-semibold text-primary",
         )}
       >
-        <div className="flex min-w-0 items-center gap-2">
-          {iconKey && option[iconKey] && (
-            <OptionIcon
-              icon={option[iconKey]}
-              size={s.iconSize}
-              alt={String(option[labelKey]) || ""}
-            />
-          )}
-          <span
-            className={cn(
-              s.itemText,
-              "truncate font-semibold",
-              isSelected ? "text-primary" : "text-foreground",
+        {renderItem ? (
+          renderItem(option)
+        ) : (
+          <div className="flex min-w-0 items-center gap-2">
+            {iconKey && option[iconKey] && (
+              <OptionIcon
+                icon={option[iconKey]}
+                size={s.iconSize}
+                alt={String(option[labelKey]) || ""}
+              />
             )}
-          >
-            {option[labelKey]}
-          </span>
-        </div>
+            <span
+              className={cn(
+                s.itemText,
+                "truncate font-semibold",
+                isSelected ? "text-primary" : "text-foreground",
+              )}
+            >
+              {option[labelKey]}
+            </span>
+          </div>
+        )}
 
         <Check
           className={cn(

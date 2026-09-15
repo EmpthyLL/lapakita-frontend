@@ -94,6 +94,7 @@ export function ListRowCard<TData>({
             <div
               key={`list-action-${cIdx}`}
               className="flex items-center justify-end"
+              onClick={(event) => event.stopPropagation()}
             >
               {actionNode}
             </div>

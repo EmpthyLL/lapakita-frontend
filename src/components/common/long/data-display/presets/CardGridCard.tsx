@@ -117,6 +117,7 @@ export function CardGridCard<TData>({
                   <div
                     key={`card-action-${cIdx}`}
                     className="flex items-center justify-end"
+                    onClick={(event) => event.stopPropagation()}
                   >
                     {actionNode}
                   </div>
@@ -136,6 +137,7 @@ export function CardGridCard<TData>({
               <div
                 key={`card-action-${cIdx}`}
                 className="flex items-center justify-end"
+                onClick={(event) => event.stopPropagation()}
               >
                 {actionNode}
               </div>

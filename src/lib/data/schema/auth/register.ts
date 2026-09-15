@@ -4,7 +4,8 @@ export const registerSchema = z
   .object({
     name: z.string().min(2, "Name must be at least 2 characters"),
     email: z.string().email("Email address is invalid"),
-    phone: z.string().min(10, "Phone number must be at least 10 digits"),
+    dial_code: z.string().min(1, "Dial code is required"),
+    phone: z.string().min(5, "Phone number is invalid"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirm_password: z.string(),
   })
@@ -19,5 +20,6 @@ export interface RegisterPayload {
   name: string;
   email: string;
   password: string;
+  dial_code: string;
   phone: string;
 }
