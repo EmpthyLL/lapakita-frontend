@@ -22,6 +22,10 @@ export function usePhoneColumns() {
       icon: PhoneIcon,
       primary: true,
       className: "font-mono font-semibold text-foreground",
+      render: (val) => {
+        if (!val) return "-";
+        return `${val.dialCode} ${val.number}`;
+      },
     }),
 
     field({

@@ -54,10 +54,10 @@ export default function VerifyOtpPage() {
 
   const form = useForm<OtpValues>({
     resolver: zodResolver(otpSchema),
-    defaultValues: { code: "" },
+    defaultValues: { otp_code: "", mode, email },
   });
 
-  const codeValue = form.watch("code");
+  const codeValue = form.watch("otp_code");
 
   useEffect(() => {
     if (secondsLeft <= 0) return;
@@ -66,8 +66,7 @@ export default function VerifyOtpPage() {
   }, [secondsLeft]);
 
   const verifyOtpMutation = useMutation({
-    mutationFn: (values: OtpValues) =>
-      verifyOTP({ email, mode, otp_code: values.code }),
+    mutationFn: (values: OtpValues) => verifyOTP(values),
     onSuccess: async (res) => {
       if (res?.message) {
         showToast.success(res.message);
@@ -171,7 +170,7 @@ export default function VerifyOtpPage() {
           <div className="flex flex-col gap-5">
             <FormField
               control={form.control}
-              name="code"
+              name="otp_code"
               render={({ field }) => (
                 <FormItem className="items-center">
                   <FormControl>

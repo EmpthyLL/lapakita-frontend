@@ -3,7 +3,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { ArrowRight, Phone, UserCheck } from "lucide-react";
+import { ArrowRight, UserCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
@@ -18,6 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/common/input/FormField";
+import { PhoneInput } from "@/components/common/input/PhoneInput";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { completeGoogleProfile } from "@/lib/data/api/auth";
@@ -40,8 +41,11 @@ export default function CompleteProfilePage() {
     resolver: zodResolver(completeProfileSchema),
     defaultValues: {
       name: user?.defaultName || "",
-      phone: user?.defaultPhone || "",
-      avatarUrl: user?.defaultAvatarUrl || "",
+      phone: {
+        dialCode: "+62",
+        number: user?.defaultPhone || "",
+      },
+      avatar_url: user?.defaultAvatarUrl || "",
     },
   });
 
@@ -50,9 +54,15 @@ export default function CompleteProfilePage() {
   useEffect(() => {
     if (user && !isInitializedRef.current) {
       if (user.defaultName) form.setValue("name", user.defaultName);
-      if (user.defaultPhone) form.setValue("phone", user.defaultPhone);
+      if (user.defaultPhone) {
+        // Jika data phone dari Google berupa string biasa, bisa dipisah atau dimasukkan ke number
+        form.setValue("phone", {
+          dialCode: "+62",
+          number: user.defaultPhone,
+        });
+      }
       if (user.defaultAvatarUrl) {
-        form.setValue("avatarUrl", user.defaultAvatarUrl);
+        form.setValue("avatar_url", user.defaultAvatarUrl);
       }
       isInitializedRef.current = true;
     }
@@ -60,11 +70,7 @@ export default function CompleteProfilePage() {
 
   const completeProfileMutation = useMutation({
     mutationFn: (values: CompleteProfileValues) =>
-      completeGoogleProfile({
-        name: values.name,
-        phone: values.phone,
-        avatar_url: values.avatarUrl || undefined,
-      }),
+      completeGoogleProfile(values),
     onSuccess: async (res) => {
       const authData = res.data;
 
@@ -77,7 +83,7 @@ export default function CompleteProfilePage() {
           user: {
             defaultName: authData.default_name,
             defaultPhone: authData.default_phone,
-            defaultAvatarUrl: authData.default_avatar_url,
+            defaultavatar_url: authData.default_avatar_url,
             phoneNumbers: authData.phone_numbers,
             personas: authData.personas,
           },
@@ -122,7 +128,7 @@ export default function CompleteProfilePage() {
           <div className="flex justify-center rounded-3xl border border-border/80 bg-card p-6 shadow-xs">
             <FormField
               control={form.control}
-              name="avatarUrl"
+              name="avatar_url"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -171,18 +177,14 @@ export default function CompleteProfilePage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Phone Number</FormLabel>
-                  <div className="relative flex items-center">
-                    <FormControl>
-                      <Input
-                        type="tel"
-                        placeholder="+62 812 3456 7890"
-                        className="h-11 rounded-2xl bg-background border-border pr-10 focus-visible:ring-primary"
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <Phone className="pointer-events-none absolute right-3 size-4 text-muted-foreground" />
-                  </div>
+                  <FormControl>
+                    <PhoneInput
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="812 3456 7890"
+                      hasError={!!form.formState.errors.phone}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

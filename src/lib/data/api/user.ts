@@ -1,4 +1,5 @@
 import api from "@/lib/api";
+import { getAllCountryPhoneOptions } from "@/lib/countries";
 import {
   DocumentQueryParams,
   GetDocumentResponse,
@@ -17,6 +18,7 @@ import {
 } from "../schema/user/persona";
 import {
   GetPhoneNumbersResponse,
+  PhoneNumberItem,
   PhoneQueryParams,
   PhoneValues,
 } from "../schema/user/phone_number";
@@ -36,11 +38,30 @@ export async function updateGeneralProfile(
   return response.data.data;
 }
 
-export async function getPhoneNumbers(params?: PhoneQueryParams) {
+export async function getPhoneNumbers(
+  params?: PhoneQueryParams,
+): Promise<GetPhoneNumbersResponse> {
   const response = await api.get<GetPhoneNumbersResponse>("/users/phone", {
     params,
   });
-  return response.data;
+
+  const countryOptions = getAllCountryPhoneOptions();
+
+  const mappedData = response.data.data.map((item: PhoneNumberItem) => {
+    const dialCode = item.number?.dialCode || "+62";
+
+    const matchedCountry = countryOptions.find((c) => c.value === dialCode);
+
+    return {
+      ...item,
+      flag: matchedCountry?.flag || "https://flagcdn.com/id.svg",
+    };
+  });
+
+  return {
+    ...response.data,
+    data: mappedData,
+  };
 }
 
 export async function addPhoneNumber(payload: PhoneValues): Promise<void> {

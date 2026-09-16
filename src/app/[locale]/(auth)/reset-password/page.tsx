@@ -35,16 +35,16 @@ export default function ResetPasswordPage() {
 
   const form = useForm<ResetValues>({
     resolver: zodResolver(resetSchema),
-    defaultValues: { password: "", confirmPassword: "" },
+    defaultValues: {
+      new_password: "",
+      confirm_password: "",
+      verification_token: token,
+      email,
+    },
   });
 
   const resetMutation = useMutation({
-    mutationFn: (values: ResetValues) =>
-      resetPassword({
-        email,
-        verification_token: token,
-        new_password: values.password,
-      }),
+    mutationFn: (values: ResetValues) => resetPassword(values),
     onSuccess: (res) => {
       if (res?.message) {
         showToast.success(res.message);
@@ -90,13 +90,13 @@ export default function ResetPasswordPage() {
           <div className="flex flex-col gap-5">
             <FormField
               control={form.control}
-              name="password"
+              name="new_password"
               render={({ field, fieldState }) => (
                 <FormItem>
-                  <FormLabel htmlFor="password">New Password</FormLabel>
+                  <FormLabel htmlFor="new_password">New Password</FormLabel>
                   <FormControl>
                     <PasswordInput
-                      id="password"
+                      id="new_password"
                       placeholder="Create a new password"
                       {...field}
                     />
@@ -114,7 +114,7 @@ export default function ResetPasswordPage() {
 
             <FormField
               control={form.control}
-              name="confirmPassword"
+              name="confirm_password"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="confirmPassword">

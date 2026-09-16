@@ -1,3 +1,4 @@
+// app/register/page.tsx
 "use client";
 
 import { GoogleButton } from "@/components/common/GoogleButton";
@@ -23,7 +24,6 @@ import { handleError } from "@/lib/error";
 import { showToast } from "@/lib/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { parsePhoneNumberWithError } from "libphonenumber-js";
 import { UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -39,7 +39,10 @@ export default function RegisterPage() {
     defaultValues: {
       name: "",
       email: "",
-      phone: "",
+      phone: {
+        dialCode: "+62",
+        number: "",
+      },
       password: "",
       confirm_password: "",
     },
@@ -136,25 +139,9 @@ export default function RegisterPage() {
                   <FormControl>
                     <PhoneInput
                       value={field.value}
-                      onChange={(val) => {
-                        if (val) {
-                          try {
-                            const parsed = parsePhoneNumberWithError(val);
-                            if (parsed) {
-                              form.setValue(
-                                "dial_code",
-                                `+${parsed.countryCallingCode}`,
-                              );
-                              form.setValue("phone", parsed.nationalNumber);
-                              return;
-                            }
-                          } catch {
-                            // Fallback jika parsing gagal
-                          }
-                        }
-                        field.onChange(val ?? "");
-                      }}
+                      onChange={field.onChange}
                       placeholder="812 3456 7890"
+                      hasError={!!form.formState.errors.phone}
                     />
                   </FormControl>
                   <FormMessage />

@@ -1,8 +1,7 @@
-// lib/countries.ts
 import { Country } from "country-state-city";
 
 export interface CountryPhoneOption {
-  label: string; // "Indonesia (+62)" -> untuk pencarian keyword
+  label: string; // "Indonesia +62" -> agar bisa dicari via search bar
   value: string; // "+62"
   name: string; // "Indonesia"
   code: string; // "ID"
@@ -19,7 +18,7 @@ export function getAllCountryPhoneOptions(): CountryPhoneOption[] {
       : `+${c.phonecode}`;
 
     return {
-      label: `${c.name} (${phoneCode})`,
+      label: `${c.name} ${phoneCode}`,
       value: phoneCode,
       name: c.name,
       code: c.isoCode,

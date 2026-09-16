@@ -8,9 +8,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/common/input/FormField";
+import { PhoneInput } from "@/components/common/input/PhoneInput";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { addPhoneNumber, updatePhoneNumber } from "@/lib/data/api/user";
 import {
@@ -65,22 +65,31 @@ export function PhoneForm({
   const form = useForm<PhoneValues>({
     resolver: zodResolver(phoneRequestSchema),
     defaultValues: {
-      number: "",
+      number: {
+        dialCode: "+62",
+        number: "",
+      },
       is_primary: false,
       roles: [],
     },
   });
 
   useEffect(() => {
-    if (mode === "edit" && initialData) {
+    if (mode === "edit" && initialData && initialData.number) {
       form.reset({
-        number: initialData.number,
+        number: {
+          dialCode: initialData.number.dialCode || "+62",
+          number: initialData.number.number || "",
+        },
         is_primary: initialData.is_primary,
         roles: initialData.roles || [],
       });
     } else {
       form.reset({
-        number: "",
+        number: {
+          dialCode: "+62",
+          number: "",
+        },
         is_primary: false,
         roles: [],
       });
@@ -103,12 +112,14 @@ export function PhoneForm({
           : "Phone number added successfully",
       );
 
+      const fullNumber = `${values.number.dialCode}${values.number.number}`;
+
       if (session?.user) {
         let newDefaultPhone = session.user.defaultPhone;
         const updatedPersonas = { ...(session.user.personas || {}) };
 
         if (values.is_primary) {
-          newDefaultPhone = values.number;
+          newDefaultPhone = fullNumber;
         }
 
         values.roles.forEach((role) => {
@@ -116,13 +127,13 @@ export function PhoneForm({
           if (existingPersona) {
             updatedPersonas[role] = {
               ...existingPersona,
-              phone: values.number,
+              phone: fullNumber,
             };
           } else {
             updatedPersonas[role] = {
               display_name: "",
               avatar_url: "",
-              phone: values.number,
+              phone: fullNumber,
             };
           }
         });
@@ -154,10 +165,11 @@ export function PhoneForm({
             <FormItem>
               <FormLabel>Phone Number</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="e.g. +6281234567890"
-                  {...field}
-                  value={field.value ?? ""}
+                <PhoneInput
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="812 3456 7890"
+                  hasError={!!form.formState.errors.number}
                 />
               </FormControl>
               <FormMessage />

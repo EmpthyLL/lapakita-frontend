@@ -1,3 +1,4 @@
+// app/path/to/GeneralProfilePage.tsx
 "use client";
 
 import { Autocomplete } from "@/components/common/input/Autocomplete";
@@ -33,7 +34,7 @@ import { showToast } from "@/lib/toast";
 import type { Role } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AtSign, Phone, Save, ShieldCheck, UserCheck } from "lucide-react";
+import { AtSign, Save, ShieldCheck, UserCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -62,6 +63,11 @@ export default function GeneralProfilePage() {
     searchKey: "number",
   });
 
+  const enhancedPhoneList = (phoneList ?? []).map((item) => ({
+    ...item,
+    displayLabel: `${item.number.dialCode} ${item.number.number}`,
+  }));
+
   const isInitializedRef = useRef(false);
 
   const form = useForm<UpdateGeneralProfileValues>({
@@ -69,7 +75,7 @@ export default function GeneralProfilePage() {
     defaultValues: {
       name: "",
       default_avatar_url: "",
-      phone_number: "",
+      phone_number: { dialCode: "+62", number: "" },
       active_role: "tenant",
     },
   });
@@ -79,7 +85,7 @@ export default function GeneralProfilePage() {
       form.reset({
         name: profile.name ?? "",
         default_avatar_url: profile.default_avatar_url ?? "",
-        phone_number: profile.primary_phone ?? "",
+        phone_number: { dialCode: "+62", number: "" },
         active_role: profile.active_role ?? "tenant",
       });
       isInitializedRef.current = true;
@@ -111,18 +117,10 @@ export default function GeneralProfilePage() {
       await updateSession({
         user: {
           defaultName: res.name,
-          defaultPhone: res.primary_phone,
+          defaultPhone: `${res.primary_phone.dialCode}${res.primary_phone.number}`,
           defaultAvatarUrl: res.default_avatar_url,
           activeRole: res.active_role || activeRole,
         },
-      });
-
-      form.reset({
-        name: res.name ?? form.getValues("name"),
-        default_avatar_url:
-          res.default_avatar_url ?? form.getValues("default_avatar_url"),
-        phone_number: res.primary_phone ?? form.getValues("phone_number"),
-        active_role: res.active_role ?? activeRole,
       });
 
       queryClient.invalidateQueries({ queryKey: ["user-general-profile"] });
@@ -145,6 +143,7 @@ export default function GeneralProfilePage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-8 pb-12">
+      {/* Header Profile */}
       <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
         <div className="absolute top-0 right-0 h-32 w-32 -translate-y-8 translate-x-8 rounded-full bg-gradient-brand opacity-10 blur-2xl pointer-events-none" />
 
@@ -222,6 +221,7 @@ export default function GeneralProfilePage() {
               </div>
             </div>
 
+            {/* Email Section */}
             <div className="space-y-1.5 rounded-2xl bg-secondary/40 p-4 border border-border/60">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
@@ -264,33 +264,45 @@ export default function GeneralProfilePage() {
                 )}
               />
 
+              {/* Primary Phone Number Selector Bersih dengan iconKey="flag" */}
               <FormField
                 control={form.control}
                 name="phone_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Primary Phone Number
-                    </FormLabel>
-                    <FormControl>
-                      <Autocomplete
-                        value={field.value ?? ""}
-                        onSelect={(v) => field.onChange(String(v))}
-                        options={phoneList ?? []}
-                        labelKey="number"
-                        valueKey="number"
-                        isLoading={isPhoneLoading}
-                        isFetchingNext={isFetchingMorePhone}
-                        hasNext={hasMorePhone}
-                        fetchNext={() => fetchNextPhone()}
-                        onFilterChange={(q) => setPhoneSearch(q)}
-                        placeholder="Select or enter phone number"
-                        indicatorIcon={<Phone className="size-4" />}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const currentVal = field.value;
+                  const displayValue = currentVal?.number
+                    ? `${currentVal.dialCode}${currentVal.number}`
+                    : "";
+
+                  return (
+                    <FormItem>
+                      <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Primary Phone Number
+                      </FormLabel>
+                      <FormControl>
+                        <Autocomplete
+                          value={displayValue}
+                          onSelect={(_val, option) => {
+                            if (option && option.number) {
+                              field.onChange(option.number);
+                            }
+                          }}
+                          options={enhancedPhoneList}
+                          labelKey="displayLabel"
+                          valueKey="displayLabel"
+                          iconKey="flag"
+                          isLoading={isPhoneLoading}
+                          isFetchingNext={isFetchingMorePhone}
+                          hasNext={hasMorePhone}
+                          fetchNext={() => fetchNextPhone()}
+                          onFilterChange={(q) => setPhoneSearch(q)}
+                          placeholder="Select primary phone number"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
             </div>
 

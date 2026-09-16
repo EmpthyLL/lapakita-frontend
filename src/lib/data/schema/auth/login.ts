@@ -8,18 +8,6 @@ export const loginSchema = z.object({
 
 export type LoginValues = z.infer<typeof loginSchema>;
 
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-// 2. Payload Request ke Backend API Go
-export interface CompleteProfilePayload {
-  name: string;
-  phone: string;
-  avatar_url?: string;
-}
-
 // 3. User & Auth Response Data
 export interface PhonePayload {
   number: string;

@@ -31,12 +31,11 @@ export default function ForgotPasswordPage() {
 
   const form = useForm<ForgotValues>({
     resolver: zodResolver(forgotSchema),
-    defaultValues: { email: "" },
+    defaultValues: { email: "", mode: "reset_password" },
   });
 
   const sendOtpMutation = useMutation({
-    mutationFn: (values: ForgotValues) =>
-      sendOTP({ email: values.email, mode: "reset_password" }),
+    mutationFn: (values: ForgotValues) => sendOTP(values),
     onSuccess: (res, variables) => {
       if (res?.message) {
         showToast.success(res.message);

@@ -72,6 +72,7 @@ export interface AutocompleteProps<T extends Record<string, any>> {
 
   valueKey?: keyof T;
   labelKey?: keyof T;
+  searchKey?: keyof T;
   iconKey?: keyof T;
   groupKey?: keyof T;
 
@@ -87,7 +88,7 @@ export interface AutocompleteProps<T extends Record<string, any>> {
   showClearButton?: boolean;
   indicatorIcon?: React.ReactNode;
   addButton?: React.ReactNode;
-  renderItem?: (option: T) => React.ReactNode;
+  render?: (option: T) => React.ReactNode;
 
   hasNext?: boolean;
   fetchNext?: () => void;
@@ -111,6 +112,7 @@ export function Autocomplete<T extends Record<string, any>>({
   options,
   valueKey = "value" as keyof T,
   labelKey = "label" as keyof T,
+  searchKey = "label" as keyof T,
   iconKey = "icon" as keyof T,
   groupKey,
   placeholder = "Select option...",
@@ -123,7 +125,7 @@ export function Autocomplete<T extends Record<string, any>>({
   showClearButton = false,
   indicatorIcon,
   addButton,
-  renderItem,
+  render,
   hasNext = false,
   fetchNext,
   hasPrev = false,
@@ -151,7 +153,7 @@ export function Autocomplete<T extends Record<string, any>>({
     onSelect,
     options,
     valueKey,
-    labelKey,
+    labelKey: searchKey,
     groupKey,
     onFilterChange,
     debounceDelay,
@@ -245,6 +247,7 @@ export function Autocomplete<T extends Record<string, any>>({
         value={String(option[valueKey])}
         keywords={[
           String(option[labelKey]),
+          String(option[searchKey]),
           String(option["name"] ?? ""),
           String(option["value"] ?? ""),
         ]}
@@ -256,8 +259,8 @@ export function Autocomplete<T extends Record<string, any>>({
           isSelected && "bg-primary/10 font-semibold text-primary",
         )}
       >
-        {renderItem ? (
-          renderItem(option)
+        {render ? (
+          render(option)
         ) : (
           <div className="flex min-w-0 items-center gap-2">
             {iconKey && option[iconKey] && (
@@ -361,46 +364,54 @@ export function Autocomplete<T extends Record<string, any>>({
             className,
           )}
         >
-          <div className="flex min-w-0 flex-1 items-center gap-2 text-start">
-            {indicatorIcon && !(iconKey && selectedOption?.[iconKey]) && (
-              <div className="flex shrink-0 items-center text-muted-foreground">
-                {indicatorIcon}
-              </div>
-            )}
-
+          <div className="flex min-w-0 flex-1 items-center gap-2 text-start truncate">
             {isLoading && (
               <Loader2 className="h-5 w-5 shrink-0 animate-spin text-muted-foreground" />
             )}
 
-            {iconKey && selectedOption?.[iconKey] && (
-              <OptionIcon
-                icon={selectedOption[iconKey]}
-                size={20}
-                alt={String(selectedOption?.[labelKey]) || ""}
-                className={"opacity-68"}
-              />
-            )}
+            {render && selectedOption && !open ? (
+              <div className="flex-1 min-w-0 truncate">
+                {render(selectedOption)}
+              </div>
+            ) : (
+              <>
+                {indicatorIcon && !(iconKey && selectedOption?.[iconKey]) && (
+                  <div className="flex shrink-0 items-center text-muted-foreground">
+                    {indicatorIcon}
+                  </div>
+                )}
 
-            <input
-              ref={refs.inputRef}
-              type="text"
-              value={inputDisplayValue}
-              onChange={(e) => !disabled && setSearch(e.target.value)}
-              onClick={handlers.handleInputClick}
-              onKeyDown={handlers.handleInputKeyDown}
-              disabled={disabled}
-              tabIndex={-1}
-              placeholder={activePlaceholder}
-              className={cn(
-                "min-w-0 flex-1 truncate bg-transparent disabled:cursor-not-allowed",
-                s.text,
-                inputClass,
-              )}
-            />
+                {iconKey && selectedOption?.[iconKey] && (
+                  <OptionIcon
+                    icon={selectedOption[iconKey]}
+                    size={20}
+                    alt={String(selectedOption?.[labelKey]) || ""}
+                    className={"opacity-68 shrink-0"}
+                  />
+                )}
+
+                <input
+                  ref={refs.inputRef}
+                  type="text"
+                  value={inputDisplayValue}
+                  onChange={(e) => !disabled && setSearch(e.target.value)}
+                  onClick={handlers.handleInputClick}
+                  onKeyDown={handlers.handleInputKeyDown}
+                  disabled={disabled}
+                  tabIndex={-1}
+                  placeholder={activePlaceholder}
+                  className={cn(
+                    "min-w-0 flex-1 truncate bg-transparent disabled:cursor-not-allowed",
+                    s.text,
+                    inputClass,
+                  )}
+                />
+              </>
+            )}
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5">
-            {(search !== "" || (showClearButton && hasValue)) && !disabled && (
+            {showClearButton && hasValue && !disabled && (
               <button
                 type="button"
                 onClick={(e) => {

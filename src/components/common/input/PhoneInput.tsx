@@ -1,32 +1,69 @@
+// components/common/input/PhoneInput.tsx
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { Autocomplete } from "@/components/common/input/Autocomplete";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
-import { CountryPhoneOption, getAllCountryPhoneOptions } from "@/lib/countries";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { getAllCountryPhoneOptions } from "@/lib/countries";
 import { cn } from "@/lib/utils";
+import { Check, ChevronDown, Search } from "lucide-react";
 import * as React from "react";
 
+export interface PhoneValue {
+  dialCode: string;
+  number: string;
+}
+
 interface PhoneInputProps {
-  dialCodeValue?: string;
-  onDialCodeChange: (code: string) => void;
-  phoneValue?: string;
-  onPhoneChange: (phone: string) => void;
+  value?: PhoneValue;
+  onChange: (value: PhoneValue) => void;
   placeholder?: string;
   disabled?: boolean;
   hasError?: boolean;
 }
 
 export function PhoneInput({
-  dialCodeValue = "+62",
-  onDialCodeChange,
-  phoneValue = "",
-  onPhoneChange,
+  value = { dialCode: "+62", number: "" },
+  onChange,
   placeholder = "812 3456 7890",
   disabled = false,
   hasError = false,
 }: PhoneInputProps) {
+  const [open, setOpen] = React.useState(false);
   const countryOptions = React.useMemo(() => getAllCountryPhoneOptions(), []);
+
+  const selectedCountry = React.useMemo(() => {
+    return (
+      countryOptions.find((c) => c.value === value.dialCode) ||
+      countryOptions.find((c) => c.value === "+62")
+    );
+  }, [countryOptions, value.dialCode]);
+
+  const handleDialCodeChange = (newDialCode: string) => {
+    onChange({
+      dialCode: newDialCode,
+      number: value.number,
+    });
+  };
+
+  const handleNumberChange = (newNumber: string) => {
+    onChange({
+      dialCode: value.dialCode,
+      number: newNumber,
+    });
+  };
 
   return (
     <div
@@ -40,46 +77,104 @@ export function PhoneInput({
           "pointer-events-none cursor-not-allowed bg-muted opacity-50",
       )}
     >
-      {/* Select / Autocomplete Dial Code di Kiri (Lebar pas w-28) */}
-      <div className="w-28 shrink-0 border-r border-input bg-secondary/30">
-        <Autocomplete<CountryPhoneOption>
-          value={dialCodeValue}
-          onSelect={(val) => onDialCodeChange(String(val))}
-          options={countryOptions}
-          valueKey="value"
-          labelKey="label"
-          iconKey="flag"
-          disabled={disabled}
-          mode="solid"
-          size="sm"
-          className="flex-1 border-0 p-0 shadow-none focus-within:ring-0 [&_img]:w-5 [&_img]:h-4 [&_img]:object-contain [&_img]:shrink-0 [&_img]:rounded-xs"
-          placeholder="+62"
-          renderItem={(option) => (
-            <div className="flex items-center justify-between w-full pr-2">
-              <div className="flex items-center gap-2 truncate">
+      {/* Popover Selector untuk Dial Code di Kiri */}
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            disabled={disabled}
+            aria-expanded={open}
+            className={cn(
+              "flex h-10 w-28 shrink-0 items-center justify-between gap-1.5 border-r border-input bg-secondary/30 px-3 text-sm font-semibold text-foreground transition-colors",
+              "hover:bg-secondary/50 focus:outline-none",
+            )}
+          >
+            <div className="flex items-center gap-2 truncate">
+              {selectedCountry && (
                 <img
-                  src={option.flag}
-                  alt={option.name}
+                  src={selectedCountry.flag}
+                  alt={selectedCountry.name}
                   className="w-5 h-4 object-contain shrink-0 rounded-xs"
                 />
-                <span className="text-xs font-medium truncate text-foreground">
-                  {option.name}
-                </span>
-              </div>
-              <span className="text-xs font-mono font-semibold text-muted-foreground ml-2">
-                {option.value}
+              )}
+              <span className="truncate">
+                {selectedCountry?.value || "+62"}
               </span>
             </div>
-          )}
-        />
-      </div>
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
+                open && "rotate-180",
+              )}
+            />
+          </button>
+        </PopoverTrigger>
+
+        <PopoverContent className="w-72 p-0 rounded-lg shadow-lg" align="start">
+          <Command>
+            <div className="flex items-center border-b border-border px-3">
+              <Search className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
+              <CommandInput
+                placeholder="Search country or code..."
+                className="h-10 border-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground focus:ring-0"
+              />
+            </div>
+            <CommandList className="max-h-64 overflow-y-auto p-1">
+              <CommandEmpty className="py-4 text-center text-sm text-muted-foreground">
+                No country found.
+              </CommandEmpty>
+              <CommandGroup>
+                {countryOptions.map((option) => {
+                  const isSelected = option.value === value.dialCode;
+                  return (
+                    <CommandItem
+                      key={`${option.code}-${option.value}`}
+                      value={`${option.name} ${option.value}`}
+                      onSelect={() => {
+                        handleDialCodeChange(option.value);
+                        setOpen(false);
+                      }}
+                      className={cn(
+                        "flex cursor-pointer items-center justify-between rounded-md px-2.5 py-2 text-sm",
+                        isSelected && "bg-primary/10 font-medium text-primary",
+                      )}
+                    >
+                      <div className="flex items-center gap-2.5 truncate">
+                        <img
+                          src={option.flag}
+                          alt={option.name}
+                          className="w-5 h-4 object-contain shrink-0 rounded-xs"
+                        />
+                        <span className="truncate font-medium text-foreground">
+                          {option.name}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          {option.value}
+                        </span>
+                        <Check
+                          className={cn(
+                            "h-4 w-4 text-primary",
+                            isSelected ? "opacity-100" : "opacity-0",
+                          )}
+                        />
+                      </div>
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
       {/* Input Nomor Telepon di Kanan */}
       <div className="flex-1 min-w-0">
         <Input
           type="tel"
-          value={phoneValue}
-          onChange={(e) => onPhoneChange(e.target.value)}
+          value={value.number}
+          onChange={(e) => handleNumberChange(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
           hasError={hasError}
