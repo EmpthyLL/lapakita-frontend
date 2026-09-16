@@ -65,7 +65,7 @@ export default function GeneralProfilePage() {
 
   const enhancedPhoneList = (phoneList ?? []).map((item) => ({
     ...item,
-    displayLabel: `${item.number.dialCode} ${item.number.number}`,
+    displayLabel: `${item.number.dial_code} ${item.number.number}`,
   }));
 
   const isInitializedRef = useRef(false);
@@ -75,7 +75,7 @@ export default function GeneralProfilePage() {
     defaultValues: {
       name: "",
       default_avatar_url: "",
-      phone_number: { dialCode: "+62", number: "" },
+      phone_number: { dial_code: "+62", number: "" },
       active_role: "tenant",
     },
   });
@@ -85,7 +85,7 @@ export default function GeneralProfilePage() {
       form.reset({
         name: profile.name ?? "",
         default_avatar_url: profile.default_avatar_url ?? "",
-        phone_number: { dialCode: "+62", number: "" },
+        phone_number: { dial_code: "+62", number: "" },
         active_role: profile.active_role ?? "tenant",
       });
       isInitializedRef.current = true;
@@ -117,7 +117,7 @@ export default function GeneralProfilePage() {
       await updateSession({
         user: {
           defaultName: res.name,
-          defaultPhone: `${res.primary_phone.dialCode}${res.primary_phone.number}`,
+          defaultPhone: `${res.primary_phone.dial_code}${res.primary_phone.number}`,
           defaultAvatarUrl: res.default_avatar_url,
           activeRole: res.active_role || activeRole,
         },
@@ -271,7 +271,7 @@ export default function GeneralProfilePage() {
                 render={({ field }) => {
                   const currentVal = field.value;
                   const displayValue = currentVal?.number
-                    ? `${currentVal.dialCode}${currentVal.number}`
+                    ? `${currentVal.dial_code}${currentVal.number}`
                     : "";
 
                   return (

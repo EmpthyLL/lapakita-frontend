@@ -22,7 +22,7 @@ import { Check, ChevronDown, Search } from "lucide-react";
 import * as React from "react";
 
 export interface PhoneValue {
-  dialCode: string;
+  dial_code: string;
   number: string;
 }
 
@@ -35,7 +35,7 @@ interface PhoneInputProps {
 }
 
 export function PhoneInput({
-  value = { dialCode: "+62", number: "" },
+  value = { dial_code: "+62", number: "" },
   onChange,
   placeholder = "812 3456 7890",
   disabled = false,
@@ -46,21 +46,21 @@ export function PhoneInput({
 
   const selectedCountry = React.useMemo(() => {
     return (
-      countryOptions.find((c) => c.value === value.dialCode) ||
+      countryOptions.find((c) => c.value === value.dial_code) ||
       countryOptions.find((c) => c.value === "+62")
     );
-  }, [countryOptions, value.dialCode]);
+  }, [countryOptions, value.dial_code]);
 
-  const handleDialCodeChange = (newDialCode: string) => {
+  const handledial_codeChange = (newdial_code: string) => {
     onChange({
-      dialCode: newDialCode,
+      dial_code: newdial_code,
       number: value.number,
     });
   };
 
   const handleNumberChange = (newNumber: string) => {
     onChange({
-      dialCode: value.dialCode,
+      dial_code: value.dial_code,
       number: newNumber,
     });
   };
@@ -125,13 +125,13 @@ export function PhoneInput({
               </CommandEmpty>
               <CommandGroup>
                 {countryOptions.map((option) => {
-                  const isSelected = option.value === value.dialCode;
+                  const isSelected = option.value === value.dial_code;
                   return (
                     <CommandItem
                       key={`${option.code}-${option.value}`}
                       value={`${option.name} ${option.value}`}
                       onSelect={() => {
-                        handleDialCodeChange(option.value);
+                        handledial_codeChange(option.value);
                         setOpen(false);
                       }}
                       className={cn(

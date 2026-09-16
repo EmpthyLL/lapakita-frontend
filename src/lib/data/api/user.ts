@@ -48,9 +48,9 @@ export async function getPhoneNumbers(
   const countryOptions = getAllCountryPhoneOptions();
 
   const mappedData = response.data.data.map((item: PhoneNumberItem) => {
-    const dialCode = item.number?.dialCode || "+62";
+    const dial_code = item.number?.dial_code || "+62";
 
-    const matchedCountry = countryOptions.find((c) => c.value === dialCode);
+    const matchedCountry = countryOptions.find((c) => c.value === dial_code);
 
     return {
       ...item,

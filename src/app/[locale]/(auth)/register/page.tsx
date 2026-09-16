@@ -40,7 +40,7 @@ export default function RegisterPage() {
       name: "",
       email: "",
       phone: {
-        dialCode: "+62",
+        dial_code: "+62",
         number: "",
       },
       password: "",

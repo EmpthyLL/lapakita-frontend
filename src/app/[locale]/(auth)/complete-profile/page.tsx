@@ -42,7 +42,7 @@ export default function CompleteProfilePage() {
     defaultValues: {
       name: user?.defaultName || "",
       phone: {
-        dialCode: "+62",
+        dial_code: "+62",
         number: user?.defaultPhone || "",
       },
       avatar_url: user?.defaultAvatarUrl || "",
@@ -57,7 +57,7 @@ export default function CompleteProfilePage() {
       if (user.defaultPhone) {
         // Jika data phone dari Google berupa string biasa, bisa dipisah atau dimasukkan ke number
         form.setValue("phone", {
-          dialCode: "+62",
+          dial_code: "+62",
           number: user.defaultPhone,
         });
       }

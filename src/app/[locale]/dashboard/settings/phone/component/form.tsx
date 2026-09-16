@@ -66,7 +66,7 @@ export function PhoneForm({
     resolver: zodResolver(phoneRequestSchema),
     defaultValues: {
       number: {
-        dialCode: "+62",
+        dial_code: "+62",
         number: "",
       },
       is_primary: false,
@@ -78,7 +78,7 @@ export function PhoneForm({
     if (mode === "edit" && initialData && initialData.number) {
       form.reset({
         number: {
-          dialCode: initialData.number.dialCode || "+62",
+          dial_code: initialData.number.dial_code || "+62",
           number: initialData.number.number || "",
         },
         is_primary: initialData.is_primary,
@@ -87,7 +87,7 @@ export function PhoneForm({
     } else {
       form.reset({
         number: {
-          dialCode: "+62",
+          dial_code: "+62",
           number: "",
         },
         is_primary: false,
@@ -112,7 +112,7 @@ export function PhoneForm({
           : "Phone number added successfully",
       );
 
-      const fullNumber = `${values.number.dialCode}${values.number.number}`;
+      const fullNumber = `${values.number.dial_code}${values.number.number}`;
 
       if (session?.user) {
         let newDefaultPhone = session.user.defaultPhone;

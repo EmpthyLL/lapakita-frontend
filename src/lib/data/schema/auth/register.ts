@@ -6,7 +6,7 @@ export const registerSchema = z
     name: z.string().min(2, "Name must be at least 2 characters"),
     email: z.string().email("Email address is invalid"),
     phone: z.object({
-      dialCode: z.string().min(1, "Dial code is required"),
+      dial_code: z.string().min(1, "Dial code is required"),
       number: z.string().min(5, "Phone number is invalid"),
     }),
     password: z.string().min(8, "Password must be at least 8 characters"),

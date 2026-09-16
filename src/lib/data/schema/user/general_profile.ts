@@ -7,7 +7,7 @@ export const updateGeneralProfileSchema = z.object({
   default_avatar_url: z.string().optional().nullable(),
   phone_number: z
     .object({
-      dialCode: z.string(),
+      dial_code: z.string(),
       number: z.string(),
     })
     .optional()
@@ -27,7 +27,7 @@ export interface GetGeneralProfileResponse {
   name: string;
   email: string;
   default_avatar_url: string;
-  primary_phone: { dialCode: string; number: string };
+  primary_phone: { dial_code: string; number: string };
   active_role: Role;
 }
 
