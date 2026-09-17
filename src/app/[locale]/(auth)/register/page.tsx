@@ -39,10 +39,8 @@ export default function RegisterPage() {
     defaultValues: {
       name: "",
       email: "",
-      phone: {
-        dial_code: "+62",
-        number: "",
-      },
+      dial_code: "+62",
+      phone: "",
       password: "",
       confirm_password: "",
     },
@@ -132,7 +130,7 @@ export default function RegisterPage() {
 
             <FormField
               control={form.control}
-              name="phone"
+              name={["phone", "dial_code"]}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="phone">Phone Number</FormLabel>

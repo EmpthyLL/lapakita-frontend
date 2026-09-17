@@ -1,20 +1,11 @@
-import { Role } from "@/types";
+import type { Role } from "@/types";
 import { z } from "zod";
 import { ResponseData } from "../base";
 
 export const updateGeneralProfileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(255),
   default_avatar_url: z.string().optional().nullable(),
-  phone_number: z
-    .object({
-      dial_code: z.string(),
-      number: z.string(),
-    })
-    .optional()
-    .nullable()
-    .refine((val) => !val || !val.number || val.number.length >= 5, {
-      message: "Phone number must be at least 5 digits",
-    }),
+  phone_number_index: z.number().optional().nullable(),
   active_role: z.enum(["tenant", "owner", "supplier"] as const),
 });
 
@@ -27,7 +18,7 @@ export interface GetGeneralProfileResponse {
   name: string;
   email: string;
   default_avatar_url: string;
-  primary_phone: { dial_code: string; number: string };
+  phone: { index: number; dial_code: string; number: string };
   active_role: Role;
 }
 

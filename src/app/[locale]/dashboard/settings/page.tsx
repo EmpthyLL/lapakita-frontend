@@ -75,7 +75,7 @@ export default function GeneralProfilePage() {
     defaultValues: {
       name: "",
       default_avatar_url: "",
-      phone_number: { dial_code: "+62", number: "" },
+      phone_number_index: 0,
       active_role: "tenant",
     },
   });
@@ -85,7 +85,7 @@ export default function GeneralProfilePage() {
       form.reset({
         name: profile.name ?? "",
         default_avatar_url: profile.default_avatar_url ?? "",
-        phone_number: { dial_code: "+62", number: "" },
+        phone_number_index: profile.phone.index,
         active_role: profile.active_role ?? "tenant",
       });
       isInitializedRef.current = true;
@@ -117,7 +117,7 @@ export default function GeneralProfilePage() {
       await updateSession({
         user: {
           defaultName: res.name,
-          defaultPhone: `${res.primary_phone.dial_code}${res.primary_phone.number}`,
+          defaultPhone: `${res.phone.dial_code}${res.phone.number}`,
           defaultAvatarUrl: res.default_avatar_url,
           activeRole: res.active_role || activeRole,
         },
@@ -267,11 +267,13 @@ export default function GeneralProfilePage() {
               {/* Primary Phone Number Selector Bersih dengan iconKey="flag" */}
               <FormField
                 control={form.control}
-                name="phone_number"
+                name="phone_number_index"
                 render={({ field }) => {
-                  const currentVal = field.value;
-                  const displayValue = currentVal?.number
-                    ? `${currentVal.dial_code}${currentVal.number}`
+                  const selectedPhoneItem = (phoneList ?? []).find(
+                    (item) => item.index === field.value,
+                  );
+                  const displayValue = selectedPhoneItem
+                    ? `${selectedPhoneItem.number.dial_code} ${selectedPhoneItem.number.number}`
                     : "";
 
                   return (
@@ -283,13 +285,13 @@ export default function GeneralProfilePage() {
                         <Autocomplete
                           value={displayValue}
                           onSelect={(_val, option) => {
-                            if (option && option.number) {
-                              field.onChange(option.number);
+                            if (option && option.index) {
+                              field.onChange(option.index);
                             }
                           }}
                           options={enhancedPhoneList}
                           labelKey="displayLabel"
-                          valueKey="displayLabel"
+                          valueKey="index"
                           iconKey="flag"
                           isLoading={isPhoneLoading}
                           isFetchingNext={isFetchingMorePhone}

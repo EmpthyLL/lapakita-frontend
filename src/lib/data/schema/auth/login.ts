@@ -8,17 +8,10 @@ export const loginSchema = z.object({
 
 export type LoginValues = z.infer<typeof loginSchema>;
 
-// 3. User & Auth Response Data
-export interface PhonePayload {
-  number: string;
-  is_primary: boolean;
-  roles: string[];
-}
-
 export interface PersonaDetail {
   display_name: string;
   avatar_url: string;
-  phone: string;
+  phone: { dial_code: string; number: string };
 }
 
 export interface UserPayload {
@@ -31,7 +24,6 @@ export interface UserPayload {
   active_role: string;
   subscription_plan: string;
   subscription_expires_at?: string | null;
-  phone_numbers: PhonePayload[];
   personas: Record<string, PersonaDetail>;
   token: string;
 }

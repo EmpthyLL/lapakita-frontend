@@ -3,10 +3,8 @@ import { z } from "zod";
 import { basePaginationQuerySchema, PaginatedResponse } from "../base";
 
 export const phoneRequestSchema = z.object({
-  number: z.object({
-    dial_code: z.string().min(1, "Dial code is required"),
-    number: z.string().min(5, "Phone number is invalid"),
-  }),
+  dial_code: z.string(),
+  number: z.string().min(5, "Phone number is invalid"),
   is_primary: z.boolean(),
   roles: z.array(z.enum(["tenant", "owner", "supplier"] as const)),
 });
@@ -21,7 +19,7 @@ export type PhoneQueryParams = z.infer<typeof phoneQueryParamsSchema>;
 
 export interface PhoneNumberItem {
   flag: string;
-  index: string;
+  index: number;
   number: { dial_code: string; number: string };
   is_primary: boolean;
   roles: Role[];

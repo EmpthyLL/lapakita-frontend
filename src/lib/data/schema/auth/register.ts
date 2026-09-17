@@ -1,14 +1,11 @@
-// lib/data/schema/auth/register.ts
 import { z } from "zod";
 
 export const registerSchema = z
   .object({
     name: z.string().min(2, "Name must be at least 2 characters"),
     email: z.string().email("Email address is invalid"),
-    phone: z.object({
-      dial_code: z.string().min(1, "Dial code is required"),
-      number: z.string().min(5, "Phone number is invalid"),
-    }),
+    dial_code: z.string(),
+    phone: z.string().min(5, "Phone number is invalid"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirm_password: z.string(),
   })

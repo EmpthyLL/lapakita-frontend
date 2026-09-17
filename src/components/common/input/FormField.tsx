@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -20,7 +21,7 @@ type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = {
-  name: TName;
+  name: TName | TName[];
 };
 
 const FormFieldContext = React.createContext<FormFieldContextValue>(
@@ -31,11 +32,18 @@ const FormField = <
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >({
+  name,
+  render,
   ...props
-}: ControllerProps<TFieldValues, TName>) => {
+}: Omit<ControllerProps<TFieldValues, TName>, "name"> & {
+  name: TName | TName[];
+}) => {
+  // Jika name berupa array, gunakan elemen pertama sebagai Controller utama React Hook Form
+  const primaryName = Array.isArray(name) ? name[0] : name;
+
   return (
-    <FormFieldContext.Provider value={{ name: props.name }}>
-      <Controller {...props} />
+    <FormFieldContext.Provider value={{ name }}>
+      <Controller name={primaryName} render={render} {...props} />
     </FormFieldContext.Provider>
   );
 };
@@ -45,11 +53,22 @@ const useFormField = () => {
   const itemContext = React.useContext(FormItemContext);
   const { getFieldState, formState } = useFormContext();
 
-  const fieldState = getFieldState(fieldContext.name, formState);
-
   if (!fieldContext) {
     throw new Error("useFormField should be used within <FormField>");
   }
+
+  // Normalisasi name menjadi array (baik string tunggal maupun array string)
+  const fieldNames = Array.isArray(fieldContext.name)
+    ? fieldContext.name
+    : [fieldContext.name];
+
+  // Ambil state dari semua field di dalam array secara dinamis
+  const fieldStates = fieldNames.map((n) => getFieldState(n as any, formState));
+
+  const isAnyInvalid = fieldStates.some((fs) => fs.invalid);
+  const firstError = fieldNames
+    .map((n) => getFieldState(n as any, formState).error)
+    .find((err) => err !== undefined);
 
   const { id } = itemContext;
 
@@ -59,7 +78,10 @@ const useFormField = () => {
     formItemId: `${id}-form-item`,
     formDescriptionId: `${id}-form-item-description`,
     formMessageId: `${id}-form-item-message`,
-    ...fieldState,
+    invalid: isAnyInvalid,
+    isDirty: fieldStates.some((fs) => fs.isDirty),
+    isTouched: fieldStates.some((fs) => fs.isTouched),
+    error: firstError,
   };
 };
 
@@ -71,7 +93,7 @@ const FormItemContext = React.createContext<FormItemContextValue>(
   {} as FormItemContextValue,
 );
 
-// ── 1. FIELD CONTAINER (Menggantikan Div biasa dengan struktur Field) ──
+// ── 1. FIELD CONTAINER ──
 const FormItem = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
@@ -82,10 +104,16 @@ const FormItem = React.forwardRef<
   const { getFieldState, formState } = useFormContext();
   const fieldContext = React.useContext(FormFieldContext);
 
-  const fieldState = fieldContext?.name
-    ? getFieldState(fieldContext.name, formState)
-    : null;
-  const isInvalid = fieldState?.invalid ?? false;
+  let isInvalid = false;
+  if (fieldContext?.name) {
+    const fieldNames = Array.isArray(fieldContext.name)
+      ? fieldContext.name
+      : [fieldContext.name];
+
+    isInvalid = fieldNames.some(
+      (n) => getFieldState(n as any, formState).invalid,
+    );
+  }
 
   return (
     <FormItemContext.Provider value={{ id }}>
@@ -116,7 +144,7 @@ const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
 >(({ className, ...props }, ref) => {
-  const { error, formItemId } = useFormField();
+  const { error } = useFormField();
 
   return (
     <Label
@@ -127,14 +155,13 @@ const FormLabel = React.forwardRef<
         error && "text-destructive",
         className,
       )}
-      htmlFor={formItemId}
       {...props}
     />
   );
 });
 FormLabel.displayName = "FormLabel";
 
-// ── 3. CONTROL (Binding ke Input / Elemen) ──
+// ── 3. CONTROL ──
 const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
@@ -181,7 +208,7 @@ const FormDescription = React.forwardRef<
 });
 FormDescription.displayName = "FormDescription";
 
-// ── 5. MESSAGE / ERROR (Bawaan File Field Kamu) ──
+// ── 5. MESSAGE / ERROR ──
 const FormMessage = React.forwardRef<
   HTMLDivElement,
   React.ComponentPropsWithoutRef<"div"> & {
@@ -230,7 +257,7 @@ const FormMessage = React.forwardRef<
 });
 FormMessage.displayName = "FormMessage";
 
-// ── 6. EKSISTENSI SEMUA KOMPONEN FIELD PENDUKUNG LAINNYA ──
+// ── 6. KOMPONEN FIELD PENDUKUNG LAINNYA ──
 const FormSet = React.forwardRef<
   HTMLFieldSetElement,
   React.ComponentProps<"fieldset">
