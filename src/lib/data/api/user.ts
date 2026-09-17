@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import { getAllCountryPhoneOptions } from "@/lib/countries";
+import { getCountryFlagByDialCode } from "@/lib/countries";
 import {
   DocumentQueryParams,
   GetDocumentResponse,
@@ -45,16 +45,16 @@ export async function getPhoneNumbers(
     params,
   });
 
-  const countryOptions = getAllCountryPhoneOptions();
-
   const mappedData = response.data.data.map((item: PhoneNumberItem) => {
-    const dial_code = item.number?.dial_code || "+62";
+    const dial_code = item.dial_code || "+62";
+    const rawNumber = item.number || "";
 
-    const matchedCountry = countryOptions.find((c) => c.value === dial_code);
+    const flagUrl = getCountryFlagByDialCode(dial_code);
 
     return {
       ...item,
-      flag: matchedCountry?.flag || "https://flagcdn.com/id.svg",
+      flag: flagUrl,
+      display_label: `${dial_code} ${rawNumber}`,
     };
   });
 

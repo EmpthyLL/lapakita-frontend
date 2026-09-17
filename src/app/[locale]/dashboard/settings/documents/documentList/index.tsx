@@ -60,6 +60,7 @@ export default function DocumentList() {
           variant="card"
           loadMode="pagination"
           showFilter
+          onRowClick={() => {}}
           showCount
           renderItem={(row, index, itemColumns) => (
             <DocumentCard row={row} index={index} columns={itemColumns} />
@@ -68,7 +69,7 @@ export default function DocumentList() {
             <Button
               onClick={() => setCreateOpen(true)}
               size="sm"
-              className="h-10 gap-1.5 rounded-xl px-3.5 text-xs"
+              className="h-10 gap-1.5 px-3.5 text-xs"
             >
               <Plus className="h-4 w-4" /> Upload Document
             </Button>

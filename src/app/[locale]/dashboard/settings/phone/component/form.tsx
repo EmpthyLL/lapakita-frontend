@@ -28,23 +28,29 @@ import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
-const AVAILABLE_ROLES = [
+interface RoleOption {
+  label: string;
+  value: Role;
+  activeClass: string;
+}
+
+const AVAILABLE_ROLES: readonly RoleOption[] = [
   {
     label: "Tenant",
-    value: "tenant" as Role,
+    value: "tenant",
     activeClass: "border-tenant bg-tenant/10 text-tenant",
   },
   {
     label: "Owner",
-    value: "owner" as Role,
+    value: "owner",
     activeClass: "border-owner bg-owner/10 text-owner",
   },
   {
     label: "Supplier",
-    value: "supplier" as Role,
+    value: "supplier",
     activeClass: "border-supplier bg-supplier/10 text-supplier",
   },
-];
+] as const;
 
 interface PhoneFormProps {
   mode: "create" | "edit";
@@ -65,31 +71,25 @@ export function PhoneForm({
   const form = useForm<PhoneValues>({
     resolver: zodResolver(phoneRequestSchema),
     defaultValues: {
-      number: {
-        dial_code: "+62",
-        number: "",
-      },
+      number: "",
+      dial_code: "+62",
       is_primary: false,
       roles: [],
     },
   });
 
   useEffect(() => {
-    if (mode === "edit" && initialData && initialData.number) {
+    if (mode === "edit" && initialData) {
       form.reset({
-        number: {
-          dial_code: initialData.number.dial_code || "+62",
-          number: initialData.number.number || "",
-        },
+        number: initialData.number || "",
+        dial_code: initialData.dial_code || "+62",
         is_primary: initialData.is_primary,
         roles: initialData.roles || [],
       });
     } else {
       form.reset({
-        number: {
-          dial_code: "+62",
-          number: "",
-        },
+        number: "",
+        dial_code: "+62",
         is_primary: false,
         roles: [],
       });
@@ -112,14 +112,17 @@ export function PhoneForm({
           : "Phone number added successfully",
       );
 
-      const fullNumber = `${values.number.dial_code}${values.number.number}`;
+      const phoneObj = {
+        dial_code: values.dial_code,
+        number: values.number,
+      };
 
       if (session?.user) {
         let newDefaultPhone = session.user.defaultPhone;
         const updatedPersonas = { ...(session.user.personas || {}) };
 
         if (values.is_primary) {
-          newDefaultPhone = fullNumber;
+          newDefaultPhone = phoneObj;
         }
 
         values.roles.forEach((role) => {
@@ -127,13 +130,13 @@ export function PhoneForm({
           if (existingPersona) {
             updatedPersonas[role] = {
               ...existingPersona,
-              phone: fullNumber,
+              phone: phoneObj,
             };
           } else {
             updatedPersonas[role] = {
               display_name: "",
               avatar_url: "",
-              phone: fullNumber,
+              phone: phoneObj,
             };
           }
         });
@@ -160,7 +163,7 @@ export function PhoneForm({
       >
         <FormField
           control={form.control}
-          name="number"
+          name={["number", "dial_code"]}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Phone Number</FormLabel>
@@ -169,7 +172,6 @@ export function PhoneForm({
                   value={field.value}
                   onChange={field.onChange}
                   placeholder="812 3456 7890"
-                  hasError={!!form.formState.errors.number}
                 />
               </FormControl>
               <FormMessage />

@@ -1,4 +1,3 @@
-// app/dashboard/settings/document/components/config.ts
 export const formatDocType = (type: string) => {
   switch (type) {
     case "national_id":

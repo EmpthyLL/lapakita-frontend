@@ -1,4 +1,4 @@
-// app/path/to/GeneralProfilePage.tsx
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { Autocomplete } from "@/components/common/input/Autocomplete";
@@ -60,13 +60,8 @@ export default function GeneralProfilePage() {
     queryKey: ["phone-numbers"],
     queryFn: getPhoneNumbers,
     search: phoneSearch,
-    searchKey: "number",
+    searchKey: "seach",
   });
-
-  const enhancedPhoneList = (phoneList ?? []).map((item) => ({
-    ...item,
-    displayLabel: `${item.number.dial_code} ${item.number.number}`,
-  }));
 
   const isInitializedRef = useRef(false);
 
@@ -85,7 +80,7 @@ export default function GeneralProfilePage() {
       form.reset({
         name: profile.name ?? "",
         default_avatar_url: profile.default_avatar_url ?? "",
-        phone_number_index: profile.phone.index,
+        phone_number_index: profile.phone?.index ?? 0,
         active_role: profile.active_role ?? "tenant",
       });
       isInitializedRef.current = true;
@@ -94,6 +89,7 @@ export default function GeneralProfilePage() {
 
   const activeRole = form.watch("active_role");
   const currentName = form.watch("name");
+  const selectedPhoneIndex = form.watch("phone_number_index");
 
   const getRoleColorClass = (role?: Role) => {
     switch (role) {
@@ -114,10 +110,23 @@ export default function GeneralProfilePage() {
     onSuccess: async (res) => {
       showToast.success("General profile updated successfully");
 
+      // Cari item nomor telepon yang dipilih dari daftar list berdasarkan index yang disimpan form
+      const chosenPhoneItem = (phoneList ?? []).find(
+        (item) => item.index === selectedPhoneIndex,
+      );
+
+      // Bentuk objek PhoneNumber baru sesuai struktur NextAuth & DTO Go backend
+      const newPhoneObj = chosenPhoneItem
+        ? {
+            dial_code: chosenPhoneItem.dial_code,
+            number: chosenPhoneItem.number,
+          }
+        : null;
+
       await updateSession({
         user: {
           defaultName: res.name,
-          defaultPhone: `${res.phone.dial_code}${res.phone.number}`,
+          defaultPhone: newPhoneObj,
           defaultAvatarUrl: res.default_avatar_url,
           activeRole: res.active_role || activeRole,
         },
@@ -268,43 +277,30 @@ export default function GeneralProfilePage() {
               <FormField
                 control={form.control}
                 name="phone_number_index"
-                render={({ field }) => {
-                  const selectedPhoneItem = (phoneList ?? []).find(
-                    (item) => item.index === field.value,
-                  );
-                  const displayValue = selectedPhoneItem
-                    ? `${selectedPhoneItem.number.dial_code} ${selectedPhoneItem.number.number}`
-                    : "";
-
-                  return (
-                    <FormItem>
-                      <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Primary Phone Number
-                      </FormLabel>
-                      <FormControl>
-                        <Autocomplete
-                          value={displayValue}
-                          onSelect={(_val, option) => {
-                            if (option && option.index) {
-                              field.onChange(option.index);
-                            }
-                          }}
-                          options={enhancedPhoneList}
-                          labelKey="displayLabel"
-                          valueKey="index"
-                          iconKey="flag"
-                          isLoading={isPhoneLoading}
-                          isFetchingNext={isFetchingMorePhone}
-                          hasNext={hasMorePhone}
-                          fetchNext={() => fetchNextPhone()}
-                          onFilterChange={(q) => setPhoneSearch(q)}
-                          placeholder="Select primary phone number"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Primary Phone Number
+                    </FormLabel>
+                    <FormControl>
+                      <Autocomplete
+                        value={field.value}
+                        onSelect={field.onChange}
+                        options={phoneList}
+                        labelKey="display_label"
+                        valueKey="index"
+                        iconKey="flag"
+                        isLoading={isPhoneLoading}
+                        isFetchingNext={isFetchingMorePhone}
+                        hasNext={hasMorePhone}
+                        fetchNext={() => fetchNextPhone()}
+                        onFilterChange={(q) => setPhoneSearch(q)}
+                        placeholder="Select primary phone number"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
 

@@ -1,4 +1,3 @@
-// components/common/input/PhoneInput.tsx
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
@@ -21,21 +20,19 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronDown, Search } from "lucide-react";
 import * as React from "react";
 
-export interface PhoneValue {
-  dial_code: string;
-  number: string;
-}
+// Format nilai tuple berderet sesuai urutan name={["phone", "dial_code"]}
+export type PhoneInputTupleValue = [string, string];
 
 interface PhoneInputProps {
-  value?: PhoneValue;
-  onChange: (value: PhoneValue) => void;
+  value?: PhoneInputTupleValue;
+  onChange: (value: [string, string]) => void;
   placeholder?: string;
   disabled?: boolean;
   hasError?: boolean;
 }
 
 export function PhoneInput({
-  value = { dial_code: "+62", number: "" },
+  value = ["", "+62"],
   onChange,
   placeholder = "812 3456 7890",
   disabled = false,
@@ -44,25 +41,50 @@ export function PhoneInput({
   const [open, setOpen] = React.useState(false);
   const countryOptions = React.useMemo(() => getAllCountryPhoneOptions(), []);
 
+  // Refs untuk manajemen scroll item terpilih ke bagian atas list
+  const commandListRef = React.useRef<HTMLDivElement>(null);
+  const selectedItemRef = React.useRef<HTMLDivElement>(null);
+
+  // Urutan array: index 0 adalah phone number, index 1 adalah dial_code
+  const currentNumber = Array.isArray(value) ? value[0] || "" : "";
+  const currentDialCode = Array.isArray(value) ? value[1] || "+62" : "+62";
+
   const selectedCountry = React.useMemo(() => {
     return (
-      countryOptions.find((c) => c.value === value.dial_code) ||
+      countryOptions.find((c) => c.value === currentDialCode) ||
       countryOptions.find((c) => c.value === "+62")
     );
-  }, [countryOptions, value.dial_code]);
+  }, [countryOptions, currentDialCode]);
 
-  const handledial_codeChange = (newdial_code: string) => {
-    onChange({
-      dial_code: newdial_code,
-      number: value.number,
-    });
+  // Efek untuk otomatis men-scroll item terpilih ke posisi paling atas saat popover dibuka
+  React.useEffect(() => {
+    if (!open) return;
+
+    const scrollSelectedToTop = () => {
+      const listEl = commandListRef.current;
+      const selectedEl = selectedItemRef.current;
+      if (!listEl || !selectedEl) return;
+
+      const listRect = listEl.getBoundingClientRect();
+      const selectedRect = selectedEl.getBoundingClientRect();
+      listEl.scrollTop += selectedRect.top - listRect.top;
+    };
+
+    const frame = requestAnimationFrame(scrollSelectedToTop);
+    const timeout = setTimeout(scrollSelectedToTop, 100);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(timeout);
+    };
+  }, [open, currentDialCode]);
+
+  const handleDialCodeChange = (newDialCode: string) => {
+    onChange([currentNumber, newDialCode]);
   };
 
   const handleNumberChange = (newNumber: string) => {
-    onChange({
-      dial_code: value.dial_code,
-      number: newNumber,
-    });
+    onChange([newNumber, currentDialCode]);
   };
 
   return (
@@ -70,9 +92,12 @@ export function PhoneInput({
       className={cn(
         "flex w-full items-center rounded-md border border-input bg-background transition-all duration-150 overflow-hidden",
         "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
+
+        /* Sinkronisasi Error dengan Form Field Container */
         "group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:ring-2 group-data-[invalid=true]/field:ring-destructive/20",
         "aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20",
         hasError && "border-destructive ring-2 ring-destructive/20",
+
         disabled &&
           "pointer-events-none cursor-not-allowed bg-muted opacity-50",
       )}
@@ -119,19 +144,23 @@ export function PhoneInput({
                 className="h-10 border-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground focus:ring-0"
               />
             </div>
-            <CommandList className="max-h-64 overflow-y-auto p-1">
+            <CommandList
+              ref={commandListRef}
+              className="max-h-64 overflow-y-auto p-1"
+            >
               <CommandEmpty className="py-4 text-center text-sm text-muted-foreground">
                 No country found.
               </CommandEmpty>
               <CommandGroup>
                 {countryOptions.map((option) => {
-                  const isSelected = option.value === value.dial_code;
+                  const isSelected = option.value === currentDialCode;
                   return (
                     <CommandItem
                       key={`${option.code}-${option.value}`}
+                      ref={isSelected ? selectedItemRef : undefined}
                       value={`${option.name} ${option.value}`}
                       onSelect={() => {
-                        handledial_codeChange(option.value);
+                        handleDialCodeChange(option.value);
                         setOpen(false);
                       }}
                       className={cn(
@@ -173,7 +202,7 @@ export function PhoneInput({
       <div className="flex-1 min-w-0">
         <Input
           type="tel"
-          value={value.number}
+          value={currentNumber}
           onChange={(e) => handleNumberChange(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}

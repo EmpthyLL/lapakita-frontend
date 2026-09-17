@@ -5,7 +5,7 @@ import { ResponseData } from "../base";
 export const updateGeneralProfileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(255),
   default_avatar_url: z.string().optional().nullable(),
-  phone_number_index: z.number().optional().nullable(),
+  phone_number_index: z.number(),
   active_role: z.enum(["tenant", "owner", "supplier"] as const),
 });
 

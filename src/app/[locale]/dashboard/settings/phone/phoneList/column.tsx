@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { createColumnHelpers } from "@/components/common/long/data-display/Constant";
@@ -22,9 +23,25 @@ export function usePhoneColumns() {
       icon: PhoneIcon,
       primary: true,
       className: "font-mono font-semibold text-foreground",
-      render: (val) => {
+      render: (val, row) => {
         if (!val) return "-";
-        return `${val.dial_code} ${val.number}`;
+
+        const dialCode = row.dial_code || "+62";
+        const phoneNumber = val || "";
+
+        return (
+          <div className="flex items-center gap-2.5">
+            {/* Render Flag Negara */}
+            <img
+              src={row.flag}
+              alt="Country flag"
+              className="h-3.5 w-5 object-contain rounded-xs shrink-0 shadow-xs"
+            />
+            <span>
+              {dialCode} {phoneNumber}
+            </span>
+          </div>
+        );
       },
     }),
 

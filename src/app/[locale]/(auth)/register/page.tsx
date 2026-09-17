@@ -139,7 +139,6 @@ export default function RegisterPage() {
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="812 3456 7890"
-                      hasError={!!form.formState.errors.phone}
                     />
                   </FormControl>
                   <FormMessage />

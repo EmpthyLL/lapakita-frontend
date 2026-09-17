@@ -7,11 +7,16 @@ import { Slot } from "@radix-ui/react-slot";
 import * as React from "react";
 import { useMemo } from "react";
 import {
+  Control,
   Controller,
+  ControllerFieldState,
   ControllerProps,
+  ControllerRenderProps,
   FieldPath,
+  FieldPathValue,
   FieldValues,
   FormProvider,
+  UseFormStateReturn,
   useFormContext,
 } from "react-hook-form";
 
@@ -21,29 +26,105 @@ type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = {
-  name: TName | TName[];
+  name: TName | readonly TName[];
 };
 
 const FormFieldContext = React.createContext<FormFieldContextValue>(
   {} as FormFieldContextValue,
 );
 
+type FormFieldRenderProps<
+  TFieldValues extends FieldValues,
+  TFieldName extends
+    | FieldPath<TFieldValues>
+    | readonly [FieldPath<TFieldValues>, FieldPath<TFieldValues>],
+> = {
+  field: Omit<
+    ControllerRenderProps<TFieldValues, FieldPath<TFieldValues>>,
+    "name" | "value" | "onChange"
+  > & {
+    value: TFieldName extends readonly [
+      infer TFirst extends FieldPath<TFieldValues>,
+      infer TSecond extends FieldPath<TFieldValues>,
+    ]
+      ? [
+          FieldPathValue<TFieldValues, TFirst>,
+          FieldPathValue<TFieldValues, TSecond>,
+        ]
+      : TFieldName extends FieldPath<TFieldValues>
+        ? FieldPathValue<TFieldValues, TFieldName>
+        : never;
+    onChange: (...event: any[]) => void;
+    name: FieldPath<TFieldValues>;
+  };
+  fieldState: ControllerFieldState;
+  formState: UseFormStateReturn<TFieldValues>;
+};
+
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+  TFieldName extends
+    | FieldPath<TFieldValues>
+    | readonly [FieldPath<TFieldValues>, FieldPath<TFieldValues>] =
+    FieldPath<TFieldValues>,
 >({
   name,
   render,
   ...props
-}: Omit<ControllerProps<TFieldValues, TName>, "name"> & {
-  name: TName | TName[];
+}: Omit<
+  ControllerProps<TFieldValues, FieldPath<TFieldValues>>,
+  "name" | "render" | "control"
+> & {
+  control: Control<TFieldValues, any, any>;
+  name: TFieldName;
+  render: (
+    props: FormFieldRenderProps<TFieldValues, TFieldName>,
+  ) => React.ReactElement;
 }) => {
-  // Jika name berupa array, gunakan elemen pertama sebagai Controller utama React Hook Form
-  const primaryName = Array.isArray(name) ? name[0] : name;
+  const { watch, setValue } = useFormContext();
+
+  const fieldNames = Array.isArray(name) ? name : [name];
+  const primaryName = fieldNames[0] as FieldPath<TFieldValues>;
 
   return (
     <FormFieldContext.Provider value={{ name }}>
-      <Controller name={primaryName} render={render} {...props} />
+      <Controller
+        name={primaryName}
+        render={({ field: primaryField, fieldState, formState }) => {
+          // 1. Jika name berupa array, gabungkan nilainya menjadi array sesuai urutan
+          const combinedValue = (
+            fieldNames.length > 1
+              ? fieldNames.map((n) => watch(n as any))
+              : primaryField.value
+          ) as FormFieldRenderProps<TFieldValues, TFieldName>["field"]["value"];
+
+          // 2. Jika onChange dipanggil, sebarkan nilainya ke masing-masing field sesuai urutan array
+          const handleMultiChange = (newValue: any) => {
+            if (fieldNames.length > 1 && Array.isArray(newValue)) {
+              fieldNames.forEach((fieldName, index) => {
+                setValue(fieldName as any, newValue[index], {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                  shouldTouch: true,
+                });
+              });
+            } else {
+              primaryField.onChange(newValue);
+            }
+          };
+
+          return render({
+            field: {
+              ...primaryField,
+              value: combinedValue,
+              onChange: handleMultiChange,
+            },
+            fieldState,
+            formState,
+          });
+        }}
+        {...props}
+      />
     </FormFieldContext.Provider>
   );
 };
@@ -57,12 +138,10 @@ const useFormField = () => {
     throw new Error("useFormField should be used within <FormField>");
   }
 
-  // Normalisasi name menjadi array (baik string tunggal maupun array string)
   const fieldNames = Array.isArray(fieldContext.name)
     ? fieldContext.name
     : [fieldContext.name];
 
-  // Ambil state dari semua field di dalam array secara dinamis
   const fieldStates = fieldNames.map((n) => getFieldState(n as any, formState));
 
   const isAnyInvalid = fieldStates.some((fs) => fs.invalid);

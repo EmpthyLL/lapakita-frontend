@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
@@ -11,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getCountryFlagByDialCode } from "@/lib/countries";
 import { cn } from "@/lib/utils";
 import { Role, RoleAndAll } from "@/types";
 import {
@@ -33,37 +35,25 @@ interface DashboardTopbarProps {
 
 const VALID_ROLES: Role[] = ["tenant", "owner", "supplier"];
 
-// Helper untuk mendapatkan class warna teks & background sesuai role aktif
 const getRoleThemeClasses = (role: Role) => {
   switch (role) {
     case "owner":
-      return {
-        text: "text-owner",
-        bgSoft: "bg-owner/10",
-      };
+      return { text: "text-owner", bgSoft: "bg-owner/10" };
     case "supplier":
-      return {
-        text: "text-supplier",
-        bgSoft: "bg-supplier/10",
-      };
+      return { text: "text-supplier", bgSoft: "bg-supplier/10" };
     case "tenant":
     default:
-      return {
-        text: "text-tenant",
-        bgSoft: "bg-tenant/10",
-      };
+      return { text: "text-tenant", bgSoft: "bg-tenant/10" };
   }
 };
 
 function useBreadcrumb(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
   const hasDashboard = segments[0]?.toLowerCase() === "dashboard";
-
   const filteredSegments = hasDashboard ? segments.slice(1) : segments;
 
   return filteredSegments.map((seg, i) => {
     const isRoleRoot = i === 0;
-
     const cleanedLabel = isRoleRoot
       ? "Dashboard"
       : seg
@@ -104,8 +94,6 @@ export function DashboardTopbar({
   const profileRoutePath = `/dashboard/${currentRole}/profile`;
 
   const theme = getRoleThemeClasses(sessionActiveRole);
-
-  // Ambil persona berdasarkan role yang sedang aktif di URL (currentRole), bukan activeRole dari session
   const persona = session?.user?.personas?.[currentRole];
 
   const userName =
@@ -118,7 +106,17 @@ export function DashboardTopbar({
     session?.user?.defaultAvatarUrl ||
     propAvatarUrl ||
     "";
-  const userPhone = persona?.phone || session?.user?.defaultPhone || "";
+
+  const rawPhone = session?.user?.defaultPhone;
+
+  let formattedDialCode = "+62";
+  let formattedNumber = "";
+
+  if (typeof rawPhone === "object" && rawPhone !== null) {
+    formattedDialCode = rawPhone.dial_code || "+62";
+    formattedNumber = rawPhone.number || "";
+  }
+  const phoneFlagUrl = getCountryFlagByDialCode(formattedDialCode);
 
   const getInitials = (str: string) => {
     if (!str) return "U";
@@ -196,7 +194,7 @@ export function DashboardTopbar({
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-60">
+          <DropdownMenuContent align="end" className="w-64">
             <DropdownMenuLabel className="font-normal">
               <div className="flex items-center gap-3 py-1">
                 <Avatar className="h-10 w-10 border border-border shrink-0">
@@ -219,11 +217,21 @@ export function DashboardTopbar({
                   <p className="text-sm font-semibold leading-tight text-foreground truncate">
                     {userName}
                   </p>
-                  {userPhone && (
-                    <p className="text-[11px] leading-tight text-muted-foreground truncate font-mono">
-                      {userPhone}
-                    </p>
+
+                  {/* Render Nomor Telepon dengan Bendera & Dial Code */}
+                  {formattedNumber && (
+                    <div className="flex items-center gap-1.5 pt-0.5">
+                      <img
+                        src={phoneFlagUrl}
+                        alt="Country flag"
+                        className="h-3 w-4 object-contain rounded-xs shrink-0"
+                      />
+                      <p className="text-[11px] leading-tight text-muted-foreground truncate font-mono">
+                        {formattedDialCode} {formattedNumber}
+                      </p>
+                    </div>
                   )}
+
                   <p className="text-[11px] leading-tight text-muted-foreground capitalize pt-0.5">
                     Active Role:{" "}
                     <span

@@ -26,3 +26,13 @@ export function getAllCountryPhoneOptions(): CountryPhoneOption[] {
     };
   });
 }
+
+export function getCountryFlagByDialCode(dialCode?: string): string {
+  if (!dialCode) return "https://flagcdn.com/id.svg";
+
+  const cleanCode = dialCode.startsWith("+") ? dialCode : `+${dialCode}`;
+  const options = getAllCountryPhoneOptions();
+
+  const found = options.find((opt) => opt.value === cleanCode);
+  return found?.flag || "https://flagcdn.com/id.svg";
+}

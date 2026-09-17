@@ -4,10 +4,16 @@ import { Role } from ".";
 
 export type SubscriptionPlan = "free" | Role | "all_access";
 
+// Mengikuti struct PhoneNumber di Go: { dial_code, number }
+export interface PhoneNumber {
+  dial_code: string;
+  number: string;
+}
+
 export interface PersonaDetail {
   display_name: string;
   avatar_url: string;
-  phone: string;
+  phone: PhoneNumber; // Diubah dari string ke PhoneNumber object
 }
 
 export type PersonaMap = Partial<Record<Role, PersonaDetail>>;
@@ -17,7 +23,7 @@ declare module "next-auth" {
     id: string;
     defaultName?: string | null;
     defaultAvatarUrl?: string | null;
-    defaultPhone?: string | null;
+    defaultPhone?: PhoneNumber | null; // Diubah ke PhoneNumber object
     email: string;
     isPasswordSet: boolean;
     activeRole: Role;
@@ -34,7 +40,7 @@ declare module "next-auth" {
       id: string;
       defaultName?: string | null;
       defaultAvatarUrl?: string | null;
-      defaultPhone?: string | null;
+      defaultPhone?: PhoneNumber | null; // Diubah ke PhoneNumber object
       email: string;
       isPasswordSet: boolean;
       activeRole: Role;
@@ -53,7 +59,7 @@ declare module "next-auth/jwt" {
     id: string;
     defaultName?: string | null;
     defaultAvatarUrl?: string | null;
-    defaultPhone?: string | null;
+    defaultPhone?: PhoneNumber | null; // Diubah ke PhoneNumber object
     isPasswordSet: boolean;
     activeRole: Role;
     subscriptionPlan: SubscriptionPlan;
