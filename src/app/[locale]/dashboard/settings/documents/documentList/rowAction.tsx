@@ -1,7 +1,7 @@
 "use client";
 
-import { DeleteConfirmDialog } from "@/components/common/DeleteDialog";
 import DialogWrapper from "@/components/common/DialogWrapper";
+import { DataDisplayActionContext } from "@/components/common/long/data-display/Constant";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -20,9 +20,10 @@ import { DocumentDetail } from "../component/detail";
 
 interface DocumentRowActionsProps {
   row: GetDocumentData;
+  action: DataDisplayActionContext<GetDocumentData>;
 }
 
-export function DocumentRowActions({ row }: DocumentRowActionsProps) {
+export function DocumentRowActions({ row, action }: DocumentRowActionsProps) {
   const queryClient = useQueryClient();
   const [detailOpen, setDetailOpen] = useState(false);
 
@@ -56,19 +57,19 @@ export function DocumentRowActions({ row }: DocumentRowActionsProps) {
           >
             <Eye className="h-3.5 w-3.5" /> View Detail
           </DropdownMenuItem>
-          <DeleteConfirmDialog
-            onConfirm={() => deleteMutation.mutate()}
-            itemName={row.full_name_identity}
-            isLoading={deleteMutation.isPending}
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              action.openDelete(
+                () => deleteMutation.mutate(),
+                row.full_name_identity,
+              );
+            }}
+            className="cursor-pointer gap-2 text-xs text-destructive focus:text-destructive w-full"
           >
-            <DropdownMenuItem
-              onSelect={(e) => e.preventDefault()}
-              className="cursor-pointer gap-2 text-xs text-destructive focus:text-destructive w-full"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              Delete
-            </DropdownMenuItem>
-          </DeleteConfirmDialog>
+            <Trash2 className="h-3.5 w-3.5" />
+            Delete
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 

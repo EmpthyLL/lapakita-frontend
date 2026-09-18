@@ -8,6 +8,8 @@ import ConfirmDialog from "./ConfirmDialog";
 
 interface DeleteConfirmDialogProps {
   children?: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onConfirm: () => void;
   title?: string;
   description?: string;
@@ -17,6 +19,8 @@ interface DeleteConfirmDialogProps {
 
 export function DeleteConfirmDialog({
   children,
+  open,
+  onOpenChange,
   onConfirm,
   title = "Are you sure?",
   description,
@@ -29,6 +33,8 @@ export function DeleteConfirmDialog({
 
   return (
     <ConfirmDialog
+      open={open}
+      onOpenChange={onOpenChange}
       onContinue={onConfirm}
       title={title}
       description={description || defaultDescription}
@@ -36,11 +42,12 @@ export function DeleteConfirmDialog({
       variant="destructive"
       isLoading={isLoading}
     >
-      {children ?? (
-        <Button variant="destructive" size="icon">
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      )}
+      {open === undefined &&
+        (children ?? (
+          <Button variant="destructive" size="icon">
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        ))}
     </ConfirmDialog>
   );
 }

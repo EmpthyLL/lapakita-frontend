@@ -20,14 +20,37 @@ import { useInfiniteSearch } from "@/hooks/use-infinite-search";
 import { usePagination } from "@/hooks/use-pagination";
 import { BasePaginationQuery } from "@/lib/data/schema/base";
 import { cn } from "@/lib/utils";
+import { ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 
+import ConfirmDialog from "@/components/common/ConfirmDialog";
+import { DeleteConfirmDialog } from "@/components/common/DeleteDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Spinner } from "../../Spinner";
 import {
   ColumnDef,
+  DataDisplayActionContext,
+  DataDisplayConfirmOptions,
+  DataDisplayDetail,
+  DataDisplayForm,
+  DataDisplayFormSurface,
   DataDisplayLoadMode,
   DataDisplayQuery,
+  DataDisplaySurface,
   DataDisplayVariant,
   FieldColumnDef,
   ListItemRenderer,
@@ -59,6 +82,8 @@ interface DataDisplayProps<TData, TParams extends Record<string, any>> {
   showCount?: boolean;
   countList?: number[];
   toolbarExtraAction?: React.ReactNode;
+  detail?: DataDisplayDetail<TData>;
+  form?: DataDisplayForm<TData>;
 }
 
 export function DataDisplay<TData, TParams extends BasePaginationQuery>({
@@ -74,6 +99,8 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   showCount = false,
   countList = [10, 20, 50, 100],
   toolbarExtraAction,
+  detail,
+  form,
 }: DataDisplayProps<TData, TParams>) {
   const t = useTranslations("common.data_display");
   const [searchValue, setSearchValue] = useState("");
@@ -81,6 +108,25 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   const [filterValues, setFilterValues] = useState<Partial<TParams>>({});
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
+  const [activeDetail, setActiveDetail] = useState<{
+    row: TData;
+    index: number;
+    type: DataDisplaySurface;
+  } | null>(null);
+  const [activeForm, setActiveForm] = useState<{
+    kind: "create" | "edit";
+    row?: TData;
+    index?: number;
+    type: DataDisplayFormSurface;
+  } | null>(null);
+  const [activeConfirm, setActiveConfirm] = useState<{
+    onConfirm: () => void;
+    options: DataDisplayConfirmOptions;
+  } | null>(null);
+  const [activeDelete, setActiveDelete] = useState<{
+    onDelete: () => void;
+    itemName?: string;
+  } | null>(null);
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -107,6 +153,53 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
     setSearchValue(value);
     setPage(1);
   }
+
+  function getActionContext(
+    row: TData,
+    index: number,
+  ): DataDisplayActionContext<TData> {
+    const openConfirm = (
+      onConfirm: () => void,
+      options: DataDisplayConfirmOptions = {},
+    ) => setActiveConfirm({ onConfirm, options });
+
+    const openForm = (
+      kind: "create" | "edit",
+      type?: DataDisplayFormSurface,
+    ) => {
+      if (!form) return;
+      if (form.type === "link") {
+        window.location.assign(form.href);
+        return;
+      }
+      setActiveForm({
+        kind,
+        type: type ?? form.type ?? "dialog",
+        ...(kind === "edit" ? { row, index } : {}),
+      });
+    };
+
+    return {
+      row,
+      index,
+      openDetail: (type) =>
+        setActiveDetail({ row, index, type: type ?? detail?.type ?? "dialog" }),
+      openEdit: (type) => openForm("edit", type),
+      openCreate: (type) => openForm("create", type),
+      openConfirm,
+      openDelete: (onDelete, itemName) =>
+        setActiveDelete({ onDelete, itemName }),
+    };
+  }
+
+  const tableColumns: ColumnDef<TData>[] = columns;
+
+  const detailIsExpandable = detail?.type === "expandable";
+  const activeFormConfig = form;
+  const activeFormComponent =
+    activeFormConfig && "component" in activeFormConfig
+      ? activeFormConfig
+      : undefined;
 
   const infinite = useInfiniteSearch<TData, TParams>({
     queryKey: [
@@ -177,17 +270,18 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
     : infinite.meta?.totalItems;
 
   function renderPresetItem(row: TData, index: number) {
-    if (renderItem) return renderItem(row, index, columns);
+    const action = getActionContext(row, index);
+    if (renderItem) return renderItem(row, index, columns, action);
     return variant === "card" ? (
-      <CardGridCard row={row} index={index} columns={columns} />
+      <CardGridCard row={row} index={index} columns={columns} action={action} />
     ) : (
-      <ListRowCard row={row} index={index} columns={columns} />
+      <ListRowCard row={row} index={index} columns={columns} action={action} />
     );
   }
 
   return (
     <div className="space-y-4">
-      {(showFilter || query.searchKey) && (
+      {(showFilter || query.searchKey || toolbarExtraAction) && (
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex-1">
             <SearchFilterBar
@@ -233,7 +327,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
               <TableHeader>
                 <TableRow className="border-b border-primary/15 bg-primary/5 hover:bg-primary/5">
                   <TableHead className="w-10" />
-                  {columns.map((col, idx) => {
+                  {tableColumns.map((col, idx) => {
                     if ("kind" in col && col.kind === "action") {
                       return (
                         <TableHead
@@ -279,71 +373,133 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
                 className={cn(isRefetching && "opacity-60 transition-opacity")}
               >
                 {isLoading ? (
-                  <SkeletonRows columnCount={columns.length + 1} />
+                  <SkeletonRows columnCount={tableColumns.length + 1} />
                 ) : rows.length === 0 ? (
                   <EmptyState
-                    columnCount={columns.length + 1}
+                    columnCount={tableColumns.length + 1}
                     text={emptyText}
                   />
                 ) : (
                   rows.map((row, index) => (
-                    <TableRow
-                      key={String(row[rowKey])}
-                      className={cn(
-                        "group border-l-2 border-l-transparent transition-colors",
-                        "hover:border-l-primary hover:bg-primary/4",
-                        onRowClick && "cursor-pointer",
-                        index % 2 === 1 && "bg-secondary/20",
-                      )}
-                      onClick={() => onRowClick?.(row, index)}
-                      onKeyDown={(event) => {
-                        if (
-                          onRowClick &&
-                          (event.key === "Enter" || event.key === " ")
-                        ) {
-                          event.preventDefault();
-                          onRowClick(row, index);
+                    <Fragment key={String(row[rowKey])}>
+                      <TableRow
+                        key={String(row[rowKey])}
+                        className={cn(
+                          "group border-l-2 border-l-transparent transition-colors",
+                          "hover:border-l-primary hover:bg-primary/4",
+                          onRowClick && "cursor-pointer",
+                          index % 2 === 1 && "bg-secondary/20",
+                        )}
+                        onClick={() =>
+                          onRowClick?.(row, index, getActionContext(row, index))
                         }
-                      }}
-                      tabIndex={onRowClick ? 0 : undefined}
-                      role={onRowClick ? "button" : undefined}
-                    >
-                      <TableCell className="w-10">
-                        <RowIndexBadge index={index} />
-                      </TableCell>
-                      {columns.map((col, colIdx) => {
-                        if ("kind" in col && col.kind === "action") {
+                        onKeyDown={(event) => {
+                          if (
+                            onRowClick &&
+                            (event.key === "Enter" || event.key === " ")
+                          ) {
+                            event.preventDefault();
+                            onRowClick(
+                              row,
+                              index,
+                              getActionContext(row, index),
+                            );
+                          }
+                        }}
+                        tabIndex={onRowClick ? 0 : undefined}
+                        role={onRowClick ? "button" : undefined}
+                      >
+                        <TableCell className="w-10">
+                          <div className="flex items-center gap-1">
+                            {detailIsExpandable && (
+                              <button
+                                type="button"
+                                aria-label="Toggle details"
+                                className="rounded p-1 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  const isOpen =
+                                    activeDetail?.row === row &&
+                                    activeDetail.type === "expandable";
+                                  if (isOpen) setActiveDetail(null);
+                                  else
+                                    getActionContext(row, index).openDetail(
+                                      "expandable",
+                                    );
+                                }}
+                              >
+                                <ChevronRight
+                                  className={cn(
+                                    "h-4 w-4 transition-transform duration-300",
+                                    activeDetail?.row === row &&
+                                      activeDetail.type === "expandable" &&
+                                      "rotate-90",
+                                  )}
+                                />
+                              </button>
+                            )}
+                            <RowIndexBadge index={index} />
+                          </div>
+                        </TableCell>
+                        {tableColumns.map((col, colIdx) => {
+                          if ("kind" in col && col.kind === "action") {
+                            return (
+                              <TableCell
+                                key={`action-cell-${colIdx}`}
+                                className={cn("w-24 text-right", col.className)}
+                                onClick={(event) => event.stopPropagation()}
+                              >
+                                <div className="flex justify-end">
+                                  {col.render(
+                                    row,
+                                    index,
+                                    getActionContext(row, index),
+                                  )}
+                                </div>
+                              </TableCell>
+                            );
+                          }
+
+                          const fieldCol = col as FieldColumnDef<
+                            TData,
+                            keyof TData
+                          >;
+                          const val = row[fieldCol.key];
+
                           return (
                             <TableCell
-                              key={`action-cell-${colIdx}`}
-                              className={cn("w-24 text-right", col.className)}
-                              onClick={(event) => event.stopPropagation()}
+                              key={String(fieldCol.key)}
+                              className={fieldCol.className}
                             >
-                              <div className="flex justify-end">
-                                {col.render(row, index)}
-                              </div>
+                              {fieldCol.render
+                                ? fieldCol.render(val, row, index)
+                                : String(val ?? "")}
                             </TableCell>
                           );
-                        }
-
-                        const fieldCol = col as FieldColumnDef<
-                          TData,
-                          keyof TData
-                        >;
-                        const val = row[fieldCol.key];
-
-                        return (
-                          <TableCell
-                            key={String(fieldCol.key)}
-                            className={fieldCol.className}
-                          >
-                            {fieldCol.render
-                              ? fieldCol.render(val, row, index)
-                              : String(val ?? "")}
+                        })}
+                      </TableRow>
+                      {detailIsExpandable && detail && (
+                        <TableRow key={`${String(row[rowKey])}-detail`}>
+                          <TableCell colSpan={tableColumns.length + 1}>
+                            <div
+                              className={cn(
+                                "grid transition-[grid-template-rows] duration-300 ease-out",
+                                activeDetail?.row === row &&
+                                  activeDetail.type === "expandable"
+                                  ? "grid-rows-[1fr]"
+                                  : "grid-rows-[0fr]",
+                              )}
+                            >
+                              <div className="min-h-0 overflow-hidden">
+                                <div className="border-t border-border/60 py-3">
+                                  {detail.component({ row, index })}
+                                </div>
+                              </div>
+                            </div>
                           </TableCell>
-                        );
-                      })}
-                    </TableRow>
+                        </TableRow>
+                      )}
+                    </Fragment>
                   ))
                 )}
               </TableBody>
@@ -371,21 +527,83 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
           {rows.map((row, index) => (
             <div
               key={String(row[rowKey])}
-              className={cn(onRowClick && "cursor-pointer")}
-              onClick={() => onRowClick?.(row, index)}
-              onKeyDown={(event) => {
-                if (
-                  onRowClick &&
-                  (event.key === "Enter" || event.key === " ")
-                ) {
-                  event.preventDefault();
-                  onRowClick(row, index);
-                }
-              }}
-              tabIndex={onRowClick ? 0 : undefined}
-              role={onRowClick ? "button" : undefined}
+              className={cn(
+                "flex flex-col",
+                // Jika mode card dan expandable aktif, buat card item menduduki full width grid jika sedang expand,
+                // atau biarkan card-nya tetap di dalam grid tapi area detailnya kita buat span full.
+                variant === "card" && detailIsExpandable
+                  ? "col-span-full sm:col-span-1"
+                  : "",
+              )}
             >
-              {renderPresetItem(row, index)}
+              <div
+                className={cn(
+                  "flex items-start gap-2",
+                  onRowClick && "cursor-pointer",
+                )}
+                onClick={() =>
+                  onRowClick?.(row, index, getActionContext(row, index))
+                }
+                onKeyDown={(event) => {
+                  if (
+                    onRowClick &&
+                    (event.key === "Enter" || event.key === " ")
+                  ) {
+                    event.preventDefault();
+                    onRowClick(row, index, getActionContext(row, index));
+                  }
+                }}
+                tabIndex={onRowClick ? 0 : undefined}
+                role={onRowClick ? "button" : undefined}
+              >
+                {detailIsExpandable && (
+                  <button
+                    type="button"
+                    aria-label="Toggle details"
+                    className="mt-4 shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      const isOpen =
+                        activeDetail?.row === row &&
+                        activeDetail.type === "expandable";
+                      if (isOpen) setActiveDetail(null);
+                      else
+                        getActionContext(row, index).openDetail("expandable");
+                    }}
+                  >
+                    <ChevronRight
+                      className={cn(
+                        "h-4 w-4 transition-transform duration-300",
+                        activeDetail?.row === row &&
+                          activeDetail.type === "expandable" &&
+                          "rotate-90",
+                      )}
+                    />
+                  </button>
+                )}
+                <div className="min-w-0 flex-1">
+                  {renderPresetItem(row, index)}
+                </div>
+              </div>
+
+              {/* Kontainer Expandable Detail yang merata ke bawah dan mendorong elemen di bawahnya */}
+              {detailIsExpandable && detail && (
+                <div
+                  className={cn(
+                    "grid transition-[grid-template-rows] duration-300 ease-out w-full",
+                    activeDetail?.row === row &&
+                      activeDetail.type === "expandable"
+                      ? "grid-rows-[1fr]"
+                      : "grid-rows-[0fr]",
+                  )}
+                >
+                  <div className="min-h-0 overflow-hidden">
+                    <div className="border-t border-border/60 pt-3 pb-2 mt-2 px-1">
+                      {detail.component({ row, index })}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -408,13 +626,11 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
             />
           )}
         </div>
-
         {isInfiniteScroll && (
           <div ref={loadMoreRef}>
             {infinite.hasNextPage && infinite.isFetchingNextPage && <Spinner />}
           </div>
         )}
-
         {loadMode === "load-more" && infinite.hasNextPage && (
           <LoadMoreFooter
             onClick={() => infinite.fetchNextPage()}
@@ -422,6 +638,131 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
           />
         )}
       </div>
+
+      {activeFormComponent &&
+        activeForm &&
+        (activeForm.kind === "create" || activeForm.row) &&
+        (activeForm.type === "sidebar" ? (
+          <Drawer
+            swipeDirection="left"
+            open
+            onOpenChange={(open) => !open && setActiveForm(null)}
+          >
+            <DrawerContent>
+              <DrawerHeader>
+                {activeFormComponent.title && (
+                  <DrawerTitle>{activeFormComponent.title}</DrawerTitle>
+                )}
+                {activeFormComponent.description && (
+                  <DrawerDescription>
+                    {activeFormComponent.description}
+                  </DrawerDescription>
+                )}
+              </DrawerHeader>
+              <div className="overflow-y-auto p-4">
+                {activeFormComponent.component({
+                  row: activeForm.row,
+                  index: activeForm.index,
+                  mode: activeForm.kind,
+                  close: () => setActiveForm(null),
+                })}
+              </div>
+            </DrawerContent>
+          </Drawer>
+        ) : (
+          <Dialog open onOpenChange={(open) => !open && setActiveForm(null)}>
+            <DialogContent>
+              {(activeFormComponent.title ||
+                activeFormComponent.description) && (
+                <DialogHeader>
+                  {activeFormComponent.title && (
+                    <DialogTitle>{activeFormComponent.title}</DialogTitle>
+                  )}
+                  {activeFormComponent.description && (
+                    <DialogDescription>
+                      {activeFormComponent.description}
+                    </DialogDescription>
+                  )}
+                </DialogHeader>
+              )}
+              {activeFormComponent.component({
+                row: activeForm.row,
+                index: activeForm.index,
+                mode: activeForm.kind,
+                close: () => setActiveForm(null),
+              })}
+            </DialogContent>
+          </Dialog>
+        ))}
+
+      {activeDetail &&
+        detail &&
+        activeDetail.type !== "expandable" &&
+        (activeDetail.type === "sidebar" ? (
+          <Drawer open onOpenChange={(open) => !open && setActiveDetail(null)}>
+            <DrawerContent>
+              <DrawerHeader>
+                {detail.title && <DrawerTitle>{detail.title}</DrawerTitle>}
+                {detail.description && (
+                  <DrawerDescription>{detail.description}</DrawerDescription>
+                )}
+              </DrawerHeader>
+              <div className="overflow-y-auto p-4">
+                {detail.component({
+                  row: activeDetail.row,
+                  index: activeDetail.index,
+                })}
+              </div>
+            </DrawerContent>
+          </Drawer>
+        ) : (
+          <Dialog open onOpenChange={(open) => !open && setActiveDetail(null)}>
+            <DialogContent>
+              {(detail.title || detail.description) && (
+                <DialogHeader>
+                  {detail.title && <DialogTitle>{detail.title}</DialogTitle>}
+                  {detail.description && (
+                    <DialogDescription>{detail.description}</DialogDescription>
+                  )}
+                </DialogHeader>
+              )}
+              {detail.component({
+                row: activeDetail.row,
+                index: activeDetail.index,
+              })}
+            </DialogContent>
+          </Dialog>
+        ))}
+
+      {activeConfirm &&
+        (() => {
+          const { itemName: _itemName, ...dialogOptions } =
+            activeConfirm.options;
+          void _itemName;
+          return (
+            <ConfirmDialog
+              open
+              onOpenChange={(open) => !open && setActiveConfirm(null)}
+              onContinue={() => {
+                activeConfirm.onConfirm();
+                setActiveConfirm(null);
+              }}
+              {...dialogOptions}
+            />
+          );
+        })()}
+
+      {activeDelete && (
+        <DeleteConfirmDialog
+          open
+          onOpenChange={(open) => !open && setActiveDelete(null)}
+          onConfirm={() => {
+            activeDelete.onDelete();
+            setActiveDelete(null);
+          }}
+          itemName={activeDelete.itemName}
+        />
+      )}
     </div>
   );
 }

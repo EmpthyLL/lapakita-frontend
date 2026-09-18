@@ -2,7 +2,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ActionColumnDef, ColumnDef, FieldColumnDef } from "../Constant";
+import {
+  ActionColumnDef,
+  ColumnDef,
+  DataDisplayActionContext,
+  FieldColumnDef,
+} from "../Constant";
 
 const GLOW_TINTS = [
   "bg-info/15",
@@ -22,10 +27,12 @@ export function CardGridCard<TData>({
   row,
   index,
   columns,
+  action,
 }: {
   row: TData;
   index: number;
   columns: ColumnDef<TData>[];
+  action: DataDisplayActionContext<TData>;
 }) {
   const fieldColumns = columns.filter(
     (c): c is FieldColumnDef<TData, keyof TData> =>
@@ -111,7 +118,7 @@ export function CardGridCard<TData>({
           {actionColumns.length > 0 && (
             <div className="ml-auto flex items-center justify-end gap-2 pt-1">
               {actionColumns.map((col, cIdx) => {
-                const actionNode = col.render(row, index);
+                const actionNode = col.render(row, index, action);
 
                 return (
                   <div
@@ -131,7 +138,7 @@ export function CardGridCard<TData>({
       {metaColumns.length === 0 && actionColumns.length > 0 && (
         <div className="relative mt-4 flex justify-end border-t border-border/60 pt-3">
           {actionColumns.map((col, cIdx) => {
-            const actionNode = col.render(row, index);
+            const actionNode = col.render(row, index, action);
 
             return (
               <div

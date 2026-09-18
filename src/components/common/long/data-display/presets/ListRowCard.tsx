@@ -2,7 +2,12 @@
 
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
-import { ActionColumnDef, ColumnDef, FieldColumnDef } from "../Constant";
+import {
+  ActionColumnDef,
+  ColumnDef,
+  DataDisplayActionContext,
+  FieldColumnDef,
+} from "../Constant";
 
 const NUMBER_BADGE_COLORS = [
   "text-info bg-info/10 border-info/20",
@@ -15,10 +20,12 @@ export function ListRowCard<TData>({
   row,
   index,
   columns,
+  action,
 }: {
   row: TData;
   index: number;
   columns: ColumnDef<TData>[];
+  action: DataDisplayActionContext<TData>;
 }) {
   const fieldColumns = columns.filter(
     (c): c is FieldColumnDef<TData, keyof TData> =>
@@ -88,7 +95,7 @@ export function ListRowCard<TData>({
 
       <div className="ml-auto flex items-center gap-2">
         {actionColumns.map((col, cIdx) => {
-          const actionNode = col.render(row, index);
+          const actionNode = col.render(row, index, action);
 
           return (
             <div

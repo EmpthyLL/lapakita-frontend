@@ -6,13 +6,21 @@ import {
   DocumentInput,
 } from "@/components/common/input/DocumentInput";
 import { DataDisplay } from "@/components/common/long/data-display";
+import { createColumnHelpers } from "@/components/common/long/data-display/Constant";
 import { DateRangePicker } from "@/components/common/long/date-range-picker";
 import { Button } from "@/components/ui/button";
 import { showToast } from "@/lib/toast";
-import { Plus } from "lucide-react";
+import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
-import { stallQueryConfig, useStallColumns } from "./data";
+import {
+  StallDetailView,
+  StallExpandableDetail,
+  StallForm,
+  StallItem,
+  stallQueryConfig,
+  useStallColumns,
+} from "./data";
 
 function Demo({
   title,
@@ -35,7 +43,59 @@ function Demo({
 }
 
 export default function ComponentSandboxPage() {
-  const stallColumns = useStallColumns();
+  const baseColumns = useStallColumns();
+  const { action } = createColumnHelpers<StallItem>();
+
+  // Menambahkan Kolom Action (Detail, Edit, Delete) ke baris DataDisplay
+  const columnsWithActions = [
+    ...baseColumns,
+    action({
+      header: "Aksi",
+      className: "w-28 text-right",
+      render: (row, index, context) => (
+        <div className="flex items-center justify-end gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            onClick={(e) => {
+              e.stopPropagation();
+              context.openDetail();
+            }}
+            title="Lihat Detail"
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            onClick={(e) => {
+              e.stopPropagation();
+              context.openEdit();
+            }}
+            title="Edit Data"
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+            onClick={(e) => {
+              e.stopPropagation();
+              context.openDelete(() => {
+                showToast.success(`Data ${row.stallName} berhasil dihapus`);
+              }, row.stallName);
+            }}
+            title="Hapus Data"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    }),
+  ];
 
   const [singleDate, setSingleDate] = useState<Date | null | undefined>(
     new Date(),
@@ -55,10 +115,12 @@ export default function ComponentSandboxPage() {
   return (
     <div className="container mx-auto max-w-6xl space-y-10 p-6">
       <div className="border-b border-border pb-5">
-        <h1 className="text-2xl font-bold tracking-tight">Component Sandbox</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Component Sandbox & Testing
+        </h1>
         <p className="text-sm text-muted-foreground">
           Pengujian integrasi DatePicker, DateRangePicker, DocumentInput, dan
-          DataDisplay.
+          DataDisplay (Actions, Detail, Form Sidebar).
         </p>
       </div>
 
@@ -166,22 +228,39 @@ export default function ComponentSandboxPage() {
       </Demo>
 
       <Demo
-        title="4. DataDisplay (Variant: list + infinite-scroll + Toolbar Action)"
-        desc="Playful row cards, auto-loads on scroll, dilengkapi primary search & custom toolbar action."
+        title="4. DataDisplay (Table + Actions + Detail Modal + Form Sidebar)"
+        desc="Tabel data lengkap dengan aksi baris interaktif, modal detail, drawer form edit/tambah, serta toolbar action."
       >
         <DataDisplay
-          columns={stallColumns}
+          columns={columnsWithActions}
           query={stallQueryConfig}
           rowKey="id"
-          variant="list"
-          loadMode="infinite-scroll"
+          variant="table"
+          loadMode="pagination"
           showFilter
           showCount
+          // Konfigurasi Detail Dialog
+          detail={{
+            type: "dialog",
+            title: "Detail Informasi Lapak",
+            description: "Informasi lengkap mengenai profil lapak mitra.",
+            component: StallDetailView,
+          }}
+          // Konfigurasi Form Sidebar (Drawer)
+          form={{
+            type: "sidebar",
+            title: "Pengelolaan Data Lapak",
+            description: "Silakan isi atau perbarui informasi lapak.",
+            component: StallForm,
+          }}
+          // Tombol aksi ekstra pada toolbar atas
           toolbarExtraAction={
             <Button
               size="sm"
               className="h-10 gap-1.5 rounded-xl px-3.5 text-xs"
-              onClick={() => showToast.success("Modal Tambah Lapak dibuka")}
+              onClick={() =>
+                showToast.success("Membuka form tambah lapak baru")
+              }
             >
               <Plus className="h-4 w-4" />
               Tambah Lapak
@@ -191,32 +270,27 @@ export default function ComponentSandboxPage() {
       </Demo>
 
       <Demo
-        title="5. DataDisplay (Variant: card + pagination)"
-        desc="Grid preset dengan navigasi halaman bernomor dan search bar terintegrasi."
+        title="7. DataDisplay (Table + Expandable Detail Terpisah)"
+        desc="Menampilkan detail informasi baris secara langsung di bawah baris tabel saat diklik atau dipicu."
       >
         <DataDisplay
-          columns={stallColumns}
+          columns={columnsWithActions}
           query={stallQueryConfig}
           rowKey="id"
           variant="card"
           loadMode="pagination"
           showFilter
           showCount
-        />
-      </Demo>
-
-      <Demo
-        title="6. DataDisplay (Variant: table + load-more)"
-        desc="Classic data grid dengan tombol manual load-more di bagian bawah."
-      >
-        <DataDisplay
-          columns={stallColumns}
-          query={stallQueryConfig}
-          rowKey="id"
-          variant="table"
-          loadMode="load-more"
-          showFilter
-          showCount
+          detail={{
+            type: "expandable",
+            component: StallExpandableDetail,
+          }}
+          form={{
+            type: "sidebar",
+            title: "Pengelolaan Data Lapak",
+            description: "Silakan isi atau perbarui informasi lapak.",
+            component: StallForm,
+          }}
         />
       </Demo>
     </div>

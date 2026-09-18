@@ -2,6 +2,7 @@ import {
   createColumnHelpers,
   DataDisplayQuery,
 } from "@/components/common/long/data-display/Constant";
+import { Button } from "@/components/ui/button";
 import { PaginatedResponse } from "@/lib/data/schema/base";
 import {
   Building,
@@ -188,3 +189,101 @@ export const stallQueryConfig: DataDisplayQuery<StallItem, StallQueryParams> = {
     createdAt: "createdAt",
   },
 };
+
+// Komponen Detail View untuk Modal / Expandable
+export function StallDetailView({ row }: { row: StallItem }) {
+  return (
+    <div className="space-y-3 py-2 text-sm">
+      <div className="grid grid-cols-2 gap-2">
+        <span className="text-muted-foreground">ID Lapak:</span>
+        <span className="font-medium text-foreground">{row.id}</span>
+        <span className="text-muted-foreground">Nama Lapak:</span>
+        <span className="font-medium text-foreground">{row.stallName}</span>
+        <span className="text-muted-foreground">Pemilik:</span>
+        <span className="font-medium text-foreground">{row.ownerName}</span>
+        <span className="text-muted-foreground">Kategori:</span>
+        <span className="font-medium text-foreground">{row.category}</span>
+        <span className="text-muted-foreground">Status:</span>
+        <span className="font-medium text-foreground capitalize">
+          {row.status}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// Tambahkan di dalam file data.ts Anda
+export function StallExpandableDetail({ row }: { row: StallItem }) {
+  return (
+    <div className="rounded-xl border border-border/60 bg-background/60 p-4 space-y-3 my-2 shadow-inner">
+      <div className="flex items-center justify-between border-b border-border/40 pb-2">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-primary">
+          Informasi Tambahan & Log Aktivitas — {row.stallName}
+        </h4>
+        <span className="text-[11px] text-muted-foreground font-mono">
+          ID: {row.id}
+        </span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+        <div>
+          <span className="text-muted-foreground block mb-0.5">
+            Pemilik Lapak
+          </span>
+          <strong className="text-foreground">{row.ownerName}</strong>
+        </div>
+        <div>
+          <span className="text-muted-foreground block mb-0.5">
+            Kategori Usaha
+          </span>
+          <strong className="text-foreground">{row.category}</strong>
+        </div>
+        <div>
+          <span className="text-muted-foreground block mb-0.5">
+            Tanggal Registrasi
+          </span>
+          <strong className="text-foreground">
+            {row.createdAt.toLocaleDateString("id-ID")}
+          </strong>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Komponen Form untuk Sidebar (Drawer) / Dialog (Create & Edit)
+export function StallForm({
+  mode,
+  row,
+  close,
+}: {
+  mode: "create" | "edit";
+  row?: StallItem;
+  close: () => void;
+}) {
+  return (
+    <div className="space-y-4 py-2">
+      <p className="text-xs text-muted-foreground">
+        Mode saat ini:{" "}
+        <strong className="text-foreground uppercase">{mode}</strong>{" "}
+        {row ? `— Mengubah data: ${row.stallName}` : "— Menambahkan data baru"}
+      </p>
+      <div className="space-y-2">
+        <label className="text-xs font-semibold">Nama Lapak</label>
+        <input
+          type="text"
+          defaultValue={row?.stallName ?? ""}
+          placeholder="Masukkan nama lapak..."
+          className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+        />
+      </div>
+      <div className="flex justify-end gap-2 pt-4">
+        <Button variant="outline" size="sm" onClick={close}>
+          Batal
+        </Button>
+        <Button size="sm" onClick={() => close()}>
+          Simpan Perubahan
+        </Button>
+      </div>
+    </div>
+  );
+}

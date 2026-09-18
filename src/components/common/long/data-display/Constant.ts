@@ -33,7 +33,11 @@ export type FieldColumnDef<
 
 export type ActionColumnDef<TData> = BaseColumnDef & {
   kind: "action";
-  render: (row: TData, index: number) => ReactNode;
+  render: (
+    row: TData,
+    index: number,
+    context: DataDisplayActionContext<TData>,
+  ) => ReactNode;
 };
 
 export type ColumnDef<TData> =
@@ -78,9 +82,70 @@ export type ListItemRenderer<TData> = (
   row: TData,
   index: number,
   columns: ColumnDef<TData>[],
+  action?: DataDisplayActionContext<TData>,
 ) => ReactNode;
 
-export type RowAction<TData> = (row: TData, index: number) => void;
+export type DataDisplaySurface = "dialog" | "sidebar" | "expandable";
+export type DataDisplayFormSurface = "dialog" | "sidebar" | "link";
+
+export interface DataDisplayActionContext<TData> {
+  row: TData;
+  index: number;
+  openDetail: (type?: DataDisplaySurface) => void;
+  openEdit: (type?: DataDisplayFormSurface) => void;
+  openCreate: (type?: DataDisplayFormSurface) => void;
+  openConfirm: (
+    onConfirm: () => void,
+    options?: DataDisplayConfirmOptions,
+  ) => void;
+  openDelete: (onDelete: () => void, itemName?: string) => void;
+}
+
+export interface DataDisplayConfirmOptions {
+  title?: string;
+  description?: ReactNode;
+  confirmText?: string;
+  cancelText?: string;
+  itemName?: string;
+  variant?: "destructive" | "warning" | "info" | "success";
+}
+
+export type RowAction<TData> = (
+  row: TData,
+  index: number,
+  action: DataDisplayActionContext<TData>,
+) => void;
+
+export interface DataDisplayDetail<TData> {
+  type?: DataDisplaySurface;
+  title?: ReactNode;
+  description?: ReactNode;
+  component: (props: { row: TData; index: number }) => ReactNode;
+}
+
+export interface DataDisplayFormComponentProps<TData> {
+  row?: TData;
+  index?: number;
+  mode: "create" | "edit";
+  close: () => void;
+}
+
+interface DataDisplayFormBase {
+  title?: ReactNode;
+  description?: ReactNode;
+}
+
+export type DataDisplayForm<TData> = DataDisplayFormBase &
+  (
+    | {
+        type?: "dialog" | "sidebar";
+        component: (props: DataDisplayFormComponentProps<TData>) => ReactNode;
+      }
+    | {
+        type: "link";
+        href: string;
+      }
+  );
 
 export type DataDisplayVariant = "table" | "list" | "card";
 export type DataDisplayLoadMode =

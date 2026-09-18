@@ -56,7 +56,9 @@ export function useDocumentColumns() {
       action({
         header: "Actions",
         className: "w-20 text-right",
-        render: (row) => <DocumentRowActions row={row} />,
+        render: (row, _index, action) => (
+          <DocumentRowActions row={row} action={action!} />
+        ),
       }),
     ],
     [field, action],

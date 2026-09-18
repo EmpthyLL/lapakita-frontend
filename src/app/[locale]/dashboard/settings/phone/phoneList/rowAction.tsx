@@ -1,7 +1,7 @@
 "use client";
 
-import { DeleteConfirmDialog } from "@/components/common/DeleteDialog";
 import DialogWrapper from "@/components/common/DialogWrapper";
+import { DataDisplayActionContext } from "@/components/common/long/data-display/Constant";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,9 +21,10 @@ import { PhoneForm } from "../component/form";
 
 interface PhoneRowActionsProps {
   row: PhoneNumberItem;
+  action: DataDisplayActionContext<PhoneNumberItem>;
 }
 
-export function PhoneRowActions({ row }: PhoneRowActionsProps) {
+export function PhoneRowActions({ row, action }: PhoneRowActionsProps) {
   const queryClient = useQueryClient();
   const { data: session, update: updateSession } = useSession();
   const [editOpen, setEditOpen] = useState(false);
@@ -37,26 +38,33 @@ export function PhoneRowActions({ row }: PhoneRowActionsProps) {
 
       if (session?.user) {
         const updatedPersonas = { ...(session.user.personas || {}) };
-        const deletedNumber = row.number;
+        const deletedPhoneObj = row; // Ini berupa objek { dial_code, number }
         const linkedRoles = row.roles || [];
 
         linkedRoles.forEach((role) => {
           const persona = updatedPersonas[role];
-          if (persona && persona.phone === deletedNumber) {
-            const hasDisplayName = Boolean(
-              persona.display_name && persona.display_name.trim() !== "",
-            );
-            const hasAvatarUrl = Boolean(
-              persona.avatar_url && persona.avatar_url.trim() !== "",
-            );
+          if (persona && persona.phone) {
+            // Cocokkan berdasarkan dial_code dan number
+            const isSamePhone =
+              persona.phone.dial_code === deletedPhoneObj.dial_code &&
+              persona.phone.number === deletedPhoneObj.number;
 
-            if (!hasDisplayName && !hasAvatarUrl) {
-              delete updatedPersonas[role];
-            } else {
-              updatedPersonas[role] = {
-                ...persona,
-                phone: "",
-              };
+            if (isSamePhone) {
+              const hasDisplayName = Boolean(
+                persona.display_name && persona.display_name.trim() !== "",
+              );
+              const hasAvatarUrl = Boolean(
+                persona.avatar_url && persona.avatar_url.trim() !== "",
+              );
+
+              if (!hasDisplayName && !hasAvatarUrl) {
+                delete updatedPersonas[role];
+              } else {
+                updatedPersonas[role] = {
+                  ...persona,
+                  phone: { dial_code: "+62", number: "" },
+                };
+              }
             }
           }
         });
@@ -73,6 +81,8 @@ export function PhoneRowActions({ row }: PhoneRowActionsProps) {
     },
     onError: handleError,
   });
+
+  const phoneDisplayLabel = `${row.number || "+62"} ${row.dial_code || ""}`;
 
   return (
     <>
@@ -93,19 +103,19 @@ export function PhoneRowActions({ row }: PhoneRowActionsProps) {
           >
             <Pencil className="h-3.5 w-3.5" /> Edit
           </DropdownMenuItem>
-          <DeleteConfirmDialog
-            onConfirm={() => deleteMutation.mutate()}
-            itemName={row.number}
-            isLoading={deleteMutation.isPending}
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              action.openDelete(
+                () => deleteMutation.mutate(),
+                phoneDisplayLabel,
+              );
+            }}
+            className="cursor-pointer gap-2 text-xs text-destructive focus:text-destructive w-full"
           >
-            <DropdownMenuItem
-              onSelect={(e) => e.preventDefault()}
-              className="cursor-pointer gap-2 text-xs text-destructive focus:text-destructive w-full"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              Delete
-            </DropdownMenuItem>
-          </DeleteConfirmDialog>
+            <Trash2 className="h-3.5 w-3.5" />
+            Delete
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -113,7 +123,7 @@ export function PhoneRowActions({ row }: PhoneRowActionsProps) {
         open={editOpen}
         onOpenChange={setEditOpen}
         title="Edit Phone Number"
-        desc="Pastikan nomor minimal 10 digit. Setiap role hanya boleh terikat ke satu nomor unik."
+        desc="Pastikan nomor minimal 5 digit. Setiap role hanya boleh terikat ke satu nomor unik."
         size="sm"
       >
         <PhoneForm

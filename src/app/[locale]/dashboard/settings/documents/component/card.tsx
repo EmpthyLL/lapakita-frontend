@@ -3,6 +3,7 @@
 import {
   ActionColumnDef,
   ColumnDef,
+  DataDisplayActionContext,
   FieldColumnDef,
 } from "@/components/common/long/data-display/Constant";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
@@ -13,9 +14,15 @@ interface DocumentCardProps {
   row: GetDocumentData;
   index: number;
   columns: ColumnDef<GetDocumentData>[];
+  action: DataDisplayActionContext<GetDocumentData>;
 }
 
-export function DocumentCard({ row, index, columns }: DocumentCardProps) {
+export function DocumentCard({
+  row,
+  index,
+  columns,
+  action,
+}: DocumentCardProps) {
   const fieldColumns = columns.filter(
     (
       column,
@@ -74,7 +81,7 @@ export function DocumentCard({ row, index, columns }: DocumentCardProps) {
             <div className="flex shrink-0 items-center gap-1">
               {actionColumns.map((column, actionIndex) => (
                 <div key={`action-${actionIndex}`}>
-                  {column.render(row, index)}
+                  {column.render(row, index, action)}
                 </div>
               ))}
             </div>

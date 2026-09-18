@@ -60,10 +60,14 @@ export default function DocumentList() {
           variant="card"
           loadMode="pagination"
           showFilter
-          onRowClick={() => {}}
           showCount
-          renderItem={(row, index, itemColumns) => (
-            <DocumentCard row={row} index={index} columns={itemColumns} />
+          renderItem={(row, index, itemColumns, action) => (
+            <DocumentCard
+              row={row}
+              index={index}
+              columns={itemColumns}
+              action={action!}
+            />
           )}
           toolbarExtraAction={
             <Button

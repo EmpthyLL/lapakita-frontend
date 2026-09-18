@@ -91,7 +91,9 @@ export function usePhoneColumns() {
       header: "Actions",
       icon: MoreVertical,
       className: "w-20 text-right",
-      render: (row) => <PhoneRowActions row={row} />,
+      render: (row, _index, action) => (
+        <PhoneRowActions row={row} action={action} />
+      ),
     }),
   ];
 }
