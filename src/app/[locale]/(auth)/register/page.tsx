@@ -1,4 +1,3 @@
-// app/register/page.tsx
 "use client";
 
 import { GoogleButton } from "@/components/common/GoogleButton";

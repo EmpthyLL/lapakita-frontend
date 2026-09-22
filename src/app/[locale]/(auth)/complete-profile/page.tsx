@@ -41,10 +41,8 @@ export default function CompleteProfilePage() {
     resolver: zodResolver(completeProfileSchema),
     defaultValues: {
       name: user?.defaultName || "",
-      phone: {
-        dial_code: "+62",
-        number: user?.defaultPhone || "",
-      },
+      dial_code: user?.defaultPhone?.dial_code || "+62",
+      phone: user?.defaultPhone?.number || "",
       avatar_url: user?.defaultAvatarUrl || "",
     },
   });
@@ -55,11 +53,8 @@ export default function CompleteProfilePage() {
     if (user && !isInitializedRef.current) {
       if (user.defaultName) form.setValue("name", user.defaultName);
       if (user.defaultPhone) {
-        // Jika data phone dari Google berupa string biasa, bisa dipisah atau dimasukkan ke number
-        form.setValue("phone", {
-          dial_code: "+62",
-          number: user.defaultPhone,
-        });
+        form.setValue("dial_code", user.defaultPhone.dial_code || "+62");
+        form.setValue("phone", user.defaultPhone.number || "");
       }
       if (user.defaultAvatarUrl) {
         form.setValue("avatar_url", user.defaultAvatarUrl);
@@ -83,9 +78,7 @@ export default function CompleteProfilePage() {
           user: {
             defaultName: authData.default_name,
             defaultPhone: authData.default_phone,
-            defaultavatar_url: authData.default_avatar_url,
-            phoneNumbers: authData.phone_numbers,
-            personas: authData.personas,
+            defaultAvatarUrl: authData.default_avatar_url,
           },
         });
 
@@ -173,7 +166,7 @@ export default function CompleteProfilePage() {
 
             <FormField
               control={form.control}
-              name="phone"
+              name={["phone", "dial_code"]}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Phone Number</FormLabel>
@@ -182,7 +175,6 @@ export default function CompleteProfilePage() {
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="812 3456 7890"
-                      hasError={!!form.formState.errors.phone}
                     />
                   </FormControl>
                   <FormMessage />

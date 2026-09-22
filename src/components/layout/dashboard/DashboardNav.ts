@@ -153,7 +153,7 @@ export const SETTINGS_NAV: DashboardNavItem[] = [
   },
   {
     label: "Persona Preferences",
-    href: "/dashboard/settings/preferences",
+    href: "/dashboard/settings/persona",
     icon: UserCheck,
   },
 ];
