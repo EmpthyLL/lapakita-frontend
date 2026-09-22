@@ -44,27 +44,35 @@ interface ConfirmDialogProps {
 const variantConfig = {
   destructive: {
     icon: AlertTriangle,
-    iconBg: "bg-destructive/15 text-destructive",
+    iconBg:
+      "bg-destructive/15 text-destructive border border-destructive/20 shadow-lg shadow-destructive/10",
     iconRing: "ring-destructive/20",
     buttonVariant: "destructive" as const,
+    glowColor: "bg-destructive/15",
   },
   warning: {
     icon: ShieldAlert,
-    iconBg: "bg-warning/15 text-warning",
+    iconBg:
+      "bg-warning/15 text-warning border border-warning/20 shadow-lg shadow-warning/10",
     iconRing: "ring-warning/20",
     buttonVariant: "warning" as const,
+    glowColor: "bg-warning/15",
   },
   info: {
     icon: Info,
-    iconBg: "bg-primary/15 text-primary",
+    iconBg:
+      "bg-primary/15 text-primary border border-primary/20 shadow-lg shadow-primary/10",
     iconRing: "ring-primary/20",
     buttonVariant: "default" as const,
+    glowColor: "bg-primary/15",
   },
   success: {
     icon: CheckCircle,
-    iconBg: "bg-success/15 text-success",
+    iconBg:
+      "bg-success/15 text-success border border-success/20 shadow-lg shadow-success/10",
     iconRing: "ring-success/20",
     buttonVariant: "default" as const,
+    glowColor: "bg-success/15",
   },
 } as const;
 
@@ -120,23 +128,28 @@ export default function ConfirmDialog({
         </AlertDialogTrigger>
       )}
 
-      <AlertDialogContent className="relative overflow-hidden rounded-3xl border border-border bg-card p-7 shadow-2xl sm:max-w-md">
-        {/* Aksen Glow Halus di Background agar Lebih 'Rame' & Tidak Kaku */}
-        <div className="absolute -top-12 -right-12 h-36 w-36 rounded-full bg-gradient-brand opacity-10 blur-3xl pointer-events-none" />
+      <AlertDialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 overflow-hidden rounded-[28px] border border-border/80 bg-card p-6 shadow-2xl shadow-primary/5 sm:max-w-lg w-full backdrop-blur-xl">
+        {/* Dekorasi Glow & Ambient Light di Background */}
+        <div
+          className={`absolute -top-16 -right-16 h-44 w-44 rounded-full ${config.glowColor} opacity-40 blur-3xl pointer-events-none`}
+        />
+        <div className="absolute -bottom-16 -left-16 h-44 w-44 rounded-full bg-secondary/50 opacity-50 blur-3xl pointer-events-none" />
 
-        <AlertDialogHeader className="space-y-4">
+        <AlertDialogHeader className="relative space-y-4">
           <div className="flex items-start gap-4">
             <div
-              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${config.iconBg} ring-4 ${config.iconRing} transition-transform duration-300 hover:scale-105`}
+              className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${config.iconBg} ring-8 ring-background transition-transform duration-300 hover:scale-105`}
             >
-              <Icon className="h-6 w-6" />
+              <Icon className="h-7 w-7" />
             </div>
 
-            <div className="space-y-1 pt-0.5">
-              <AlertDialogTitle className="font-heading text-lg font-bold tracking-tight text-foreground">
+            <div className="space-y-1.5 pt-1 flex-1">
+              {/* Diperbesar untuk layar besar (menggunakan text-base sm:text-lg) */}
+              <AlertDialogTitle className="font-heading text-base sm:text-lg font-bold tracking-tight text-foreground">
                 {title}
               </AlertDialogTitle>
-              <AlertDialogDescription className="text-xs/relaxed text-muted-foreground font-normal">
+              {/* Diperbesar untuk layar besar (menggunakan text-xs sm:text-sm) */}
+              <AlertDialogDescription className="text-xs sm:text-sm/relaxed text-muted-foreground font-normal">
                 {description}
               </AlertDialogDescription>
             </div>
@@ -144,8 +157,8 @@ export default function ConfirmDialog({
         </AlertDialogHeader>
 
         {remark && (
-          <div className="pt-3 pb-1">
-            <label className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+          <div className="relative pt-4 pb-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
               {remarkName}
             </label>
             <Input
@@ -155,16 +168,16 @@ export default function ConfirmDialog({
                 setRemarkValue(e.target.value);
                 onRemarkChange(e.target.value);
               }}
-              className="h-11 rounded-xl bg-background border-border focus-visible:ring-primary text-sm shadow-inner"
+              className="h-11 rounded-xl bg-secondary/30 border-border/80 focus-visible:ring-primary text-sm shadow-inner"
             />
           </div>
         )}
 
-        <AlertDialogFooter className="mt-5 pt-4 border-t border-border/80 flex gap-2.5 sm:gap-2.5">
+        <AlertDialogFooter className="relative mt-6 pt-4 border-t border-border/60 flex gap-2.5 sm:gap-2.5">
           <AlertDialogCancel
             disabled={isLoading}
             onClick={handleCancel}
-            className="flex-1 rounded-xl border-border bg-background hover:bg-secondary text-xs font-semibold h-11 px-4 mt-0 transition-all cursor-pointer"
+            className="flex-1 rounded-xl border-border/80 bg-background hover:bg-secondary/80 text-xs sm:text-sm font-semibold h-11 px-4 mt-0 transition-all cursor-pointer shadow-xs"
           >
             {cancelText}
           </AlertDialogCancel>
@@ -173,7 +186,7 @@ export default function ConfirmDialog({
             disabled={isLoading}
             onClick={handleContinue}
             variant={config.buttonVariant}
-            className="flex-1 rounded-xl text-xs font-semibold h-11 px-4 shadow-sm transition-all cursor-pointer"
+            className="flex-1 rounded-xl text-xs sm:text-sm font-semibold h-11 px-4 shadow-sm transition-all cursor-pointer"
           >
             {isLoading ? "Processing..." : confirmText}
           </AlertDialogAction>

@@ -10,6 +10,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/common/input/FormField";
+import { DataDisplayFormComponentProps } from "@/components/common/long/data-display/Constant";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { uploadDocument } from "@/lib/data/api/user";
 import {
+  GetDocumentData,
   uploadDocumentSchema,
   UploadDocumentValues,
 } from "@/lib/data/schema/user/document";
@@ -32,27 +34,27 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { getDocumentFieldMeta, getDocumentTypeExamples } from "./config";
 
-interface DocumentFormProps {
-  onSuccess: () => void;
-  onCancel?: () => void;
-}
-
 const DOCUMENT_TYPES = [
   { label: "National ID (KTP)", value: "national_id" },
   { label: "Passport", value: "passport" },
   { label: "Residence Permit", value: "residence_permit" },
 ];
 
-export function DocumentForm({ onSuccess, onCancel }: DocumentFormProps) {
+export function DocumentForm({
+  row,
+  mode,
+  close,
+}: DataDisplayFormComponentProps<GetDocumentData>) {
   const queryClient = useQueryClient();
+  const isEdit = mode === "edit";
 
   const form = useForm<UploadDocumentValues>({
     resolver: zodResolver(uploadDocumentSchema),
     defaultValues: {
-      document_type: "national_id",
-      full_name_identity: "",
-      document_number: "",
-      document_photo: "",
+      document_type: row?.document_type ?? "national_id",
+      full_name_identity: row?.full_name_identity ?? "",
+      document_number: row?.document_number ?? "",
+      document_photo: row?.document_photo_url ?? "",
     },
   });
 
@@ -65,9 +67,13 @@ export function DocumentForm({ onSuccess, onCancel }: DocumentFormProps) {
       await uploadDocument(values);
     },
     onSuccess: () => {
-      showToast.success("Document uploaded successfully");
+      showToast.success(
+        isEdit
+          ? "Document updated successfully"
+          : "Document uploaded successfully",
+      );
       queryClient.invalidateQueries({ queryKey: ["user-document"] });
-      onSuccess();
+      close();
     },
     onError: handleError,
   });
@@ -90,6 +96,7 @@ export function DocumentForm({ onSuccess, onCancel }: DocumentFormProps) {
                   form.setValue("document_number", "");
                 }}
                 defaultValue={field.value}
+                disabled={isEdit}
               >
                 <FormControl>
                   <SelectTrigger className="h-9 bg-background border-border">
@@ -104,7 +111,7 @@ export function DocumentForm({ onSuccess, onCancel }: DocumentFormProps) {
                   ))}
                 </SelectContent>
               </Select>
-              {typeExamples && (
+              {typeExamples && !isEdit && (
                 <FormDescription className="text-xs text-muted-foreground">
                   {typeExamples}
                 </FormDescription>
@@ -190,22 +197,20 @@ export function DocumentForm({ onSuccess, onCancel }: DocumentFormProps) {
         />
 
         <DialogFooter className="pt-4 border-t border-border flex gap-2">
-          {onCancel && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              className="rounded-xl"
-            >
-              Cancel
-            </Button>
-          )}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={close}
+            className="rounded-xl"
+          >
+            Cancel
+          </Button>
           <Button
             type="submit"
             isLoading={mutation.isPending}
             className="rounded-xl"
           >
-            Upload Document
+            {isEdit ? "Save Changes" : "Upload Document"}
           </Button>
         </DialogFooter>
       </form>

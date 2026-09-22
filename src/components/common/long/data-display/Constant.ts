@@ -100,7 +100,6 @@ export interface DataDisplayActionContext<TData> {
   openDelete: (onDelete: () => void, itemName?: string) => void;
 }
 
-// Konteks tambahan yang dikirim ke fungsi toolbarExtraAction
 export interface DataDisplayToolbarActionContext<TData> {
   openCreate: (type?: DataDisplaySurface) => void;
   isLoading: boolean;
@@ -126,15 +125,17 @@ export type RowAction<TData> = (
   action: DataDisplayActionContext<TData>,
 ) => void;
 
-interface DataDisplayBaseSurfaceConfig<TData> {
+export interface DataDisplayBaseSurfaceConfig extends BaseColumnDef {
   type?: DataDisplaySurface;
   title?: ReactNode;
   description?: ReactNode;
   href?: string;
-  component?: (props: { row: TData; index: number }) => ReactNode;
+  size?: "sm" | "md" | "lg" | "xl" | "full";
 }
 
-export type DataDisplayDetail<TData> = DataDisplayBaseSurfaceConfig<TData>;
+export type DataDisplayDetail<TData> = DataDisplayBaseSurfaceConfig & {
+  component?: (props: { row: TData; index: number }) => ReactNode;
+};
 
 export interface DataDisplayFormComponentProps<TData> {
   row?: TData;
@@ -143,11 +144,8 @@ export interface DataDisplayFormComponentProps<TData> {
   close: () => void;
 }
 
-export type DataDisplayForm<TData> = BaseColumnDef & {
-  type?: DataDisplaySurface;
-  title?: ReactNode;
-  description?: ReactNode;
-  href?: string;
+// Form menggunakan base config ditambah komponen khusus form (menerima mode & close)
+export type DataDisplayForm<TData> = DataDisplayBaseSurfaceConfig & {
   component: (props: DataDisplayFormComponentProps<TData>) => ReactNode;
 };
 

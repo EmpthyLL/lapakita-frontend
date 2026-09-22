@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -9,6 +10,7 @@ import {
   FormMessage,
 } from "@/components/common/input/FormField";
 import { PhoneInput } from "@/components/common/input/PhoneInput";
+import { DataDisplayFormComponentProps } from "@/components/common/long/data-display/Constant";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
@@ -52,21 +54,14 @@ const AVAILABLE_ROLES: readonly RoleOption[] = [
   },
 ] as const;
 
-interface PhoneFormProps {
-  mode: "create" | "edit";
-  initialData?: PhoneNumberItem | null;
-  onSuccess: () => void;
-  onCancel?: () => void;
-}
-
 export function PhoneForm({
   mode,
-  initialData,
-  onSuccess,
-  onCancel,
-}: PhoneFormProps) {
+  row: initialData,
+  close,
+}: DataDisplayFormComponentProps<PhoneNumberItem>) {
   const queryClient = useQueryClient();
   const { data: session, update: updateSession } = useSession();
+  const isEdit = mode === "edit";
 
   const form = useForm<PhoneValues>({
     resolver: zodResolver(phoneRequestSchema),
@@ -79,7 +74,7 @@ export function PhoneForm({
   });
 
   useEffect(() => {
-    if (mode === "edit" && initialData) {
+    if (isEdit && initialData) {
       form.reset({
         number: initialData.number || "",
         dial_code: initialData.dial_code || "+62",
@@ -94,11 +89,11 @@ export function PhoneForm({
         roles: [],
       });
     }
-  }, [mode, initialData, form]);
+  }, [isEdit, initialData, form]);
 
   const mutation = useMutation({
     mutationFn: async (values: PhoneValues) => {
-      if (mode === "edit" && initialData) {
+      if (isEdit && initialData) {
         await updatePhoneNumber(initialData.index, values);
       } else {
         await addPhoneNumber(values);
@@ -107,7 +102,7 @@ export function PhoneForm({
     },
     onSuccess: async (values) => {
       showToast.success(
-        mode === "edit"
+        isEdit
           ? "Phone number updated successfully"
           : "Phone number added successfully",
       );
@@ -150,7 +145,7 @@ export function PhoneForm({
       }
 
       queryClient.invalidateQueries({ queryKey: ["phone-numbers"] });
-      onSuccess();
+      close();
     },
     onError: handleError,
   });
@@ -163,7 +158,7 @@ export function PhoneForm({
       >
         <FormField
           control={form.control}
-          name={["number", "dial_code"]}
+          name={["number", "dial_code"] as any}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Phone Number</FormLabel>
@@ -245,13 +240,20 @@ export function PhoneForm({
         />
 
         <DialogFooter className="pt-4 border-t border-border flex gap-2">
-          {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          )}
-          <Button type="submit" isLoading={mutation.isPending}>
-            {mode === "create" ? "Add Phone Number" : "Save Changes"}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={close}
+            className="rounded-xl"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            isLoading={mutation.isPending}
+            className="rounded-xl"
+          >
+            {isEdit ? "Save Changes" : "Add Phone Number"}
           </Button>
         </DialogFooter>
       </form>

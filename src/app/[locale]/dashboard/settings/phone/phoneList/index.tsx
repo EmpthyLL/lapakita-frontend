@@ -1,6 +1,5 @@
 "use client";
 
-import DialogWrapper from "@/components/common/DialogWrapper";
 import { DataDisplay } from "@/components/common/long/data-display";
 import { DataDisplayQuery } from "@/components/common/long/data-display/Constant";
 import { Button } from "@/components/ui/button";
@@ -27,40 +26,33 @@ export default function PhoneList() {
   const columns = usePhoneColumns();
 
   return (
-    <>
-      <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
-        <DataDisplay
-          columns={columns}
-          query={queryConfig}
-          rowKey="number"
-          variant="list"
-          loadMode="pagination"
-          showCount
-          toolbarExtraAction={
-            <Button
-              onClick={() => setCreateOpen(true)}
-              size="sm"
-              className="h-10 gap-1.5 px-3.5 text-xs"
-            >
-              <Plus className="h-4 w-4" /> Add Phone Number
-            </Button>
-          }
-        />
-      </div>
-
-      <DialogWrapper
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        title="Add Phone Number"
-        desc="Pastikan nomor minimal 10 digit. Setiap role hanya boleh terikat ke satu nomor unik."
-        size="sm"
-      >
-        <PhoneForm
-          mode="create"
-          onSuccess={() => setCreateOpen(false)}
-          onCancel={() => setCreateOpen(false)}
-        />
-      </DialogWrapper>
-    </>
+    <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+      <DataDisplay
+        columns={columns}
+        query={queryConfig}
+        rowKey="number"
+        variant="list"
+        loadMode="pagination"
+        showCount
+        form={{
+          type: "dialog",
+          title: "Phone Number Management",
+          description:
+            "Pastikan nomor minimal 10 digit. Setiap role hanya boleh terikat ke satu nomor unik.",
+          component: PhoneForm,
+          size: "sm",
+        }}
+        toolbarExtraAction={({ openCreate, isLoading }) => (
+          <Button
+            onClick={() => openCreate()}
+            disabled={isLoading}
+            size="sm"
+            className="h-10 gap-1.5 px-3.5 text-xs rounded-xl"
+          >
+            <Plus className="h-4 w-4" /> Add Phone Number
+          </Button>
+        )}
+      />
+    </div>
   );
 }

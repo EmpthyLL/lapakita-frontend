@@ -1,14 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import { DeleteConfirmDialog } from "@/components/common/DeleteDialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import DialogWrapper from "@/components/common/DialogWrapper";
 import {
   Drawer,
   DrawerContent,
@@ -17,7 +12,6 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import {
-  DataDisplayConfirmOptions,
   DataDisplayDetail,
   DataDisplayForm,
   DataDisplaySurface,
@@ -44,7 +38,7 @@ interface DataDisplayModalsProps<TData> {
 
   activeConfirm: {
     onConfirm: () => void;
-    options: DataDisplayConfirmOptions;
+    options: any;
   } | null;
   onCloseConfirm: () => void;
 
@@ -69,7 +63,7 @@ export function DataDisplayModals<TData>({
 }: DataDisplayModalsProps<TData>) {
   return (
     <>
-      {/* Non-Expandable Form (Sidebar / Dialog) */}
+      {/* Non-Expandable Form (Sidebar / Dialog menggunakan DialogWrapper) */}
       {form &&
         form.type !== "expandable" &&
         activeForm &&
@@ -99,33 +93,28 @@ export function DataDisplayModals<TData>({
             </DrawerContent>
           </Drawer>
         ) : (
-          <Dialog open onOpenChange={(open) => !open && onCloseForm()}>
-            <DialogContent>
-              {(form.title || form.description) && (
-                <DialogHeader>
-                  {form.title && <DialogTitle>{form.title}</DialogTitle>}
-                  {form.description && (
-                    <DialogDescription>{form.description}</DialogDescription>
-                  )}
-                </DialogHeader>
-              )}
-              {form.component({
-                row: activeForm.row,
-                index: activeForm.index,
-                mode: activeForm.kind,
-                close: onCloseForm,
-              })}
-            </DialogContent>
-          </Dialog>
+          <DialogWrapper
+            open
+            onOpenChange={(open) => !open && onCloseForm()}
+            title={form.title}
+            desc={form.description}
+            size={form.size ?? "lg"}
+          >
+            {form.component({
+              row: activeForm.row,
+              index: activeForm.index,
+              mode: activeForm.kind,
+              close: onCloseForm,
+            })}
+          </DialogWrapper>
         ))}
 
-      {/* Non-Expandable Detail (Sidebar / Dialog) */}
+      {/* Non-Expandable Detail (Sidebar / Dialog menggunakan DialogWrapper) */}
       {detail &&
         detail.type !== "expandable" &&
         activeDetail &&
         activeDetail.type !== "expandable" &&
         activeDetail.row !== undefined &&
-        activeDetail.index !== undefined &&
         (activeDetail.type === "sidebar" ? (
           <Drawer open onOpenChange={(open) => !open && onCloseDetail()}>
             <DrawerContent>
@@ -138,28 +127,24 @@ export function DataDisplayModals<TData>({
               <div className="overflow-y-auto p-4">
                 {detail.component?.({
                   row: activeDetail.row,
-                  index: activeDetail.index,
+                  index: activeDetail.index ?? 0,
                 })}
               </div>
             </DrawerContent>
           </Drawer>
         ) : (
-          <Dialog open onOpenChange={(open) => !open && onCloseDetail()}>
-            <DialogContent>
-              {(detail.title || detail.description) && (
-                <DialogHeader>
-                  {detail.title && <DialogTitle>{detail.title}</DialogTitle>}
-                  {detail.description && (
-                    <DialogDescription>{detail.description}</DialogDescription>
-                  )}
-                </DialogHeader>
-              )}
-              {detail.component?.({
-                row: activeDetail.row,
-                index: activeDetail.index,
-              })}
-            </DialogContent>
-          </Dialog>
+          <DialogWrapper
+            open
+            onOpenChange={(open) => !open && onCloseDetail()}
+            title={detail.title}
+            desc={detail.description}
+            size={detail.size ?? "lg"}
+          >
+            {detail.component?.({
+              row: activeDetail.row,
+              index: activeDetail.index ?? 0,
+            })}
+          </DialogWrapper>
         ))}
 
       {/* Dialog Konfirmasi */}
