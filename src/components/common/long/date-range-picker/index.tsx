@@ -80,9 +80,44 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
     };
   }, []);
 
+  // Fungsi helper untuk memindahkan tampilan bulan kalender secara instan berdasarkan rentang tanggal
+  const updateCalendarMonths = (targetRange: DateRange) => {
+    const fromDate = targetRange.from ?? new Date();
+    const leftAnchor = new Date(fromDate.getFullYear(), fromDate.getMonth(), 1);
+
+    let rightAnchor: Date;
+    if (targetRange.to) {
+      rightAnchor = new Date(
+        targetRange.to.getFullYear(),
+        targetRange.to.getMonth(),
+        1,
+      );
+      if (
+        rightAnchor.getFullYear() === leftAnchor.getFullYear() &&
+        rightAnchor.getMonth() === leftAnchor.getMonth()
+      ) {
+        rightAnchor = new Date(
+          leftAnchor.getFullYear(),
+          leftAnchor.getMonth() + 1,
+          1,
+        );
+      }
+    } else {
+      rightAnchor = new Date(
+        leftAnchor.getFullYear(),
+        leftAnchor.getMonth() + 1,
+        1,
+      );
+    }
+
+    setLeftMonth(leftAnchor);
+    setRightMonth(rightAnchor);
+  };
+
   const setPreset = (preset: string): void => {
     const rangeValue = getPresetRange(preset);
     setRange(rangeValue);
+    updateCalendarMonths(rangeValue); // Kalender langsung menyesuaikan & berpindah ke bulan terkait
   };
 
   const checkPreset = (): void => {
@@ -149,33 +184,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
   useEffect(() => {
     if (isOpen) {
       openedRangeRef.current = range;
-
-      const fromDate = range.from ?? new Date();
-      let leftAnchor = new Date(fromDate.getFullYear(), fromDate.getMonth(), 1);
-
-      let rightAnchor: Date;
-      if (range.to) {
-        rightAnchor = new Date(range.to.getFullYear(), range.to.getMonth(), 1);
-        if (
-          rightAnchor.getFullYear() === leftAnchor.getFullYear() &&
-          rightAnchor.getMonth() === leftAnchor.getMonth()
-        ) {
-          leftAnchor = new Date(
-            leftAnchor.getFullYear(),
-            leftAnchor.getMonth() - 1,
-            1,
-          );
-        }
-      } else {
-        rightAnchor = new Date(
-          leftAnchor.getFullYear(),
-          leftAnchor.getMonth() + 1,
-          1,
-        );
-      }
-
-      setLeftMonth(leftAnchor);
-      setRightMonth(rightAnchor);
+      updateCalendarMonths(range);
     }
   }, [isOpen]);
 
@@ -223,18 +232,19 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
     isSelected: boolean;
   }): React.JSX.Element => (
     <Button
-      className={cn(isSelected && "pointer-events-none")}
+      className={cn(
+        "w-full justify-start text-xs font-normal",
+        isSelected && "pointer-events-none bg-accent font-semibold",
+      )}
       variant="ghost"
       onClick={() => {
         setPreset(preset);
       }}
     >
-      <>
-        <span className={cn("pr-2 opacity-0", isSelected && "opacity-70")}>
-          <CheckIcon width={18} height={18} />
-        </span>
-        {label}
-      </>
+      <span className={cn("pr-2 opacity-0", isSelected && "opacity-100")}>
+        <CheckIcon width={14} height={14} />
+      </span>
+      {label}
     </Button>
   );
 
@@ -295,7 +305,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
       <PopoverContent
         align={align}
         className={cn(
-          "w-auto",
+          "w-auto p-0",
           isSmallScreen && "mx-auto w-[calc(100vw-2rem)] max-w-sm",
         )}
         side="bottom"
@@ -303,8 +313,8 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
         avoidCollisions
         collisionPadding={16}
       >
-        <div className="flex flex-col py-2 lg:flex-row">
-          <div className="flex flex-col">
+        <div className="flex flex-col lg:flex-row">
+          <div className="flex flex-col p-4">
             {isSmallScreen && (
               <Select
                 defaultValue={selectedPreset}
@@ -375,9 +385,11 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
               )}
             </div>
           </div>
+
+          {/* Border Pembatas Pemisah Antara Kalendar dan Panel Preset */}
           {!isSmallScreen && (
-            <div className="flex flex-col items-end gap-1 pr-2 pl-6">
-              <div className="flex max-h-80 w-full flex-col items-end gap-1 overflow-y-auto pr-2 pb-6 pl-6">
+            <div className="flex flex-col items-end gap-1 border-l border-border p-4 w-48">
+              <div className="flex max-h-80 w-full flex-col items-end gap-1 overflow-y-auto pr-1">
                 {PRESET_KEYS.map((key) => (
                   <PresetButton
                     key={key}
@@ -390,13 +402,16 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
             </div>
           )}
         </div>
-        <div className="flex justify-end gap-2 py-2 pr-4">
+
+        {/* Border Pemisah Bagian Bawah Footer */}
+        <div className="flex justify-end gap-2 p-3 border-t border-border bg-secondary/10">
           <Button
             onClick={() => {
               setIsOpen(false);
               resetValues();
             }}
             variant="ghost"
+            size="sm"
           >
             {t("cancel")}
           </Button>
@@ -407,6 +422,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                 onUpdate?.(range);
               }
             }}
+            size="sm"
           >
             {t("submit")}
           </Button>
