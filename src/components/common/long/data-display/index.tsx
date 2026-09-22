@@ -8,38 +8,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useInfiniteSearch } from "@/hooks/use-infinite-search";
 import { usePagination } from "@/hooks/use-pagination";
 import { BasePaginationQuery } from "@/lib/data/schema/base";
-import { cn } from "@/lib/utils";
-import { ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import ConfirmDialog from "@/components/common/ConfirmDialog";
-import { DeleteConfirmDialog } from "@/components/common/DeleteDialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
 import { Spinner } from "../../Spinner";
 import {
   ColumnDef,
@@ -51,11 +26,15 @@ import {
   DataDisplayQuery,
   DataDisplaySurface,
   DataDisplayVariant,
-  FieldColumnDef,
+  FilterOption,
   ListItemRenderer,
   RowAction,
+  ToolbarExtraAction,
 } from "./Constant";
+import { DataDisplayModals } from "./DataDisplayModals";
 import { DataDisplayPagination } from "./DataDisplayPagination";
+import { DataDisplayPreset } from "./DataDisplayPreset";
+import { DataDisplayTable } from "./DataDisplayTable";
 import {
   CardSkeleton,
   DataEmptyState,
@@ -66,7 +45,6 @@ import { LoadMoreFooter } from "./LoadMoreFooter";
 import { CardGridCard } from "./presets/CardGridCard";
 import { ListRowCard } from "./presets/ListRowCard";
 import { SearchFilterBar } from "./SearchFilterBar";
-import { EmptyState, RowIndexBadge, SkeletonRows } from "./TableStates";
 
 interface DataDisplayProps<TData, TParams extends Record<string, any>> {
   query: DataDisplayQuery<TData, TParams>;
@@ -80,7 +58,7 @@ interface DataDisplayProps<TData, TParams extends Record<string, any>> {
   showFilter?: boolean;
   showCount?: boolean;
   countList?: number[];
-  toolbarExtraAction?: React.ReactNode;
+  toolbarExtraAction?: ToolbarExtraAction<TData>;
   detail?: DataDisplayDetail<TData>;
   form?: DataDisplayForm<TData>;
 }
@@ -103,30 +81,32 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
 }: DataDisplayProps<TData, TParams>) {
   const t = useTranslations("common.data_display");
   const [searchValue, setSearchValue] = useState("");
-  const [selectedOptions, setSelectedOptions] = useState<any[]>([]);
+  const [selectedOptions, setSelectedOptions] = useState<
+    FilterOption<TParams>[]
+  >([]);
   const [filterValues, setFilterValues] = useState<Partial<TParams>>({});
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
 
-  // State aktif untuk popup / expandable detail
   const [activeDetail, setActiveDetail] = useState<{
-    row: TData;
-    index: number;
+    row?: TData;
+    index?: number;
     type: DataDisplaySurface;
   } | null>(null);
 
-  // State aktif untuk form (create/edit)
   const [activeForm, setActiveForm] = useState<{
     kind: "create" | "edit";
     row?: TData;
     index?: number;
     type: DataDisplaySurface;
+    close: () => void;
   } | null>(null);
 
   const [activeConfirm, setActiveConfirm] = useState<{
     onConfirm: () => void;
     options: DataDisplayConfirmOptions;
   } | null>(null);
+
   const [activeDelete, setActiveDelete] = useState<{
     onDelete: () => void;
     itemName?: string;
@@ -158,9 +138,11 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
     setPage(1);
   }
 
+  const closeForm = () => setActiveForm(null);
+
   function getActionContext(
-    row: TData,
-    index: number,
+    row?: TData,
+    index?: number,
   ): DataDisplayActionContext<TData> {
     const openConfirm = (
       onConfirm: () => void,
@@ -170,6 +152,8 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
     const openFormAction = (
       kind: "create" | "edit",
       type?: DataDisplaySurface,
+      targetRow?: TData,
+      targetIndex?: number,
     ) => {
       if (!form) return;
       const targetType = type ?? form.type ?? "dialog";
@@ -179,14 +163,17 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
       }
       if (targetType === "expandable") {
         setActiveForm((prev) =>
-          prev?.row === row &&
           prev?.kind === kind &&
-          prev?.type === "expandable"
+          prev?.type === "expandable" &&
+          prev?.row === targetRow
             ? null
             : {
                 kind,
                 type: "expandable",
-                ...(kind === "edit" ? { row, index } : {}),
+                close: closeForm,
+                ...(targetRow !== undefined
+                  ? { row: targetRow, index: targetIndex }
+                  : {}),
               },
         );
         return;
@@ -194,38 +181,41 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
       setActiveForm({
         kind,
         type: targetType,
-        ...(kind === "edit" ? { row, index } : {}),
+        close: closeForm,
+        ...(targetRow !== undefined
+          ? { row: targetRow, index: targetIndex }
+          : {}),
       });
     };
 
     return {
-      row,
-      index,
+      row: row as TData,
+      index: index ?? -1,
       openDetail: (type) => {
         const targetType = type ?? detail?.type ?? "dialog";
         if (targetType === "link" && detail?.href) {
           window.location.assign(detail.href);
           return;
         }
-        if (targetType === "expandable") {
+        if (targetType === "expandable" && row !== undefined) {
           setActiveDetail((prev) =>
             prev?.row === row && prev?.type === "expandable"
               ? null
-              : { row, index, type: "expandable" },
+              : { row, index: index ?? 0, type: "expandable" },
           );
           return;
         }
-        setActiveDetail({ row, index, type: targetType });
+        if (row !== undefined) {
+          setActiveDetail({ row, index: index ?? 0, type: targetType });
+        }
       },
-      openEdit: (type) => openFormAction("edit", type),
+      openEdit: (type) => openFormAction("edit", type, row, index),
       openCreate: (type) => openFormAction("create", type),
       openConfirm,
       openDelete: (onDelete, itemName) =>
         setActiveDelete({ onDelete, itemName }),
     };
   }
-
-  const tableColumns: ColumnDef<TData>[] = columns;
 
   const detailIsExpandable = detail?.type === "expandable";
   const formIsExpandable = form?.type === "expandable";
@@ -264,7 +254,6 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
       infinite.isFetchingNextPage
     )
       return;
-
     const currentRef = loadMoreRef.current;
     const observer = new IntersectionObserver(
       (entries) => {
@@ -272,7 +261,6 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
       },
       { threshold: 0.1 },
     );
-
     if (currentRef) observer.observe(currentRef);
     return () => {
       if (currentRef) observer.unobserve(currentRef);
@@ -293,10 +281,15 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   const isUpdating =
     (isPagination && isRefetching) ||
     (!isPagination && infinite.isFetching && !infinite.isFetchingNextPage);
-
   const total = isPagination
     ? paginated.meta?.totalItems
     : infinite.meta?.totalItems;
+
+  const globalActionCtx = getActionContext();
+  const isCreateExpandableOpen =
+    formIsExpandable &&
+    activeForm?.kind === "create" &&
+    activeForm?.type === "expandable";
 
   function renderPresetItem(row: TData, index: number) {
     const action = getActionContext(row, index);
@@ -322,7 +315,15 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
               filterValues={filterValues}
               setFilterValues={updateFilterValues}
               filterToParamKey={query.filterToParamKey}
-              toolbarExtraAction={toolbarExtraAction}
+              toolbarExtraAction={
+                typeof toolbarExtraAction === "function"
+                  ? toolbarExtraAction({
+                      openCreate: (type) => globalActionCtx.openCreate(type),
+                      isLoading,
+                      rows,
+                    })
+                  : toolbarExtraAction
+              }
             />
           </div>
 
@@ -349,206 +350,60 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
         </div>
       )}
 
-      {variant === "table" ? (
-        <div className="overflow-hidden rounded-2xl border border-border shadow-sm">
-          <div className="overflow-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-primary/15 bg-primary/5 hover:bg-primary/5">
-                  <TableHead className="w-10" />
-                  {tableColumns.map((col, idx) => {
-                    if ("kind" in col && col.kind === "action") {
-                      return (
-                        <TableHead
-                          key={`action-head-${idx}`}
-                          className={cn(
-                            "w-24 text-right text-xs font-semibold tracking-wide text-primary/80",
-                            col.className,
-                          )}
-                        >
-                          <span className="flex items-center justify-end gap-1.5">
-                            {col.icon &&
-                              (() => {
-                                const Icon = col.icon;
-                                return <Icon className="h-3 w-3" />;
-                              })()}
-                            {col.header ?? "Actions"}
-                          </span>
-                        </TableHead>
-                      );
-                    }
-
-                    const fieldCol = col as FieldColumnDef<TData, keyof TData>;
-                    const Icon = fieldCol.icon;
-                    return (
-                      <TableHead
-                        key={String(fieldCol.key)}
-                        className={cn(
-                          "text-xs font-semibold tracking-wide text-primary/80",
-                          fieldCol.className,
-                        )}
-                      >
-                        <span className="flex items-center gap-1.5">
-                          {Icon && <Icon className="h-3 w-3 text-primary" />}
-                          {fieldCol.header}
-                        </span>
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              </TableHeader>
-
-              <TableBody
-                className={cn(isRefetching && "opacity-60 transition-opacity")}
-              >
-                {isLoading ? (
-                  <SkeletonRows columnCount={tableColumns.length + 1} />
-                ) : rows.length === 0 ? (
-                  <EmptyState
-                    columnCount={tableColumns.length + 1}
-                    text={emptyText}
-                  />
-                ) : (
-                  rows.map((row, index) => {
-                    const rowActionCtx = getActionContext(row, index);
-                    const isDetailExpanded =
-                      detailIsExpandable &&
-                      activeDetail?.row === row &&
-                      activeDetail.type === "expandable";
-                    const isFormExpanded =
-                      formIsExpandable &&
-                      activeForm?.row === row &&
-                      activeForm.type === "expandable";
-
-                    return (
-                      <Fragment key={String(row[rowKey])}>
-                        <TableRow
-                          className={cn(
-                            "group border-l-2 border-l-transparent transition-colors",
-                            "hover:border-l-primary hover:bg-primary/4",
-                            onRowClick && "cursor-pointer",
-                            index % 2 === 1 && "bg-secondary/20",
-                          )}
-                          onClick={() => onRowClick?.(row, index, rowActionCtx)}
-                          tabIndex={onRowClick ? 0 : undefined}
-                          role={onRowClick ? "button" : undefined}
-                        >
-                          <TableCell className="w-10">
-                            <div className="flex items-center gap-1">
-                              {detailIsExpandable && (
-                                <button
-                                  type="button"
-                                  aria-label="Toggle details"
-                                  className="rounded p-1 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    rowActionCtx.openDetail("expandable");
-                                  }}
-                                >
-                                  <ChevronRight
-                                    className={cn(
-                                      "h-4 w-4 transition-transform duration-300",
-                                      isDetailExpanded && "rotate-90",
-                                    )}
-                                  />
-                                </button>
-                              )}
-                              <RowIndexBadge index={index} />
-                            </div>
-                          </TableCell>
-                          {tableColumns.map((col, colIdx) => {
-                            if ("kind" in col && col.kind === "action") {
-                              return (
-                                <TableCell
-                                  key={`action-cell-${colIdx}`}
-                                  className={cn(
-                                    "w-24 text-right",
-                                    col.className,
-                                  )}
-                                  onClick={(event) => event.stopPropagation()}
-                                >
-                                  <div className="flex justify-end">
-                                    {col.render(row, index, rowActionCtx)}
-                                  </div>
-                                </TableCell>
-                              );
-                            }
-
-                            const fieldCol = col as FieldColumnDef<
-                              TData,
-                              keyof TData
-                            >;
-                            const val = row[fieldCol.key];
-
-                            return (
-                              <TableCell
-                                key={String(fieldCol.key)}
-                                className={fieldCol.className}
-                              >
-                                {fieldCol.render
-                                  ? fieldCol.render(val, row, index)
-                                  : String(val ?? "")}
-                              </TableCell>
-                            );
-                          })}
-                        </TableRow>
-
-                        {/* Expandable Detail Row */}
-                        {detailIsExpandable && detail && (
-                          <TableRow key={`${String(row[rowKey])}-detail`}>
-                            <TableCell colSpan={tableColumns.length + 1}>
-                              <div
-                                className={cn(
-                                  "grid transition-[grid-template-rows] duration-300 ease-out",
-                                  isDetailExpanded
-                                    ? "grid-rows-[1fr]"
-                                    : "grid-rows-[0fr]",
-                                )}
-                              >
-                                <div className="min-h-0 overflow-hidden">
-                                  <div className="border-t border-border/60 py-3">
-                                    {detail.component?.({ row, index })}
-                                  </div>
-                                </div>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        )}
-
-                        {/* Expandable Form Row */}
-                        {formIsExpandable && form && (
-                          <TableRow key={`${String(row[rowKey])}-form`}>
-                            <TableCell colSpan={tableColumns.length + 1}>
-                              <div
-                                className={cn(
-                                  "grid transition-[grid-template-rows] duration-300 ease-out",
-                                  isFormExpanded
-                                    ? "grid-rows-[1fr]"
-                                    : "grid-rows-[0fr]",
-                                )}
-                              >
-                                <div className="min-h-0 overflow-hidden">
-                                  <div className="border-t border-border/60 py-3">
-                                    {form.component({
-                                      row: activeForm?.row,
-                                      index: activeForm?.index,
-                                      mode: activeForm?.kind ?? "edit",
-                                      close: () => setActiveForm(null),
-                                    })}
-                                  </div>
-                                </div>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </Fragment>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
+      {/* Expandable Form Create di Bawah Search Bar (Terbuka di atas item) */}
+      {isCreateExpandableOpen && form && (
+        <div className="overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-300">
+          <div className="mb-3 flex items-center justify-between border-b border-border pb-3">
+            <div>
+              {form.title && (
+                <h3 className="font-semibold text-foreground text-sm">
+                  {form.title}
+                </h3>
+              )}
+              {form.description && (
+                <p className="text-xs text-muted-foreground">
+                  {form.description}
+                </p>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={closeForm}
+              className="h-8 text-xs"
+            >
+              Tutup
+            </Button>
           </div>
+          {form.component({
+            row: activeForm?.row,
+            index: activeForm?.index,
+            mode: activeForm?.kind ?? "create",
+            close: closeForm,
+          })}
         </div>
+      )}
+
+      {variant === "table" ? (
+        <DataDisplayTable
+          columns={columns}
+          rows={rows}
+          rowKey={rowKey}
+          isLoading={isLoading}
+          isRefetching={isRefetching}
+          emptyText={emptyText}
+          detailIsExpandable={detailIsExpandable}
+          formIsExpandable={formIsExpandable}
+          detail={detail}
+          form={form}
+          activeDetail={activeDetail}
+          activeForm={activeForm}
+          onRowClick={onRowClick}
+          getActionContext={getActionContext}
+          openDetailExpandable={(row, index) =>
+            getActionContext(row, index).openDetail("expandable")
+          }
+        />
       ) : isLoading ? (
         variant === "card" ? (
           <CardSkeleton />
@@ -558,111 +413,25 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
       ) : rows.length === 0 ? (
         <DataEmptyState text={emptyText} />
       ) : (
-        <div
-          className={cn(
-            "transition-opacity",
-            variant === "card"
-              ? "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-              : "flex flex-col gap-3",
-            isRefetching && "opacity-60",
-          )}
-        >
-          {rows.map((row, index) => {
-            const rowActionCtx = getActionContext(row, index);
-            const isDetailExpanded =
-              detailIsExpandable &&
-              activeDetail?.row === row &&
-              activeDetail.type === "expandable";
-            const isFormExpanded =
-              formIsExpandable &&
-              activeForm?.row === row &&
-              activeForm.type === "expandable";
-
-            return (
-              <div
-                key={String(row[rowKey])}
-                className={cn(
-                  "flex flex-col",
-                  variant === "card" && (detailIsExpandable || formIsExpandable)
-                    ? "col-span-full sm:col-span-1"
-                    : "",
-                )}
-              >
-                <div
-                  className={cn(
-                    "flex items-start gap-2",
-                    onRowClick && "cursor-pointer",
-                  )}
-                  onClick={() => onRowClick?.(row, index, rowActionCtx)}
-                  tabIndex={onRowClick ? 0 : undefined}
-                  role={onRowClick ? "button" : undefined}
-                >
-                  {detailIsExpandable && (
-                    <button
-                      type="button"
-                      aria-label="Toggle details"
-                      className="mt-4 shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        rowActionCtx.openDetail("expandable");
-                      }}
-                    >
-                      <ChevronRight
-                        className={cn(
-                          "h-4 w-4 transition-transform duration-300",
-                          isDetailExpanded && "rotate-90",
-                        )}
-                      />
-                    </button>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    {renderPresetItem(row, index)}
-                  </div>
-                </div>
-
-                {/* Card Expandable Detail */}
-                {detailIsExpandable && detail && (
-                  <div
-                    className={cn(
-                      "grid transition-[grid-template-rows] duration-300 ease-out w-full",
-                      isDetailExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
-                    )}
-                  >
-                    <div className="min-h-0 overflow-hidden">
-                      <div className="border-t border-border/60 pt-3 pb-2 mt-2 px-1">
-                        {detail.component?.({ row, index })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Card Expandable Form */}
-                {formIsExpandable && form && (
-                  <div
-                    className={cn(
-                      "grid transition-[grid-template-rows] duration-300 ease-out w-full",
-                      isFormExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
-                    )}
-                  >
-                    <div className="min-h-0 overflow-hidden">
-                      <div className="border-t border-border/60 pt-3 pb-2 mt-2 px-1">
-                        {form.component({
-                          row: activeForm?.row,
-                          index: activeForm?.index,
-                          mode: activeForm?.kind ?? "edit",
-                          close: () => setActiveForm(null),
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <DataDisplayPreset
+          rows={rows}
+          rowKey={rowKey}
+          variant={variant}
+          detailIsExpandable={detailIsExpandable}
+          formIsExpandable={formIsExpandable}
+          detail={detail}
+          form={form}
+          activeDetail={activeDetail}
+          activeForm={activeForm}
+          onRowClick={onRowClick}
+          getActionContext={getActionContext}
+          openDetailExpandable={(row, index) =>
+            getActionContext(row, index).openDetail("expandable")
+          }
+          renderPresetItem={renderPresetItem}
+        />
       )}
 
-      {/* Footer Nav / Infinite scroll */}
       <div className="flex flex-col gap-3 pt-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <ListFooterCount
@@ -693,128 +462,18 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
         )}
       </div>
 
-      {/* Render Non-Expandable Form (Sidebar / Dialog) */}
-      {form &&
-        form.type !== "expandable" &&
-        activeForm &&
-        activeForm.type !== "expandable" &&
-        (activeForm.kind === "create" || activeForm.row) &&
-        (activeForm.type === "sidebar" ? (
-          <Drawer
-            swipeDirection="left"
-            open
-            onOpenChange={(open) => !open && setActiveForm(null)}
-          >
-            <DrawerContent>
-              <DrawerHeader>
-                {form.title && <DrawerTitle>{form.title}</DrawerTitle>}
-                {form.description && (
-                  <DrawerDescription>{form.description}</DrawerDescription>
-                )}
-              </DrawerHeader>
-              <div className="overflow-y-auto p-4">
-                {form.component({
-                  row: activeForm.row,
-                  index: activeForm.index,
-                  mode: activeForm.kind,
-                  close: () => setActiveForm(null),
-                })}
-              </div>
-            </DrawerContent>
-          </Drawer>
-        ) : (
-          <Dialog open onOpenChange={(open) => !open && setActiveForm(null)}>
-            <DialogContent>
-              {(form.title || form.description) && (
-                <DialogHeader>
-                  {form.title && <DialogTitle>{form.title}</DialogTitle>}
-                  {form.description && (
-                    <DialogDescription>{form.description}</DialogDescription>
-                  )}
-                </DialogHeader>
-              )}
-              {form.component({
-                row: activeForm.row,
-                index: activeForm.index,
-                mode: activeForm.kind,
-                close: () => setActiveForm(null),
-              })}
-            </DialogContent>
-          </Dialog>
-        ))}
-
-      {/* Render Non-Expandable Detail (Sidebar / Dialog) */}
-      {detail &&
-        detail.type !== "expandable" &&
-        activeDetail &&
-        activeDetail.type !== "expandable" &&
-        (activeDetail.type === "sidebar" ? (
-          <Drawer open onOpenChange={(open) => !open && setActiveDetail(null)}>
-            <DrawerContent>
-              <DrawerHeader>
-                {detail.title && <DrawerTitle>{detail.title}</DrawerTitle>}
-                {detail.description && (
-                  <DrawerDescription>{detail.description}</DrawerDescription>
-                )}
-              </DrawerHeader>
-              <div className="overflow-y-auto p-4">
-                {detail.component?.({
-                  row: activeDetail.row,
-                  index: activeDetail.index,
-                })}
-              </div>
-            </DrawerContent>
-          </Drawer>
-        ) : (
-          <Dialog open onOpenChange={(open) => !open && setActiveDetail(null)}>
-            <DialogContent>
-              {(detail.title || detail.description) && (
-                <DialogHeader>
-                  {detail.title && <DialogTitle>{detail.title}</DialogTitle>}
-                  {detail.description && (
-                    <DialogDescription>{detail.description}</DialogDescription>
-                  )}
-                </DialogHeader>
-              )}
-              {detail.component?.({
-                row: activeDetail.row,
-                index: activeDetail.index,
-              })}
-            </DialogContent>
-          </Dialog>
-        ))}
-
-      {/* Dialog Konfirmasi */}
-      {activeConfirm &&
-        (() => {
-          const { itemName: _itemName, ...dialogOptions } =
-            activeConfirm.options;
-          void _itemName;
-          return (
-            <ConfirmDialog
-              open
-              onOpenChange={(open) => !open && setActiveConfirm(null)}
-              onContinue={() => {
-                activeConfirm.onConfirm();
-                setActiveConfirm(null);
-              }}
-              {...dialogOptions}
-            />
-          );
-        })()}
-
-      {/* Dialog Hapus */}
-      {activeDelete && (
-        <DeleteConfirmDialog
-          open
-          onOpenChange={(open) => !open && setActiveDelete(null)}
-          onConfirm={() => {
-            activeDelete.onDelete();
-            setActiveDelete(null);
-          }}
-          itemName={activeDelete.itemName}
-        />
-      )}
+      <DataDisplayModals
+        form={form}
+        activeForm={activeForm}
+        onCloseForm={closeForm}
+        detail={detail}
+        activeDetail={activeDetail}
+        onCloseDetail={() => setActiveDetail(null)}
+        activeConfirm={activeConfirm}
+        onCloseConfirm={() => setActiveConfirm(null)}
+        activeDelete={activeDelete}
+        onCloseDelete={() => setActiveDelete(null)}
+      />
     </div>
   );
 }

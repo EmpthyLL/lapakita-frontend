@@ -82,10 +82,9 @@ export type ListItemRenderer<TData> = (
   row: TData,
   index: number,
   columns: ColumnDef<TData>[],
-  action?: DataDisplayActionContext<TData>,
+  action: DataDisplayActionContext<TData>,
 ) => ReactNode;
 
-// Menyamakan tipe surface agar Detail & Form memiliki opsi yang setara
 export type DataDisplaySurface = "dialog" | "sidebar" | "expandable" | "link";
 
 export interface DataDisplayActionContext<TData> {
@@ -100,6 +99,17 @@ export interface DataDisplayActionContext<TData> {
   ) => void;
   openDelete: (onDelete: () => void, itemName?: string) => void;
 }
+
+// Konteks tambahan yang dikirim ke fungsi toolbarExtraAction
+export interface DataDisplayToolbarActionContext<TData> {
+  openCreate: (type?: DataDisplaySurface) => void;
+  isLoading: boolean;
+  rows: TData[];
+}
+
+export type ToolbarExtraAction<TData> =
+  | ReactNode
+  | ((context: DataDisplayToolbarActionContext<TData>) => ReactNode);
 
 export interface DataDisplayConfirmOptions {
   title?: string;
@@ -120,7 +130,7 @@ interface DataDisplayBaseSurfaceConfig<TData> {
   type?: DataDisplaySurface;
   title?: ReactNode;
   description?: ReactNode;
-  href?: string; // Untuk tipe link
+  href?: string;
   component?: (props: { row: TData; index: number }) => ReactNode;
 }
 
