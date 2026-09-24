@@ -4,15 +4,17 @@
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/common/input/FormField";
 import { PhoneInput } from "@/components/common/input/PhoneInput";
-import { DataDisplayFormComponentProps } from "@/components/common/long/data-display/Constant";
+import { DataDisplaySurfaceComponentProps } from "@/components/common/long/data-display/Constant";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { addPhoneNumber, updatePhoneNumber } from "@/lib/data/api/user";
 import {
@@ -58,7 +60,7 @@ export function PhoneForm({
   mode,
   row: initialData,
   close,
-}: DataDisplayFormComponentProps<PhoneNumberItem>) {
+}: DataDisplaySurfaceComponentProps<PhoneNumberItem>) {
   const queryClient = useQueryClient();
   const { data: session, update: updateSession } = useSession();
   const isEdit = mode === "edit";
@@ -66,6 +68,7 @@ export function PhoneForm({
   const form = useForm<PhoneValues>({
     resolver: zodResolver(phoneRequestSchema),
     defaultValues: {
+      label: "",
       number: "",
       dial_code: "+62",
       is_primary: false,
@@ -76,6 +79,7 @@ export function PhoneForm({
   useEffect(() => {
     if (isEdit && initialData) {
       form.reset({
+        label: initialData.label || "",
         number: initialData.number || "",
         dial_code: initialData.dial_code || "+62",
         is_primary: initialData.is_primary,
@@ -83,6 +87,7 @@ export function PhoneForm({
       });
     } else {
       form.reset({
+        label: "",
         number: "",
         dial_code: "+62",
         is_primary: false,
@@ -120,7 +125,7 @@ export function PhoneForm({
           newDefaultPhone = phoneObj;
         }
 
-        values.roles.forEach((role) => {
+        values.roles?.forEach((role) => {
           const existingPersona = updatedPersonas[role];
           if (existingPersona) {
             updatedPersonas[role] = {
@@ -156,6 +161,27 @@ export function PhoneForm({
         onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
         className="space-y-5 pt-3 px-2"
       >
+        <FormField
+          control={form.control}
+          name="label"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Label</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="e.g. Kontak Utama Usaha / WhatsApp Logistik"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormDescription className="text-xs text-muted-foreground">
+                Nama penanda untuk mengidentifikasi nomor telepon ini.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name={["number", "dial_code"] as any}

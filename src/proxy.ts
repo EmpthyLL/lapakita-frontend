@@ -41,8 +41,12 @@ export default async function middleware(request: NextRequest) {
 
   const session = await auth();
 
+  // PERBAIKAN: Cek kelengkapan nama dan nomor telepon (number di dalam objek defaultPhone)
   const isProfileIncomplete =
-    session?.user && (!session.user.defaultPhone || !session.user.defaultName);
+    session?.user &&
+    (!session.user.defaultName ||
+      !session.user.defaultPhone ||
+      !session.user.defaultPhone.number);
 
   // 1. JIKA USER SUDAH LOGIN
   if (session) {

@@ -3,6 +3,7 @@
 
 import { createColumnHelpers } from "@/components/common/long/data-display/Constant";
 import { Badge } from "@/components/ui/badge";
+import { getCountryFlagByDialCode } from "@/lib/countries";
 import { PhoneNumberItem } from "@/lib/data/schema/user/phone_number";
 import { Role } from "@/types";
 import {
@@ -10,6 +11,7 @@ import {
   MoreVertical,
   Phone as PhoneIcon,
   ShieldCheck,
+  Tag,
 } from "lucide-react";
 import { PhoneRowActions } from "./rowAction";
 
@@ -17,6 +19,14 @@ export function usePhoneColumns() {
   const { field, action } = createColumnHelpers<PhoneNumberItem>();
 
   return [
+    field({
+      key: "label",
+      header: "Label",
+      icon: Tag,
+      className: "font-medium text-foreground",
+      render: (val) => val || "-",
+    }),
+
     field({
       key: "number",
       header: "Phone Number",
@@ -28,12 +38,13 @@ export function usePhoneColumns() {
 
         const dialCode = row.dial_code || "+62";
         const phoneNumber = val || "";
+        const flagUrl = getCountryFlagByDialCode(dialCode);
 
         return (
           <div className="flex items-center gap-2.5">
-            {/* Render Flag Negara */}
+            {/* Render Flag Negara dari helper FlagCDN */}
             <img
-              src={row.flag}
+              src={flagUrl}
               alt="Country flag"
               className="h-3.5 w-5 object-contain rounded-xs shrink-0 shadow-xs"
             />
@@ -91,8 +102,8 @@ export function usePhoneColumns() {
       header: "Actions",
       icon: MoreVertical,
       className: "w-20 text-right",
-      render: (row, _index, action) => (
-        <PhoneRowActions row={row} action={action} />
+      render: (row, _index, actionCtx) => (
+        <PhoneRowActions row={row} action={actionCtx} />
       ),
     }),
   ];

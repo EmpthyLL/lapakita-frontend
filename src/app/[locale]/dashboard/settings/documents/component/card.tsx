@@ -1,8 +1,7 @@
 "use client";
 
 import {
-  ActionColumnDef,
-  ColumnDef,
+  ColumnConfig,
   DataDisplayActionContext,
   FieldColumnDef,
 } from "@/components/common/long/data-display/Constant";
@@ -13,7 +12,7 @@ import { formatDocType, getDocumentNumberLabel } from "./config";
 interface DocumentCardProps {
   row: GetDocumentData;
   index: number;
-  columns: ColumnDef<GetDocumentData>[];
+  columns: ColumnConfig<GetDocumentData>;
   action: DataDisplayActionContext<GetDocumentData>;
 }
 
@@ -23,16 +22,13 @@ export function DocumentCard({
   columns,
   action,
 }: DocumentCardProps) {
-  const fieldColumns = columns.filter(
-    (
-      column,
-    ): column is FieldColumnDef<GetDocumentData, keyof GetDocumentData> =>
-      !("kind" in column && column.kind === "action") && !column.hideInPreset,
+  const fieldColumns = (columns.fields ?? []).filter(
+    (column) => !column.hideInPreset,
   );
-  const actionColumns = columns.filter(
-    (column): column is ActionColumnDef<GetDocumentData> =>
-      "kind" in column && column.kind === "action" && !column.hideInPreset,
+  const actionColumns = (columns.actions ?? []).filter(
+    (column) => !column.hideInPreset,
   );
+
   const primaryColumn =
     fieldColumns.find((column) => column.primary) ?? fieldColumns[0];
   const secondaryColumns = fieldColumns.filter(

@@ -3,8 +3,7 @@
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import {
-  ActionColumnDef,
-  ColumnDef,
+  ColumnConfig,
   DataDisplayActionContext,
   FieldColumnDef,
 } from "../Constant";
@@ -24,13 +23,11 @@ export function ListRowCard<TData>({
 }: {
   row: TData;
   index: number;
-  columns: ColumnDef<TData>[];
+  columns: ColumnConfig<TData>;
   action: DataDisplayActionContext<TData>;
 }) {
-  const fieldColumns = columns.filter(
-    (c): c is FieldColumnDef<TData, keyof TData> =>
-      !("kind" in c && c.kind === "action"),
-  ) as FieldColumnDef<TData, keyof TData>[];
+  const fieldColumns = columns.fields ?? [];
+  const actionColumns = (columns.actions ?? []).filter((c) => !c.hideInPreset);
 
   const titleColumn = fieldColumns.find((c) => c.primary) ?? fieldColumns[0];
   const titleKey = titleColumn?.key;
@@ -39,13 +36,6 @@ export function ListRowCard<TData>({
   for (const column of fieldColumns) {
     if (column.key !== titleKey && !column.hideInPreset) {
       metaColumns.push(column);
-    }
-  }
-
-  const actionColumns: ActionColumnDef<TData>[] = [];
-  for (const column of columns) {
-    if ("kind" in column && column.kind === "action" && !column.hideInPreset) {
-      actionColumns.push(column);
     }
   }
 

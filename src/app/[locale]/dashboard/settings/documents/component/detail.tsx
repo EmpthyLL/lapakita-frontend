@@ -1,17 +1,18 @@
 "use client";
 
 import FileViewer from "@/components/common/FileViewer";
+import { DataDisplaySurfaceComponentProps } from "@/components/common/long/data-display/Constant";
 import { Button } from "@/components/ui/button";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
 import { CreditCard, FileText, Hash, User } from "lucide-react";
 import { formatDocType, getDocumentNumberLabel } from "./config";
 
-interface DocumentDetailProps {
-  document: GetDocumentData;
-  onClose: () => void;
-}
+export function DocumentDetail({
+  row: document,
+  close,
+}: DataDisplaySurfaceComponentProps<GetDocumentData>) {
+  if (!document) return null;
 
-export function DocumentDetail({ document, onClose }: DocumentDetailProps) {
   const numLabel = getDocumentNumberLabel(document.document_type);
 
   return (
@@ -64,7 +65,7 @@ export function DocumentDetail({ document, onClose }: DocumentDetailProps) {
         <Button
           type="button"
           variant="default"
-          onClick={onClose}
+          onClick={close}
           className="rounded-2xl px-6 font-semibold shadow-sm transition-all hover:shadow"
         >
           Close Detail

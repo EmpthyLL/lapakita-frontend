@@ -3,9 +3,14 @@ import { basePaginationQuerySchema, PaginatedResponse } from "../base";
 
 export const uploadDocumentSchema = z
   .object({
+    country_code: z.string().max(8).optional().default("ID"),
     document_type: z.enum(["national_id", "passport", "residence_permit"], {
       message: "Select a valid document type",
     }),
+    document_label: z
+      .string()
+      .min(1, "Document label is required")
+      .max(100, "Label must be at most 100 characters"),
     full_name_identity: z
       .string()
       .min(2, "Name must be at least 2 characters")
@@ -47,18 +52,22 @@ export type UploadDocumentValues = z.infer<typeof uploadDocumentSchema>;
 export type DocumentType = "national_id" | "passport" | "residence_permit";
 
 export const documentQueryParamsSchema = basePaginationQuerySchema.extend({
+  search: z.string().optional(),
   name: z.string().optional(),
   document_number: z.string().optional(),
   document_type: z
     .enum(["national_id", "passport", "residence_permit"])
     .optional(),
+  country_code: z.string().optional(),
 });
 
 export type DocumentQueryParams = z.infer<typeof documentQueryParamsSchema>;
 
 export interface GetDocumentData {
   id: string;
+  country_code: string;
   document_type: DocumentType;
+  document_label: string;
   full_name_identity: string;
   document_number: string;
   document_photo_url: string;

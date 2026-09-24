@@ -128,7 +128,12 @@ export function DataDisplayPreset<TData>({
               >
                 <div className="min-h-0 overflow-hidden">
                   <div className="border-t border-border/60 pt-3 pb-2 mt-2 px-1">
-                    {detail.component({ row, index })}
+                    {detail.component({
+                      row,
+                      index,
+                      mode: "view",
+                      close: () => openDetailExpandable(row, index),
+                    })}
                   </div>
                 </div>
               </div>

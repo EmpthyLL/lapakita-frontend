@@ -10,7 +10,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/common/input/FormField";
-import { DataDisplayFormComponentProps } from "@/components/common/long/data-display/Constant";
+import { DataDisplaySurfaceComponentProps } from "@/components/common/long/data-display/Constant";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -44,7 +44,7 @@ export function DocumentForm({
   row,
   mode,
   close,
-}: DataDisplayFormComponentProps<GetDocumentData>) {
+}: DataDisplaySurfaceComponentProps<GetDocumentData>) {
   const queryClient = useQueryClient();
   const isEdit = mode === "edit";
 

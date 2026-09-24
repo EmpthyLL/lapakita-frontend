@@ -12,17 +12,16 @@ import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { Fragment } from "react";
 import {
-  ColumnDef,
+  ColumnConfig,
   DataDisplayActionContext,
   DataDisplayDetail,
   DataDisplayForm,
   DataDisplaySurface,
-  FieldColumnDef,
 } from "./Constant";
 import { EmptyState, RowIndexBadge, SkeletonRows } from "./TableStates";
 
 interface DataDisplayTableProps<TData> {
-  columns: ColumnDef<TData>[];
+  columns: ColumnConfig<TData>;
   rows: TData[];
   rowKey: keyof TData;
   isLoading: boolean;
@@ -73,6 +72,10 @@ export function DataDisplayTable<TData>({
   getActionContext,
   openDetailExpandable,
 }: DataDisplayTableProps<TData>) {
+  const fieldColumns = columns.fields ?? [];
+  const actionColumns = columns.actions ?? [];
+  const totalColumnCount = fieldColumns.length + actionColumns.length + 1; // ditambah kolom checkbox/index
+
   return (
     <div className="overflow-hidden rounded-2xl border border-border shadow-sm">
       <div className="overflow-auto">
@@ -80,25 +83,8 @@ export function DataDisplayTable<TData>({
           <TableHeader>
             <TableRow className="border-b border-primary/15 bg-primary/5 hover:bg-primary/5">
               <TableHead className="w-10" />
-              {columns.map((col, idx) => {
-                if ("kind" in col && col.kind === "action") {
-                  return (
-                    <TableHead
-                      key={`action-head-${idx}`}
-                      className={cn(
-                        "w-24 text-right text-xs font-semibold tracking-wide text-primary/80",
-                        col.className,
-                      )}
-                    >
-                      <span className="flex items-center justify-end gap-1.5">
-                        {col.icon && <col.icon className="h-3 w-3" />}
-                        {col.header ?? "Actions"}
-                      </span>
-                    </TableHead>
-                  );
-                }
-
-                const fieldCol = col as FieldColumnDef<TData, keyof TData>;
+              {/* Render Field Headers */}
+              {fieldColumns.map((fieldCol) => {
                 const Icon = fieldCol.icon;
                 return (
                   <TableHead
@@ -115,6 +101,22 @@ export function DataDisplayTable<TData>({
                   </TableHead>
                 );
               })}
+
+              {/* Render Action Headers */}
+              {actionColumns.map((actionCol, idx) => (
+                <TableHead
+                  key={`action-head-${idx}`}
+                  className={cn(
+                    "w-24 text-right text-xs font-semibold tracking-wide text-primary/80",
+                    actionCol.className,
+                  )}
+                >
+                  <span className="flex items-center justify-end gap-1.5">
+                    {actionCol.icon && <actionCol.icon className="h-3 w-3" />}
+                    {actionCol.header ?? "Actions"}
+                  </span>
+                </TableHead>
+              ))}
             </TableRow>
           </TableHeader>
 
@@ -122,9 +124,9 @@ export function DataDisplayTable<TData>({
             className={cn(isRefetching && "opacity-60 transition-opacity")}
           >
             {isLoading ? (
-              <SkeletonRows columnCount={columns.length + 1} />
+              <SkeletonRows columnCount={totalColumnCount} />
             ) : rows.length === 0 ? (
-              <EmptyState columnCount={columns.length + 1} text={emptyText} />
+              <EmptyState columnCount={totalColumnCount} text={emptyText} />
             ) : (
               rows.map((row, index) => {
                 const rowActionCtx = getActionContext(row, index);
@@ -173,27 +175,10 @@ export function DataDisplayTable<TData>({
                           <RowIndexBadge index={index} />
                         </div>
                       </TableCell>
-                      {columns.map((col, colIdx) => {
-                        if ("kind" in col && col.kind === "action") {
-                          return (
-                            <TableCell
-                              key={`action-cell-${colIdx}`}
-                              className={cn("w-24 text-right", col.className)}
-                              onClick={(event) => event.stopPropagation()}
-                            >
-                              <div className="flex justify-end">
-                                {col.render(row, index, rowActionCtx)}
-                              </div>
-                            </TableCell>
-                          );
-                        }
 
-                        const fieldCol = col as FieldColumnDef<
-                          TData,
-                          keyof TData
-                        >;
+                      {/* Render Field Cells */}
+                      {fieldColumns.map((fieldCol) => {
                         const val = row[fieldCol.key];
-
                         return (
                           <TableCell
                             key={String(fieldCol.key)}
@@ -205,11 +190,25 @@ export function DataDisplayTable<TData>({
                           </TableCell>
                         );
                       })}
+
+                      {/* Render Action Cells */}
+                      {actionColumns.map((actionCol, colIdx) => (
+                        <TableCell
+                          key={`action-cell-${colIdx}`}
+                          className={cn("w-24 text-right", actionCol.className)}
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          <div className="flex justify-end">
+                            {actionCol.render(row, index, rowActionCtx)}
+                          </div>
+                        </TableCell>
+                      ))}
                     </TableRow>
 
+                    {/* Expandable Detail Row */}
                     {detailIsExpandable && detail && detail.component && (
                       <TableRow key={`${String(row[rowKey])}-detail`}>
-                        <TableCell colSpan={columns.length + 1}>
+                        <TableCell colSpan={totalColumnCount}>
                           <div
                             className={cn(
                               "grid transition-[grid-template-rows] duration-300 ease-out",
@@ -220,7 +219,12 @@ export function DataDisplayTable<TData>({
                           >
                             <div className="min-h-0 overflow-hidden">
                               <div className="border-t border-border/60 py-3">
-                                {detail.component({ row, index })}
+                                {detail.component({
+                                  row,
+                                  index,
+                                  mode: "view",
+                                  close: () => openDetailExpandable(row, index),
+                                })}
                               </div>
                             </div>
                           </div>
@@ -228,9 +232,10 @@ export function DataDisplayTable<TData>({
                       </TableRow>
                     )}
 
+                    {/* Expandable Form Row */}
                     {formIsExpandable && form && (
                       <TableRow key={`${String(row[rowKey])}-form`}>
-                        <TableCell colSpan={columns.length + 1}>
+                        <TableCell colSpan={totalColumnCount}>
                           <div
                             className={cn(
                               "grid transition-[grid-template-rows] duration-300 ease-out",

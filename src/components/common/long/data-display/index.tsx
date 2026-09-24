@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "../../Spinner";
 import {
   ColumnDef,
+  createColumnHelpers, // <-- Import createColumnHelpers untuk resolve
   DataDisplayActionContext,
   DataDisplayConfirmOptions,
   DataDisplayDetail,
@@ -54,7 +55,7 @@ interface DataDisplayProps<TData, TParams extends Record<string, any>> {
   loadMode?: DataDisplayLoadMode;
   renderItem?: ListItemRenderer<TData>;
   onRowClick?: RowAction<TData>;
-  columns?: ColumnDef<TData>[];
+  columns?: ColumnDef<TData>[]; // <-- Diubah dari ColumnConfig menjadi array ColumnDef[]
   showFilter?: boolean;
   showCount?: boolean;
   countList?: number[];
@@ -71,7 +72,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   loadMode = "infinite-scroll",
   renderItem,
   onRowClick,
-  columns = [],
+  columns = [], // <-- Default berupa array kosong
   showFilter = false,
   showCount = false,
   countList = [10, 20, 50, 100],
@@ -87,6 +88,10 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   const [filterValues, setFilterValues] = useState<Partial<TParams>>({});
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
+
+  // Menggunakan helper resolve untuk otomatis memecah array kolom menjadi fields & actions
+  const { resolve } = createColumnHelpers<TData>();
+  const columnConfig = resolve(columns);
 
   const [activeDetail, setActiveDetail] = useState<{
     row?: TData;
@@ -120,9 +125,17 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   const searchParam =
     query.searchKey && searchValue ? { [query.searchKey]: searchValue } : {};
 
+  const resolvedFilterParams = Object.entries(filterValues).reduce(
+    (acc, [key, val]) => {
+      const mappedKey = query.filterToParamKey?.[key] ?? key;
+      return { ...acc, [mappedKey]: val };
+    },
+    {},
+  );
+
   const mergedParams = {
     ...query.defaultParams,
-    ...filterValues,
+    ...resolvedFilterParams,
     ...searchParam,
     limit: pageSize,
     ...(isPagination ? { page } : {}),
@@ -293,11 +306,21 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
 
   function renderPresetItem(row: TData, index: number) {
     const action = getActionContext(row, index);
-    if (renderItem) return renderItem(row, index, columns, action);
+    if (renderItem) return renderItem(row, index, columnConfig, action);
     return variant === "card" ? (
-      <CardGridCard row={row} index={index} columns={columns} action={action} />
+      <CardGridCard
+        row={row}
+        index={index}
+        columns={columnConfig}
+        action={action}
+      />
     ) : (
-      <ListRowCard row={row} index={index} columns={columns} action={action} />
+      <ListRowCard
+        row={row}
+        index={index}
+        columns={columnConfig}
+        action={action}
+      />
     );
   }
 
@@ -350,7 +373,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
         </div>
       )}
 
-      {/* Expandable Form Create di Bawah Search Bar (Terbuka di atas item) */}
+      {/* Expandable Form Create di Bawah Search Bar */}
       {isCreateExpandableOpen && form && (
         <div className="overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-300">
           <div className="mb-3 flex items-center justify-between border-b border-border pb-3">
@@ -386,7 +409,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
 
       {variant === "table" ? (
         <DataDisplayTable
-          columns={columns}
+          columns={columnConfig}
           rows={rows}
           rowKey={rowKey}
           isLoading={isLoading}

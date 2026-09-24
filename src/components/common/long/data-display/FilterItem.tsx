@@ -10,9 +10,10 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Check, ChevronDown, Trash2 } from "lucide-react";
+import { Check, ChevronDown, Search, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { OptionIcon } from "../../input/OptionIcon";
 import { FILTER_TYPE_ICON, FilterOption } from "./Constant";
 
 interface FilterItemProps<TData, TParams extends Record<string, unknown>> {
@@ -33,6 +34,7 @@ export function FilterItem<TData, TParams extends Record<string, unknown>>({
   const t = useTranslations("common.data_display");
   const [open, setOpen] = useState(true);
   const [selectPopoverOpen, setSelectPopoverOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // State untuk pencarian di dalam select
 
   const paramKey = filterToParamKey[option.id as string];
   const value = paramKey
@@ -49,6 +51,19 @@ export function FilterItem<TData, TParams extends Record<string, unknown>>({
     }));
   };
 
+  const selectedOption =
+    option.type === "select" && option.options
+      ? option.options.find((o) => String(o.value) === String(value))
+      : undefined;
+
+  // Filter opsi berdasarkan kata kunci pencarian
+  const filteredOptions =
+    option.type === "select" && option.options
+      ? option.options.filter((op) =>
+          op.label.toLowerCase().includes(searchQuery.toLowerCase()),
+        )
+      : [];
+
   const displayLabel = () => {
     if (!value && value !== 0)
       return <span className="capitalize">{option.title}</span>;
@@ -62,10 +77,17 @@ export function FilterItem<TData, TParams extends Record<string, unknown>>({
     }
 
     if (option.type === "select" && option.options) {
-      const found = option.options.find((o) => o.value === value);
       return (
-        <span>
-          {option.title} : {found?.label ?? String(value)}
+        <span className="flex items-center gap-1.5">
+          {selectedOption?.icon && (
+            <OptionIcon
+              icon={selectedOption.icon}
+              size={14}
+              alt={selectedOption.label}
+              className="text-primary"
+            />
+          )}
+          {option.title} : {selectedOption?.label ?? String(value)}
         </span>
       );
     }
@@ -130,15 +152,27 @@ export function FilterItem<TData, TParams extends Record<string, unknown>>({
             }}
           />
         ) : option.type === "select" && option.options ? (
-          <Popover open={selectPopoverOpen} onOpenChange={setSelectPopoverOpen}>
+          <Popover
+            open={selectPopoverOpen}
+            onOpenChange={(isOpen) => {
+              setSelectPopoverOpen(isOpen);
+              if (!isOpen) setSearchQuery(""); // Reset search saat ditutup
+            }}
+          >
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 className="flex w-full items-center justify-between h-9 px-3 text-xs font-normal border-border bg-background hover:bg-secondary/50 rounded-lg"
               >
-                <span className="truncate">
-                  {option.options.find((o) => String(o.value) === String(value))
-                    ?.label || t("select_option")}
+                <span className="flex items-center gap-2 truncate">
+                  {selectedOption?.icon && (
+                    <OptionIcon
+                      icon={selectedOption.icon}
+                      size={14}
+                      alt={selectedOption.label}
+                    />
+                  )}
+                  {selectedOption?.label || t("select_option")}
                 </span>
                 <ChevronDown
                   className={cn(
@@ -152,32 +186,64 @@ export function FilterItem<TData, TParams extends Record<string, unknown>>({
               side="bottom"
               align="center"
               sideOffset={4}
-              className="w-(--radix-popover-trigger-width) p-1 shadow-md rounded-xl"
+              className="w-(--radix-popover-trigger-width) p-1.5 shadow-md rounded-xl space-y-1.5"
             >
-              <div className="space-y-0.5">
-                {option.options.map((op) => {
-                  const isSelected = String(value) === String(op.value);
-                  return (
-                    <button
-                      key={op.value}
-                      type="button"
-                      onClick={() => {
-                        handleChange(op.value);
-                        setSelectPopoverOpen(false);
-                        setOpen(false);
-                      }}
-                      className={cn(
-                        "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors outline-none cursor-pointer",
-                        isSelected
-                          ? "bg-primary/10 text-primary font-semibold"
-                          : "text-foreground hover:bg-secondary",
-                      )}
-                    >
-                      <span>{op.label}</span>
-                      {isSelected && <Check className="h-3.5 w-3.5" />}
-                    </button>
-                  );
-                })}
+              {/* Input Search di dalam Popover Select */}
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  placeholder="Cari..."
+                  className="h-8 pl-8 text-xs"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  autoFocus
+                />
+              </div>
+
+              {/* List Opsi yang bisa di-scroll */}
+              <div className="max-h-48 overflow-y-auto space-y-0.5 pr-1">
+                {filteredOptions.length > 0 ? (
+                  filteredOptions.map((op) => {
+                    const isSelected = String(value) === String(op.value);
+                    return (
+                      <button
+                        key={op.value}
+                        type="button"
+                        onClick={() => {
+                          handleChange(op.value);
+                          setSelectPopoverOpen(false);
+                          setOpen(false);
+                          setSearchQuery("");
+                        }}
+                        className={cn(
+                          "flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium transition-colors outline-none cursor-pointer",
+                          isSelected
+                            ? "bg-primary/10 text-primary font-semibold"
+                            : "text-foreground hover:bg-secondary",
+                        )}
+                      >
+                        <span className="flex text-left items-center gap-2 truncate">
+                          {op.icon && (
+                            <OptionIcon
+                              icon={op.icon}
+                              size={14}
+                              alt={op.label}
+                              className={isSelected ? "text-primary" : ""}
+                            />
+                          )}
+                          <span className="truncate">{op.label}</span>
+                        </span>
+                        {isSelected && (
+                          <Check className="h-3.5 w-3.5 shrink-0" />
+                        )}
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="py-4 text-center text-xs text-muted-foreground">
+                    Tidak ditemukan
+                  </div>
+                )}
               </div>
             </PopoverContent>
           </Popover>

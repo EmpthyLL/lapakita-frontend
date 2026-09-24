@@ -65,14 +65,14 @@ export default function DocumentList() {
           type: "dialog",
           title: "Verification Document Detail",
           description: "Informasi lengkap data diri dan pratinjau dokumen KTP.",
-          component: ({ row }) => (
-            <DocumentDetail document={row} onClose={() => {}} />
-          ),
+          size: "lg",
+          component: DocumentDetail,
         }}
         form={{
           type: "dialog",
           title: "Upload New Document",
           description: "Silakan lengkapi formulir dokumen identitas Anda.",
+          size: "lg",
           component: DocumentForm,
         }}
         renderItem={(row, index, itemColumns, action) => (
@@ -85,7 +85,7 @@ export default function DocumentList() {
         )}
         toolbarExtraAction={({ openCreate, isLoading }) => (
           <Button
-            onClick={() => openCreate()}
+            onClick={() => openCreate("dialog")}
             disabled={isLoading}
             size="sm"
             className="h-10 gap-1.5 px-3.5 text-xs rounded-xl"

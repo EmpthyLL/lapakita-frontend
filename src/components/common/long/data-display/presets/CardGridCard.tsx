@@ -1,13 +1,7 @@
-// components/common/long/data-display/presets/CardGridCard.tsx
 "use client";
 
 import { cn } from "@/lib/utils";
-import {
-  ActionColumnDef,
-  ColumnDef,
-  DataDisplayActionContext,
-  FieldColumnDef,
-} from "../Constant";
+import { ColumnConfig, DataDisplayActionContext } from "../Constant";
 
 const GLOW_TINTS = [
   "bg-info/15",
@@ -31,13 +25,11 @@ export function CardGridCard<TData>({
 }: {
   row: TData;
   index: number;
-  columns: ColumnDef<TData>[];
+  columns: ColumnConfig<TData>;
   action: DataDisplayActionContext<TData>;
 }) {
-  const fieldColumns = columns.filter(
-    (c): c is FieldColumnDef<TData, keyof TData> =>
-      !("kind" in c && c.kind === "action"),
-  ) as FieldColumnDef<TData, keyof TData>[];
+  const fieldColumns = columns.fields ?? [];
+  const actionColumns = (columns.actions ?? []).filter((c) => !c.hideInPreset);
 
   const titleColumn = fieldColumns.find((c) => c.primary) ?? fieldColumns[0];
   const titleKey = titleColumn?.key;
@@ -47,13 +39,6 @@ export function CardGridCard<TData>({
   const metaColumns = allFieldColumns.filter(
     (c) => c.key !== badgeColumn?.key && !c.hideInPreset,
   );
-
-  const actionColumns: ActionColumnDef<TData>[] = [];
-  for (const column of columns) {
-    if ("kind" in column && column.kind === "action" && !column.hideInPreset) {
-      actionColumns.push(column);
-    }
-  }
 
   const titleValue = titleColumn
     ? titleColumn.render
