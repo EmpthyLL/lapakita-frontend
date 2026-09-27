@@ -1,7 +1,6 @@
 // app/contact/ContactFormCard.tsx
 "use client";
 
-import { Autocomplete } from "@/components/common/input/Autocomplete";
 import {
   Form,
   FormControl,
@@ -11,6 +10,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/common/input/FormField";
+import { Autocomplete } from "@/components/common/long/autocomplete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";

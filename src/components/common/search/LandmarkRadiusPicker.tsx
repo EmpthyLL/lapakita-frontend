@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
 import { useEffect, useMemo } from "react";
-import { Autocomplete } from "../input/Autocomplete";
+import { Autocomplete } from "../long/autocomplete";
 import { LANDMARK_CATEGORIES } from "./constants/landmark";
 import { RADIUS_PRESETS } from "./constants/range";
 

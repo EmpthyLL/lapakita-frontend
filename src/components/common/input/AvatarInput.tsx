@@ -2,12 +2,11 @@
 "use client";
 
 import DialogWrapper from "@/components/common/DialogWrapper";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Camera, Trash2 } from "lucide-react";
-import Image from "next/image";
 import * as React from "react";
 import ReactCrop, {
   centerCrop,
@@ -159,24 +158,21 @@ export function AvatarInput({
         )}
       >
         {value ? (
-          <AvatarImage asChild src={value} alt={name}>
-            <Image
-              src={value}
-              alt={name}
-              width={96}
-              height={96}
-              className="size-full object-cover"
-            />
-          </AvatarImage>
-        ) : null}
-        <AvatarFallback
-          className={cn(
-            "bg-primary/10 text-primary size-full flex items-center justify-center",
-            FALLBACK_TEXT_CLASSES[size],
-          )}
-        >
-          {getInitials(name)}
-        </AvatarFallback>
+          <img
+            src={value}
+            alt={name}
+            className="size-full object-cover rounded-full"
+          />
+        ) : (
+          <AvatarFallback
+            className={cn(
+              "bg-primary/10 text-primary size-full flex items-center justify-center",
+              FALLBACK_TEXT_CLASSES[size],
+            )}
+          >
+            {getInitials(name)}
+          </AvatarFallback>
+        )}
       </Avatar>
     );
   }
@@ -209,24 +205,21 @@ export function AvatarInput({
           >
             <Avatar className="size-full">
               {value ? (
-                <AvatarImage asChild src={value} alt={name}>
-                  <Image
-                    src={value}
-                    alt={name}
-                    width={96}
-                    height={96}
-                    className="size-full object-cover"
-                  />
-                </AvatarImage>
-              ) : null}
-              <AvatarFallback
-                className={cn(
-                  "bg-primary/10 text-primary size-full flex items-center justify-center",
-                  FALLBACK_TEXT_CLASSES[size],
-                )}
-              >
-                {getInitials(name)}
-              </AvatarFallback>
+                <img
+                  src={value}
+                  alt={name}
+                  className="size-full object-cover rounded-full"
+                />
+              ) : (
+                <AvatarFallback
+                  className={cn(
+                    "bg-primary/10 text-primary size-full flex items-center justify-center",
+                    FALLBACK_TEXT_CLASSES[size],
+                  )}
+                >
+                  {getInitials(name)}
+                </AvatarFallback>
+              )}
             </Avatar>
 
             {!disabled && (

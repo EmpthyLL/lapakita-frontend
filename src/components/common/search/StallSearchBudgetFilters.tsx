@@ -7,10 +7,10 @@ import { formatCurrency } from "@/lib/utils";
 import { CalendarDays, Sparkles, Target } from "lucide-react";
 import { useTranslations } from "next-intl";
 import * as React from "react";
-import { Autocomplete } from "../input/Autocomplete";
 import { NumberInput } from "../input/NumberInput";
 import { RangeInput } from "../input/RangeInput";
 import { SegmentedToggle } from "../input/SegmentedToggle";
+import { Autocomplete } from "../long/autocomplete";
 import {
   BEP_PRESETS_MONTHS,
   DEPOSIT_RANGE,

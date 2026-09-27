@@ -1,7 +1,5 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { Autocomplete } from "@/components/common/input/Autocomplete";
 import { AvatarInput } from "@/components/common/input/AvatarInput";
 import {
   Form,
@@ -12,6 +10,7 @@ import {
   FormMessage,
 } from "@/components/common/input/FormField";
 import { RoleSelectPopover } from "@/components/common/input/RoleSelectPopover";
+import { Autocomplete } from "@/components/common/long/autocomplete";
 import { Spinner } from "@/components/common/Spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,7 +59,7 @@ export default function GeneralProfilePage() {
     queryKey: ["phone-numbers"],
     queryFn: getPhoneNumbers,
     search: phoneSearch,
-    searchKey: "seach",
+    searchKey: "search",
   });
 
   const isInitializedRef = useRef(false);

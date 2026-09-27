@@ -1,6 +1,6 @@
 "use client";
 
-import { Autocomplete } from "@/components/common/input/Autocomplete";
+import { Autocomplete } from "@/components/common/long/autocomplete";
 import { ArrowUpDown } from "lucide-react";
 
 const SORT_OPTIONS = [

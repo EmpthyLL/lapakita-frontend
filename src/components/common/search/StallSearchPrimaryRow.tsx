@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { Search, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { Autocomplete } from "../input/Autocomplete";
+import { Autocomplete } from "../long/autocomplete";
 import { LocationAutocomplete } from "../long/location-autocomplete";
 import { StallPermanenceTabs } from "./StallPermanenceTabs";
 import { StallPermanenceType } from "./constants/types";

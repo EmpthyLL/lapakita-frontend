@@ -19,6 +19,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "ik.imagekit.io",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8333",
+      },
     ],
   },
 };

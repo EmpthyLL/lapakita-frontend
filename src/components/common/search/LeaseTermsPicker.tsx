@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-import { Autocomplete } from "../input/Autocomplete";
+import { Autocomplete } from "../long/autocomplete";
 import {
   ATTENDANCE_REQUIREMENT_OPTIONS,
   CANCELLATION_POLICY_OPTIONS,
