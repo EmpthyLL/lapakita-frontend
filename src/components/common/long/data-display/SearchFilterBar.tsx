@@ -141,9 +141,7 @@ export function SearchFilterBar<
                 option={option}
                 filterValues={filterValues}
                 setFilterValues={setFilterValues}
-                filterToParamKey={
-                  filterToParamKey as Record<string, keyof Partial<TParams>>
-                }
+                filterToParamKey={filterToParamKey ?? {}}
                 onRemove={handleRemoveFilter}
               />
             ))}

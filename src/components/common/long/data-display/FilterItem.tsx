@@ -36,7 +36,9 @@ export function FilterItem<TData, TParams extends Record<string, unknown>>({
   const [selectPopoverOpen, setSelectPopoverOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // State untuk pencarian di dalam select
 
-  const paramKey = filterToParamKey[option.id as string];
+  const paramKey = filterToParamKey
+    ? (filterToParamKey[option.id as string] ?? (option.id as keyof TParams))
+    : (option.id as keyof TParams);
   const value = paramKey
     ? ((filterValues[paramKey] as string | number | Date | undefined) ?? "")
     : "";

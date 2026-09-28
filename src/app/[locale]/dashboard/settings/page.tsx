@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { AvatarInput } from "@/components/common/input/AvatarInput";
@@ -14,7 +15,6 @@ import { Autocomplete } from "@/components/common/long/autocomplete";
 import { Spinner } from "@/components/common/Spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useInfiniteSearch } from "@/hooks/use-infinite-search";
 import {
   getGeneralProfile,
   getPhoneNumbers,
@@ -35,31 +35,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AtSign, Save, ShieldCheck, UserCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 
 export default function GeneralProfilePage() {
   const queryClient = useQueryClient();
   const { update: updateSession } = useSession();
 
-  const [phoneSearch, setPhoneSearch] = useState("");
-
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ["user-general-profile"],
     queryFn: getGeneralProfile,
-  });
-
-  const {
-    data: phoneList,
-    isLoading: isPhoneLoading,
-    hasNextPage: hasMorePhone,
-    fetchNextPage: fetchNextPhone,
-    isFetchingNextPage: isFetchingMorePhone,
-  } = useInfiniteSearch<PhoneNumberItem, PhoneQueryParams, PhoneNumberItem>({
-    queryKey: ["phone-numbers"],
-    queryFn: getPhoneNumbers,
-    search: phoneSearch,
-    searchKey: "search",
   });
 
   const isInitializedRef = useRef(false);
@@ -88,7 +73,6 @@ export default function GeneralProfilePage() {
 
   const activeRole = form.watch("active_role");
   const currentName = form.watch("name");
-  const selectedPhoneIndex = form.watch("phone_number_index");
 
   const getRoleColorClass = (role?: Role) => {
     switch (role) {
@@ -109,23 +93,9 @@ export default function GeneralProfilePage() {
     onSuccess: async (res) => {
       showToast.success("General profile updated successfully");
 
-      // Cari item nomor telepon yang dipilih dari daftar list berdasarkan index yang disimpan form
-      const chosenPhoneItem = (phoneList ?? []).find(
-        (item) => item.index === selectedPhoneIndex,
-      );
-
-      // Bentuk objek PhoneNumber baru sesuai struktur NextAuth & DTO Go backend
-      const newPhoneObj = chosenPhoneItem
-        ? {
-            dial_code: chosenPhoneItem.dial_code,
-            number: chosenPhoneItem.number,
-          }
-        : null;
-
       await updateSession({
         user: {
           defaultName: res.name,
-          defaultPhone: newPhoneObj,
           defaultAvatarUrl: res.default_avatar_url,
           activeRole: res.active_role || activeRole,
         },
@@ -272,7 +242,7 @@ export default function GeneralProfilePage() {
                 )}
               />
 
-              {/* Primary Phone Number Selector Bersih dengan iconKey="flag" */}
+              {/* Menggunakan asyncConfig untuk Autocomplete Primary Phone Number */}
               <FormField
                 control={form.control}
                 name="phone_number_index"
@@ -282,19 +252,42 @@ export default function GeneralProfilePage() {
                       Primary Phone Number
                     </FormLabel>
                     <FormControl>
-                      <Autocomplete
+                      <Autocomplete<PhoneNumberItem, PhoneQueryParams>
                         value={field.value}
                         onSelect={field.onChange}
-                        options={phoneList}
+                        asyncConfig={{
+                          queryFn: getPhoneNumbers,
+                          queryKey: ["phone-numbers"],
+                          searchKey: "search",
+                        }}
                         labelKey="display_label"
                         valueKey="index"
                         iconKey="flag"
-                        isLoading={isPhoneLoading}
-                        isFetchingNext={isFetchingMorePhone}
-                        hasNext={hasMorePhone}
-                        fetchNext={() => fetchNextPhone()}
-                        onFilterChange={(q) => setPhoneSearch(q)}
                         placeholder="Select primary phone number"
+                        renderConfig={{
+                          item: (option) => (
+                            <div className="flex items-center gap-2.5 py-1.5 w-full">
+                              {/* Bendera Negara */}
+                              {option.flag && (
+                                <img
+                                  src={option.flag}
+                                  alt="flag"
+                                  className="h-3.5 w-5 object-contain rounded-xs shrink-0 shadow-xs"
+                                />
+                              )}
+                              {/* Detail Teks */}
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="font-semibold text-foreground text-xs truncate">
+                                  {option.label}
+                                </span>
+                                <span className="font-mono text-[11px] text-muted-foreground truncate">
+                                  {option.dial_code} {option.number}
+                                </span>
+                              </div>
+                            </div>
+                          ),
+                          triggerAsCustom: false, // Trigger tetap tampil normal bersih
+                        }}
                       />
                     </FormControl>
                     <FormMessage />

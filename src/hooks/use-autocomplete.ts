@@ -1,37 +1,53 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import * as React from "react";
 import { useDebounce } from "./use-debounce";
+import { ApiResponse, useInfiniteSearch } from "./use-infinite-search";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface UseAutocompleteParams<T extends Record<string, any>> {
+export interface AutocompleteAsyncConfig<
+  TData,
+  TQuery extends Record<string, any> = Record<string, any>,
+> {
+  queryFn: (params: TQuery) => Promise<ApiResponse<TData>>;
+  queryKey: readonly any[];
+  params?: TQuery;
+  searchKey?: keyof TQuery;
+  initialLimit?: number;
+}
+
+export interface UseAutocompleteParams<
+  TData,
+  TQuery extends Record<string, any> = Record<string, any>,
+> {
   value: string | number | null;
-  onSelect: (value: string | number, option?: T) => void;
-  options: T[];
-  valueKey?: keyof T;
-  labelKey?: keyof T;
-  groupKey?: keyof T;
-  /** Provide to do remote/server-side filtering instead of local filtering. */
-  onFilterChange?: (query: string) => void;
+  onSelect: (value: string | number, option?: TData) => void;
+  options?: TData[];
+  asyncConfig?: AutocompleteAsyncConfig<TData, TQuery>;
+  valueKey?: keyof TData;
+  labelKey?: keyof TData;
+  groupKey?: keyof TData;
   debounceDelay?: number;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function useAutocomplete<T extends Record<string, any>>({
+export function useAutocomplete<
+  TData extends Record<string, any>,
+  TQuery extends Record<string, any> = Record<string, any>,
+>({
   value,
   onSelect,
-  options,
-  valueKey = "value" as keyof T,
-  labelKey = "label" as keyof T,
+  options: staticOptions = [],
+  asyncConfig,
+  valueKey = "value" as keyof TData,
+  labelKey = "label" as keyof TData,
   groupKey,
-  onFilterChange,
   debounceDelay = 300,
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
-}: UseAutocompleteParams<T>) {
+}: UseAutocompleteParams<TData, TQuery>) {
   const [internalOpen, setInternalOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
 
@@ -45,26 +61,40 @@ export function useAutocomplete<T extends Record<string, any>>({
 
   const debouncedSearch = useDebounce(search, debounceDelay);
 
-  React.useEffect(() => {
-    if (onFilterChange) onFilterChange(debouncedSearch);
-  }, [debouncedSearch, onFilterChange]);
+  const infiniteQuery = useInfiniteSearch({
+    queryKey: asyncConfig?.queryKey ?? [],
+    queryFn: asyncConfig?.queryFn ?? (async () => []),
+    search: debouncedSearch,
+    searchKey: asyncConfig?.searchKey ?? ("search" as keyof TQuery),
+    enabled: Boolean(asyncConfig),
+    params: asyncConfig?.params,
+    initialLimit: asyncConfig?.initialLimit ?? 10,
+    selected_id: value !== null ? value : undefined,
+  });
+
+  const options = asyncConfig ? infiniteQuery.data : staticOptions;
+  const isLoading = asyncConfig ? infiniteQuery.isLoading : false;
+  const isFetchingNext = asyncConfig ? infiniteQuery.isFetchingNextPage : false;
+  const isFetchingPrev = asyncConfig
+    ? infiniteQuery.isFetchingPreviousPage
+    : false;
+  const hasNext = asyncConfig ? infiniteQuery.hasNextPage : false;
+  const hasPrev = asyncConfig ? infiniteQuery.hasPreviousPage : false;
 
   const selectedOption = options.find(
     (option) => String(option[valueKey]) === String(value),
   );
 
   const filteredOptions = React.useMemo(() => {
-    if (!search || onFilterChange) return options;
+    if (asyncConfig || !search) return options;
     return options.filter((option) =>
       String(option[labelKey]).toLowerCase().includes(search.toLowerCase()),
     );
-  }, [options, search, labelKey, onFilterChange]);
+  }, [options, search, labelKey, asyncConfig]);
 
-  /** Group filtered options in first-appearance order. `null` group = ungrouped list. */
   const groupedOptions = React.useMemo(() => {
     if (!groupKey) return null;
-
-    const groups = new Map<string, T[]>();
+    const groups = new Map<string, TData[]>();
     for (const option of filteredOptions) {
       const groupLabel = String(option[groupKey] ?? "");
       if (!groups.has(groupLabel)) groups.set(groupLabel, []);
@@ -129,14 +159,13 @@ export function useAutocomplete<T extends Record<string, any>>({
   }
 
   function selectOption(rawValue: string) {
-    const selected = filteredOptions.find(
+    const selected = options.find(
       (o) => String(o[valueKey]).toLowerCase() === rawValue.toLowerCase(),
     );
-    if (selected) onSelect(selected[valueKey], selected);
+    if (selected) onSelect(selected[valueKey] as string | number, selected);
     setOpen(false);
   }
 
-  // reset search on close, focus trigger input on open
   React.useEffect(() => {
     if (!open) {
       setSearch("");
@@ -144,22 +173,6 @@ export function useAutocomplete<T extends Record<string, any>>({
       setTimeout(() => inputRef.current?.focus(), 0);
       requestAnimationFrame(() => commandInputRef.current?.focus());
     }
-  }, [open]);
-
-  // let mouse wheel scroll the list without bubbling to page scroll
-  React.useEffect(() => {
-    if (!open) return;
-    const timer = setTimeout(() => {
-      const el = commandListRef.current;
-      if (!el) return;
-      const handleWheel = (e: WheelEvent) => {
-        e.stopPropagation();
-        el.scrollTop += e.deltaY;
-      };
-      el.addEventListener("wheel", handleWheel, { passive: true });
-      return () => el.removeEventListener("wheel", handleWheel);
-    }, 100);
-    return () => clearTimeout(timer);
   }, [open]);
 
   return {
@@ -170,6 +183,13 @@ export function useAutocomplete<T extends Record<string, any>>({
     selectedOption,
     filteredOptions,
     groupedOptions,
+    isLoading,
+    isFetchingNext,
+    isFetchingPrev,
+    hasNext,
+    hasPrev,
+    fetchNext: asyncConfig ? infiniteQuery.fetchNextPage : undefined,
+    fetchPrev: asyncConfig ? infiniteQuery.fetchPreviousPage : undefined,
     refs: { commandListRef, inputRef, commandInputRef, selectedItemRef },
     handlers: {
       handleClearSearch,

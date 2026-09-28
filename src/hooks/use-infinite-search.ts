@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PaginatedResponse } from "@/lib/data/schema/base";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
@@ -7,13 +6,18 @@ export type DefaultOption = {
   value: string | number;
 };
 
+export type ApiResponse<TData> =
+  | PaginatedResponse<TData>
+  | TData[]
+  | { data: TData[] };
+
 type UseInfiniteSearchProps<
   TData,
-  TQuery extends Record<string, any>,
+  TQuery extends Record<string, unknown>,
   TOutput,
 > = {
-  queryKey: any[];
-  queryFn: (params: TQuery) => Promise<PaginatedResponse<TData>>;
+  queryKey: readonly unknown[];
+  queryFn: (params: TQuery) => Promise<ApiResponse<TData>>;
   search?: string;
   searchKey?: keyof TQuery;
   enabled?: boolean;
@@ -26,7 +30,7 @@ type UseInfiniteSearchProps<
 
 export function useInfiniteSearch<
   TData,
-  TQuery extends Record<string, any>,
+  TQuery extends Record<string, unknown>,
   TOutput = TData,
 >({
   queryKey,
@@ -37,7 +41,7 @@ export function useInfiniteSearch<
   params = {} as TQuery,
   mapFn,
   initialLimit = 10,
-  initialPageParam = 1, // Reset ke 1 agar selaras dengan 1-based index backend
+  initialPageParam = 1,
   selected_id,
 }: UseInfiniteSearchProps<TData, TQuery, TOutput>) {
   const query = useInfiniteQuery({
@@ -48,7 +52,7 @@ export function useInfiniteSearch<
       initialPageParam,
       params,
       selected_id,
-    ],
+    ] as const,
     queryFn: async ({ pageParam = initialPageParam }) => {
       const isInitialPage = pageParam === initialPageParam;
 
@@ -57,20 +61,42 @@ export function useInfiniteSearch<
         page: pageParam,
         limit: initialLimit,
         ...(isInitialPage && selected_id !== undefined ? { selected_id } : {}),
-      } as TQuery;
+      } as unknown as TQuery;
 
       if (search && searchKey) {
-        (finalParams as any)[searchKey] = search;
+        (finalParams as Record<string, unknown>)[String(searchKey)] = search;
       }
 
       const raw = await queryFn(finalParams);
 
+      // Normalisasi berbagai bentuk respons API (Paginated, Array mentah, atau { data })
+      let dataList: TData[] = [];
+      let meta = undefined;
+      let hasMore = false;
+      let hasPrev = false;
+
+      if (Array.isArray(raw)) {
+        dataList = raw;
+      } else if (
+        raw &&
+        typeof raw === "object" &&
+        "data" in raw &&
+        Array.isArray(raw.data)
+      ) {
+        dataList = raw.data;
+        if ("meta" in raw && raw.meta && typeof raw.meta === "object") {
+          meta = raw.meta as PaginatedResponse<TData>["meta"];
+          hasMore = Boolean(meta.hasNextPage);
+          hasPrev = Boolean(meta.hasPrevPage);
+        }
+      }
+
       return {
-        data: raw.data,
-        hasMore: raw.meta.hasNextPage,
-        hasPrev: raw.meta.hasPrevPage,
-        page: pageParam,
-        meta: raw.meta,
+        data: dataList,
+        hasMore,
+        hasPrev,
+        page: pageParam as number,
+        meta,
       };
     },
     getNextPageParam: (lastPage) =>

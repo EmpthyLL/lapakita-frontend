@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import ConfirmDialog from "@/components/common/ConfirmDialog";
@@ -12,6 +11,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import {
+  DataDisplayConfirmOptions,
   DataDisplayDetail,
   DataDisplayForm,
   DataDisplaySurface,
@@ -38,7 +38,7 @@ interface DataDisplayModalsProps<TData> {
 
   activeConfirm: {
     onConfirm: () => void;
-    options: any;
+    options: DataDisplayConfirmOptions;
   } | null;
   onCloseConfirm: () => void;
 
@@ -128,6 +128,8 @@ export function DataDisplayModals<TData>({
                 {detail.component?.({
                   row: activeDetail.row,
                   index: activeDetail.index ?? 0,
+                  mode: "view", // Menambahkan mode "view"
+                  close: onCloseDetail, // Menambahkan fungsi close yang wajib di interface
                 })}
               </div>
             </DrawerContent>
@@ -143,6 +145,8 @@ export function DataDisplayModals<TData>({
             {detail.component?.({
               row: activeDetail.row,
               index: activeDetail.index ?? 0,
+              mode: "view", // Menambahkan mode "view"
+              close: onCloseDetail, // Menambahkan fungsi close yang wajib di interface
             })}
           </DialogWrapper>
         ))}

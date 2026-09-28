@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useInfiniteSearch } from "@/hooks/use-infinite-search";
 import { getBusinessTypes } from "@/lib/data/api/business_type";
 import {
   BusinessType,
@@ -10,7 +9,6 @@ import {
 import { cn } from "@/lib/utils";
 import { Search, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
 import { Autocomplete } from "../long/autocomplete";
 import { LocationAutocomplete } from "../long/location-autocomplete";
 import { StallPermanenceTabs } from "./StallPermanenceTabs";
@@ -42,30 +40,6 @@ export function StallSearchPrimaryRow({
   onSearch,
 }: StallSearchPrimaryRowProps) {
   const t = useTranslations("common.search");
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const {
-    data: businessTypes,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-  } = useInfiniteSearch<BusinessType, GetBusinessTypesQuery>({
-    queryKey: ["business-types", permanenceType],
-    queryFn: getBusinessTypes,
-    search: searchTerm,
-    searchKey: "search",
-    enabled: true,
-  });
-
-  const businessTypeOptions = businessTypes
-    .filter((bt) => Boolean(bt.permanence_presets?.[permanenceType]))
-    .map((bt) => ({
-      ...bt,
-      value: bt.id,
-      label: bt.label,
-      group: bt.group_name,
-    }));
 
   return (
     <div className="flex flex-col gap-3">
@@ -74,24 +48,22 @@ export function StallSearchPrimaryRow({
           value={location}
           onChange={onLocationChange}
           className="flex-1"
-          inputClassName="h-12"
         />
 
-        <Autocomplete
+        <Autocomplete<BusinessType, GetBusinessTypesQuery>
           value={businessType}
           onSelect={(v, option) => onBusinessTypeChange(String(v), option)}
-          options={businessTypeOptions}
-          valueKey="value"
+          asyncConfig={{
+            queryFn: getBusinessTypes,
+            queryKey: ["business-types", permanenceType],
+            searchKey: "search",
+          }}
+          valueKey="id"
           labelKey="label"
-          groupKey="group"
+          groupKey="group_name"
           placeholder={t("business_type_placeholder")}
           mode="solid"
           className={"lg:w-90"}
-          onFilterChange={setSearchTerm}
-          isLoading={isLoading}
-          isFetchingNext={isFetchingNextPage}
-          hasNext={hasNextPage}
-          fetchNext={fetchNextPage}
         />
 
         <Button
