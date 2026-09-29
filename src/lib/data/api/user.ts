@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import { getCountryFlagByDialCode } from "@/lib/countries";
+import { getCountryFlag } from "@/lib/countries";
 import {
   DocumentQueryParams,
   GetDocumentResponse,
@@ -49,7 +49,7 @@ export async function getPhoneNumbers(
     const dial_code = item.dial_code || "+62";
     const rawNumber = item.number || "";
 
-    const flagUrl = getCountryFlagByDialCode(dial_code);
+    const flagUrl = getCountryFlag(dial_code);
 
     return {
       ...item,
@@ -112,6 +112,10 @@ export async function getPersonaProfile(
 export async function updatePersonaProfile(
   role: string,
   payload: UpdatePersonaValues,
-): Promise<void> {
-  await api.put(`/users/persona/${role}`, payload);
+) {
+  const response = await api.put<PersonaProfilePayload>(
+    `/users/persona/${role}`,
+    payload,
+  );
+  return response.data.data;
 }

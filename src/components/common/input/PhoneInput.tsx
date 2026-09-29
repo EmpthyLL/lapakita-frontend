@@ -15,7 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { getAllCountryPhoneOptions } from "@/lib/countries";
+import { getAllCountryOptions } from "@/lib/countries";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown, Search } from "lucide-react";
 import * as React from "react";
@@ -39,7 +39,7 @@ export function PhoneInput({
   hasError = false,
 }: PhoneInputProps) {
   const [open, setOpen] = React.useState(false);
-  const countryOptions = React.useMemo(() => getAllCountryPhoneOptions(), []);
+  const countryOptions = React.useMemo(() => getAllCountryOptions(), []);
 
   // Refs untuk manajemen scroll item terpilih ke bagian atas list
   const commandListRef = React.useRef<HTMLDivElement>(null);

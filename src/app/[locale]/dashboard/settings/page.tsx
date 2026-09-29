@@ -64,7 +64,7 @@ export default function GeneralProfilePage() {
       form.reset({
         name: profile.name ?? "",
         default_avatar_url: profile.default_avatar_url ?? "",
-        phone_number_index: profile.phone?.index ?? 0,
+        phone_number_index: profile.phone.index ?? 0,
         active_role: profile.active_role ?? "tenant",
       });
       isInitializedRef.current = true;
@@ -96,6 +96,10 @@ export default function GeneralProfilePage() {
       await updateSession({
         user: {
           defaultName: res.name,
+          defaultPhone: {
+            dial_code: res.phone.dial_code,
+            number: res.phone.number,
+          },
           defaultAvatarUrl: res.default_avatar_url,
           activeRole: res.active_role || activeRole,
         },

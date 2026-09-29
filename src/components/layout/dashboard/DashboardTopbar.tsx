@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getCountryFlagByDialCode } from "@/lib/countries";
+import { getCountryFlag } from "@/lib/countries";
 import { cn } from "@/lib/utils";
 import { Role, RoleAndAll } from "@/types";
 import {
@@ -90,11 +90,15 @@ export function DashboardTopbar({
   const activeRole: RoleAndAll =
     isWalletPage || isSettingsPage ? "all" : currentRole;
 
-  const sessionActiveRole = (session?.user?.activeRole as Role) || currentRole;
+  const displayRole: Role =
+    activeRole === "all"
+      ? (session?.user?.activeRole as Role) || "tenant"
+      : currentRole;
+
   const profileRoutePath = `/dashboard/${currentRole}/profile`;
 
-  const theme = getRoleThemeClasses(sessionActiveRole);
-  const persona = session?.user?.personas?.[currentRole];
+  const theme = getRoleThemeClasses(displayRole);
+  const persona = session?.user?.personas?.[displayRole];
 
   const userName =
     persona?.display_name ||
@@ -107,16 +111,17 @@ export function DashboardTopbar({
     propAvatarUrl ||
     "";
 
-  const rawPhone = session?.user?.defaultPhone;
+  // Nomor telepon mengambil dari persona aktif jika ada, fallback ke default session
+  const activePhone = persona?.phone || session?.user?.defaultPhone;
 
   let formattedDialCode = "+62";
   let formattedNumber = "";
 
-  if (typeof rawPhone === "object" && rawPhone !== null) {
-    formattedDialCode = rawPhone.dial_code || "+62";
-    formattedNumber = rawPhone.number || "";
+  if (typeof activePhone === "object" && activePhone !== null) {
+    formattedDialCode = activePhone.dial_code || "+62";
+    formattedNumber = activePhone.number || "";
   }
-  const phoneFlagUrl = getCountryFlagByDialCode(formattedDialCode);
+  const phoneFlagUrl = getCountryFlag(formattedDialCode);
 
   const getInitials = (str: string) => {
     if (!str) return "U";
@@ -129,7 +134,7 @@ export function DashboardTopbar({
   };
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur">
+    <header className="sticky top-0 z-45 flex h-16 items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur">
       <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
         {breadcrumb.map((crumb, i) => (
           <span key={crumb.href} className="flex items-center gap-1.5">
@@ -218,7 +223,7 @@ export function DashboardTopbar({
                     {userName}
                   </p>
 
-                  {/* Render Nomor Telepon dengan Bendera & Dial Code */}
+                  {/* Render Nomor Telepon dengan Bendera & Dial Code sesuai Persona */}
                   {formattedNumber && (
                     <div className="flex items-center gap-1.5 pt-0.5">
                       <img
@@ -237,7 +242,7 @@ export function DashboardTopbar({
                     <span
                       className={cn("font-semibold capitalize", theme.text)}
                     >
-                      {sessionActiveRole}
+                      {displayRole}
                     </span>
                   </p>
                 </div>

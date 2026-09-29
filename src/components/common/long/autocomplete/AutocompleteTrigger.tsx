@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable jsx-a11y/role-has-required-aria-props */
 "use client";
 
@@ -22,7 +23,7 @@ interface AutocompleteTriggerProps<T> {
   iconKey: keyof T;
   indicatorIcon?: React.ReactNode;
   render?: (option: T) => React.ReactNode;
-  renderTriggerAsCustom?: boolean; // Apakah trigger ikut render custom atau normal
+  renderTriggerAsCustom?: boolean;
   sizeStyle: { trigger: string; text: string; chevron: string; clear: string };
   triggerClass: string;
   inputClass: string;
@@ -37,31 +38,37 @@ interface AutocompleteTriggerProps<T> {
   isSolid: boolean;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function AutocompleteTrigger<T extends Record<string, any>>({
-  open,
-  setOpen,
-  disabled,
-  hasError,
-  isLoading,
-  hasValue,
-  showClearButton,
-  selectedOption,
-  search,
-  setSearch,
-  placeholder,
-  labelKey,
-  iconKey,
-  indicatorIcon,
-  render,
-  renderTriggerAsCustom = false,
-  sizeStyle: s,
-  triggerClass,
-  inputClass,
-  inputRef,
-  handlers,
-  isSolid,
-}: AutocompleteTriggerProps<T>) {
+// Menggunakan forwardRef agar kompatibel langsung dengan <PopoverTrigger asChild> tanpa pembungkus div tambahan
+export const AutocompleteTrigger = React.forwardRef<
+  HTMLDivElement,
+  AutocompleteTriggerProps<any>
+>(function AutocompleteTrigger(
+  {
+    open,
+    setOpen,
+    disabled,
+    hasError,
+    isLoading,
+    hasValue,
+    showClearButton,
+    selectedOption,
+    search,
+    setSearch,
+    placeholder,
+    labelKey,
+    iconKey,
+    indicatorIcon,
+    render,
+    renderTriggerAsCustom = false,
+    sizeStyle: s,
+    triggerClass,
+    inputClass,
+    inputRef,
+    handlers,
+    isSolid,
+  },
+  ref,
+) {
   const inputDisplayValue = open
     ? search
     : selectedOption
@@ -76,6 +83,7 @@ export function AutocompleteTrigger<T extends Record<string, any>>({
 
   return (
     <div
+      ref={ref}
       role="combobox"
       aria-expanded={open}
       aria-invalid={hasError}
@@ -169,4 +177,4 @@ export function AutocompleteTrigger<T extends Record<string, any>>({
       </div>
     </div>
   );
-}
+});

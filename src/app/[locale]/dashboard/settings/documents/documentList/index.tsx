@@ -3,6 +3,7 @@
 import { DataDisplay } from "@/components/common/long/data-display";
 import { DataDisplayQuery } from "@/components/common/long/data-display/Constant";
 import { Button } from "@/components/ui/button";
+import { countrySearchList } from "@/lib/countries";
 import { getDocument } from "@/lib/data/api/user";
 import {
   DocumentQueryParams,
@@ -23,12 +24,23 @@ export default function DocumentList() {
       return response;
     },
     queryKey: (params) => ["user-document", params],
-    searchKey: "document_number",
+    searchKey: "search",
     defaultParams: { page: 1 },
+    filterToParamKey: {
+      name: "name",
+      document_type: "document_type",
+      country_code: "country_code",
+      document_number: "document_number",
+    },
     filterOptions: [
       {
         id: "name",
         title: "Full Name",
+        type: "input",
+      },
+      {
+        id: "document_number",
+        title: "Document Number",
         type: "input",
       },
       {
@@ -41,11 +53,13 @@ export default function DocumentList() {
           { label: "Residence Permit", value: "residence_permit" },
         ],
       },
+      {
+        id: "country_code",
+        title: "Issuing Country",
+        type: "select",
+        options: countrySearchList,
+      },
     ],
-    filterToParamKey: {
-      name: "name",
-      document_type: "document_type",
-    },
   };
 
   return (
@@ -58,13 +72,14 @@ export default function DocumentList() {
         loadMode="pagination"
         showFilter
         showCount
-        onRowClick={(row, index, action) => {
+        onRowClick={(row, _index, action) => {
           action.openDetail("dialog");
         }}
         detail={{
           type: "dialog",
           title: "Verification Document Detail",
-          description: "Informasi lengkap data diri dan pratinjau dokumen KTP.",
+          description:
+            "Informasi lengkap data diri dan pratinjau dokumen identitas.",
           size: "lg",
           component: DocumentDetail,
         }}

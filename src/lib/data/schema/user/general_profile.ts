@@ -14,7 +14,6 @@ export type UpdateGeneralProfileValues = z.infer<
 >;
 
 export interface GetGeneralProfileResponse {
-  id: string;
   name: string;
   email: string;
   default_avatar_url: string;

@@ -183,11 +183,6 @@ export const stallQueryConfig: DataDisplayQuery<StallItem, StallQueryParams> = {
       type: "date",
     },
   ],
-  filterToParamKey: {
-    category: "category",
-    status: "status",
-    createdAt: "createdAt",
-  },
 };
 
 // Komponen Detail View untuk Modal / Expandable

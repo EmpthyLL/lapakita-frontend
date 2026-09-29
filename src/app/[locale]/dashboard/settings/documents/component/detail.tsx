@@ -3,8 +3,9 @@
 import FileViewer from "@/components/common/FileViewer";
 import { DataDisplaySurfaceComponentProps } from "@/components/common/long/data-display/Constant";
 import { Button } from "@/components/ui/button";
+import { getAllCountryOptions } from "@/lib/countries";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
-import { CreditCard, FileText, Hash, User } from "lucide-react";
+import { CreditCard, FileText, Globe, Hash, Tag, User } from "lucide-react";
 import { formatDocType, getDocumentNumberLabel } from "./config";
 
 export function DocumentDetail({
@@ -14,6 +15,10 @@ export function DocumentDetail({
   if (!document) return null;
 
   const numLabel = getDocumentNumberLabel(document.document_type);
+  const countryOptions = getAllCountryOptions();
+  const foundCountry = countryOptions.find(
+    (c) => c.value.toLowerCase() === document.country_code?.toLowerCase(),
+  );
 
   return (
     <div className="space-y-6 pt-2">
@@ -24,6 +29,34 @@ export function DocumentDetail({
           </span>
           <p className="font-semibold text-foreground text-sm tracking-tight">
             {document.full_name_identity}
+          </p>
+        </div>
+
+        <div className="space-y-1">
+          <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <Globe className="h-3.5 w-3.5 text-primary" /> Issuing Country
+          </span>
+          <div className="flex items-center gap-2 pt-0.5">
+            {foundCountry?.flag && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={foundCountry.flag}
+                alt={foundCountry.name}
+                className="h-3.5 w-5 object-contain rounded-xs shadow-xs"
+              />
+            )}
+            <p className="font-semibold text-foreground text-sm tracking-tight">
+              {foundCountry?.name ?? document.country_code}
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <Tag className="h-3.5 w-3.5 text-primary" /> Document Label
+          </span>
+          <p className="font-semibold text-foreground text-sm tracking-tight">
+            {document.document_label}
           </p>
         </div>
 

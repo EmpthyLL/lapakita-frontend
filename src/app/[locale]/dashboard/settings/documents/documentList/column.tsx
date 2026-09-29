@@ -1,8 +1,9 @@
 "use client";
 
 import { createColumnHelpers } from "@/components/common/long/data-display/Constant";
+import { getAllCountryOptions } from "@/lib/countries";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
-import { CreditCard, Hash, User } from "lucide-react";
+import { CreditCard, Globe, Hash, Tag, User } from "lucide-react";
 import { useMemo } from "react";
 import { DocumentRowActions } from "./rowAction";
 
@@ -21,6 +22,7 @@ const formatDocType = (type: string) => {
 
 export function useDocumentColumns() {
   const { field, action } = createColumnHelpers<GetDocumentData>();
+  const countryOptions = getAllCountryOptions();
 
   return useMemo(
     () => [
@@ -30,6 +32,41 @@ export function useDocumentColumns() {
         icon: User,
         primary: true,
         className: "font-semibold text-foreground",
+      }),
+      field({
+        key: "country_code",
+        header: "Country",
+        icon: Globe,
+        render: (val) => {
+          const found = countryOptions.find(
+            (c) => c.value.toLowerCase() === String(val).toLowerCase(),
+          );
+          return (
+            <div className="flex items-center gap-2">
+              {found?.flag && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={found.flag}
+                  alt={found.name}
+                  className="h-3.5 w-5 object-contain rounded-xs shrink-0"
+                />
+              )}
+              <span className="font-medium text-foreground">
+                {found?.name ?? String(val)}
+              </span>
+            </div>
+          );
+        },
+      }),
+      field({
+        key: "document_label",
+        header: "Label",
+        icon: Tag,
+        render: (val) => (
+          <span className="font-medium text-foreground">
+            {String(val || "-")}
+          </span>
+        ),
       }),
       field({
         key: "document_number",
@@ -61,6 +98,6 @@ export function useDocumentColumns() {
         ),
       }),
     ],
-    [field, action],
+    [field, action, countryOptions],
   );
 }

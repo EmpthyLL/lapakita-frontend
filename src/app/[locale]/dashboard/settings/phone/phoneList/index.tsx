@@ -3,7 +3,7 @@
 import { DataDisplay } from "@/components/common/long/data-display";
 import { DataDisplayQuery } from "@/components/common/long/data-display/Constant";
 import { Button } from "@/components/ui/button";
-import { getAllCountryPhoneOptions } from "@/lib/countries";
+import { countrySearchList } from "@/lib/countries";
 import { getPhoneNumbers } from "@/lib/data/api/user";
 import {
   PhoneNumberItem,
@@ -20,12 +20,6 @@ const ROLE_FILTER_OPTIONS = [
 ];
 
 export default function PhoneList() {
-  const countryOptions = getAllCountryPhoneOptions().map((opt) => ({
-    label: opt.label,
-    value: opt.value,
-    icon: opt.flag,
-  }));
-
   const queryConfig: DataDisplayQuery<PhoneNumberItem, PhoneQueryParams> = {
     queryFn: getPhoneNumbers,
     queryKey: (params) => ["phone-numbers", params],
@@ -37,7 +31,7 @@ export default function PhoneList() {
         id: "dial_code",
         title: "Dial Code",
         type: "select",
-        options: countryOptions,
+        options: countrySearchList,
       },
       {
         id: "role",

@@ -3,7 +3,7 @@ import { basePaginationQuerySchema, PaginatedResponse } from "../base";
 
 export const uploadDocumentSchema = z
   .object({
-    country_code: z.string().max(8).optional().default("ID"),
+    country_code: z.string().min(2, "Country is required"), // Hapus .default di sini
     document_type: z.enum(["national_id", "passport", "residence_permit"], {
       message: "Select a valid document type",
     }),
@@ -20,27 +20,39 @@ export const uploadDocumentSchema = z
   })
   .superRefine((data, ctx) => {
     if (data.document_type === "national_id") {
-      if (!/^\d{16}$/.test(data.document_number)) {
+      if (
+        data.country_code === "ID" &&
+        !/^\d{16}$/.test(data.document_number)
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "National ID (NIK) must be exactly 16 digits",
+          message: "National ID (NIK) for Indonesia must be exactly 16 digits",
+          path: ["document_number"],
+        });
+      } else if (
+        data.document_number.length < 5 ||
+        data.document_number.length > 32
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Document number must be between 5 and 32 characters",
           path: ["document_number"],
         });
       }
     } else if (data.document_type === "passport") {
-      if (data.document_number.length < 6 || data.document_number.length > 12) {
+      if (data.document_number.length < 5 || data.document_number.length > 15) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Passport number must be between 6 and 12 characters",
+          message: "Passport number must be between 5 and 15 characters",
           path: ["document_number"],
         });
       }
     } else if (data.document_type === "residence_permit") {
-      if (data.document_number.length < 5 || data.document_number.length > 32) {
+      if (data.document_number.length < 4 || data.document_number.length > 32) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message:
-            "Residence permit number must be between 5 and 32 characters",
+            "Residence permit number must be between 4 and 32 characters",
           path: ["document_number"],
         });
       }

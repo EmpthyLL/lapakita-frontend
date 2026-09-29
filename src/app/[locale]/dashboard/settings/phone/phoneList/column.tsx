@@ -3,7 +3,7 @@
 
 import { createColumnHelpers } from "@/components/common/long/data-display/Constant";
 import { Badge } from "@/components/ui/badge";
-import { getCountryFlagByDialCode } from "@/lib/countries";
+import { getCountryFlag } from "@/lib/countries";
 import { PhoneNumberItem } from "@/lib/data/schema/user/phone_number";
 import { Role } from "@/types";
 import {
@@ -38,7 +38,7 @@ export function usePhoneColumns() {
 
         const dialCode = row.dial_code || "+62";
         const phoneNumber = val || "";
-        const flagUrl = getCountryFlagByDialCode(dialCode);
+        const flagUrl = getCountryFlag(dialCode);
 
         return (
           <div className="flex items-center gap-2.5">
