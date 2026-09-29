@@ -207,32 +207,30 @@ export function Autocomplete<
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <div className="w-full">
-          <AutocompleteTrigger
-            open={open}
-            setOpen={setOpen}
-            disabled={disabled}
-            hasError={hasError}
-            isLoading={isLoading}
-            hasValue={hasValue}
-            showClearButton={showClearButton}
-            selectedOption={selectedOption}
-            search={search}
-            setSearch={setSearch}
-            placeholder={placeholder}
-            labelKey={labelKey}
-            iconKey={iconKey}
-            indicatorIcon={indicatorIcon}
-            render={renderConfig?.item}
-            renderTriggerAsCustom={renderConfig?.triggerAsCustom}
-            sizeStyle={s}
-            triggerClass={cn(triggerClass, className)}
-            inputClass={inputClass}
-            inputRef={refs.inputRef}
-            handlers={handlers}
-            isSolid={isSolid}
-          />
-        </div>
+        <AutocompleteTrigger
+          open={open}
+          setOpen={setOpen}
+          disabled={disabled}
+          hasError={hasError}
+          isLoading={isLoading}
+          hasValue={hasValue}
+          showClearButton={showClearButton}
+          selectedOption={selectedOption}
+          search={search}
+          setSearch={setSearch}
+          placeholder={placeholder}
+          labelKey={labelKey}
+          iconKey={iconKey}
+          indicatorIcon={indicatorIcon}
+          render={renderConfig?.item}
+          renderTriggerAsCustom={renderConfig?.triggerAsCustom}
+          sizeStyle={s}
+          triggerClass={cn(triggerClass, className)}
+          inputClass={inputClass}
+          inputRef={refs.inputRef}
+          handlers={handlers}
+          isSolid={isSolid}
+        />
       </PopoverTrigger>
 
       <PopoverContent
