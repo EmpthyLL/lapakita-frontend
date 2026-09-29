@@ -184,7 +184,7 @@ export function PhoneForm({
 
         <FormField
           control={form.control}
-          name={["number", "dial_code"] as any}
+          name={["number", "dial_code"]}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Phone Number</FormLabel>

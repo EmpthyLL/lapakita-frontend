@@ -103,7 +103,7 @@ const FormField = <
             if (fieldNames.length > 1 && Array.isArray(newValue)) {
               fieldNames.forEach((fieldName, index) => {
                 setValue(fieldName as any, newValue[index], {
-                  shouldValidate: true,
+                  shouldValidate: false, // <-- Diubah ke false agar tidak langsung trigger error saat ganti dial code / ketik
                   shouldDirty: true,
                   shouldTouch: true,
                 });

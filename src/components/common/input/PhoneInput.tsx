@@ -20,7 +20,6 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronDown, Search } from "lucide-react";
 import * as React from "react";
 
-// Format nilai tuple berderet sesuai urutan name={["phone", "dial_code"]}
 export type PhoneInputTupleValue = [string, string];
 
 interface PhoneInputProps {
@@ -41,22 +40,19 @@ export function PhoneInput({
   const [open, setOpen] = React.useState(false);
   const countryOptions = React.useMemo(() => getAllCountryOptions(), []);
 
-  // Refs untuk manajemen scroll item terpilih ke bagian atas list
   const commandListRef = React.useRef<HTMLDivElement>(null);
   const selectedItemRef = React.useRef<HTMLDivElement>(null);
 
-  // Urutan array: index 0 adalah phone number, index 1 adalah dial_code
   const currentNumber = Array.isArray(value) ? value[0] || "" : "";
   const currentDialCode = Array.isArray(value) ? value[1] || "+62" : "+62";
 
   const selectedCountry = React.useMemo(() => {
     return (
-      countryOptions.find((c) => c.value === currentDialCode) ||
-      countryOptions.find((c) => c.value === "+62")
+      countryOptions.find((c) => c.diaCode === currentDialCode) ||
+      countryOptions.find((c) => c.diaCode === "+62")
     );
   }, [countryOptions, currentDialCode]);
 
-  // Efek untuk otomatis men-scroll item terpilih ke posisi paling atas saat popover dibuka
   React.useEffect(() => {
     if (!open) return;
 
@@ -91,12 +87,15 @@ export function PhoneInput({
     <div
       className={cn(
         "flex w-full items-center rounded-md border border-input bg-background transition-all duration-150 overflow-hidden",
-        "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
 
-        /* Sinkronisasi Error dengan Form Field Container */
-        "group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:ring-2 group-data-[invalid=true]/field:ring-destructive/20",
-        "aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20",
-        hasError && "border-destructive ring-2 ring-destructive/20",
+        // Focus state normal (biru)
+        "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/25",
+
+        // ── PERBAIKAN: Sinkronisasi Error State agar saat focus tetap merah seperti <Input /> ──
+        "group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-within:border-destructive group-data-[invalid=true]/field:focus-within:ring-destructive/20",
+        "aria-invalid:border-destructive aria-invalid:focus-within:border-destructive aria-invalid:focus-within:ring-destructive/20",
+        hasError &&
+          "border-destructive focus-within:border-destructive focus-within:ring-destructive/20",
 
         disabled &&
           "pointer-events-none cursor-not-allowed bg-muted opacity-50",
@@ -123,7 +122,7 @@ export function PhoneInput({
                 />
               )}
               <span className="truncate">
-                {selectedCountry?.value || "+62"}
+                {selectedCountry?.diaCode || "+62"}
               </span>
             </div>
             <ChevronDown
@@ -153,14 +152,14 @@ export function PhoneInput({
               </CommandEmpty>
               <CommandGroup>
                 {countryOptions.map((option) => {
-                  const isSelected = option.value === currentDialCode;
+                  const isSelected = option.diaCode === currentDialCode;
                   return (
                     <CommandItem
-                      key={`${option.code}-${option.value}`}
+                      key={`${option.code}-${option.diaCode}`}
                       ref={isSelected ? selectedItemRef : undefined}
-                      value={`${option.name} ${option.value}`}
+                      value={`${option.name} ${option.diaCode}`}
                       onSelect={() => {
-                        handleDialCodeChange(option.value);
+                        handleDialCodeChange(option.diaCode);
                         setOpen(false);
                       }}
                       className={cn(
@@ -180,11 +179,11 @@ export function PhoneInput({
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-semibold text-muted-foreground">
-                          {option.value}
+                          {option.diaCode}
                         </span>
                         <Check
                           className={cn(
-                            "h-4 w-4 text-primary",
+                            "size-4 text-primary",
                             isSelected ? "opacity-100" : "opacity-0",
                           )}
                         />

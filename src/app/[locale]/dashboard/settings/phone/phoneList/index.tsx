@@ -31,7 +31,10 @@ export default function PhoneList() {
         id: "dial_code",
         title: "Dial Code",
         type: "select",
-        options: countrySearchList,
+        options: countrySearchList.map((item) => ({
+          ...item,
+          value: item.dialCode,
+        })),
       },
       {
         id: "role",

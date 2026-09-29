@@ -5,7 +5,7 @@ export interface CountryOption {
   value: string; // ISO Code (misal: "ID")
   name: string; // "Indonesia"
   code: string; // "ID"
-  phoneCode: string; // "+62" (Disimpan terpisah untuk kebutuhan telepon jika diperlukan)
+  diaCode: string; // "+62" (Disimpan terpisah untuk kebutuhan telepon jika diperlukan)
   flag: string; // URL SVG bendera
 }
 
@@ -24,7 +24,7 @@ export function getAllCountryOptions(): CountryOption[] {
       value: c.isoCode,
       name: c.name,
       code: c.isoCode,
-      phoneCode: phoneCode,
+      diaCode: phoneCode,
       flag: flagUrl,
     };
   });
@@ -45,7 +45,7 @@ export function getCountryBy(query: string): CountryOption | undefined {
 
   return options.find((opt) => {
     if (isDialCode) {
-      return opt.phoneCode === normalizedDialCode;
+      return opt.diaCode === normalizedDialCode;
     } else {
       return opt.code.toLowerCase() === cleanQuery.toLowerCase();
     }
@@ -61,5 +61,6 @@ export function getCountryFlag(query: string): string {
 export const countrySearchList = getAllCountryOptions().map((opt) => ({
   label: opt.label,
   value: opt.value,
+  dialCode: opt.diaCode,
   icon: opt.flag,
 }));
