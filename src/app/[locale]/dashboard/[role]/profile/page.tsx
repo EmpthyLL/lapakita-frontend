@@ -25,31 +25,56 @@ import { cn } from "@/lib/utils";
 import type { Role } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Briefcase, Building2, Home, Save, UserCheck } from "lucide-react";
+import { Briefcase, Building2, Home, Save } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useEffect, useRef, useState } from "react";
+import { useParams } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 
-const ROLES: {
-  id: Role;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-}[] = [
-  { id: "tenant", label: "Tenant Persona", icon: Home },
-  { id: "owner", label: "Owner Persona", icon: Building2 },
-  { id: "supplier", label: "Supplier Persona", icon: Briefcase },
-];
+const ROLE_CONFIG: Record<
+  Role,
+  {
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    description: string;
+  }
+> = {
+  tenant: {
+    label: "Tenant Profile",
+    icon: Home,
+    description:
+      "Manage your display name, avatar, and contact details specifically for your tenant activities.",
+  },
+  owner: {
+    label: "Stall Owner Profile",
+    icon: Building2,
+    description:
+      "Manage your display name, avatar, and contact details specifically for your stall owner activities.",
+  },
+  supplier: {
+    label: "Supplier Profile",
+    icon: Briefcase,
+    description:
+      "Manage your display name, avatar, and contact details specifically for your supplier activities.",
+  },
+};
 
-export default function PersonaProfilePage() {
+const VALID_ROLES: Role[] = ["tenant", "owner", "supplier"];
+
+export default function RoleProfilePage() {
   const queryClient = useQueryClient();
   const { data: session, update: updateSession } = useSession();
+  const params = useParams();
 
-  const [activeTab, setActiveTab] = useState<Role>("tenant");
+  const rawRole = (params?.role as string)?.toLowerCase() as Role;
+  const currentRole: Role = VALID_ROLES.includes(rawRole) ? rawRole : "tenant";
 
-  // Fetch data persona berdasarkan role yang sedang aktif di tab
+  const config = ROLE_CONFIG[currentRole];
+  const Icon = config.icon;
+
   const { data: persona, isLoading: isPersonaLoading } = useQuery({
-    queryKey: ["user-persona-profile", activeTab],
-    queryFn: () => getPersonaProfile(activeTab),
+    queryKey: ["user-persona-profile", currentRole],
+    queryFn: () => getPersonaProfile(currentRole),
   });
 
   const isInitializedRef = useRef(false);
@@ -63,10 +88,10 @@ export default function PersonaProfilePage() {
     },
   });
 
-  // Reset form saat data persona atau tab berubah
+  // Reset form saat role URL berubah
   useEffect(() => {
     isInitializedRef.current = false;
-  }, [activeTab]);
+  }, [currentRole]);
 
   useEffect(() => {
     if (persona && !isInitializedRef.current) {
@@ -84,35 +109,23 @@ export default function PersonaProfilePage() {
   const getRoleTheme = (role: Role) => {
     switch (role) {
       case "owner":
-        return {
-          text: "text-owner",
-          bg: "bg-owner/10",
-          border: "border-owner/40",
-        };
+        return { text: "text-owner", bg: "bg-owner/10" };
       case "supplier":
-        return {
-          text: "text-supplier",
-          bg: "bg-supplier/10",
-          border: "border-supplier/40",
-        };
+        return { text: "text-supplier", bg: "bg-supplier/10" };
       case "tenant":
       default:
-        return {
-          text: "text-tenant",
-          bg: "bg-tenant/10",
-          border: "border-tenant/40",
-        };
+        return { text: "text-tenant", bg: "bg-tenant/10" };
     }
   };
 
-  const currentTheme = getRoleTheme(activeTab);
+  const currentTheme = getRoleTheme(currentRole);
 
   const updateMutation = useMutation({
     mutationFn: (values: UpdatePersonaValues) =>
-      updatePersonaProfile(activeTab, values),
+      updatePersonaProfile(currentRole, values),
     onSuccess: async (res) => {
       showToast.success(
-        `${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} persona updated successfully`,
+        `${currentRole.charAt(0).toUpperCase() + currentRole.slice(1)} profile updated successfully`,
       );
 
       const existingPersonas = session?.user?.personas || {};
@@ -121,20 +134,22 @@ export default function PersonaProfilePage() {
         user: {
           personas: {
             ...existingPersonas,
-            [activeTab]: {
+            [currentRole]: {
               display_name: res.display_name,
               avatar_url: res.avatar_url,
-              phone: {
-                dial_code: res.phone.dial_code,
-                number: res.phone.number,
-              },
+              phone: res.phone
+                ? {
+                    dial_code: res.phone.dial_code,
+                    number: res.phone.number,
+                  }
+                : null,
             },
           },
         },
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["user-persona-profile", activeTab],
+        queryKey: ["user-persona-profile", currentRole],
       });
       queryClient.invalidateQueries({ queryKey: ["phone-numbers"] });
     },
@@ -159,44 +174,17 @@ export default function PersonaProfilePage() {
           <div
             className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${currentTheme.bg} ${currentTheme.text}`}
           >
-            <UserCheck className="h-5 w-5" />
+            <Icon className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="font-heading text-xl font-bold text-foreground">
-              Persona Profiles
+            <h1 className="font-heading text-xl font-bold text-foreground capitalize">
+              {config.label}
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Customize your identity, avatar, and contact preferences for each
-              specific role persona.
+              {config.description}
             </p>
           </div>
         </div>
-      </div>
-
-      {/* Role Navigation Tabs */}
-      <div className="flex rounded-2xl bg-secondary/60 p-1.5 border border-border/60">
-        {ROLES.map((role) => {
-          const Icon = role.icon;
-          const isActive = activeTab === role.id;
-          const theme = getRoleTheme(role.id);
-
-          return (
-            <button
-              key={role.id}
-              type="button"
-              onClick={() => setActiveTab(role.id)}
-              className={cn(
-                "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-semibold capitalize transition-all outline-none cursor-pointer",
-                isActive
-                  ? cn("bg-card shadow-xs", theme.text)
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <Icon className="h-4 w-4" />
-              <span>{role.label}</span>
-            </button>
-          );
-        })}
       </div>
 
       {/* Form Content */}
@@ -230,11 +218,11 @@ export default function PersonaProfilePage() {
                   />
                 </div>
                 <span className="text-xs font-semibold uppercase tracking-wider text-gradient-brand">
-                  {activeTab} Persona Avatar
+                  {currentRole} Avatar
                 </span>
                 <p className="text-[11px] text-muted-foreground mt-0.5 text-center">
-                  Set a unique display picture specifically for your {activeTab}{" "}
-                  persona.
+                  Set a unique display picture specifically for your{" "}
+                  {currentRole} role workspace.
                 </p>
               </div>
 
@@ -249,7 +237,7 @@ export default function PersonaProfilePage() {
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Enter persona display name"
+                          placeholder="Enter display name"
                           className="h-11 rounded-xl bg-background border-border focus-visible:ring-primary"
                           {...field}
                         />
@@ -266,7 +254,7 @@ export default function PersonaProfilePage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Persona Phone Number
+                        Contact Phone Number
                       </FormLabel>
                       <FormControl>
                         <PhoneSelector
@@ -285,12 +273,11 @@ export default function PersonaProfilePage() {
                 <Button
                   type="submit"
                   size="lg"
-                  variant={activeTab}
                   className={cn("rounded-xl")}
                   disabled={!isDirty}
                   isLoading={updateMutation.isPending}
                 >
-                  <Save className="mr-2 h-4 w-4" /> Save Persona
+                  <Save className="mr-2 h-4 w-4" /> Save Changes
                 </Button>
               </div>
             </form>

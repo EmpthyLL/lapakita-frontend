@@ -10,24 +10,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/common/input/FormField";
+import { PhoneSelector } from "@/components/common/input/PhoneSelector";
 import { RoleSelectPopover } from "@/components/common/input/RoleSelectPopover";
-import { Autocomplete } from "@/components/common/long/autocomplete";
 import { Spinner } from "@/components/common/Spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  getGeneralProfile,
-  getPhoneNumbers,
-  updateGeneralProfile,
-} from "@/lib/data/api/user";
+import { getGeneralProfile, updateGeneralProfile } from "@/lib/data/api/user";
 import {
   updateGeneralProfileSchema,
   UpdateGeneralProfileValues,
 } from "@/lib/data/schema/user/general_profile";
-import {
-  PhoneNumberItem,
-  PhoneQueryParams,
-} from "@/lib/data/schema/user/phone_number";
 import { handleError } from "@/lib/error";
 import { showToast } from "@/lib/toast";
 import type { Role } from "@/types";
@@ -256,42 +248,10 @@ export default function GeneralProfilePage() {
                       Primary Phone Number
                     </FormLabel>
                     <FormControl>
-                      <Autocomplete<PhoneNumberItem, PhoneQueryParams>
+                      <PhoneSelector
                         value={field.value}
                         onSelect={field.onChange}
-                        asyncConfig={{
-                          queryFn: getPhoneNumbers,
-                          queryKey: ["phone-numbers"],
-                          searchKey: "search",
-                        }}
-                        labelKey="display_label"
-                        valueKey="index"
-                        iconKey="flag"
-                        placeholder="Select primary phone number"
-                        renderConfig={{
-                          item: (option) => (
-                            <div className="flex items-center gap-2.5 py-1.5 w-full">
-                              {/* Bendera Negara */}
-                              {option.flag && (
-                                <img
-                                  src={option.flag}
-                                  alt="flag"
-                                  className="h-3.5 w-5 object-contain rounded-xs shrink-0 shadow-xs"
-                                />
-                              )}
-                              {/* Detail Teks */}
-                              <div className="flex flex-col min-w-0 flex-1">
-                                <span className="font-semibold text-foreground text-xs truncate">
-                                  {option.label}
-                                </span>
-                                <span className="font-mono text-[11px] text-muted-foreground truncate">
-                                  {option.dial_code} {option.number}
-                                </span>
-                              </div>
-                            </div>
-                          ),
-                          triggerAsCustom: false, // Trigger tetap tampil normal bersih
-                        }}
+                        placeholder="Select contact phone number"
                       />
                     </FormControl>
                     <FormMessage />

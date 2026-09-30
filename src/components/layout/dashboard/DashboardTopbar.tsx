@@ -20,6 +20,7 @@ import {
   ChevronDown,
   ChevronRight,
   LogOut,
+  Menu,
   Settings,
   User,
   Wallet,
@@ -31,6 +32,7 @@ import { usePathname } from "next/navigation";
 interface DashboardTopbarProps {
   userName?: string;
   userAvatarUrl?: string;
+  onOpenMobileMenu?: () => void;
 }
 
 const VALID_ROLES: Role[] = ["tenant", "owner", "supplier"];
@@ -72,6 +74,7 @@ function useBreadcrumb(pathname: string) {
 export function DashboardTopbar({
   userName: propUserName,
   userAvatarUrl: propAvatarUrl,
+  onOpenMobileMenu,
 }: DashboardTopbarProps) {
   const pathname = usePathname();
   const breadcrumb = useBreadcrumb(pathname);
@@ -111,7 +114,6 @@ export function DashboardTopbar({
     propAvatarUrl ||
     "";
 
-  // Nomor telepon mengambil dari persona aktif jika ada, fallback ke default session
   const activePhone = persona?.phone || session?.user?.defaultPhone;
 
   let formattedDialCode = "+62";
@@ -134,26 +136,44 @@ export function DashboardTopbar({
   };
 
   return (
-    <header className="sticky top-0 z-45 flex h-16 items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur">
-      <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
-        {breadcrumb.map((crumb, i) => (
-          <span key={crumb.href} className="flex items-center gap-1.5">
-            {i > 0 && <ChevronRight className="h-3.5 w-3.5 shrink-0" />}
-            {i === breadcrumb.length - 1 ? (
-              <span className="font-medium text-foreground">{crumb.label}</span>
-            ) : (
-              <Link
-                href={crumb.href}
-                className="hover:text-foreground transition-colors"
-              >
-                {crumb.label}
-              </Link>
-            )}
-          </span>
-        ))}
-      </nav>
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background/95 px-4 sm:px-6 backdrop-blur">
+      <div className="flex items-center gap-3 min-w-0">
+        {/* Tombol Hamburger Menu untuk layar mobile */}
+        <button
+          type="button"
+          onClick={onOpenMobileMenu}
+          className="flex md:hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground outline-none cursor-pointer"
+          aria-label="Open mobile menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
 
-      <div className="flex items-center gap-2">
+        {/* Breadcrumb disembunyikan sebagian di mobile agar muat */}
+        <nav className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground truncate">
+          {breadcrumb.map((crumb, i) => (
+            <span
+              key={crumb.href}
+              className="flex items-center gap-1.5 truncate"
+            >
+              {i > 0 && <ChevronRight className="h-3.5 w-3.5 shrink-0" />}
+              {i === breadcrumb.length - 1 ? (
+                <span className="font-medium text-foreground truncate">
+                  {crumb.label}
+                </span>
+              ) : (
+                <Link
+                  href={crumb.href}
+                  className="hover:text-foreground transition-colors truncate"
+                >
+                  {crumb.label}
+                </Link>
+              )}
+            </span>
+          ))}
+        </nav>
+      </div>
+
+      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <LanguageSwitcher showLabel={false} />
 
         <button
@@ -165,7 +185,7 @@ export function DashboardTopbar({
           <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
         </button>
 
-        <div className="mx-1 h-4 w-px bg-border" />
+        <div className="mx-0.5 sm:mx-1 h-4 w-px bg-border" />
 
         <RoleSelectPopover
           value={activeRole}
@@ -196,7 +216,7 @@ export function DashboardTopbar({
                   {getInitials(userName)}
                 </AvatarFallback>
               </Avatar>
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground hidden sm:block" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-64">
@@ -223,7 +243,6 @@ export function DashboardTopbar({
                     {userName}
                   </p>
 
-                  {/* Render Nomor Telepon dengan Bendera & Dial Code sesuai Persona */}
                   {formattedNumber && (
                     <div className="flex items-center gap-1.5 pt-0.5">
                       <img
