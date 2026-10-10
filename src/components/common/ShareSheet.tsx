@@ -9,18 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
-import { useMediaQuery } from "@/hooks/use-media-query";
 import { showToast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { Check, Copy, Link2, Mail } from "lucide-react";
@@ -54,7 +43,6 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
   const t = useTranslations("common.share_sheet");
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const isDesktop = useMediaQuery("(min-width: 640px)");
 
   const shareText = text || t("default_text");
   const shareUrl =
@@ -71,6 +59,33 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
     } catch {
       showToast.error(t("toast.error"));
     }
+  }
+
+  // Handle klik trigger: Jika di mobile dan mendukung native share, gunakan API bawaan HP
+  async function handleTriggerClick(e: React.MouseEvent) {
+    if (
+      typeof window !== "undefined" &&
+      navigator.share &&
+      window.innerWidth < 768 // Trigger native share khusus layar mobile/tablet kecil
+    ) {
+      e.preventDefault();
+      try {
+        await navigator.share({
+          title: title,
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (error) {
+        // Abaikan jika user membatalkan share sendiri
+        if ((error as Error).name !== "AbortError") {
+          setOpen(true);
+        }
+      }
+      return;
+    }
+
+    // Untuk desktop, buka Dialog web kita
+    setOpen(true);
   }
 
   const secondaryChannels: ShareChannel[] = [
@@ -210,53 +225,27 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
     </div>
   );
 
-  if (isDesktop) {
-    return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>{trigger}</DialogTrigger>
-        <DialogContent className="w-full max-w-96 p-5 rounded-2xl gap-4 overflow-hidden">
-          <DialogHeader className="p-0 space-y-1">
-            <DialogTitle className="text-base font-semibold">
-              {t("title")}
-            </DialogTitle>
-            <DialogDescription className="truncate text-xs">
-              {title}
-            </DialogDescription>
-          </DialogHeader>
-          {body}
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>{trigger}</DrawerTrigger>
-      <DrawerContent>
-        <div className="mx-auto w-full max-w-md p-4 pt-0">
-          <DrawerHeader className="px-0 pt-2 pb-4 space-y-1">
-            <DrawerTitle className="text-base font-semibold">
-              {t("title")}
-            </DrawerTitle>
-            <DrawerDescription className="truncate text-xs">
-              {title}
-            </DrawerDescription>
-          </DrawerHeader>
-
-          {body}
-
-          <DrawerFooter className="px-0 pt-3 pb-1">
-            <DrawerClose asChild>
-              <Button
-                variant="outline"
-                className="w-full rounded-xl h-9 text-xs"
-              >
-                {t("cancel")}
-              </Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </div>
-      </DrawerContent>
-    </Drawer>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <span
+          onClick={handleTriggerClick}
+          className="inline-flex cursor-pointer"
+        >
+          {trigger}
+        </span>
+      </DialogTrigger>
+      <DialogContent className="w-full max-w-96 p-5 rounded-2xl gap-4 overflow-hidden">
+        <DialogHeader className="p-0 space-y-1">
+          <DialogTitle className="text-base font-semibold">
+            {t("title")}
+          </DialogTitle>
+          <DialogDescription className="truncate text-xs">
+            {title}
+          </DialogDescription>
+        </DialogHeader>
+        {body}
+      </DialogContent>
+    </Dialog>
   );
 }
