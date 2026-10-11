@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import {
   Popover,
   PopoverContent,
@@ -11,7 +12,9 @@ import {
   useAutocomplete,
 } from "@/hooks/use-autocomplete";
 import { cn } from "@/lib/utils";
+import { X } from "lucide-react";
 import * as React from "react";
+import { OptionIcon } from "../../input/OptionIcon";
 import { AutocompleteList } from "./AutocompleteList";
 import { AutocompleteTrigger } from "./AutocompleteTrigger";
 
@@ -68,7 +71,7 @@ export interface AutocompleteProps<
   T extends Record<string, any>,
   TQuery extends Record<string, any> = any,
 > {
-  value: string | number | null;
+  value: string | number | (string | number)[] | null;
   onSelect: (value: string | number, option?: T) => void;
   options?: T[];
   asyncConfig?: AutocompleteAsyncConfig<T, TQuery>;
@@ -78,6 +81,9 @@ export interface AutocompleteProps<
   searchKey?: keyof T;
   iconKey?: keyof T;
   groupKey?: keyof T;
+  selectionMode?: "single" | "multiple";
+  defaultSelectedOptions?: T | T[];
+  renderBadge?: (option: T, onRemove: () => void) => React.ReactNode;
 
   placeholder?: string;
   emptyText?: string;
@@ -110,6 +116,9 @@ export function Autocomplete<
   searchKey = "label" as keyof T,
   iconKey = "icon" as keyof T,
   groupKey,
+  selectionMode = "single",
+  defaultSelectedOptions,
+  renderBadge,
   placeholder = "Select option...",
   emptyText = "No option found.",
   disabled = false,
@@ -131,6 +140,7 @@ export function Autocomplete<
     search,
     setSearch,
     selectedOption,
+    selectedOptions,
     filteredOptions,
     groupedOptions,
     isLoading,
@@ -142,7 +152,7 @@ export function Autocomplete<
     fetchPrev,
     refs,
     handlers,
-  } = useAutocomplete({
+  } = useAutocomplete<T, TQuery>({
     value,
     onSelect,
     options,
@@ -150,18 +160,28 @@ export function Autocomplete<
     valueKey,
     labelKey: searchKey,
     groupKey,
+    defaultSelectedOptions,
+    selectionMode,
     debounceDelay,
     open: controlledOpen,
     onOpenChange: controlledOnOpenChange,
   });
 
   const isSolid = mode === "solid";
-  const hasValue = selectedOption != null;
+  const isMulti = selectionMode === "multiple";
+  const hasValue = isMulti
+    ? Array.isArray(value) && value.length > 0
+    : selectedOption != null || (value !== null && value !== "");
   const s = SIZE_STYLES[size];
 
-  // Keep selected item at top
+  // Start multi-select lists at the top; a selected item can be far down when
+  // many values are selected, which makes the list open in an unexpected spot.
   React.useEffect(() => {
     if (!open) return;
+    if (isMulti) {
+      refs.commandListRef.current?.scrollTo({ top: 0 });
+      return;
+    }
     const scrollSelectedToTop = () => {
       const listEl = refs.commandListRef.current;
       const selectedEl = refs.selectedItemRef.current;
@@ -176,7 +196,7 @@ export function Autocomplete<
       cancelAnimationFrame(frame);
       clearTimeout(timeout);
     };
-  }, [open, filteredOptions.length, refs.commandListRef, refs.selectedItemRef]);
+  }, [open, isMulti, refs.commandListRef, refs.selectedItemRef]);
 
   const triggerClass = isSolid
     ? cn(
@@ -214,6 +234,8 @@ export function Autocomplete<
           hasError={hasError}
           isLoading={isLoading}
           hasValue={hasValue}
+          isMulti={isMulti}
+          selectedCount={isMulti && Array.isArray(value) ? value.length : 0}
           showClearButton={showClearButton}
           selectedOption={selectedOption}
           search={search}
@@ -265,6 +287,49 @@ export function Autocomplete<
           handlers={handlers}
         />
       </PopoverContent>
+
+      {isMulti && selectedOptions.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 pt-1">
+          {selectedOptions.map((option) => {
+            const optionValue = option[valueKey] as string | number;
+            const optionLabel = String(option[labelKey] ?? "");
+            const removeOption = () => onSelect(optionValue, option);
+
+            if (renderBadge) {
+              return (
+                <React.Fragment key={String(optionValue)}>
+                  {renderBadge(option, removeOption)}
+                </React.Fragment>
+              );
+            }
+
+            return (
+              <Badge
+                key={String(optionValue)}
+                variant="secondary"
+                className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium"
+              >
+                {iconKey && option[iconKey] && (
+                  <OptionIcon
+                    icon={option[iconKey]}
+                    size={14}
+                    alt={optionLabel}
+                  />
+                )}
+                <span>{optionLabel}</span>
+                <button
+                  type="button"
+                  aria-label={`Remove ${optionLabel}`}
+                  onClick={removeOption}
+                  className="hover:bg-muted-foreground/20 rounded-xs p-0.5 transition-colors"
+                >
+                  <X className="h-3 w-3" aria-hidden="true" />
+                </button>
+              </Badge>
+            );
+          })}
+        </div>
+      )}
     </Popover>
   );
 }

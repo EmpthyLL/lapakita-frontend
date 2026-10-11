@@ -1,23 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PaginatedResponse } from "@/lib/data/schema/base";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import React from "react";
 
 export type DefaultOption = {
   label: string;
   value: string | number;
 };
 
-export type ApiResponse<TData> =
-  | PaginatedResponse<TData>
-  | TData[]
-  | { data: TData[] };
+type SelectedIdType = string | number | (string | number)[];
 
 type UseInfiniteSearchProps<
   TData,
-  TQuery extends Record<string, unknown>,
+  TQuery extends Record<string, any>,
   TOutput,
 > = {
-  queryKey: readonly unknown[];
-  queryFn: (params: TQuery) => Promise<ApiResponse<TData>>;
+  queryKey: any[];
+  queryFn: (params: TQuery) => Promise<PaginatedResponse<TData>>;
   search?: string;
   searchKey?: keyof TQuery;
   enabled?: boolean;
@@ -25,12 +24,13 @@ type UseInfiniteSearchProps<
   mapFn?: (data: TData[]) => TOutput[];
   initialLimit?: number;
   initialPageParam?: number;
-  selected_id?: string | number;
+  selected_id?: SelectedIdType;
+  onError?: (error: unknown) => void;
 };
 
 export function useInfiniteSearch<
   TData,
-  TQuery extends Record<string, unknown>,
+  TQuery extends Record<string, any>,
   TOutput = TData,
 >({
   queryKey,
@@ -43,7 +43,18 @@ export function useInfiniteSearch<
   initialLimit = 10,
   initialPageParam = 1,
   selected_id,
+  onError,
 }: UseInfiniteSearchProps<TData, TQuery, TOutput>) {
+  // Format selected_id menjadi string dipisah koma "id1,id2,id3"
+  const formattedSelectedId = React.useMemo(() => {
+    if (!selected_id) return undefined;
+    if (Array.isArray(selected_id)) {
+      if (selected_id.length === 0) return undefined;
+      return selected_id.join(",");
+    }
+    return String(selected_id);
+  }, [selected_id]);
+
   const query = useInfiniteQuery({
     queryKey: [
       ...queryKey,
@@ -51,64 +62,69 @@ export function useInfiniteSearch<
       initialLimit,
       initialPageParam,
       params,
-      selected_id,
-    ] as const,
+      formattedSelectedId,
+    ],
     queryFn: async ({ pageParam = initialPageParam }) => {
-      const isInitialPage = pageParam === initialPageParam;
+      try {
+        const finalParams: TQuery = {
+          ...params,
+          page: pageParam,
+          limit: initialLimit,
+          ...(formattedSelectedId !== undefined
+            ? { selected_id: formattedSelectedId }
+            : {}),
+        } as TQuery;
 
-      const finalParams: TQuery = {
-        ...params,
-        page: pageParam,
-        limit: initialLimit,
-        ...(isInitialPage && selected_id !== undefined ? { selected_id } : {}),
-      } as unknown as TQuery;
-
-      if (search && searchKey) {
-        (finalParams as Record<string, unknown>)[String(searchKey)] = search;
-      }
-
-      const raw = await queryFn(finalParams);
-
-      // Normalisasi berbagai bentuk respons API (Paginated, Array mentah, atau { data })
-      let dataList: TData[] = [];
-      let meta = undefined;
-      let hasMore = false;
-      let hasPrev = false;
-
-      if (Array.isArray(raw)) {
-        dataList = raw;
-      } else if (
-        raw &&
-        typeof raw === "object" &&
-        "data" in raw &&
-        Array.isArray(raw.data)
-      ) {
-        dataList = raw.data;
-        if ("meta" in raw && raw.meta && typeof raw.meta === "object") {
-          meta = raw.meta as PaginatedResponse<TData>["meta"];
-          hasMore = Boolean(meta.hasNextPage);
-          hasPrev = Boolean(meta.hasPrevPage);
+        if (search && searchKey) {
+          (finalParams as any)[searchKey] = search;
         }
-      }
 
-      return {
-        data: dataList,
-        hasMore,
-        hasPrev,
-        page: pageParam as number,
-        meta,
-      };
+        const raw = await queryFn(finalParams);
+
+        if (!raw || !raw.meta) {
+          throw new Error("Invalid paginated response structure from server.");
+        }
+
+        return {
+          data: raw.data ?? [],
+          hasNext: raw.meta.hasNextPage ?? false,
+          hasPrev: raw.meta.hasPrevPage ?? false,
+          page: pageParam,
+          meta: raw.meta,
+        };
+      } catch (err) {
+        // Panggil handler opsional jika disuplai oleh pemanggil
+        onError?.(err);
+        // Lempar kembali error agar ditangkap oleh state internal TanStack Query
+        throw err;
+      }
     },
     getNextPageParam: (lastPage) =>
-      lastPage.hasMore ? lastPage.page + 1 : undefined,
+      lastPage?.hasNext ? lastPage.page + 1 : undefined,
     getPreviousPageParam: (firstPage) =>
-      firstPage.hasPrev ? firstPage.page - 1 : undefined,
+      firstPage?.hasPrev ? firstPage.page - 1 : undefined,
     initialPageParam,
     enabled,
     placeholderData: (prev) => prev,
   });
 
-  const flatData = query.data?.pages.flatMap((p) => p.data) ?? [];
+  // Deduplikasi data antar-page berdasarkan ID / Value item
+  const flatData = React.useMemo(() => {
+    const rawData = query.data?.pages.flatMap((p) => p?.data ?? []) ?? [];
+    const seen = new Set<string>();
+
+    return rawData.filter((item) => {
+      if (!item) return false;
+      const id = String(
+        (item as any).id ?? (item as any).value ?? JSON.stringify(item),
+      );
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+  }, [query.data]);
+
+  const firstPage = query.data?.pages[0];
   const lastPage = query.data?.pages.at(-1);
 
   const finalData = mapFn
@@ -118,11 +134,14 @@ export function useInfiniteSearch<
   return {
     data: finalData,
     isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+    refetch: query.refetch,
     fetchNextPage: query.fetchNextPage,
     fetchPreviousPage: query.fetchPreviousPage,
     isFetching: query.isFetching,
-    hasNextPage: query.hasNextPage,
-    hasPreviousPage: query.hasPreviousPage,
+    hasNextPage: lastPage?.hasNext ?? false,
+    hasPreviousPage: firstPage?.hasPrev ?? false,
     isFetchingNextPage: query.isFetchingNextPage,
     isFetchingPreviousPage: query.isFetchingPreviousPage,
     meta: lastPage?.meta,

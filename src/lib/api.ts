@@ -1,5 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { getSession, signOut } from "next-auth/react";
+import { v4 as uuidv4 } from "uuid";
 
 // Helper membuat/mengambil Device ID yang persisten di localStorage
 function getOrCreateDeviceId(): string {
@@ -7,7 +8,19 @@ function getOrCreateDeviceId(): string {
 
   let deviceId = localStorage.getItem("lapakita_device_id");
   if (!deviceId) {
-    deviceId = crypto.randomUUID();
+    try {
+      // Coba gunakan bawaan browser jika lingkungan aman (HTTPS / localhost)
+      if (typeof window.crypto?.randomUUID === "function") {
+        deviceId = window.crypto.randomUUID();
+      } else {
+        // Fallback ke library uuid jika crypto tidak tersedia (misal di http:// IP lokal)
+        deviceId = uuidv4();
+      }
+    } catch {
+      // Fallback darurat terakhir jika semuanya gagal
+      deviceId = uuidv4();
+    }
+
     localStorage.setItem("lapakita_device_id", deviceId);
   }
   return deviceId;

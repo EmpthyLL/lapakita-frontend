@@ -14,6 +14,8 @@ interface AutocompleteTriggerProps<T> {
   hasError: boolean;
   isLoading: boolean;
   hasValue: boolean;
+  isMulti: boolean;
+  selectedCount: number;
   showClearButton: boolean;
   selectedOption?: T;
   search: string;
@@ -50,6 +52,8 @@ export const AutocompleteTrigger = React.forwardRef<
     hasError,
     isLoading,
     hasValue,
+    isMulti,
+    selectedCount,
     showClearButton,
     selectedOption,
     search,
@@ -71,9 +75,11 @@ export const AutocompleteTrigger = React.forwardRef<
 ) {
   const inputDisplayValue = open
     ? search
-    : selectedOption
-      ? String(selectedOption[labelKey])
-      : search;
+    : isMulti && selectedCount > 0
+      ? `${selectedCount} selected`
+      : selectedOption
+        ? String(selectedOption[labelKey])
+        : search;
 
   const activePlaceholder = open
     ? selectedOption

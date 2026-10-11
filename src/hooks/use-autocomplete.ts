@@ -2,15 +2,16 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
+import { PaginatedResponse } from "@/lib/data/schema/base";
 import * as React from "react";
 import { useDebounce } from "./use-debounce";
-import { ApiResponse, useInfiniteSearch } from "./use-infinite-search";
+import { useInfiniteSearch } from "./use-infinite-search";
 
 export interface AutocompleteAsyncConfig<
   TData,
   TQuery extends Record<string, any> = Record<string, any>,
 > {
-  queryFn: (params: TQuery) => Promise<ApiResponse<TData>>;
+  queryFn: (params: TQuery) => Promise<PaginatedResponse<TData>>;
   queryKey: readonly any[];
   params?: TQuery;
   searchKey?: keyof TQuery;
@@ -21,13 +22,15 @@ export interface UseAutocompleteParams<
   TData,
   TQuery extends Record<string, any> = Record<string, any>,
 > {
-  value: string | number | null;
+  value: string | number | (string | number)[] | null;
   onSelect: (value: string | number, option?: TData) => void;
   options?: TData[];
   asyncConfig?: AutocompleteAsyncConfig<TData, TQuery>;
   valueKey?: keyof TData;
   labelKey?: keyof TData;
   groupKey?: keyof TData;
+  defaultSelectedOptions?: TData | TData[];
+  selectionMode?: "single" | "multiple";
   debounceDelay?: number;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -44,6 +47,8 @@ export function useAutocomplete<
   valueKey = "value" as keyof TData,
   labelKey = "label" as keyof TData,
   groupKey,
+  defaultSelectedOptions,
+  selectionMode = "single",
   debounceDelay = 300,
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
@@ -61,9 +66,13 @@ export function useAutocomplete<
 
   const debouncedSearch = useDebounce(search, debounceDelay);
 
-  const infiniteQuery = useInfiniteSearch({
-    queryKey: asyncConfig?.queryKey ?? [],
-    queryFn: asyncConfig?.queryFn ?? (async () => []),
+  const infiniteQuery = useInfiniteSearch<TData, TQuery, TData>({
+    queryKey: [...(asyncConfig?.queryKey ?? [])],
+    queryFn:
+      asyncConfig?.queryFn ??
+      (async () => {
+        throw new Error("Async query is not configured.");
+      }),
     search: debouncedSearch,
     searchKey: asyncConfig?.searchKey ?? ("search" as keyof TQuery),
     enabled: Boolean(asyncConfig),
@@ -72,7 +81,9 @@ export function useAutocomplete<
     selected_id: value !== null ? value : undefined,
   });
 
-  const options = asyncConfig ? infiniteQuery.data : staticOptions;
+  const options: TData[] = asyncConfig
+    ? (infiniteQuery.data as TData[])
+    : staticOptions;
   const isLoading = asyncConfig ? infiniteQuery.isLoading : false;
   const isFetchingNext = asyncConfig ? infiniteQuery.isFetchingNextPage : false;
   const isFetchingPrev = asyncConfig
@@ -81,11 +92,39 @@ export function useAutocomplete<
   const hasNext = asyncConfig ? infiniteQuery.hasNextPage : false;
   const hasPrev = asyncConfig ? infiniteQuery.hasPreviousPage : false;
 
-  const selectedOption = options.find(
-    (option) => String(option[valueKey]) === String(value),
-  );
+  const selectedOptions = React.useMemo(() => {
+    if (!Array.isArray(value)) return [];
 
-  const filteredOptions = React.useMemo(() => {
+    const optionsByValue = new Map<string, TData>();
+    options.forEach((option) => {
+      optionsByValue.set(String(option[valueKey]), option);
+    });
+    const defaults = Array.isArray(defaultSelectedOptions)
+      ? defaultSelectedOptions
+      : defaultSelectedOptions
+        ? [defaultSelectedOptions]
+        : [];
+    defaults.forEach((option) => {
+      const key = String(option[valueKey]);
+      if (!optionsByValue.has(key)) optionsByValue.set(key, option);
+    });
+
+    return value
+      .map((selectedValue) => optionsByValue.get(String(selectedValue)))
+      .filter((option): option is TData => option !== undefined);
+  }, [options, value, valueKey, defaultSelectedOptions]);
+
+  const selectedOption = Array.isArray(value)
+    ? undefined
+    : (options.find((option) => String(option[valueKey]) === String(value)) ??
+      (defaultSelectedOptions &&
+      !Array.isArray(defaultSelectedOptions) &&
+      value !== null &&
+      String(defaultSelectedOptions[valueKey]) === String(value)
+        ? defaultSelectedOptions
+        : undefined));
+
+  const filteredOptions = React.useMemo<TData[]>(() => {
     if (asyncConfig || !search) return options;
     return options.filter((option) =>
       String(option[labelKey]).toLowerCase().includes(search.toLowerCase()),
@@ -163,7 +202,7 @@ export function useAutocomplete<
       (o) => String(o[valueKey]).toLowerCase() === rawValue.toLowerCase(),
     );
     if (selected) onSelect(selected[valueKey] as string | number, selected);
-    setOpen(false);
+    if (selectionMode !== "multiple") setOpen(false);
   }
 
   React.useEffect(() => {
@@ -181,6 +220,7 @@ export function useAutocomplete<
     search,
     setSearch,
     selectedOption,
+    selectedOptions,
     filteredOptions,
     groupedOptions,
     isLoading,

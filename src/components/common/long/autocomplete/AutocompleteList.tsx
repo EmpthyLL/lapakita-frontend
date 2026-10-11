@@ -17,7 +17,7 @@ interface AutocompleteListProps<T> {
   options: T[];
   filteredOptions: T[];
   groupedOptions: [string, T[]][] | null;
-  value: string | number | null;
+  value: string | number | (string | number)[] | null;
   valueKey: keyof T;
   labelKey: keyof T;
   searchKey: keyof T;
@@ -95,7 +95,11 @@ export function AutocompleteList<T extends Record<string, any>>({
   };
 
   const renderOptionRow = (option: T, isGrouped: boolean) => {
-    const isSelected = String(value) === String(option[valueKey]);
+    const isSelected = Array.isArray(value)
+      ? value.some(
+          (selectedValue) => String(selectedValue) === String(option[valueKey]),
+        )
+      : String(value) === String(option[valueKey]);
 
     return (
       <CommandItem

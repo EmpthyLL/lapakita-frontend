@@ -7,7 +7,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { showToast } from "@/lib/toast";
@@ -61,30 +60,33 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
     }
   }
 
-  // Handle klik trigger: Jika di mobile dan mendukung native share, gunakan API bawaan HP
-  async function handleTriggerClick(e: React.MouseEvent) {
-    if (
-      typeof window !== "undefined" &&
-      navigator.share &&
-      window.innerWidth < 768 // Trigger native share khusus layar mobile/tablet kecil
-    ) {
-      e.preventDefault();
+  // Fungsi utama share yang langsung mencoba native share terlebih dahulu
+  async function handleShareClick(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Periksa apakah browser mendukung Web Share API
+    if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
           title: title,
           text: shareText,
           url: shareUrl,
         });
+        return; // Berhasil membuka native share, hentikan eksekusi
       } catch (error) {
-        // Abaikan jika user membatalkan share sendiri
-        if ((error as Error).name !== "AbortError") {
-          setOpen(true);
+        // Jika user membatalkan (AbortError), biarkan saja
+        if ((error as Error).name === "AbortError") {
+          return;
         }
+        // Jika gagal karena pembatasan HTTP/Insecure Context, lanjut ke dialog fallback
+        console.warn(
+          "Native share restricted in insecure context, opening fallback dialog.",
+        );
       }
-      return;
     }
 
-    // Untuk desktop, buka Dialog web kita
+    // Fallback mutlak jika navigator.share tidak ada atau diblokir HTTP
     setOpen(true);
   }
 
@@ -129,7 +131,6 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
 
   const body = (
     <div className="flex flex-col gap-3.5">
-      {/* Banner Utama: WhatsApp Redirect */}
       <a
         href={`https://wa.me/?text=${encodedText}`}
         target="_blank"
@@ -149,7 +150,6 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
         </span>
       </a>
 
-      {/* Grid Medsos Relevan */}
       <div className="grid grid-cols-3 gap-2">
         {secondaryChannels.map((c) => {
           const Icon = c.icon;
@@ -197,7 +197,6 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
         })}
       </div>
 
-      {/* Copy Link Input */}
       <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/40 p-1 pl-3">
         <Link2 className="h-4 w-4 shrink-0 text-muted-foreground" />
         <Input
@@ -226,26 +225,30 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
   );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <span
-          onClick={handleTriggerClick}
-          className="inline-flex cursor-pointer"
-        >
-          {trigger}
-        </span>
-      </DialogTrigger>
-      <DialogContent className="w-full max-w-96 p-5 rounded-2xl gap-4 overflow-hidden">
-        <DialogHeader className="p-0 space-y-1">
-          <DialogTitle className="text-base font-semibold">
-            {t("title")}
-          </DialogTitle>
-          <DialogDescription className="truncate text-xs">
-            {title}
-          </DialogDescription>
-        </DialogHeader>
-        {body}
-      </DialogContent>
-    </Dialog>
+    <>
+      {/* Tombol pemicu murni menjalankan fungsi share tanpa hambatan */}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={handleShareClick}
+        className="inline-flex cursor-pointer items-center outline-none"
+      >
+        {trigger}
+      </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="w-full max-w-96 p-5 rounded-2xl gap-4 overflow-hidden">
+          <DialogHeader className="p-0 space-y-1">
+            <DialogTitle className="text-base font-semibold">
+              {t("title")}
+            </DialogTitle>
+            <DialogDescription className="truncate text-xs">
+              {title}
+            </DialogDescription>
+          </DialogHeader>
+          {body}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
