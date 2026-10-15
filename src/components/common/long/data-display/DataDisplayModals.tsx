@@ -4,12 +4,12 @@ import ConfirmDialog from "@/components/common/ConfirmDialog";
 import { DeleteConfirmDialog } from "@/components/common/DeleteDialog";
 import DialogWrapper from "@/components/common/DialogWrapper";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   DataDisplayConfirmOptions,
   DataDisplayDetail,
@@ -60,25 +60,34 @@ export function DataDisplayModals<TData>({
 }: DataDisplayModalsProps<TData>) {
   return (
     <>
-      <Drawer
-        swipeDirection="left"
+      {/* Form Sidebar (Sheet dari kiri) */}
+      <Sheet
         open={activeForm?.type === "sidebar"}
         onOpenChange={(open) => {
           if (!open && activeForm) onCloseForm();
         }}
       >
-        <DrawerContent>
+        <SheetContent
+          side="left"
+          className="w-full max-w-96 p-5 flex flex-col gap-4 overflow-hidden"
+        >
           {form &&
             activeForm?.type === "sidebar" &&
             (activeForm.kind === "create" || activeForm.row !== undefined) && (
               <>
-                <DrawerHeader>
-                  {form.title && <DrawerTitle>{form.title}</DrawerTitle>}
-                  {form.description && (
-                    <DrawerDescription>{form.description}</DrawerDescription>
+                <SheetHeader className="p-0 space-y-1 text-left">
+                  {form.title && (
+                    <SheetTitle className="text-base font-semibold">
+                      {form.title}
+                    </SheetTitle>
                   )}
-                </DrawerHeader>
-                <div className="overflow-y-auto p-4">
+                  {form.description && (
+                    <SheetDescription className="truncate text-xs">
+                      {form.description}
+                    </SheetDescription>
+                  )}
+                </SheetHeader>
+                <div className="flex-1 overflow-y-auto p-0">
                   {form.component({
                     row: activeForm.row,
                     index: activeForm.index,
@@ -88,9 +97,10 @@ export function DataDisplayModals<TData>({
                 </div>
               </>
             )}
-        </DrawerContent>
-      </Drawer>
+        </SheetContent>
+      </Sheet>
 
+      {/* Form Modal Dialog */}
       {form && (
         <DialogWrapper
           open={activeForm?.type === "dialog"}
@@ -110,24 +120,34 @@ export function DataDisplayModals<TData>({
         </DialogWrapper>
       )}
 
-      <Drawer
+      {/* Detail Sidebar (Sheet dari kanan) */}
+      <Sheet
         open={activeDetail?.type === "sidebar"}
         onOpenChange={(open) => {
           if (!open && activeDetail) onCloseDetail();
         }}
       >
-        <DrawerContent>
+        <SheetContent
+          side="right"
+          className="w-full max-w-96 p-5 flex flex-col gap-4 overflow-hidden"
+        >
           {detail &&
             activeDetail?.type === "sidebar" &&
             activeDetail.row !== undefined && (
               <>
-                <DrawerHeader>
-                  {detail.title && <DrawerTitle>{detail.title}</DrawerTitle>}
-                  {detail.description && (
-                    <DrawerDescription>{detail.description}</DrawerDescription>
+                <SheetHeader className="p-0 space-y-1 text-left">
+                  {detail.title && (
+                    <SheetTitle className="text-base font-semibold">
+                      {detail.title}
+                    </SheetTitle>
                   )}
-                </DrawerHeader>
-                <div className="overflow-y-auto p-4">
+                  {detail.description && (
+                    <SheetDescription className="truncate text-xs">
+                      {detail.description}
+                    </SheetDescription>
+                  )}
+                </SheetHeader>
+                <div className="flex-1 overflow-y-auto p-0">
                   {detail.component({
                     row: activeDetail.row,
                     index: activeDetail.index ?? 0,
@@ -137,9 +157,10 @@ export function DataDisplayModals<TData>({
                 </div>
               </>
             )}
-        </DrawerContent>
-      </Drawer>
+        </SheetContent>
+      </Sheet>
 
+      {/* Detail Modal Dialog */}
       {detail && (
         <DialogWrapper
           open={activeDetail?.type === "dialog"}

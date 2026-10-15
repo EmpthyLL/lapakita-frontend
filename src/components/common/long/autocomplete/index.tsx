@@ -93,7 +93,7 @@ export interface AutocompleteProps<
   indicatorIcon?: React.ReactNode;
   addButton?: React.ReactNode;
 
-  renderConfig?: AutocompleteRenderConfig<T>; // Menggantikan render & renderTriggerAsCustom yang terpisah
+  renderConfig?: AutocompleteRenderConfig<T>;
 
   debounceDelay?: number;
   className?: string;
