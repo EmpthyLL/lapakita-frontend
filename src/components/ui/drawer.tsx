@@ -103,50 +103,42 @@ function DrawerContent({
   children,
   ...props
 }: DialogPrimitive.DialogContentProps) {
-  const { hasSnapPoints, modal, showSwipeHandle, swipeDirection } = useDrawer();
-  const swipeAxis =
-    swipeDirection === "down" || swipeDirection === "up" ? "y" : "x";
+  const { modal, showSwipeHandle, swipeDirection } = useDrawer();
+
+  // Konfigurasi animasi slide masuk & keluar yang selaras dengan durasi eksplisit
+  const slideAnimationClasses = {
+    down: "inset-x-0 bottom-0 rounded-t-2xl data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+    up: "inset-x-0 top-0 rounded-b-2xl data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+    left: "inset-y-0 left-0 rounded-r-2xl data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left",
+    right:
+      "inset-y-0 right-0 rounded-l-2xl data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
+  };
 
   return (
     <DrawerPortal data-slot="drawer-portal">
       {modal && (
-        <DrawerOverlay data-snap-points={hasSnapPoints ? "" : undefined} />
+        <DrawerOverlay
+          className={cn(
+            "fixed inset-0 z-50 bg-black/40 backdrop-blur-xs",
+            "transition-opacity duration-300 ease-out",
+            "data-[state=open]:animate-in data-[state=open]:fade-in-0",
+            "data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
+          )}
+        />
       )}
       <div
         data-slot="drawer-viewport"
-        data-modal={modal}
-        className="pointer-events-none fixed inset-0 z-50 select-none data-[modal=true]:pointer-events-auto flex items-center justify-center"
+        className="pointer-events-none fixed inset-0 z-50 flex items-end sm:items-center justify-center overflow-hidden"
       >
         <DialogPrimitive.Content
           data-slot="drawer-popup"
-          data-swipe-axis={swipeAxis}
-          data-swipe-direction={swipeDirection}
-          data-snap-points={hasSnapPoints ? "" : undefined}
           className={cn(
-            // Base.
-            "group/drawer-popup pointer-events-auto fixed z-50 m-(--drawer-inset,0px) flex h-(--drawer-content-height) max-h-(--drawer-content-max-height,none) min-h-0 w-(--drawer-content-width,auto) transform-[translate3d(var(--translate-x,0px),var(--translate-y,0px),0)_scale(var(--stack-scale))] flex-col bg-popover text-xs/relaxed text-popover-foreground transition-[transform,height,opacity,filter] duration-450 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform outline-none select-none [interpolate-size:allow-keywords] data-[swipe-direction=down]:rounded-md data-[swipe-direction=down]:border-t data-[swipe-direction=left]:rounded-md data-[swipe-direction=left]:border-r data-[swipe-direction=right]:rounded-md data-[swipe-direction=right]:border-l data-[swipe-direction=up]:rounded-md data-[swipe-direction=up]:border-b",
-            // Nested.
-            "data-nested-drawer-open:overflow-hidden data-nested-drawer-open:brightness-95",
-            // Bleed.
-            "after:pointer-events-none after:absolute after:bg-(--drawer-bleed-background,var(--color-popover)) data-[swipe-axis=x]:after:inset-y-0 data-[swipe-axis=x]:after:w-(--bleed) data-[swipe-axis=y]:after:inset-x-0 data-[swipe-axis=y]:after:h-(--bleed) data-[swipe-direction=down]:after:top-full data-[swipe-direction=left]:after:right-full data-[swipe-direction=right]:after:left-full data-[swipe-direction=up]:after:bottom-full",
-            // Sizing.
-            "[--drawer-content-height:var(--drawer-height,auto)] data-[swipe-axis=x]:[--drawer-content-width:75%] data-[swipe-axis=y]:[--drawer-content-max-height:calc(100dvh-6rem)] data-[swipe-axis=y]:data-snap-points:[--drawer-content-height:100dvh] data-[swipe-axis=x]:sm:[--drawer-content-width:24rem]",
-            // Stack.
-            "[--bleed:3rem] [--peek:1rem] [--stack-height:var(--drawer-frontmost-height,var(--drawer-height,0px))] [--stack-peek-offset:max(0px,calc((var(--nested-drawers,0)-var(--stack-progress,0))*var(--peek)))] [--stack-progress:clamp(0,var(--drawer-swipe-progress,0),1)] [--stack-scale-base:max(0,calc(1-(var(--nested-drawers,0)*var(--stack-step))))] [--stack-scale:clamp(0,calc(var(--stack-scale-base)+(var(--stack-step)*var(--stack-progress))),1)] [--stack-shrink:calc(1-var(--stack-scale))] [--stack-step:0.05]",
-            // Transitions & Radix States.
-            "data-[state=closed]:transform-(--closed-transform) data-[state=closed]:opacity-0 data-[state=closed]:duration-[calc(var(--drawer-swipe-strength,1)*400ms)] data-[state=open]:opacity-100 data-nested-drawer-swiping:duration-0 data-[state=closed]:data-nested-drawer-swiping:duration-[calc(var(--drawer-swipe-strength,1)*400ms)] data-[state=open]:data-swiping:duration-0",
-            // Axis: y.
-            "data-[swipe-axis=y]:inset-x-0 data-[swipe-axis=y]:data-nested-drawer-open:h-(--stack-height)",
-            // Axis: x.
-            "data-[swipe-axis=x]:inset-y-0 data-[swipe-axis=x]:flex-row",
-            // Direction: down.
-            "data-[swipe-direction=down]:bottom-0 data-[swipe-direction=down]:origin-bottom data-[swipe-direction=down]:[--closed-transform:translate3d(0,calc(100%+var(--drawer-inset,0px)+2px),0)] data-[swipe-direction=down]:[--translate-y:calc(var(--drawer-snap-point-offset,0px)+var(--drawer-swipe-movement-y,0px)-var(--stack-peek-offset)-(var(--stack-shrink)*var(--stack-height)))]",
-            // Direction: up.
-            "data-[swipe-direction=up]:top-0 data-[swipe-direction=up]:origin-top data-[swipe-direction=up]:[--closed-transform:translate3d(0,calc(-100%-var(--drawer-inset,0px)-2px),0)] data-[swipe-direction=up]:[--translate-y:calc(var(--drawer-snap-point-offset,0px)+var(--drawer-swipe-movement-y,0px)+var(--stack-peek-offset)+(var(--stack-shrink)*var(--stack-height)))]",
-            // Direction: left.
-            "data-[swipe-direction=left]:left-0 data-[swipe-direction=left]:origin-left data-[swipe-direction=left]:[--closed-transform:translate3d(calc(-100%-var(--drawer-inset,0px)-2px),0,0)] data-[swipe-direction=left]:[--translate-x:calc(var(--drawer-swipe-movement-x,0px)+var(--stack-peek-offset)+(var(--stack-shrink)*100%))]",
-            // Direction: right.
-            "data-[swipe-direction=right]:right-0 data-[swipe-direction=right]:origin-right data-[swipe-direction=right]:[--closed-transform:translate3d(calc(100%+var(--drawer-inset,0px)+2px),0,0)] data-[swipe-direction=right]:[--translate-x:calc(var(--drawer-swipe-movement-x,0px)-var(--stack-peek-offset)-(var(--stack-shrink)*100%))]",
+            // Base style: Pastikan ada transition transform & durasi 300ms untuk open/closed
+            "pointer-events-auto fixed z-50 flex flex-col bg-popover text-xs/relaxed text-popover-foreground shadow-xl outline-none",
+            "transition-transform duration-300 ease-in-out", // <-- INI KUNCINYA AGAR BERGESER SAAT DITUTUP
+            "data-[state=open]:animate-in data-[state=open]:duration-300",
+            "data-[state=closed]:animate-out data-[state=closed]:duration-300",
+            slideAnimationClasses[swipeDirection] || slideAnimationClasses.down,
             className,
           )}
           {...props}
@@ -154,9 +146,7 @@ function DrawerContent({
           {showSwipeHandle && <DrawerSwipeHandle />}
           <div
             data-slot="drawer-content"
-            className={cn(
-              "flex min-h-0 flex-1 flex-col overflow-hidden overscroll-contain rounded-[inherit] transition-opacity duration-300 ease-[cubic-bezier(0.45,1.005,0,1.005)] select-text group-data-nested-drawer-open/drawer-popup:opacity-0 group-data-nested-drawer-swiping/drawer-popup:opacity-100 group-data-swiping/drawer-popup:select-none",
-            )}
+            className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain p-4"
           >
             {children}
           </div>

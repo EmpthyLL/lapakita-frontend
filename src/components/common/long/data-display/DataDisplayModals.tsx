@@ -27,7 +27,6 @@ interface DataDisplayModalsProps<TData> {
     close: () => void;
   } | null;
   onCloseForm: () => void;
-
   detail?: DataDisplayDetail<TData>;
   activeDetail: {
     row?: TData;
@@ -35,13 +34,11 @@ interface DataDisplayModalsProps<TData> {
     type: DataDisplaySurface;
   } | null;
   onCloseDetail: () => void;
-
   activeConfirm: {
     onConfirm: () => void;
     options: DataDisplayConfirmOptions;
   } | null;
   onCloseConfirm: () => void;
-
   activeDelete: {
     onDelete: () => void;
     itemName?: string;
@@ -63,125 +60,124 @@ export function DataDisplayModals<TData>({
 }: DataDisplayModalsProps<TData>) {
   return (
     <>
-      {/* Non-Expandable Form (Sidebar / Dialog menggunakan DialogWrapper) */}
-      {form &&
-        form.type !== "expandable" &&
-        activeForm &&
-        activeForm.type !== "expandable" &&
-        (activeForm.kind === "create" || activeForm.row !== undefined) &&
-        (activeForm.type === "sidebar" ? (
-          <Drawer
-            swipeDirection="left"
-            open
-            onOpenChange={(open) => !open && onCloseForm()}
-          >
-            <DrawerContent>
-              <DrawerHeader>
-                {form.title && <DrawerTitle>{form.title}</DrawerTitle>}
-                {form.description && (
-                  <DrawerDescription>{form.description}</DrawerDescription>
-                )}
-              </DrawerHeader>
-              <div className="overflow-y-auto p-4">
-                {form.component({
-                  row: activeForm.row,
-                  index: activeForm.index,
-                  mode: activeForm.kind,
-                  close: onCloseForm,
-                })}
-              </div>
-            </DrawerContent>
-          </Drawer>
-        ) : (
-          <DialogWrapper
-            open
-            onOpenChange={(open) => !open && onCloseForm()}
-            title={form.title}
-            desc={form.description}
-            size={form.size ?? "lg"}
-          >
-            {form.component({
+      <Drawer
+        swipeDirection="left"
+        open={activeForm?.type === "sidebar"}
+        onOpenChange={(open) => {
+          if (!open && activeForm) onCloseForm();
+        }}
+      >
+        <DrawerContent>
+          {form &&
+            activeForm?.type === "sidebar" &&
+            (activeForm.kind === "create" || activeForm.row !== undefined) && (
+              <>
+                <DrawerHeader>
+                  {form.title && <DrawerTitle>{form.title}</DrawerTitle>}
+                  {form.description && (
+                    <DrawerDescription>{form.description}</DrawerDescription>
+                  )}
+                </DrawerHeader>
+                <div className="overflow-y-auto p-4">
+                  {form.component({
+                    row: activeForm.row,
+                    index: activeForm.index,
+                    mode: activeForm.kind,
+                    close: onCloseForm,
+                  })}
+                </div>
+              </>
+            )}
+        </DrawerContent>
+      </Drawer>
+
+      {form && (
+        <DialogWrapper
+          open={activeForm?.type === "dialog"}
+          onOpenChange={(open) => !open && onCloseForm()}
+          title={form.title}
+          desc={form.description}
+          size={form.size ?? "lg"}
+        >
+          {activeForm?.type === "dialog" &&
+            (activeForm.kind === "create" || activeForm.row !== undefined) &&
+            form.component({
               row: activeForm.row,
               index: activeForm.index,
               mode: activeForm.kind,
               close: onCloseForm,
             })}
-          </DialogWrapper>
-        ))}
+        </DialogWrapper>
+      )}
 
-      {/* Non-Expandable Detail (Sidebar / Dialog menggunakan DialogWrapper) */}
-      {detail &&
-        detail.type !== "expandable" &&
-        activeDetail &&
-        activeDetail.type !== "expandable" &&
-        activeDetail.row !== undefined &&
-        (activeDetail.type === "sidebar" ? (
-          <Drawer open onOpenChange={(open) => !open && onCloseDetail()}>
-            <DrawerContent>
-              <DrawerHeader>
-                {detail.title && <DrawerTitle>{detail.title}</DrawerTitle>}
-                {detail.description && (
-                  <DrawerDescription>{detail.description}</DrawerDescription>
-                )}
-              </DrawerHeader>
-              <div className="overflow-y-auto p-4">
-                {detail.component?.({
-                  row: activeDetail.row,
-                  index: activeDetail.index ?? 0,
-                  mode: "view", // Menambahkan mode "view"
-                  close: onCloseDetail, // Menambahkan fungsi close yang wajib di interface
-                })}
-              </div>
-            </DrawerContent>
-          </Drawer>
-        ) : (
-          <DialogWrapper
-            open
-            onOpenChange={(open) => !open && onCloseDetail()}
-            title={detail.title}
-            desc={detail.description}
-            size={detail.size ?? "lg"}
-          >
-            {detail.component?.({
+      <Drawer
+        open={activeDetail?.type === "sidebar"}
+        onOpenChange={(open) => {
+          if (!open && activeDetail) onCloseDetail();
+        }}
+      >
+        <DrawerContent>
+          {detail &&
+            activeDetail?.type === "sidebar" &&
+            activeDetail.row !== undefined && (
+              <>
+                <DrawerHeader>
+                  {detail.title && <DrawerTitle>{detail.title}</DrawerTitle>}
+                  {detail.description && (
+                    <DrawerDescription>{detail.description}</DrawerDescription>
+                  )}
+                </DrawerHeader>
+                <div className="overflow-y-auto p-4">
+                  {detail.component({
+                    row: activeDetail.row,
+                    index: activeDetail.index ?? 0,
+                    mode: "view",
+                    close: onCloseDetail,
+                  })}
+                </div>
+              </>
+            )}
+        </DrawerContent>
+      </Drawer>
+
+      {detail && (
+        <DialogWrapper
+          open={activeDetail?.type === "dialog"}
+          onOpenChange={(open) => !open && onCloseDetail()}
+          title={detail.title}
+          desc={detail.description}
+          size={detail.size ?? "lg"}
+        >
+          {activeDetail?.type === "dialog" &&
+            activeDetail.row !== undefined &&
+            detail.component({
               row: activeDetail.row,
               index: activeDetail.index ?? 0,
-              mode: "view", // Menambahkan mode "view"
-              close: onCloseDetail, // Menambahkan fungsi close yang wajib di interface
+              mode: "view",
+              close: onCloseDetail,
             })}
-          </DialogWrapper>
-        ))}
-
-      {/* Dialog Konfirmasi */}
-      {activeConfirm &&
-        (() => {
-          const { itemName: _itemName, ...dialogOptions } =
-            activeConfirm.options;
-          void _itemName;
-          return (
-            <ConfirmDialog
-              open
-              onOpenChange={(open) => !open && onCloseConfirm()}
-              onContinue={() => {
-                activeConfirm.onConfirm();
-                onCloseConfirm();
-              }}
-              {...dialogOptions}
-            />
-          );
-        })()}
-
-      {/* Dialog Hapus */}
-      {activeDelete && (
-        <DeleteConfirmDialog
-          open
-          onOpenChange={(open) => !open && onCloseDelete()}
-          onConfirm={() => {
-            activeDelete.onDelete();
-            onCloseDelete();
-          }}
-          itemName={activeDelete.itemName}
-        />
+        </DialogWrapper>
       )}
+
+      <ConfirmDialog
+        open={Boolean(activeConfirm)}
+        onOpenChange={(open) => !open && onCloseConfirm()}
+        onContinue={() => {
+          activeConfirm?.onConfirm();
+          onCloseConfirm();
+        }}
+        {...(activeConfirm?.options ?? {})}
+      />
+
+      <DeleteConfirmDialog
+        open={Boolean(activeDelete)}
+        onOpenChange={(open) => !open && onCloseDelete()}
+        onConfirm={() => {
+          activeDelete?.onDelete();
+          onCloseDelete();
+        }}
+        itemName={activeDelete?.itemName}
+      />
     </>
   );
 }
