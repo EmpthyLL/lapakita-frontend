@@ -10,15 +10,15 @@ import {
 } from "../constants/range";
 
 interface TemporarySpaceFieldsProps {
-  registrationDeadlineDays: number | null;
-  onRegistrationDeadlineDaysChange: (value: number) => void;
+  registrationDeadline: number | null;
+  onRegistrationDeadlineChange: (value: number) => void;
   eventDurationDays: number | null;
   onEventDurationDaysChange: (value: number) => void;
 }
 
 export function TemporarySpaceFields({
-  registrationDeadlineDays,
-  onRegistrationDeadlineDaysChange,
+  registrationDeadline,
+  onRegistrationDeadlineChange,
   eventDurationDays,
   onEventDurationDaysChange,
 }: TemporarySpaceFieldsProps) {
@@ -32,9 +32,9 @@ export function TemporarySpaceFields({
   );
 
   const isCustomDeadline =
-    registrationDeadlineDays !== null &&
+    registrationDeadline !== null &&
     !REGISTRATION_DEADLINE_PRESETS.includes(
-      registrationDeadlineDays as (typeof REGISTRATION_DEADLINE_PRESETS)[number],
+      registrationDeadline as (typeof REGISTRATION_DEADLINE_PRESETS)[number],
     );
   const [deadlineMode, setDeadlineMode] = useState<"preset" | "custom">(
     isCustomDeadline ? "custom" : "preset",
@@ -60,11 +60,11 @@ export function TemporarySpaceFields({
               type="button"
               onClick={() => {
                 setDeadlineMode("preset");
-                onRegistrationDeadlineDaysChange(days);
+                onRegistrationDeadlineChange(days);
               }}
               className={cn(
                 "rounded-full px-3 py-1 text-xs font-medium transition-colors",
-                deadlineMode === "preset" && registrationDeadlineDays === days
+                deadlineMode === "preset" && registrationDeadline === days
                   ? "bg-primary text-white"
                   : "border border-border bg-secondary/50 text-muted-foreground hover:border-primary/40 hover:text-foreground",
               )}
@@ -91,10 +91,10 @@ export function TemporarySpaceFields({
             decimalScale={0}
             allowNegative={false}
             placeholder="e.g. 21"
-            value={isCustomDeadline ? (registrationDeadlineDays ?? "") : ""}
+            value={isCustomDeadline ? (registrationDeadline ?? "") : ""}
             onValueChange={(v) =>
               v.floatValue !== undefined &&
-              onRegistrationDeadlineDaysChange(v.floatValue)
+              onRegistrationDeadlineChange(v.floatValue)
             }
             className="mt-2 h-9 py-2 text-sm"
           />

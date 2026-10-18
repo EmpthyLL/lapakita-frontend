@@ -223,12 +223,12 @@ export default function StallSearch({
               "defaultOpeningTime" in preset
                 ? preset.defaultClosingTime
                 : params.closingTime,
-            is24hour: params.is24hour,
-            registrationDeadlineDays:
+            is24Hours: params.is24Hours,
+            registrationDeadline:
               forPermanence === "temporary" &&
               "registrationWindowDaysBefore" in preset
                 ? preset.registrationWindowDaysBefore
-                : params.registrationDeadlineDays,
+                : params.registrationDeadline,
             eventDurationDays:
               forPermanence === "temporary" &&
               "registrationWindowDaysBefore" in preset
@@ -243,8 +243,8 @@ export default function StallSearch({
             facilities: [],
             openingTime: "10:00",
             closingTime: "22:00",
-            is24hour: false,
-            registrationDeadlineDays: null,
+            is24Hours: false,
+            registrationDeadline: null,
             eventDurationDays: null,
           };
     setParamValues(presetValues);
@@ -295,8 +295,8 @@ export default function StallSearch({
           depositRange: [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
           openingTime: "10:00",
           closingTime: "22:00",
-          is24hour: false,
-          registrationDeadlineDays: null,
+          is24Hours: false,
+          registrationDeadline: null,
           eventDurationDays: null,
           capital: DEFAULT_CAPITAL_BY_PERMANENCE[next],
           startDate: "",
@@ -321,8 +321,8 @@ export default function StallSearch({
         depositRange: [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
         openingTime: "10:00",
         closingTime: "22:00",
-        is24hour: false,
-        registrationDeadlineDays: null,
+        is24Hours: false,
+        registrationDeadline: null,
         eventDurationDays: null,
         capital: DEFAULT_CAPITAL_BY_PERMANENCE[next],
         startDate: "",
@@ -407,8 +407,8 @@ export default function StallSearch({
       cancellationPolicy: "",
       openingTime: "10:00",
       closingTime: "22:00",
-      is24hour: false,
-      registrationDeadlineDays: null,
+      is24Hours: false,
+      registrationDeadline: null,
       eventDurationDays: null,
     });
 
@@ -423,18 +423,18 @@ export default function StallSearch({
 
   const spaceActiveCount =
     (params.placement ? 1 : 0) +
-    (params.floorCountRange[0] > FLOOR_COUNT_RANGE.min ||
-    params.floorCountRange[1] > FLOOR_COUNT_RANGE.min
+    (params.floorCountRange[0] !== FLOOR_COUNT_RANGE.min ||
+    params.floorCountRange[1] !== FLOOR_COUNT_RANGE.min
       ? 1
       : 0) +
-    (params.sizeRange[0] > STALL_SIZE_RANGE.min ||
-    params.sizeRange[1] < STALL_SIZE_RANGE.max
+    (params.sizeRange[0] !== STALL_SIZE_RANGE.min ||
+    params.sizeRange[1] !== STALL_SIZE_RANGE.max
       ? 1
       : 0) +
     (params.openingTime !== "10:00" ? 1 : 0) +
     (params.closingTime !== "22:00" ? 1 : 0) +
-    (params.is24hour ? 1 : 0) +
-    (params.registrationDeadlineDays !== null ? 1 : 0) +
+    (params.is24Hours ? 1 : 0) +
+    (params.registrationDeadline !== null ? 1 : 0) +
     (params.eventDurationDays !== null ? 1 : 0) +
     (params.propertyType.length > 0 ? params.propertyType.length : 0);
 
@@ -528,8 +528,8 @@ export default function StallSearch({
                 floorCountRange: [FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min],
                 openingTime: "10:00",
                 closingTime: "22:00",
-                is24hour: false,
-                registrationDeadlineDays: null,
+                is24Hours: false,
+                registrationDeadline: null,
                 eventDurationDays: null,
               });
               // Commit kedua sub-bagian space agar bersih total dari URL
@@ -572,13 +572,13 @@ export default function StallSearch({
             onClosingTimeChange={(closingTime) => {
               setParamValues({ closingTime });
             }}
-            is24hour={params.is24hour}
-            onIs24hourChange={(is24hour) => {
-              setParamValues({ is24hour });
+            is24Hours={params.is24Hours}
+            onIs24HoursChange={(is24Hours) => {
+              setParamValues({ is24Hours });
             }}
-            registrationDeadlineDays={params.registrationDeadlineDays}
-            onRegistrationDeadlineDaysChange={(registrationDeadlineDays) => {
-              setParamValues({ registrationDeadlineDays });
+            registrationDeadline={params.registrationDeadline}
+            onRegistrationDeadlineChange={(registrationDeadline) => {
+              setParamValues({ registrationDeadline });
             }}
             eventDurationDays={params.eventDurationDays}
             onEventDurationDaysChange={(eventDurationDays) => {

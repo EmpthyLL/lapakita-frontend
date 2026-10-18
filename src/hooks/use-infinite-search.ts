@@ -45,12 +45,11 @@ export function useInfiniteSearch<
   selected_id,
   onError,
 }: UseInfiniteSearchProps<TData, TQuery, TOutput>) {
-  // Format selected_id menjadi string dipisah koma "id1,id2,id3"
   const formattedSelectedId = React.useMemo(() => {
     if (!selected_id) return undefined;
     if (Array.isArray(selected_id)) {
       if (selected_id.length === 0) return undefined;
-      return selected_id.join(",");
+      return selected_id.map(String).join(",");
     }
     return String(selected_id);
   }, [selected_id]);

@@ -19,55 +19,26 @@ import {
   StallPropertyTypeValue,
 } from "../constants/types";
 
-// Mapping eksplisit agar key di URL konsisten dan sesuai dengan schema backend
-const URL_TO_SCHEMA_MAP: Record<string, keyof StallSearchSchemaType> = {
-  location: "location",
-  permanenceType: "permanenceType",
-  landmarks: "landmarkEntries",
-  propertyTypes: "propertyType",
-  placement: "placement",
-  businessType: "businessType",
-  facilities: "facilities",
-  bepMonths: "bepMonths",
-  capital: "capital",
-  minRent: "rentRange",
-  maxRent: "rentRange",
-  minDeposit: "depositRange",
-  maxDeposit: "depositRange",
-  startDate: "startDate",
-  minLease: "minLeasePeriod",
-  paymentCycle: "paymentCycle",
-  eventDays: "eventOperatingDays",
-  attendance: "attendanceRequirement",
-  cancellation: "cancellationPolicy",
-  minSize: "sizeRange",
-  maxSize: "sizeRange",
-  minFloor: "floorCountRange",
-  maxFloor: "floorCountRange",
-  openingTime: "openingTime",
-  closingTime: "closingTime",
-  is24hour: "is24hour",
-  regDeadline: "registrationDeadlineDays",
-  eventDuration: "eventDurationDays",
-  sortBy: "sortBy",
-};
-
 const PERMANENCE_QUERY_KEYS = {
-  permanent: ["minSize", "maxSize", "minFloor", "maxFloor"],
-  "semi-permanent": ["openingTime", "closingTime", "is24hour"],
+  permanent: ["sizeRange", "floorCountRange"],
+  "semi-permanent": ["openingTime", "closingTime", "is24Hours"],
   temporary: [
-    "eventDays",
-    "attendance",
-    "cancellation",
-    "regDeadline",
-    "eventDuration",
+    "eventOperatingDays",
+    "attendanceRequirement",
+    "cancellationPolicy",
+    "registrationDeadline",
+    "eventDurationDays",
   ],
 } as const;
 
 const LEASE_QUERY_KEYS = {
-  permanent: ["paymentCycle", "startDate", "minLease"],
-  "semi-permanent": ["paymentCycle", "startDate", "minLease"],
-  temporary: ["eventDays", "attendance", "cancellation"],
+  permanent: ["paymentCycle", "startDate", "minLeasePeriod"],
+  "semi-permanent": ["paymentCycle", "startDate", "minLeasePeriod"],
+  temporary: [
+    "eventOperatingDays",
+    "attendanceRequirement",
+    "cancellationPolicy",
+  ],
 } as const;
 
 function removeIrrelevantPermanenceQuery(
@@ -98,31 +69,30 @@ export function getCleanBackendQuery(
   const queryObj: Record<string, any> = {};
 
   searchParams.forEach((val, key) => {
-    const schemaKey = URL_TO_SCHEMA_MAP[key] || key;
-
-    // Handle array / JSON parsing untuk schema tertentu
-    if (schemaKey === "landmarkEntries") {
+    if (key === "landmarkEntries") {
       try {
-        queryObj[schemaKey] = JSON.parse(val);
+        queryObj[key] = JSON.parse(val);
       } catch {
-        queryObj[schemaKey] = [];
+        queryObj[key] = [];
       }
-    } else if (schemaKey === "propertyType" || schemaKey === "facilities") {
-      queryObj[schemaKey] = val ? val.split(",") : [];
-    } else if (schemaKey === "is24hour") {
-      queryObj[schemaKey] = val === "true";
+    } else if (key === "propertyType" || key === "facilities") {
+      queryObj[key] = val ? val.split(",") : [];
+    } else if (key === "is24Hours") {
+      queryObj[key] = val === "true";
     } else if (
-      schemaKey === "rentRange" ||
-      schemaKey === "depositRange" ||
-      schemaKey === "sizeRange" ||
-      schemaKey === "floorCountRange"
+      key === "rentRange" ||
+      key === "depositRange" ||
+      key === "sizeRange" ||
+      key === "floorCountRange"
     ) {
-      // Range biasanya dikirim sebagai min & max terpisah di URL, di-mapping jika perlu atau biarkan sesuai struktur backend
-      if (!queryObj[schemaKey]) queryObj[schemaKey] = [0, 0];
-      if (key.startsWith("min")) queryObj[schemaKey][0] = Number(val);
-      if (key.startsWith("max")) queryObj[schemaKey][1] = Number(val);
+      if (!queryObj[key]) queryObj[key] = [0, 0];
+      // Jika dikirim sebagai string array/range terpisah
+      const parts = val.split(",");
+      if (parts.length === 2) {
+        queryObj[key] = [Number(parts[0]), Number(parts[1])];
+      }
     } else {
-      queryObj[schemaKey] = val;
+      queryObj[key] = val;
     }
   });
 
@@ -137,10 +107,8 @@ export function useStallSearchQuery() {
       searchParams.get("bepMonths") ||
       searchParams.get("capital") ||
       searchParams.get("paymentCycle") ||
-      searchParams.get("minRent") ||
-      searchParams.get("maxRent") ||
-      searchParams.get("minDeposit") ||
-      searchParams.get("maxDeposit"),
+      searchParams.get("rentRange") ||
+      searchParams.get("depositRange"),
     ),
   );
 
@@ -151,79 +119,95 @@ export function useStallSearchQuery() {
       (searchParams.get("permanenceType") as StallPermanenceType) ||
       "permanent";
 
+    const parseRange = (
+      val: string | null,
+      defaultVal: [number, number],
+    ): [number, number] => {
+      if (!val) return defaultVal;
+      try {
+        const parsed = JSON.parse(val);
+        if (Array.isArray(parsed) && parsed.length === 2)
+          return [Number(parsed[0]), Number(parsed[1])];
+      } catch {}
+      return defaultVal;
+    };
+
+    const parseFloorRange = (
+      val: string | null,
+      defaultVal: [number, number],
+    ): [number, number] => {
+      if (!val) return defaultVal;
+      try {
+        const parsed = JSON.parse(val);
+        if (Array.isArray(parsed) && parsed.length === 2)
+          return [Number(parsed[0]), Number(parsed[1])];
+      } catch {}
+      return defaultVal;
+    };
+
     return {
       location: searchParams.get("location") || "",
       permanenceType: permType,
-      landmarkEntries: searchParams.get("landmarks")
-        ? JSON.parse(searchParams.get("landmarks")!)
+      landmarkEntries: searchParams.get("landmarkEntries")
+        ? JSON.parse(searchParams.get("landmarkEntries")!)
         : [],
-      propertyType: searchParams.get("propertyTypes")
+      propertyType: searchParams.get("propertyType")
         ? (searchParams
-            .get("propertyTypes")!
+            .get("propertyType")!
             .split(",") as StallPropertyTypeValue[])
         : [],
       placement: (searchParams.get("placement") as StallPlacement) || "",
-
       businessType: searchParams.get("businessType") || "",
       facilities: searchParams.get("facilities")
         ? searchParams.get("facilities")!.split(",")
         : [],
-
       bepMonths: searchParams.get("bepMonths") || String(DEFAULT_BEP_MONTHS),
       capital: searchParams.get("capital")
         ? Number(searchParams.get("capital"))
         : DEFAULT_CAPITAL_BY_PERMANENCE[permType],
-
-      rentRange:
-        searchParams.get("minRent") && searchParams.get("maxRent")
-          ? [
-              Number(searchParams.get("minRent")),
-              Number(searchParams.get("maxRent")),
-            ]
-          : [GENERAL_RENT_RANGE.min, GENERAL_RENT_RANGE.max],
-      depositRange:
-        searchParams.get("minDeposit") && searchParams.get("maxDeposit")
-          ? [
-              Number(searchParams.get("minDeposit")),
-              Number(searchParams.get("maxDeposit")),
-            ]
-          : [DEPOSIT_RANGE.min, DEPOSIT_RANGE.max],
-
+      rentRange: parseRange(searchParams.get("rentRange"), [
+        GENERAL_RENT_RANGE.min,
+        GENERAL_RENT_RANGE.max,
+      ]),
+      depositRange: parseRange(searchParams.get("depositRange"), [
+        DEPOSIT_RANGE.min,
+        DEPOSIT_RANGE.max,
+      ]),
       startDate:
         permType !== "temporary" ? searchParams.get("startDate") || "" : "",
       minLeasePeriod:
-        permType !== "temporary" ? searchParams.get("minLease") || "" : "",
+        permType !== "temporary"
+          ? searchParams.get("minLeasePeriod") || ""
+          : "",
+      customLeaseMonths: searchParams.get("customLeaseMonths") || "",
+      customStartDay: searchParams.get("customStartDay") || "",
+      customBepMonths: searchParams.get("customBepMonths")
+        ? Number(searchParams.get("customBepMonths"))
+        : null,
       paymentCycle:
         permType !== "temporary"
           ? (searchParams.get("paymentCycle") as PaymentCycle) || ""
           : "",
-
       eventOperatingDays:
-        permType === "temporary" ? searchParams.get("eventDays") || "" : "",
+        permType === "temporary"
+          ? searchParams.get("eventOperatingDays") || ""
+          : "",
       attendanceRequirement:
-        permType === "temporary" ? searchParams.get("attendance") || "" : "",
+        permType === "temporary"
+          ? searchParams.get("attendanceRequirement") || ""
+          : "",
       cancellationPolicy:
-        permType === "temporary" ? searchParams.get("cancellation") || "" : "",
-
-      sizeRange:
-        permType === "permanent" &&
-        searchParams.get("minSize") &&
-        searchParams.get("maxSize")
-          ? [
-              Number(searchParams.get("minSize")),
-              Number(searchParams.get("maxSize")),
-            ]
-          : [STALL_SIZE_RANGE.min, STALL_SIZE_RANGE.max],
-      floorCountRange:
-        permType === "permanent" &&
-        searchParams.get("minFloor") &&
-        searchParams.get("maxFloor")
-          ? [
-              Number(searchParams.get("minFloor")),
-              Number(searchParams.get("maxFloor")),
-            ]
-          : [FLOOR_COUNT_RANGE.min, FLOOR_COUNT_RANGE.min],
-
+        permType === "temporary"
+          ? searchParams.get("cancellationPolicy") || ""
+          : "",
+      sizeRange: parseRange(searchParams.get("sizeRange"), [
+        STALL_SIZE_RANGE.min,
+        STALL_SIZE_RANGE.max,
+      ]),
+      floorCountRange: parseFloorRange(searchParams.get("floorCountRange"), [
+        FLOOR_COUNT_RANGE.min,
+        FLOOR_COUNT_RANGE.min,
+      ]),
       openingTime:
         permType === "semi-permanent"
           ? searchParams.get("openingTime") || "10:00"
@@ -232,18 +216,15 @@ export function useStallSearchQuery() {
         permType === "semi-permanent"
           ? searchParams.get("closingTime") || "22:00"
           : "22:00",
-      is24hour:
+      is24Hours:
         permType === "semi-permanent" &&
-        searchParams.get("is24hour") === "true",
-
-      registrationDeadlineDays:
-        permType === "temporary" && searchParams.get("regDeadline")
-          ? Number(searchParams.get("regDeadline"))
-          : null,
-      eventDurationDays:
-        permType === "temporary" && searchParams.get("eventDuration")
-          ? Number(searchParams.get("eventDuration"))
-          : null,
+        searchParams.get("is24Hours") === "true",
+      registrationDeadline: searchParams.get("registrationDeadline")
+        ? Number(searchParams.get("registrationDeadline"))
+        : null,
+      eventDurationDays: searchParams.get("eventDurationDays")
+        ? Number(searchParams.get("eventDurationDays"))
+        : null,
       sortBy: searchParams.get("sortBy") || "recommended",
     };
   });
@@ -256,9 +237,7 @@ export function useStallSearchQuery() {
   );
 
   const getExistingParams = useCallback(() => {
-    const query = new URLSearchParams(window.location.search);
-    query.delete("permanence"); // Hapus key sampah lama jika ada
-    return query;
+    return new URLSearchParams(window.location.search);
   }, []);
 
   const commitPermanenceChange = useCallback(
@@ -269,11 +248,9 @@ export function useStallSearchQuery() {
         "bepMonths",
         "capital",
         "paymentCycle",
-        "minRent",
-        "maxRent",
-        "minDeposit",
-        "maxDeposit",
-        "propertyTypes",
+        "rentRange",
+        "depositRange",
+        "propertyType",
         "placement",
       ].forEach((key) => query.delete(key));
       removeIrrelevantPermanenceQuery(query, permanenceType);
@@ -330,8 +307,8 @@ export function useStallSearchQuery() {
       if (next.businessType) query.set("businessType", next.businessType);
       else query.delete("businessType");
       if (next.propertyType.length)
-        query.set("propertyTypes", next.propertyType.join(","));
-      else query.delete("propertyTypes");
+        query.set("propertyType", next.propertyType.join(","));
+      else query.delete("propertyType");
       if (next.placement) query.set("placement", next.placement);
       else query.delete("placement");
       if (next.facilities.length)
@@ -342,44 +319,40 @@ export function useStallSearchQuery() {
         (entry) => entry.landmark,
       );
       if (validLandmarks.length)
-        query.set("landmarks", JSON.stringify(validLandmarks));
-      else query.delete("landmarks");
+        query.set("landmarkEntries", JSON.stringify(validLandmarks));
+      else query.delete("landmarkEntries");
 
       if (next.permanenceType === "permanent") {
         if (
           next.sizeRange[0] > STALL_SIZE_RANGE.min ||
           next.sizeRange[1] < STALL_SIZE_RANGE.max
         ) {
-          query.set("minSize", String(next.sizeRange[0]));
-          query.set("maxSize", String(next.sizeRange[1]));
+          query.set("sizeRange", JSON.stringify(next.sizeRange));
         } else {
-          query.delete("minSize");
-          query.delete("maxSize");
+          query.delete("sizeRange");
         }
         if (
           next.floorCountRange[0] > FLOOR_COUNT_RANGE.min ||
           next.floorCountRange[1] < FLOOR_COUNT_RANGE.max
         ) {
-          query.set("minFloor", String(next.floorCountRange[0]));
-          query.set("maxFloor", String(next.floorCountRange[1]));
+          query.set("floorCountRange", JSON.stringify(next.floorCountRange));
         } else {
-          query.delete("minFloor");
-          query.delete("maxFloor");
+          query.delete("floorCountRange");
         }
       }
       if (next.permanenceType === "semi-permanent") {
-        if (next.is24hour) query.set("is24hour", "true");
-        else query.delete("is24hour");
+        if (next.is24Hours) query.set("is24Hours", "true");
+        else query.delete("is24Hours");
         query.set("openingTime", next.openingTime);
         query.set("closingTime", next.closingTime);
       }
       if (next.permanenceType === "temporary") {
-        if (next.registrationDeadlineDays !== null)
-          query.set("regDeadline", String(next.registrationDeadlineDays));
-        else query.delete("regDeadline");
+        if (next.registrationDeadline !== null)
+          query.set("registrationDeadline", String(next.registrationDeadline));
+        else query.delete("registrationDeadline");
         if (next.eventDurationDays !== null)
-          query.set("eventDuration", String(next.eventDurationDays));
-        else query.delete("eventDuration");
+          query.set("eventDurationDays", String(next.eventDurationDays));
+        else query.delete("eventDurationDays");
       }
 
       if (next.bepMonths && next.bepMonths !== String(DEFAULT_BEP_MONTHS)) {
@@ -392,21 +365,17 @@ export function useStallSearchQuery() {
         next.rentRange[0] > GENERAL_RENT_RANGE.min ||
         next.rentRange[1] < GENERAL_RENT_RANGE.max
       ) {
-        query.set("minRent", String(next.rentRange[0]));
-        query.set("maxRent", String(next.rentRange[1]));
+        query.set("rentRange", JSON.stringify(next.rentRange));
       } else {
-        query.delete("minRent");
-        query.delete("maxRent");
+        query.delete("rentRange");
       }
       if (
         next.depositRange[0] > DEPOSIT_RANGE.min ||
         next.depositRange[1] < DEPOSIT_RANGE.max
       ) {
-        query.set("minDeposit", String(next.depositRange[0]));
-        query.set("maxDeposit", String(next.depositRange[1]));
+        query.set("depositRange", JSON.stringify(next.depositRange));
       } else {
-        query.delete("minDeposit");
-        query.delete("maxDeposit");
+        query.delete("depositRange");
       }
 
       const queryString = query.toString();
@@ -426,12 +395,12 @@ export function useStallSearchQuery() {
           .map(({ landmark, radius }) => ({ landmark, radius }));
 
         if (validEntries.length > 0) {
-          query.set("landmarks", JSON.stringify(validEntries));
+          query.set("landmarkEntries", JSON.stringify(validEntries));
         } else {
-          query.delete("landmarks");
+          query.delete("landmarkEntries");
         }
       } else {
-        query.delete("landmarks");
+        query.delete("landmarkEntries");
       }
 
       const queryString = query.toString();
@@ -457,11 +426,9 @@ export function useStallSearchQuery() {
           (params.sizeRange[0] > STALL_SIZE_RANGE.min ||
             params.sizeRange[1] < STALL_SIZE_RANGE.max)
         ) {
-          query.set("minSize", String(params.sizeRange[0]));
-          query.set("maxSize", String(params.sizeRange[1]));
+          query.set("sizeRange", JSON.stringify(params.sizeRange));
         } else {
-          query.delete("minSize");
-          query.delete("maxSize");
+          query.delete("sizeRange");
         }
 
         if (
@@ -469,31 +436,32 @@ export function useStallSearchQuery() {
           (params.floorCountRange[0] > FLOOR_COUNT_RANGE.min ||
             params.floorCountRange[1] < FLOOR_COUNT_RANGE.max)
         ) {
-          query.set("minFloor", String(params.floorCountRange[0]));
-          query.set("maxFloor", String(params.floorCountRange[1]));
+          query.set("floorCountRange", JSON.stringify(params.floorCountRange));
         } else {
-          query.delete("minFloor");
-          query.delete("maxFloor");
+          query.delete("floorCountRange");
         }
       }
 
       if (params.permanenceType === "semi-permanent") {
-        if (params.is24hour) query.set("is24hour", "true");
-        else query.delete("is24hour");
+        if (params.is24Hours) query.set("is24Hours", "true");
+        else query.delete("is24Hours");
         query.set("openingTime", params.openingTime);
         query.set("closingTime", params.closingTime);
       }
 
       if (params.permanenceType === "temporary") {
-        if (params.registrationDeadlineDays !== null) {
-          query.set("regDeadline", String(params.registrationDeadlineDays));
+        if (params.registrationDeadline !== null) {
+          query.set(
+            "registrationDeadline",
+            String(params.registrationDeadline),
+          );
         } else {
-          query.delete("regDeadline");
+          query.delete("registrationDeadline");
         }
         if (params.eventDurationDays !== null) {
-          query.set("eventDuration", String(params.eventDurationDays));
+          query.set("eventDurationDays", String(params.eventDurationDays));
         } else {
-          query.delete("eventDuration");
+          query.delete("eventDurationDays");
         }
       }
 
@@ -512,9 +480,9 @@ export function useStallSearchQuery() {
       const query = getExistingParams();
 
       if (params.propertyType.length) {
-        query.set("propertyTypes", params.propertyType.join(","));
+        query.set("propertyType", params.propertyType.join(","));
       } else {
-        query.delete("propertyTypes");
+        query.delete("propertyType");
       }
 
       const queryString = query.toString();
@@ -549,11 +517,9 @@ export function useStallSearchQuery() {
         (params.rentRange[0] > GENERAL_RENT_RANGE.min ||
           params.rentRange[1] < GENERAL_RENT_RANGE.max)
       ) {
-        query.set("minRent", String(params.rentRange[0]));
-        query.set("maxRent", String(params.rentRange[1]));
+        query.set("rentRange", JSON.stringify(params.rentRange));
       } else {
-        query.delete("minRent");
-        query.delete("maxRent");
+        query.delete("rentRange");
       }
 
       if (
@@ -561,11 +527,9 @@ export function useStallSearchQuery() {
         (params.depositRange[0] > DEPOSIT_RANGE.min ||
           params.depositRange[1] < DEPOSIT_RANGE.max)
       ) {
-        query.set("minDeposit", String(params.depositRange[0]));
-        query.set("maxDeposit", String(params.depositRange[1]));
+        query.set("depositRange", JSON.stringify(params.depositRange));
       } else {
-        query.delete("minDeposit");
-        query.delete("maxDeposit");
+        query.delete("depositRange");
       }
 
       const queryString = query.toString();
@@ -597,10 +561,8 @@ export function useStallSearchQuery() {
         "bepMonths",
         "capital",
         "paymentCycle",
-        "minRent",
-        "maxRent",
-        "minDeposit",
-        "maxDeposit",
+        "rentRange",
+        "depositRange",
       ].forEach((key) => query.delete(key));
 
       const queryString = query.toString();
@@ -623,22 +585,22 @@ export function useStallSearchQuery() {
         else query.delete("startDate");
 
         if (params.minLeasePeriod && params.minLeasePeriod !== "custom")
-          query.set("minLease", params.minLeasePeriod);
-        else query.delete("minLease");
+          query.set("minLeasePeriod", params.minLeasePeriod);
+        else query.delete("minLeasePeriod");
       }
 
       if (params.permanenceType === "temporary") {
         if (params.eventOperatingDays)
-          query.set("eventDays", params.eventOperatingDays);
-        else query.delete("eventDays");
+          query.set("eventOperatingDays", params.eventOperatingDays);
+        else query.delete("eventOperatingDays");
 
         if (params.attendanceRequirement)
-          query.set("attendance", params.attendanceRequirement);
-        else query.delete("attendance");
+          query.set("attendanceRequirement", params.attendanceRequirement);
+        else query.delete("attendanceRequirement");
 
         if (params.cancellationPolicy)
-          query.set("cancellation", params.cancellationPolicy);
-        else query.delete("cancellation");
+          query.set("cancellationPolicy", params.cancellationPolicy);
+        else query.delete("cancellationPolicy");
       }
 
       const queryString = query.toString();
