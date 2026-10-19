@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/common/input/FormField";
 import { Autocomplete } from "@/components/common/long/autocomplete";
-import { DataDisplaySurfaceComponentProps } from "@/components/common/long/data-display/Constant";
+import { SurfaceComponentProps } from "@/components/common/surface";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -55,7 +55,7 @@ export function DocumentForm({
   row,
   mode,
   close,
-}: DataDisplaySurfaceComponentProps<GetDocumentData>) {
+}: SurfaceComponentProps<GetDocumentData>) {
   const queryClient = useQueryClient();
   const isEdit = mode === "edit";
   const countryOptions = getAllCountryOptions();

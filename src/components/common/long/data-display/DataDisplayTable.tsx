@@ -11,13 +11,8 @@ import {
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { Fragment } from "react";
-import {
-  ColumnConfig,
-  DataDisplayActionContext,
-  DataDisplayDetail,
-  DataDisplayForm,
-  DataDisplaySurface,
-} from "./Constant";
+import { SurfaceDetail, SurfaceForm, SurfaceType } from "../../SurfaceRenderer";
+import { ColumnConfig, DataDisplayActionContext } from "./Constant";
 import { EmptyState, RowIndexBadge, SkeletonRows } from "./TableStates";
 
 interface DataDisplayTableProps<TData> {
@@ -29,18 +24,18 @@ interface DataDisplayTableProps<TData> {
   emptyText?: string;
   detailIsExpandable: boolean;
   formIsExpandable: boolean;
-  detail?: DataDisplayDetail<TData>;
-  form?: DataDisplayForm<TData>;
+  detail?: SurfaceDetail<TData>;
+  form?: SurfaceForm<TData>;
   activeDetail: {
     row?: TData;
     index?: number;
-    type: DataDisplaySurface;
+    type: SurfaceType;
   } | null;
   activeForm: {
     kind: "create" | "edit";
     row?: TData;
     index?: number;
-    type: DataDisplaySurface;
+    type: SurfaceType;
     close: () => void;
   } | null;
   onRowClick?: (

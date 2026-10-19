@@ -1,13 +1,13 @@
 "use client";
 
+import {
+  SurfaceDetail,
+  SurfaceForm,
+  SurfaceType,
+} from "@/components/common/surface";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
-import {
-  DataDisplayActionContext,
-  DataDisplayDetail,
-  DataDisplayForm,
-  DataDisplaySurface,
-} from "./Constant";
+import { DataDisplayActionContext } from "./Constant";
 
 interface DataDisplayPresetProps<TData> {
   rows: TData[];
@@ -15,18 +15,18 @@ interface DataDisplayPresetProps<TData> {
   variant: "list" | "card";
   detailIsExpandable: boolean;
   formIsExpandable: boolean;
-  detail?: DataDisplayDetail<TData>;
-  form?: DataDisplayForm<TData>;
+  detail?: SurfaceDetail<TData>;
+  form?: SurfaceForm<TData>;
   activeDetail: {
     row?: TData;
     index?: number;
-    type: DataDisplaySurface;
+    type: SurfaceType;
   } | null;
   activeForm: {
     kind: "create" | "edit";
     row?: TData;
     index?: number;
-    type: DataDisplaySurface;
+    type: SurfaceType;
     close: () => void;
   } | null;
   onRowClick?: (

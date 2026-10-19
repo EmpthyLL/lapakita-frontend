@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { PaginatedResponse } from "@/lib/data/schema/base";
 import {
   Calendar as CalendarIcon,
@@ -8,6 +9,7 @@ import {
 } from "lucide-react";
 import { ReactNode } from "react";
 import { IconValue } from "../../input/OptionIcon";
+import { ConfirmDialogOptions, SurfaceType } from "../../SurfaceRenderer";
 
 export interface FilterOption<TData> {
   id: keyof TData;
@@ -111,23 +113,18 @@ export type ListItemRenderer<TData> = (
   action: DataDisplayActionContext<TData>,
 ) => ReactNode;
 
-export type DataDisplaySurface = "dialog" | "sidebar" | "expandable" | "link";
-
 export interface DataDisplayActionContext<TData> {
   row: TData;
   index: number;
-  openDetail: (type?: DataDisplaySurface) => void;
-  openEdit: (type?: DataDisplaySurface) => void;
-  openCreate: (type?: DataDisplaySurface) => void;
-  openConfirm: (
-    onConfirm: () => void,
-    options?: DataDisplayConfirmOptions,
-  ) => void;
+  openDetail: (type?: SurfaceType) => void;
+  openEdit: (type?: SurfaceType) => void;
+  openCreate: (type?: SurfaceType) => void;
+  openConfirm: (onConfirm: () => void, options?: ConfirmDialogOptions) => void;
   openDelete: (onDelete: () => void, itemName?: string) => void;
 }
 
 export interface DataDisplayToolbarActionContext<TData> {
-  openCreate: (type?: DataDisplaySurface) => void;
+  openCreate: (type?: SurfaceType) => void;
   isLoading: boolean;
   rows: TData[];
 }
@@ -136,45 +133,11 @@ export type ToolbarExtraAction<TData> =
   | ReactNode
   | ((context: DataDisplayToolbarActionContext<TData>) => ReactNode);
 
-export interface DataDisplayConfirmOptions {
-  title?: string;
-  description?: ReactNode;
-  confirmText?: string;
-  cancelText?: string;
-  itemName?: string;
-  variant?: "destructive" | "warning" | "info" | "success";
-}
-
 export type RowAction<TData> = (
   row: TData,
   index: number,
   action: DataDisplayActionContext<TData>,
 ) => void;
-
-// --- SURFACE CONFIGURATION ---
-
-export interface DataDisplayBaseSurfaceConfig extends BaseColumnDef {
-  type?: DataDisplaySurface;
-  title?: ReactNode;
-  description?: ReactNode;
-  href?: string;
-  size?: "sm" | "md" | "lg" | "xl" | "full";
-}
-
-export interface DataDisplaySurfaceComponentProps<TData> {
-  row?: TData;
-  index?: number;
-  mode?: "create" | "edit" | "view";
-  close: () => void;
-}
-
-export type DataDisplayDetail<TData> = DataDisplayBaseSurfaceConfig & {
-  component: (props: DataDisplaySurfaceComponentProps<TData>) => ReactNode;
-};
-
-export type DataDisplayForm<TData> = DataDisplayBaseSurfaceConfig & {
-  component: (props: DataDisplaySurfaceComponentProps<TData>) => ReactNode;
-};
 
 export type DataDisplayVariant = "table" | "list" | "card";
 export type DataDisplayLoadMode =

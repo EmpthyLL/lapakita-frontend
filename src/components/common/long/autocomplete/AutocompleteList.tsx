@@ -1,5 +1,7 @@
 "use client";
 
+import type { AddActionConfig } from "@/components/common/SurfaceRenderer";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -9,7 +11,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, Plus } from "lucide-react";
 import * as React from "react";
 import { OptionIcon } from "../../input/OptionIcon";
 
@@ -35,7 +37,8 @@ interface AutocompleteListProps<T> {
   setSearch: (val: string) => void;
   disabled: boolean;
   render?: (option: T) => React.ReactNode;
-  addButton?: React.ReactNode;
+  addConfig?: AddActionConfig<T>;
+  onAddAction?: () => void;
   isSolid: boolean;
   sizeStyle: { itemPad: string; itemText: string };
   refs: {
@@ -70,7 +73,8 @@ export function AutocompleteList<T extends Record<string, any>>({
   setSearch,
   disabled,
   render,
-  addButton,
+  addConfig,
+  onAddAction,
   isSolid,
   sizeStyle: s,
   refs,
@@ -223,9 +227,18 @@ export function AutocompleteList<T extends Record<string, any>>({
             )}
           </CommandList>
 
-          {addButton && (
+          {addConfig && (
             <div className="sticky bottom-0 border-t border-border bg-popover p-2">
-              {addButton}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={onAddAction}
+                className="h-9 w-full justify-start gap-2 rounded-lg px-2.5 text-xs font-semibold text-primary hover:bg-primary/10"
+              >
+                <Plus className="h-4 w-4" />
+                {addConfig.label ?? "Add item"}
+              </Button>
             </div>
           )}
         </>

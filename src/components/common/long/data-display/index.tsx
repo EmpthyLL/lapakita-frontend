@@ -14,25 +14,26 @@ import { BasePaginationQuery } from "@/lib/data/schema/base";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import {
+  ConfirmDialogOptions,
+  SurfaceDetail,
+  SurfaceForm,
+  SurfaceType,
+} from "@/components/common/surface";
+import { SurfaceRenderer } from "@/components/common/SurfaceRenderer";
 import { Spinner } from "../../Spinner";
 import {
   ColumnDef,
   createColumnHelpers, // <-- Import createColumnHelpers untuk resolve
   DataDisplayActionContext,
-  DataDisplayConfirmOptions,
-  DataDisplayDetail,
-  DataDisplayForm,
   DataDisplayLoadMode,
   DataDisplayQuery,
-  DataDisplaySurface,
   DataDisplayVariant,
   FilterOption,
   ListItemRenderer,
   RowAction,
   ToolbarExtraAction,
 } from "./Constant";
-import { DataDisplayModals } from "./DataDisplayModals";
 import { DataDisplayPagination } from "./DataDisplayPagination";
 import { DataDisplayPreset } from "./DataDisplayPreset";
 import { DataDisplayTable } from "./DataDisplayTable";
@@ -60,8 +61,8 @@ interface DataDisplayProps<TData, TParams extends Record<string, any>> {
   showCount?: boolean;
   countList?: number[];
   toolbarExtraAction?: ToolbarExtraAction<TData>;
-  detail?: DataDisplayDetail<TData>;
-  form?: DataDisplayForm<TData>;
+  detail?: SurfaceDetail<TData>;
+  form?: SurfaceForm<TData>;
 }
 
 export function DataDisplay<TData, TParams extends BasePaginationQuery>({
@@ -96,20 +97,20 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   const [activeDetail, setActiveDetail] = useState<{
     row?: TData;
     index?: number;
-    type: DataDisplaySurface;
+    type: SurfaceType;
   } | null>(null);
 
   const [activeForm, setActiveForm] = useState<{
     kind: "create" | "edit";
     row?: TData;
     index?: number;
-    type: DataDisplaySurface;
+    type: SurfaceType;
     close: () => void;
   } | null>(null);
 
   const [activeConfirm, setActiveConfirm] = useState<{
     onConfirm: () => void;
-    options: DataDisplayConfirmOptions;
+    options: ConfirmDialogOptions;
   } | null>(null);
 
   const [activeDelete, setActiveDelete] = useState<{
@@ -159,12 +160,12 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   ): DataDisplayActionContext<TData> {
     const openConfirm = (
       onConfirm: () => void,
-      options: DataDisplayConfirmOptions = {},
+      options: ConfirmDialogOptions = {},
     ) => setActiveConfirm({ onConfirm, options });
 
     const openFormAction = (
       kind: "create" | "edit",
-      type?: DataDisplaySurface,
+      type?: SurfaceType,
       targetRow?: TData,
       targetIndex?: number,
     ) => {
@@ -299,11 +300,6 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
     : infinite.meta?.totalItems;
 
   const globalActionCtx = getActionContext();
-  const isCreateExpandableOpen =
-    formIsExpandable &&
-    activeForm?.kind === "create" &&
-    activeForm?.type === "expandable";
-
   function renderPresetItem(row: TData, index: number) {
     const action = getActionContext(row, index);
     if (renderItem) return renderItem(row, index, columnConfig, action);
@@ -373,39 +369,22 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
         </div>
       )}
 
-      {/* Expandable Form Create di Bawah Search Bar */}
-      {isCreateExpandableOpen && form && (
-        <div className="overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-300">
-          <div className="mb-3 flex items-center justify-between border-b border-border pb-3">
-            <div>
-              {form.title && (
-                <h3 className="font-semibold text-foreground text-sm">
-                  {form.title}
-                </h3>
-              )}
-              {form.description && (
-                <p className="text-xs text-muted-foreground">
-                  {form.description}
-                </p>
-              )}
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={closeForm}
-              className="h-8 text-xs"
-            >
-              Tutup
-            </Button>
-          </div>
-          {form.component({
-            row: activeForm?.row,
-            index: activeForm?.index,
-            mode: activeForm?.kind ?? "create",
-            close: closeForm,
-          })}
-        </div>
-      )}
+      <SurfaceRenderer
+        form={form}
+        activeForm={
+          activeForm?.type === "expandable" && activeForm.kind !== "create"
+            ? null
+            : activeForm
+        }
+        onCloseForm={closeForm}
+        detail={detail}
+        activeDetail={activeDetail?.type === "expandable" ? null : activeDetail}
+        onCloseDetail={() => setActiveDetail(null)}
+        activeConfirm={activeConfirm}
+        onCloseConfirm={() => setActiveConfirm(null)}
+        activeDelete={activeDelete}
+        onCloseDelete={() => setActiveDelete(null)}
+      />
 
       {variant === "table" ? (
         <DataDisplayTable
@@ -484,19 +463,6 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
           />
         )}
       </div>
-
-      <DataDisplayModals
-        form={form}
-        activeForm={activeForm}
-        onCloseForm={closeForm}
-        detail={detail}
-        activeDetail={activeDetail}
-        onCloseDetail={() => setActiveDetail(null)}
-        activeConfirm={activeConfirm}
-        onCloseConfirm={() => setActiveConfirm(null)}
-        activeDelete={activeDelete}
-        onCloseDelete={() => setActiveDelete(null)}
-      />
     </div>
   );
 }

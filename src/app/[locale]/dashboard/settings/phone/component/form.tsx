@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/components/common/input/FormField";
 import { PhoneInput } from "@/components/common/input/PhoneInput";
-import { DataDisplaySurfaceComponentProps } from "@/components/common/long/data-display/Constant";
+import { SurfaceComponentProps } from "@/components/common/surface";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -60,7 +60,7 @@ export function PhoneForm({
   mode,
   row: initialData,
   close,
-}: DataDisplaySurfaceComponentProps<PhoneNumberItem>) {
+}: SurfaceComponentProps<PhoneNumberItem>) {
   const queryClient = useQueryClient();
   const { data: session, update: updateSession } = useSession();
   const isEdit = mode === "edit";

@@ -1,7 +1,7 @@
 "use client";
 
 import FileViewer from "@/components/common/FileViewer";
-import { DataDisplaySurfaceComponentProps } from "@/components/common/long/data-display/Constant";
+import { SurfaceComponentProps } from "@/components/common/surface";
 import { Button } from "@/components/ui/button";
 import { getAllCountryOptions } from "@/lib/countries";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
@@ -11,7 +11,7 @@ import { formatDocType, getDocumentNumberLabel } from "./config";
 export function DocumentDetail({
   row: document,
   close,
-}: DataDisplaySurfaceComponentProps<GetDocumentData>) {
+}: SurfaceComponentProps<GetDocumentData>) {
   if (!document) return null;
 
   const numLabel = getDocumentNumberLabel(document.document_type);

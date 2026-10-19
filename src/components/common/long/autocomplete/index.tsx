@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import {
+  AddActionConfig,
+  SurfaceRenderer,
+  SurfaceType,
+} from "@/components/common/SurfaceRenderer";
 import { Badge } from "@/components/ui/badge";
 import {
   Popover,
@@ -84,6 +89,7 @@ export interface AutocompleteProps<
   selectionMode?: "single" | "multiple";
   defaultSelectedOptions?: T | T[];
   renderBadge?: (option: T, onRemove: () => void) => React.ReactNode;
+  addConfig?: AddActionConfig<T>;
 
   placeholder?: string;
   emptyText?: string;
@@ -91,8 +97,6 @@ export interface AutocompleteProps<
   hasError?: boolean;
   showClearButton?: boolean;
   indicatorIcon?: React.ReactNode;
-  addButton?: React.ReactNode;
-
   renderConfig?: AutocompleteRenderConfig<T>;
 
   debounceDelay?: number;
@@ -119,13 +123,13 @@ export function Autocomplete<
   selectionMode = "single",
   defaultSelectedOptions,
   renderBadge,
+  addConfig,
   placeholder = "Select option...",
   emptyText = "No option found.",
   disabled = false,
   hasError = false,
   showClearButton = false,
   indicatorIcon,
-  addButton,
   renderConfig,
   debounceDelay = 300,
   className,
@@ -134,6 +138,12 @@ export function Autocomplete<
   mode = "default",
   size = "md",
 }: AutocompleteProps<T, TQuery>) {
+  const [activeForm, setActiveForm] = React.useState<{
+    kind: "create" | "edit";
+    type: SurfaceType;
+    close: () => void;
+  } | null>(null);
+
   const {
     open,
     setOpen,
@@ -173,9 +183,21 @@ export function Autocomplete<
     ? Array.isArray(value) && value.length > 0
     : selectedOption != null || (value !== null && value !== "");
   const s = SIZE_STYLES[size];
+  const closeForm = React.useCallback(() => setActiveForm(null), []);
 
-  // Start multi-select lists at the top; a selected item can be far down when
-  // many values are selected, which makes the list open in an unexpected spot.
+  const openCreateForm = () => {
+    if (!addConfig) return;
+    const form = addConfig.form;
+    const surface =
+      form.type === "link" && !form.href ? "dialog" : (form.type ?? "dialog");
+    if (surface === "link" && form.href) {
+      window.location.assign(form.href);
+      return;
+    }
+    setOpen(false);
+    setActiveForm({ kind: "create", type: surface, close: closeForm });
+  };
+
   React.useEffect(() => {
     if (!open) return;
     if (isMulti) {
@@ -225,111 +247,119 @@ export function Autocomplete<
   );
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <AutocompleteTrigger
-          open={open}
-          setOpen={setOpen}
-          disabled={disabled}
-          hasError={hasError}
-          isLoading={isLoading}
-          hasValue={hasValue}
-          isMulti={isMulti}
-          selectedCount={isMulti && Array.isArray(value) ? value.length : 0}
-          showClearButton={showClearButton}
-          selectedOption={selectedOption}
-          search={search}
-          setSearch={setSearch}
-          placeholder={placeholder}
-          labelKey={labelKey}
-          iconKey={iconKey}
-          indicatorIcon={indicatorIcon}
-          render={renderConfig?.item}
-          renderTriggerAsCustom={renderConfig?.triggerAsCustom}
-          sizeStyle={s}
-          triggerClass={cn(triggerClass, className)}
-          inputClass={inputClass}
-          inputRef={refs.inputRef}
-          handlers={handlers}
-          isSolid={isSolid}
-        />
-      </PopoverTrigger>
+    <div className="space-y-2">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <AutocompleteTrigger
+            open={open}
+            setOpen={setOpen}
+            disabled={disabled}
+            hasError={hasError}
+            isLoading={isLoading}
+            hasValue={hasValue}
+            isMulti={isMulti}
+            selectedCount={isMulti && Array.isArray(value) ? value.length : 0}
+            showClearButton={showClearButton}
+            selectedOption={selectedOption}
+            search={search}
+            setSearch={setSearch}
+            placeholder={placeholder}
+            labelKey={labelKey}
+            iconKey={iconKey}
+            indicatorIcon={indicatorIcon}
+            render={renderConfig?.item}
+            renderTriggerAsCustom={renderConfig?.triggerAsCustom}
+            sizeStyle={s}
+            triggerClass={cn(triggerClass, className)}
+            inputClass={inputClass}
+            inputRef={refs.inputRef}
+            handlers={handlers}
+            isSolid={isSolid}
+          />
+        </PopoverTrigger>
 
-      <PopoverContent
-        className="rounded-md p-0"
-        style={{ width: "var(--radix-popover-trigger-width)" }}
-      >
-        <AutocompleteList
-          options={filteredOptions}
-          filteredOptions={filteredOptions}
-          groupedOptions={groupedOptions}
-          value={value}
-          valueKey={valueKey}
-          labelKey={labelKey}
-          searchKey={searchKey}
-          iconKey={iconKey}
-          emptyText={emptyText}
-          isLoading={isLoading}
-          isFetchingNext={isFetchingNext}
-          isFetchingPrev={isFetchingPrev}
-          hasNext={hasNext}
-          hasPrev={hasPrev}
-          fetchNext={fetchNext}
-          fetchPrev={fetchPrev}
-          search={search}
-          setSearch={setSearch}
-          disabled={disabled}
-          render={renderConfig?.item}
-          addButton={addButton}
-          isSolid={isSolid}
-          sizeStyle={s}
-          refs={refs}
-          handlers={handlers}
-        />
-      </PopoverContent>
+        <PopoverContent
+          className="rounded-md p-0"
+          style={{ width: "var(--radix-popover-trigger-width)" }}
+        >
+          <AutocompleteList
+            options={filteredOptions}
+            filteredOptions={filteredOptions}
+            groupedOptions={groupedOptions}
+            value={value}
+            valueKey={valueKey}
+            labelKey={labelKey}
+            searchKey={searchKey}
+            iconKey={iconKey}
+            emptyText={emptyText}
+            isLoading={isLoading}
+            isFetchingNext={isFetchingNext}
+            isFetchingPrev={isFetchingPrev}
+            hasNext={hasNext}
+            hasPrev={hasPrev}
+            fetchNext={fetchNext}
+            fetchPrev={fetchPrev}
+            search={search}
+            setSearch={setSearch}
+            disabled={disabled}
+            render={renderConfig?.item}
+            addConfig={addConfig}
+            onAddAction={openCreateForm}
+            isSolid={isSolid}
+            sizeStyle={s}
+            refs={refs}
+            handlers={handlers}
+          />
+        </PopoverContent>
 
-      {isMulti && selectedOptions.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 pt-1">
-          {selectedOptions.map((option) => {
-            const optionValue = option[valueKey] as string | number;
-            const optionLabel = String(option[labelKey] ?? "");
-            const removeOption = () => onSelect(optionValue, option);
+        {isMulti && selectedOptions.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {selectedOptions.map((option) => {
+              const optionValue = option[valueKey] as string | number;
+              const optionLabel = String(option[labelKey] ?? "");
+              const removeOption = () => onSelect(optionValue, option);
 
-            if (renderBadge) {
+              if (renderBadge) {
+                return (
+                  <React.Fragment key={String(optionValue)}>
+                    {renderBadge(option, removeOption)}
+                  </React.Fragment>
+                );
+              }
+
               return (
-                <React.Fragment key={String(optionValue)}>
-                  {renderBadge(option, removeOption)}
-                </React.Fragment>
-              );
-            }
-
-            return (
-              <Badge
-                key={String(optionValue)}
-                variant="secondary"
-                className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium"
-              >
-                {iconKey && option[iconKey] && (
-                  <OptionIcon
-                    icon={option[iconKey]}
-                    size={14}
-                    alt={optionLabel}
-                  />
-                )}
-                <span>{optionLabel}</span>
-                <button
-                  type="button"
-                  aria-label={`Remove ${optionLabel}`}
-                  onClick={removeOption}
-                  className="hover:bg-muted-foreground/20 rounded-xs p-0.5 transition-colors"
+                <Badge
+                  key={String(optionValue)}
+                  variant="secondary"
+                  className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium"
                 >
-                  <X className="h-3 w-3" aria-hidden="true" />
-                </button>
-              </Badge>
-            );
-          })}
-        </div>
-      )}
-    </Popover>
+                  {iconKey && option[iconKey] && (
+                    <OptionIcon
+                      icon={option[iconKey]}
+                      size={14}
+                      alt={optionLabel}
+                    />
+                  )}
+                  <span>{optionLabel}</span>
+                  <button
+                    type="button"
+                    aria-label={`Remove ${optionLabel}`}
+                    onClick={removeOption}
+                    className="hover:bg-muted-foreground/20 rounded-xs p-0.5 transition-colors"
+                  >
+                    <X className="h-3 w-3" aria-hidden="true" />
+                  </button>
+                </Badge>
+              );
+            })}
+          </div>
+        )}
+      </Popover>
+      <SurfaceRenderer
+        form={addConfig?.form}
+        activeForm={activeForm}
+        onCloseForm={closeForm}
+      />
+    </div>
   );
 }
