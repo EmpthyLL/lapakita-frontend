@@ -57,7 +57,9 @@ export function StallCard({ stall, variant = "row" }: StallCardProps) {
         return [
           {
             icon: Clock,
-            label: `${s.operatingHours.open}–${s.operatingHours.close}`,
+            label: s.operatingHours.is24Hours
+              ? t("open_24_hours")
+              : `${s.operatingHours.open}–${s.operatingHours.close}`,
           },
         ];
       case "temporary":

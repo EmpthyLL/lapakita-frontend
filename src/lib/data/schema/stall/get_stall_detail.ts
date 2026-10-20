@@ -52,7 +52,6 @@ export interface BaseStallDetail {
   propertyTypeValue: StallPropertyTypeValue;
   placement: StallPlacement;
   electricityCapacityVA: number;
-
   address: {
     street: string;
     suburb: string;

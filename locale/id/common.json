@@ -10,6 +10,7 @@
   "stall_card": {
     "floors": "{count} lantai",
     "days_event": "Acara {count} hari",
+    "open_24_hours": "Buka 24 jam",
     "registration_closed": "Pendaftaran ditutup",
     "one_day_left": "Sisa 1 hari",
     "days_left": "Sisa {days} hari",

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -11,7 +10,7 @@ import {
   FormMessage,
 } from "@/components/common/input/FormField";
 import { PhoneInput } from "@/components/common/input/PhoneInput";
-import { SurfaceComponentProps } from "@/components/common/surface";
+import { SurfaceComponentProps } from "@/components/common/SurfaceRenderer";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";

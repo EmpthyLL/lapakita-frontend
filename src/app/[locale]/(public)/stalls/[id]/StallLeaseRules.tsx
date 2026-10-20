@@ -1,7 +1,7 @@
+import { getStallConstantLabel } from "@/components/common/search/constants/labels";
 import {
   ATTENDANCE_REQUIREMENT_OPTIONS,
   CANCELLATION_POLICY_OPTIONS,
-  EVENT_OPERATING_DAYS_OPTIONS,
 } from "@/components/common/search/constants/range";
 import type {
   StartDateValue,
@@ -49,15 +49,24 @@ function formatTempStartDate(opt: TempStartDateValue | string) {
 
 export function StallLeaseRules({ stall }: { stall: StallDetail }) {
   if (stall.permanenceType === "temporary") {
-    const operatingDaysLabel = EVENT_OPERATING_DAYS_OPTIONS.find(
-      (o) => o.value === stall.leaseRules.operatingDays,
-    )?.label;
-    const attendance = ATTENDANCE_REQUIREMENT_OPTIONS.find(
-      (o) => o.value === stall.leaseRules.attendanceRequirement,
+    const operatingDaysLabel = getStallConstantLabel(
+      "eventOperatingDays",
+      stall.leaseRules.operatingDays,
     );
-    const cancellation = CANCELLATION_POLICY_OPTIONS.find(
-      (o) => o.value === stall.leaseRules.cancellationPolicy,
+    const attendanceLabel = getStallConstantLabel(
+      "attendanceRequirement",
+      stall.leaseRules.attendanceRequirement,
     );
+    const attendanceDescription = ATTENDANCE_REQUIREMENT_OPTIONS.find(
+      (option) => option.value === stall.leaseRules.attendanceRequirement,
+    )?.description;
+    const cancellationLabel = getStallConstantLabel(
+      "cancellationPolicy",
+      stall.leaseRules.cancellationPolicy,
+    );
+    const cancellationDescription = CANCELLATION_POLICY_OPTIONS.find(
+      (option) => option.value === stall.leaseRules.cancellationPolicy,
+    )?.description;
 
     return (
       <div>
@@ -91,11 +100,11 @@ export function StallLeaseRules({ stall }: { stall: StallDetail }) {
               Attendance Requirement
             </div>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              {attendance?.label ?? "—"}
+              {attendanceLabel}
             </p>
-            {attendance?.description && (
+            {attendanceDescription && (
               <p className="mt-1 text-xs text-muted-foreground">
-                {attendance.description}
+                {attendanceDescription}
               </p>
             )}
           </div>
@@ -106,11 +115,11 @@ export function StallLeaseRules({ stall }: { stall: StallDetail }) {
               Cancellation & Early Exit
             </div>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              {cancellation?.label ?? "—"}
+              {cancellationLabel}
             </p>
-            {cancellation?.description && (
+            {cancellationDescription && (
               <p className="mt-1 text-xs text-muted-foreground">
-                {cancellation.description}
+                {cancellationDescription}
               </p>
             )}
           </div>

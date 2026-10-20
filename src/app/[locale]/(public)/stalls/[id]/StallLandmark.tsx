@@ -1,5 +1,6 @@
 "use client";
 
+import { getStallConstantLabel } from "@/components/common/search/constants/labels";
 import { LANDMARK_CATEGORIES } from "@/components/common/search/constants/landmark";
 import type { NearbyLandmark } from "@/lib/data/schema/stall/get_stall_detail";
 import { MapPin } from "lucide-react";
@@ -33,7 +34,10 @@ export function StallLandmarks({ landmarks }: { landmarks: NearbyLandmark[] }) {
                     {landmark.name}
                   </p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {category?.label ?? "Landmark"}
+                    {getStallConstantLabel(
+                      "landmarkCategory",
+                      landmark.categoryValue,
+                    )}
                   </p>
                 </div>
               </div>

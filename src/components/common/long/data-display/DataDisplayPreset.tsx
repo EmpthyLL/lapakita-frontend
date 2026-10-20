@@ -4,7 +4,7 @@ import {
   SurfaceDetail,
   SurfaceForm,
   SurfaceType,
-} from "@/components/common/surface";
+} from "@/components/common/SurfaceRenderer";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { DataDisplayActionContext } from "./Constant";

@@ -176,7 +176,7 @@ export const WALLET_NAV: DashboardNavItem[] = [
     icon: CreditCard,
   },
   {
-    label: "Payout Bank Accounts",
+    label: "Payout Methods",
     href: "/dashboard/wallet/payout-methods",
     icon: ShieldCheck,
   },

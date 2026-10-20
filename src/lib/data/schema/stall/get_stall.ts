@@ -43,6 +43,7 @@ export interface SemiPermanentStall extends BaseStall {
   operatingHours: {
     open: string; // e.g. "10:00"
     close: string; // e.g. "22:00"
+    is24Hours: boolean;
   };
 }
 

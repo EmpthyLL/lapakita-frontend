@@ -10,6 +10,7 @@
   "stall_card": {
     "floors": "{count, plural, =1 {1 floor} other {# floors}}",
     "days_event": "{count, plural, =1 {1 day event} other {# days event}}",
+    "open_24_hours": "Open 24 hours",
     "registration_closed": "Registration closed",
     "one_day_left": "1 day left",
     "days_left": "{days} days left",

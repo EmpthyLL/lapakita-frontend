@@ -1,7 +1,7 @@
 "use client";
 
 import FileViewer from "@/components/common/FileViewer";
-import { SurfaceComponentProps } from "@/components/common/surface";
+import { SurfaceComponentProps } from "@/components/common/SurfaceRenderer";
 import { Button } from "@/components/ui/button";
 import { getAllCountryOptions } from "@/lib/countries";
 import { GetDocumentData } from "@/lib/data/schema/user/document";

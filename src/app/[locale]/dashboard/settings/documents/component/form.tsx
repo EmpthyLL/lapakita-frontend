@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { DocumentInput } from "@/components/common/input/DocumentInput";
@@ -12,7 +11,6 @@ import {
   FormMessage,
 } from "@/components/common/input/FormField";
 import { Autocomplete } from "@/components/common/long/autocomplete";
-import { SurfaceComponentProps } from "@/components/common/surface";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -30,6 +28,7 @@ import {
   UploadDocumentValues,
 } from "@/lib/data/schema/user/document";
 
+import { SurfaceComponentProps } from "@/components/common/SurfaceRenderer";
 import { CountryOption, getAllCountryOptions } from "@/lib/countries";
 import { handleError } from "@/lib/error";
 import { showToast } from "@/lib/toast";

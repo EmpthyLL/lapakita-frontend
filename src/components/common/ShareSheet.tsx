@@ -65,28 +65,29 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
     e.preventDefault();
     e.stopPropagation();
 
-    // Periksa apakah browser mendukung Web Share API
-    if (typeof navigator !== "undefined" && navigator.share) {
+    // Deteksi apakah perangkat adalah Mac (macOS)
+    const isMac =
+      typeof navigator !== "undefined" &&
+      /Macintosh|MacIntel|MacPPC|Mac68K/i.test(navigator.userAgent);
+
+    // Jika mendukung native share DAN BUKAN Mac, jalankan native share
+    if (!isMac && typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
           title: title,
           text: shareText,
           url: shareUrl,
         });
-        return; // Berhasil membuka native share, hentikan eksekusi
+        return;
       } catch (error) {
-        // Jika user membatalkan (AbortError), biarkan saja
         if ((error as Error).name === "AbortError") {
           return;
         }
-        // Jika gagal karena pembatasan HTTP/Insecure Context, lanjut ke dialog fallback
-        console.warn(
-          "Native share restricted in insecure context, opening fallback dialog.",
-        );
+        console.warn("Native share restricted, opening fallback dialog.");
       }
     }
 
-    // Fallback mutlak jika navigator.share tidak ada atau diblokir HTTP
+    // Untuk Mac atau perangkat lain yang tidak support, langsung buka Dialog web yang bagus
     setOpen(true);
   }
 

@@ -1,3 +1,4 @@
+import { getStallConstantLabel } from "@/components/common/search/constants/labels";
 import { Badge } from "@/components/ui/badge";
 import type { StallDetail } from "@/lib/data/schema/stall/get_stall_detail";
 import { Building2, MapPin, Maximize2, Star, Zap } from "lucide-react";
@@ -7,10 +8,13 @@ export function StallHeader({ stall }: { stall: StallDetail }) {
     <div>
       <div className="flex flex-wrap items-center gap-2">
         <Badge className="border-none bg-primary-secondary font-medium text-primary">
-          {stall.propertyType}
+          {getStallConstantLabel("propertyType", stall.propertyTypeValue)}
         </Badge>
         <Badge variant="outline" className="capitalize">
-          {stall.placement}
+          {getStallConstantLabel("placement", stall.placement)}
+        </Badge>
+        <Badge variant="outline">
+          {getStallConstantLabel("permanenceType", stall.permanenceType)}
         </Badge>
         {stall.permanenceType === "semi-permanent" && (
           <Badge variant="outline" className="flex items-center gap-1">
