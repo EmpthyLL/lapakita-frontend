@@ -60,7 +60,6 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
     }
   }
 
-  // Fungsi utama share yang langsung mencoba native share terlebih dahulu
   async function handleShareClick(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
@@ -79,10 +78,12 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
           url: shareUrl,
         });
         return;
+        return;
       } catch (error) {
         if ((error as Error).name === "AbortError") {
           return;
         }
+        console.warn("Native share restricted, opening fallback dialog.");
         console.warn("Native share restricted, opening fallback dialog.");
       }
     }
@@ -227,7 +228,6 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
 
   return (
     <>
-      {/* Tombol pemicu murni menjalankan fungsi share tanpa hambatan */}
       <div
         role="button"
         tabIndex={0}
