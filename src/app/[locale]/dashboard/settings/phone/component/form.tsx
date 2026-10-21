@@ -192,6 +192,7 @@ export function PhoneForm({
                   value={field.value}
                   onChange={field.onChange}
                   placeholder="812 3456 7890"
+                  disabled={isEdit}
                 />
               </FormControl>
               <FormMessage />

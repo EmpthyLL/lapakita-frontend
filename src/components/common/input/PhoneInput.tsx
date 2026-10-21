@@ -91,18 +91,19 @@ export function PhoneInput({
         // Focus state normal (biru)
         "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/25",
 
-        // ── PERBAIKAN: Sinkronisasi Error State agar saat focus tetap merah seperti <Input /> ──
+        // Error State
         "group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-within:border-destructive group-data-[invalid=true]/field:focus-within:ring-destructive/20",
         "aria-invalid:border-destructive aria-invalid:focus-within:border-destructive aria-invalid:focus-within:ring-destructive/20",
         hasError &&
           "border-destructive focus-within:border-destructive focus-within:ring-destructive/20",
 
+        // ── KELAS DISABLED YANG DISEMPURNAKAN ──
         disabled &&
-          "pointer-events-none cursor-not-allowed bg-muted opacity-50",
+          "cursor-not-allowed bg-muted opacity-50 focus-within:border-input focus-within:ring-0",
       )}
     >
       {/* Popover Selector untuk Dial Code di Kiri */}
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={disabled ? false : open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
             type="button"
@@ -111,6 +112,7 @@ export function PhoneInput({
             className={cn(
               "flex h-10 w-28 shrink-0 items-center justify-between gap-1.5 border-r border-input bg-secondary/30 px-3 text-sm font-semibold text-foreground transition-colors",
               "hover:bg-secondary/50 focus:outline-none",
+              disabled && "cursor-not-allowed opacity-100", // Menjaga transparansi diatur oleh container luar
             )}
           >
             <div className="flex items-center gap-2 truncate">
@@ -159,8 +161,10 @@ export function PhoneInput({
                       ref={isSelected ? selectedItemRef : undefined}
                       value={`${option.name} ${option.diaCode}`}
                       onSelect={() => {
-                        handleDialCodeChange(option.diaCode);
-                        setOpen(false);
+                        handleDialCodeCompanyChange: {
+                          handleDialCodeChange(option.diaCode);
+                          setOpen(false);
+                        }
                       }}
                       className={cn(
                         "flex cursor-pointer items-center justify-between rounded-md px-2.5 py-2 text-sm",
@@ -206,7 +210,7 @@ export function PhoneInput({
           placeholder={placeholder}
           disabled={disabled}
           hasError={hasError}
-          className="border-none bg-transparent shadow-none focus-visible:ring-0 rounded-none"
+          className="border-none bg-transparent shadow-none focus-visible:ring-0 rounded-none disabled:bg-transparent disabled:cursor-not-allowed"
         />
       </div>
     </div>
