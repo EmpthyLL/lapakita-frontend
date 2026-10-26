@@ -5,7 +5,6 @@ import {
   DataDisplayActionContext,
   FieldColumnDef,
 } from "@/components/common/long/data-display/Constant";
-import { getAllCountryOptions } from "@/lib/countries";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
 import { FileText } from "lucide-react";
 import { formatDocType, getDocumentNumberLabel } from "./config";
@@ -44,10 +43,6 @@ export function DocumentCard({
       : String(row[column.key] ?? "");
 
   const numLabel = getDocumentNumberLabel(row.document_type);
-  const countryOptions = getAllCountryOptions();
-  const foundCountry = countryOptions.find(
-    (c) => c.value.toLowerCase() === row.country_code?.toLowerCase(),
-  );
 
   return (
     <div className="group relative overflow-hidden rounded-3xl border border-border bg-card shadow-xs transition-all hover:shadow-md hover:border-primary/40 flex flex-col justify-between">
@@ -71,17 +66,8 @@ export function DocumentCard({
         <div className="space-y-3">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                {foundCountry?.flag && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={foundCountry.flag}
-                    alt={foundCountry.name}
-                    className="h-3 w-4 object-contain rounded-xs shrink-0 shadow-xs"
-                  />
-                )}
-                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                  {foundCountry?.name ?? row.country_code} •{" "}
+              <div className="mb-1 min-w-0">
+                <span className="line-clamp-2 text-[11px] font-semibold uppercase leading-tight tracking-wider text-muted-foreground">
                   {row.document_label}
                 </span>
               </div>
@@ -108,7 +94,6 @@ export function DocumentCard({
                 (col) =>
                   col.key !== "document_number" &&
                   col.key !== "full_name_identity" &&
-                  col.key !== "country_code" &&
                   col.key !== "document_label",
               )
               .map((column) => (

@@ -1,4 +1,4 @@
-import { PAYOUT_PROVIDERS } from "@/app/[locale]/dashboard/wallet/payment-methods/PayoutProvider";
+import { PAYOUT_PROVIDERS } from "@/app/[locale]/dashboard/wallet/payment-methods/component/config";
 import api from "@/lib/api";
 import {
   GetPaymentMethodsResponse,

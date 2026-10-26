@@ -306,11 +306,6 @@ export function StallCard({ stall, variant = "row" }: StallCardProps) {
 
           <div className="mt-2 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
             <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
-            {stall.location.countryCode && (
-              <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-primary">
-                {stall.location.countryCode}
-              </span>
-            )}
             <span className="truncate">
               {stall.location.area}, {stall.location.city}
             </span>

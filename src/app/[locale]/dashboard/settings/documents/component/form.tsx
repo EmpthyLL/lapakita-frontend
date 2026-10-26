@@ -10,7 +10,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/common/input/FormField";
-import { Autocomplete } from "@/components/common/long/autocomplete";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -29,7 +28,6 @@ import {
 } from "@/lib/data/schema/user/document";
 
 import { SurfaceComponentProps } from "@/components/common/SurfaceRenderer";
-import { CountryOption, getAllCountryOptions } from "@/lib/countries";
 import { handleError } from "@/lib/error";
 import { showToast } from "@/lib/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -57,7 +55,6 @@ export function DocumentForm({
 }: SurfaceComponentProps<GetDocumentData>) {
   const queryClient = useQueryClient();
   const isEdit = mode === "edit";
-  const countryOptions = getAllCountryOptions();
 
   const form = useForm<UploadDocumentValues>({
     resolver: zodResolver(uploadDocumentSchema),
@@ -110,38 +107,7 @@ export function DocumentForm({
         onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
         className="space-y-4 p-2"
       >
-        {/* Pilih Negara Menggunakan Autocomplete */}
-        <FormField
-          control={form.control}
-          name="country_code"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Issuing Country</FormLabel>
-              <FormControl>
-                <Autocomplete<CountryOption>
-                  value={field.value}
-                  onSelect={(val) => {
-                    const countryCode = String(val);
-                    field.onChange(countryCode);
-                    const newDefault = getDefaultDocumentLabel(
-                      countryCode,
-                      selectedDocumentType,
-                    );
-                    form.setValue("document_label", newDefault);
-                  }}
-                  options={countryOptions}
-                  valueKey="value"
-                  labelKey="label"
-                  searchKey="label"
-                  iconKey="flag"
-                  placeholder="Select country..."
-                  disabled={isEdit}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <input type="hidden" {...form.register("country_code")} />
 
         {/* Jenis Dokumen */}
         <FormField

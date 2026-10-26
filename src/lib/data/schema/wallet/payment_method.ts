@@ -41,7 +41,7 @@ export interface PaymentMethodItem {
   account_number: string;
   account_holder_name: string;
   is_primary: boolean;
-  logo_url?: string; // Tambahan opsional untuk frontend mapping logo dari PAYOUT_PROVIDERS
+  logo_url?: string;
   created_at: string;
   updated_at: string;
 }

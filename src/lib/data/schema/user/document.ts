@@ -3,7 +3,7 @@ import { basePaginationQuerySchema, PaginatedResponse } from "../base";
 
 export const uploadDocumentSchema = z
   .object({
-    country_code: z.string().min(2, "Country is required"), // Hapus .default di sini
+    country_code: z.string().min(2, "Country is required"),
     document_type: z.enum(["national_id", "passport", "residence_permit"], {
       message: "Select a valid document type",
     }),

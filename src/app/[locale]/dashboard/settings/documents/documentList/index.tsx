@@ -3,7 +3,6 @@
 import { DataDisplay } from "@/components/common/long/data-display";
 import { DataDisplayQuery } from "@/components/common/long/data-display/Constant";
 import { Button } from "@/components/ui/button";
-import { countrySearchList } from "@/lib/countries";
 import { getDocument } from "@/lib/data/api/user";
 import {
   DocumentQueryParams,
@@ -29,7 +28,6 @@ export default function DocumentList() {
     filterToParamKey: {
       name: "name",
       document_type: "document_type",
-      country_code: "country_code",
       document_number: "document_number",
     },
     filterOptions: [
@@ -52,12 +50,6 @@ export default function DocumentList() {
           { label: "Passport", value: "passport" },
           { label: "Residence Permit", value: "residence_permit" },
         ],
-      },
-      {
-        id: "country_code",
-        title: "Issuing Country",
-        type: "select",
-        options: countrySearchList,
       },
     ],
   };

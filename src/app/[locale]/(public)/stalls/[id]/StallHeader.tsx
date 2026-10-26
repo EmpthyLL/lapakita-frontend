@@ -29,17 +29,11 @@ export function StallHeader({ stall }: { stall: StallDetail }) {
       </h1>
 
       <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
-        <span className="flex items-center gap-1.5">
-          <MapPin className="h-4 w-4 text-primary" />
-          {stall.address.countryCode && (
-            <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-primary">
-              {stall.address.countryCode}
-            </span>
-          )}
-          <span>
+        <span className="flex min-w-0 items-start gap-1.5">
+          <MapPin className="h-4 w-4 shrink-0 text-primary" />
+          <span className="min-w-0 break-words">
             {stall.address.suburb}, {stall.address.city},{" "}
             {stall.address.province}
-            {stall.address.country ? `, ${stall.address.country}` : ""}
           </span>
         </span>
 

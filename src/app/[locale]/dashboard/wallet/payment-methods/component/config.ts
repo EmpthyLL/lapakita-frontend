@@ -5,9 +5,7 @@ export interface PayoutProviderOption {
   logoUrl: string;
 }
 
-// Logo dari paket npm `idn-finlogos` (SVG), dipin ke versi 2.3.0 supaya URL stabil.
-const LOGO_CDN = "https://cdn.jsdelivr.net/npm/idn-finlogos@2.3.0/dist/icons";
-const logo = (slug: string) => `${LOGO_CDN}/${slug}.svg`;
+const logo = (code: string) => `/img/payout/${code}.svg`;
 
 export const PAYOUT_PROVIDERS: {
   banks: PayoutProviderOption[];
@@ -30,7 +28,7 @@ export const PAYOUT_PROVIDERS: {
       code: "bri",
       name: "Bank Rakyat Indonesia (BRI)",
       type: "bank_account",
-      logoUrl: logo("bri-new"),
+      logoUrl: logo("bri"),
     },
     {
       code: "bni",
@@ -42,13 +40,13 @@ export const PAYOUT_PROVIDERS: {
       code: "cimb",
       name: "CIMB Niaga",
       type: "bank_account",
-      logoUrl: logo("cimb-niaga"),
+      logoUrl: logo("cimb"),
     },
     {
       code: "permata",
       name: "Bank Permata",
       type: "bank_account",
-      logoUrl: logo("permata-bank-new"),
+      logoUrl: logo("permata"),
     },
     {
       code: "bsi",
@@ -70,14 +68,29 @@ export const PAYOUT_PROVIDERS: {
     },
   ],
   eWallets: [
-    { code: "gopay", name: "GoPay", type: "e_wallet", logoUrl: logo("gopay") },
-    { code: "ovo", name: "OVO", type: "e_wallet", logoUrl: logo("ovo-new") },
-    { code: "dana", name: "DANA", type: "e_wallet", logoUrl: logo("dana") },
+    {
+      code: "gopay",
+      name: "GoPay",
+      type: "e_wallet",
+      logoUrl: logo("gopay"),
+    },
+    {
+      code: "ovo",
+      name: "OVO",
+      type: "e_wallet",
+      logoUrl: logo("ovo"),
+    },
+    {
+      code: "dana",
+      name: "DANA",
+      type: "e_wallet",
+      logoUrl: logo("dana"),
+    },
     {
       code: "shopeepay",
       name: "ShopeePay",
       type: "e_wallet",
-      logoUrl: logo("shopee-pay"),
+      logoUrl: logo("shopeepay"),
     },
     {
       code: "linkaja",
@@ -86,4 +99,15 @@ export const PAYOUT_PROVIDERS: {
       logoUrl: logo("linkaja"),
     },
   ],
+};
+
+export const formatPayoutType = (type: string) => {
+  switch (type) {
+    case "bank_account":
+      return "Bank Account";
+    case "e_wallet":
+      return "E-Wallet";
+    default:
+      return type;
+  }
 };
