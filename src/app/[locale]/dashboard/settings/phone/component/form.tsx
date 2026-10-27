@@ -266,19 +266,10 @@ export function PhoneForm({
         />
 
         <DialogFooter className="pt-4 border-t border-border flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={close}
-            className="rounded-xl"
-          >
+          <Button type="button" variant="outline" onClick={close}>
             Cancel
           </Button>
-          <Button
-            type="submit"
-            isLoading={mutation.isPending}
-            className="rounded-xl"
-          >
+          <Button type="submit" isLoading={mutation.isPending}>
             {isEdit ? "Save Changes" : "Add Phone Number"}
           </Button>
         </DialogFooter>

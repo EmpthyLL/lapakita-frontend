@@ -180,7 +180,7 @@ export function AutocompleteList<T extends Record<string, any>>({
             // eslint-disable-next-line react-hooks/refs
             ref={refs.commandListRef}
             onScroll={handleScroll}
-            className="max-h-75 flex-1 overflow-y-auto overscroll-contain"
+            className="min-h-0 max-h-[min(18.75rem,var(--radix-popover-content-available-height))] flex-1 touch-pan-y overflow-y-auto overscroll-contain"
             style={{
               scrollbarWidth: "thin",
               scrollbarColor: isSolid

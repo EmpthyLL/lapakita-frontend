@@ -58,7 +58,7 @@ const DialogWrapper: FC<DialogWrapperProps> = ({
           <DialogTitle hidden={!title}>{title ?? "default title"}</DialogTitle>
           {desc && <DialogDescription>{desc}</DialogDescription>}
         </DialogHeader>
-        <ScrollArea className="flex-1 overflow-y-auto">{children}</ScrollArea>
+        <ScrollArea className="min-h-0 flex-1 overflow-y-auto">{children}</ScrollArea>
       </DialogContent>
     </Dialog>
   );

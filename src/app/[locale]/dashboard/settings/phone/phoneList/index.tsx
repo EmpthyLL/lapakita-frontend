@@ -70,7 +70,7 @@ export default function PhoneList() {
             onClick={() => openCreate("dialog")}
             disabled={isLoading}
             size="sm"
-            className="h-10 gap-1.5 px-3.5 text-xs rounded-xl"
+            className="h-10 gap-1.5 px-3.5 text-xs"
           >
             <Plus className="h-4 w-4" /> Add Phone Number
           </Button>

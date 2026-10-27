@@ -123,7 +123,7 @@ export default function GeneralProfilePage() {
 
         <div className="flex items-center gap-3">
           <div
-            className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${currentRoleColorClass}`}
+            className={`flex h-10 w-10 items-center justify-center transition-colors ${currentRoleColorClass}`}
           >
             <UserCheck className="h-5 w-5" />
           </div>
@@ -229,7 +229,7 @@ export default function GeneralProfilePage() {
                     <FormControl>
                       <Input
                         placeholder="Enter your full name"
-                        className="h-11 rounded-xl bg-background border-border focus-visible:ring-primary"
+                        className="h-11 bg-background border-border focus-visible:ring-primary"
                         {...field}
                       />
                     </FormControl>

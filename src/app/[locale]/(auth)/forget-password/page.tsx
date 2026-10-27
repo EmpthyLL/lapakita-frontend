@@ -2,8 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { ArrowLeft, KeyRound } from "lucide-react";
-import Link from "next/link";
+import { KeyRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
@@ -54,6 +53,8 @@ export default function ForgotPasswordPage() {
   return (
     <AuthShell
       layout="centered"
+      backHref="/login"
+      backLabel="Back to login"
       illustration={{
         icon: KeyRound,
         eyebrow: "Account recovery",
@@ -62,14 +63,6 @@ export default function ForgotPasswordPage() {
           "We'll send a verification code to your email so you can safely reset your password.",
       }}
     >
-      <Link
-        href="/login"
-        className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to login
-      </Link>
-
       <div className="mb-8">
         <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground">
           Forgot your password?

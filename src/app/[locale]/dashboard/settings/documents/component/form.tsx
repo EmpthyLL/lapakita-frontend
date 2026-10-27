@@ -130,7 +130,7 @@ export function DocumentForm({
                 disabled={isEdit}
               >
                 <FormControl>
-                  <SelectTrigger className="h-9 bg-background border-border">
+                  <SelectTrigger className="bg-background border-border">
                     <SelectValue placeholder="Select document type" />
                   </SelectTrigger>
                 </FormControl>
@@ -194,7 +194,7 @@ export function DocumentForm({
               <FormControl>
                 {labelInputMode === "preset" ? (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="h-9 bg-background border-border">
+                    <SelectTrigger className="bg-background border-border">
                       <SelectValue placeholder="Select document label" />
                     </SelectTrigger>
                     <SelectContent>

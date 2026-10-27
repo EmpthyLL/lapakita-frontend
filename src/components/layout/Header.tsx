@@ -237,7 +237,7 @@ export function SiteHeader() {
 
                   <DropdownMenuItem asChild className="cursor-pointer">
                     <Link
-                      href="/dashboard/profile"
+                      href={`/dashboard/${activeRole}/profile`}
                       className="flex items-center w-full"
                     >
                       <User className="mr-2 h-4 w-4" /> {t("profile")}

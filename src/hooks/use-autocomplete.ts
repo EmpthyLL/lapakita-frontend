@@ -210,7 +210,6 @@ export function useAutocomplete<
       setSearch("");
     } else {
       setTimeout(() => inputRef.current?.focus(), 0);
-      requestAnimationFrame(() => commandInputRef.current?.focus());
     }
   }, [open]);
 

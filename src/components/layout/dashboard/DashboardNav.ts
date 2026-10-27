@@ -186,19 +186,19 @@ export const WALLET_NAV: DashboardNavItem[] = [
 export const PERSONA_PROFILES_NAV: DashboardNavItem[] = [
   {
     label: "Tenant Profile",
-    href: "/dashboard/settings/profile/tenant",
+    href: "/dashboard/tenant/profile",
     icon: UserCog,
     role: "tenant",
   },
   {
     label: "Owner Profile",
-    href: "/dashboard/settings/profile/owner",
+    href: "/dashboard/owner/profile",
     icon: UserCog,
     role: "owner",
   },
   {
     label: "Supplier Profile",
-    href: "/dashboard/settings/profile/supplier",
+    href: "/dashboard/supplier/profile",
     icon: UserCog,
     role: "supplier",
   },

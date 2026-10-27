@@ -23,8 +23,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? "";
 
   const role: AppRole = React.useMemo(() => {
-    if (pathname.includes("/owner")) return "owner";
-    if (pathname.includes("/supplier")) return "supplier";
+    const segments = pathname.split("/").filter(Boolean);
+    const dashboardIndex = segments.lastIndexOf("dashboard");
+    const pathRole = segments[dashboardIndex + 1];
+    if (pathRole === "owner" || pathRole === "supplier") return pathRole;
     return "tenant";
   }, [pathname]);
 

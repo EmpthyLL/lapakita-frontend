@@ -5,7 +5,7 @@ import { SurfaceComponentProps } from "@/components/common/SurfaceRenderer";
 import { Button } from "@/components/ui/button";
 import { PaymentMethodItem } from "@/lib/data/schema/wallet/payment_method";
 import { Building2, CreditCard, Hash, ShieldCheck, User } from "lucide-react";
-import { formatPayoutType } from "./config";
+import { formatPayoutType, PAYOUT_PROVIDERS } from "./config";
 
 export function PaymentMethodDetail({
   row: method,
@@ -13,13 +13,25 @@ export function PaymentMethodDetail({
 }: SurfaceComponentProps<PaymentMethodItem>) {
   if (!method) return null;
 
+  // Ambil logo otomatis dari PAYOUT_PROVIDERS jika logo_url dari backend kosong
+  const resolvedLogo =
+    method.logo_url ||
+    (() => {
+      const allProviders = [
+        ...PAYOUT_PROVIDERS.banks,
+        ...PAYOUT_PROVIDERS.eWallets,
+      ];
+      const found = allProviders.find((p) => p.code === method.provider_code);
+      return found?.icon || "";
+    })();
+
   return (
     <div className="space-y-6 pt-2">
       <div className="flex items-center gap-4 rounded-3xl bg-secondary/30 p-5 border border-border/80">
-        {method.logo_url ? (
+        {resolvedLogo ? (
           <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-2xl border border-border bg-background p-2.5 shadow-xs">
             <img
-              src={method.logo_url}
+              src={resolvedLogo}
               alt={method.provider_name}
               className="h-full w-full object-contain"
             />

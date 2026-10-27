@@ -9,13 +9,18 @@ import {
   PaymentMethodQueryParams,
 } from "@/lib/data/schema/wallet/payment_method";
 import { Plus } from "lucide-react";
-import { PaymentMethodCard } from "../component/card";
+import { PAYOUT_PROVIDERS } from "../component/config";
 import { PaymentMethodDetail } from "../component/detail";
 import { PaymentMethodForm } from "../component/form";
 import { usePaymentMethodColumns } from "./column";
 
 export default function PaymentMethodList() {
   const columns = usePaymentMethodColumns();
+
+  const providerOptions = [
+    ...PAYOUT_PROVIDERS.banks.map((b) => ({ label: b.name, value: b.code })),
+    ...PAYOUT_PROVIDERS.eWallets.map((e) => ({ label: e.name, value: e.code })),
+  ];
 
   const queryConfig: DataDisplayQuery<
     PaymentMethodItem,
@@ -27,16 +32,19 @@ export default function PaymentMethodList() {
     },
     queryKey: (params) => ["payment-methods", params],
     searchKey: "search",
+    searchPlaceholder: "Cari nomor akun atau nama pemegang...",
     defaultParams: { page: 1 },
     filterToParamKey: {
       search: "search",
+      provider: "provider",
       payout_type: "payout_type",
     },
     filterOptions: [
       {
-        id: "search",
-        title: "Search Provider / Number",
-        type: "input",
+        id: "provider",
+        title: "Provider / Bank",
+        type: "select",
+        options: providerOptions,
       },
       {
         id: "payout_type",
@@ -56,7 +64,7 @@ export default function PaymentMethodList() {
         query={queryConfig}
         columns={columns}
         rowKey="id"
-        variant="card"
+        variant="list"
         loadMode="pagination"
         showFilter
         showCount
@@ -79,14 +87,6 @@ export default function PaymentMethodList() {
           size: "md",
           component: PaymentMethodForm,
         }}
-        renderItem={(row, index, itemColumns, action) => (
-          <PaymentMethodCard
-            row={row}
-            index={index}
-            columns={itemColumns}
-            action={action}
-          />
-        )}
         toolbarExtraAction={({ openCreate, isLoading }) => (
           <Button
             onClick={() => openCreate("dialog")}

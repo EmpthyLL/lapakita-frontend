@@ -127,7 +127,7 @@ export function RoleSelectPopover({
           size="sm"
           disabled={disabled}
           className={cn(
-            "flex h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-xl px-3.5 text-xs font-semibold outline-none transition-all duration-150 shadow-none border bg-background border-border hover:bg-secondary/50",
+            "flex h-11 w-full cursor-pointer items-center justify-between gap-2 px-3.5 text-xs font-semibold outline-none transition-all duration-150 shadow-none border bg-background border-border hover:bg-secondary/50",
             !isGeneral && currentConfig.borderClass,
             open && "ring-2 ring-primary/20",
             className,

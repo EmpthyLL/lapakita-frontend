@@ -42,14 +42,16 @@ const ROLES: {
 
 export default function PersonaProfilePage() {
   const queryClient = useQueryClient();
-  const { data: session, update: updateSession } = useSession();
+  const { data: session, status, update: updateSession } = useSession();
 
-  const [activeTab, setActiveTab] = useState<Role>("tenant");
+  const [selectedTab, setSelectedTab] = useState<Role | null>(null);
+  const activeTab = selectedTab ?? session?.user?.activeRole ?? "tenant";
 
   // Fetch data persona berdasarkan role yang sedang aktif di tab
   const { data: persona, isLoading: isPersonaLoading } = useQuery({
     queryKey: ["user-persona-profile", activeTab],
     queryFn: () => getPersonaProfile(activeTab),
+    enabled: status !== "loading",
   });
 
   const isInitializedRef = useRef(false);
@@ -184,9 +186,9 @@ export default function PersonaProfilePage() {
             <button
               key={role.id}
               type="button"
-              onClick={() => setActiveTab(role.id)}
+              onClick={() => setSelectedTab(role.id)}
               className={cn(
-                "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-semibold capitalize transition-all outline-none cursor-pointer",
+                "flex flex-1 items-center justify-center gap-2 py-2.5 text-xs font-semibold capitalize transition-all outline-none cursor-pointer",
                 isActive
                   ? cn("bg-card shadow-xs", theme.text)
                   : "text-muted-foreground hover:text-foreground",
@@ -201,7 +203,7 @@ export default function PersonaProfilePage() {
 
       {/* Form Content */}
       <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
-        {isPersonaLoading ? (
+        {status === "loading" || isPersonaLoading ? (
           <Spinner className="h-64" />
         ) : (
           <Form {...form}>
@@ -250,7 +252,7 @@ export default function PersonaProfilePage() {
                       <FormControl>
                         <Input
                           placeholder="Enter persona display name"
-                          className="h-11 rounded-xl bg-background border-border focus-visible:ring-primary"
+                          className="h-11 bg-background border-border focus-visible:ring-primary"
                           {...field}
                         />
                       </FormControl>

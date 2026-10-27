@@ -3,9 +3,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { ArrowLeft, MailCheck } from "lucide-react";
+import { MailCheck } from "lucide-react";
 import { signIn } from "next-auth/react";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -139,6 +138,10 @@ export default function VerifyOtpPage() {
   return (
     <AuthShell
       layout="centered"
+      backHref={mode === "reset_password" ? "/forget-password" : "/register"}
+      backLabel={
+        mode === "reset_password" ? "Back to recovery" : "Back to sign up"
+      }
       illustration={{
         icon: MailCheck,
         eyebrow: "Almost there",
@@ -147,14 +150,6 @@ export default function VerifyOtpPage() {
           "A 6-digit verification code keeps your Lapakita account secure, whether you're joining or resetting access.",
       }}
     >
-      <Link
-        href={mode === "reset_password" ? "/forget-password" : "/register"}
-        className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back
-      </Link>
-
       <div className="mb-8 text-center">
         <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground">
           Enter verification code

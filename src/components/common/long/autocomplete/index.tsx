@@ -279,7 +279,7 @@ export function Autocomplete<
         </PopoverTrigger>
 
         <PopoverContent
-          className="rounded-md p-0"
+          className="pointer-events-auto z-[60] rounded-md p-0"
           style={{ width: "var(--radix-popover-trigger-width)" }}
         >
           <AutocompleteList

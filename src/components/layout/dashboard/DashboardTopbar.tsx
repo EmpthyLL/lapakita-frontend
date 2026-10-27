@@ -84,7 +84,8 @@ export function DashboardTopbar({
   const isSettingsPage = pathname.startsWith("/dashboard/settings");
 
   const segments = pathname.split("/").filter(Boolean);
-  const currentPathRole = segments[1] as Role;
+  const dashboardIndex = segments.lastIndexOf("dashboard");
+  const currentPathRole = segments[dashboardIndex + 1] as Role;
 
   const currentRole: Role = VALID_ROLES.includes(currentPathRole)
     ? currentPathRole

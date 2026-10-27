@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { SurfaceComponentProps } from "@/components/common/SurfaceRenderer";
 import {
   Form,
   FormControl,
@@ -10,6 +9,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/common/input/FormField";
+import { Autocomplete } from "@/components/common/long/autocomplete";
+import { SurfaceComponentProps } from "@/components/common/SurfaceRenderer";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -31,7 +32,7 @@ import { showToast } from "@/lib/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { PAYOUT_PROVIDERS } from "./config";
+import { PAYOUT_PROVIDERS, type PayoutProviderOption } from "./config";
 
 export function PaymentMethodForm({
   close,
@@ -90,7 +91,7 @@ export function PaymentMethodForm({
                 defaultValue={field.value}
               >
                 <FormControl>
-                  <SelectTrigger className="h-10 bg-background border-border rounded-xl">
+                  <SelectTrigger className="h-10 bg-background border-border">
                     <SelectValue placeholder="Select payout type" />
                   </SelectTrigger>
                 </FormControl>
@@ -104,47 +105,56 @@ export function PaymentMethodForm({
           )}
         />
 
-        {/* Provider */}
+        {/* Provider menggunakan Autocomplete */}
         <FormField
           control={form.control}
           name="provider_code"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Provider / Bank</FormLabel>
-              <Select
-                onValueChange={(code) => {
-                  field.onChange(code);
-                  const selected = availableProviders.find(
-                    (p) => p.code === code,
-                  );
-                  if (selected) {
-                    form.setValue("provider_name", selected.name);
-                  }
-                }}
-                value={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger className="h-10 bg-background border-border rounded-xl">
-                    <SelectValue placeholder="Select provider" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {availableProviders.map((provider) => (
-                    <SelectItem key={provider.code} value={provider.code}>
-                      <div className="flex items-center gap-2">
-                        {provider.logoUrl && (
+              <FormControl>
+                <Autocomplete<PayoutProviderOption>
+                  options={availableProviders}
+                  value={field.value}
+                  onSelect={(code, option) => {
+                    field.onChange(String(code));
+                    if (option) {
+                      form.setValue("provider_name", option.name);
+                    }
+                  }}
+                  valueKey="code"
+                  labelKey="name"
+                  searchKey="name"
+                  iconKey="icon"
+                  placeholder="Cari atau pilih bank/e-wallet..."
+                  emptyText="Provider tidak ditemukan."
+                  showClearButton
+                  size="md"
+                  renderConfig={{
+                    item: (option) => (
+                      <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <div className="flex size-11 shrink-0 items-center justify-center rounded-md border border-border/70 bg-background p-1.5 shadow-xs">
                           <img
-                            src={provider.logoUrl}
-                            alt={provider.name}
-                            className="h-4 w-6 object-contain"
+                            src={option.icon}
+                            alt=""
+                            className="h-8 w-9 object-contain"
                           />
-                        )}
-                        <span>{provider.name}</span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-semibold text-foreground">
+                            {option.name}
+                          </span>
+                          <span className="mt-0.5 block text-[11px] font-medium text-muted-foreground">
+                            {option.type === "bank_account"
+                              ? "Bank"
+                              : "E-Wallet"}
+                          </span>
+                        </div>
                       </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    ),
+                  }}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -158,11 +168,7 @@ export function PaymentMethodForm({
             <FormItem>
               <FormLabel>Account Number / Phone Number</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Enter account number"
-                  className="rounded-xl"
-                  {...field}
-                />
+                <Input placeholder="Enter account number" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -177,11 +183,7 @@ export function PaymentMethodForm({
             <FormItem>
               <FormLabel>Account Holder Name</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Enter account holder name"
-                  className="rounded-xl"
-                  {...field}
-                />
+                <Input placeholder="Enter account holder name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -189,19 +191,10 @@ export function PaymentMethodForm({
         />
 
         <DialogFooter className="pt-4 border-t border-border flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={close}
-            className="rounded-xl"
-          >
+          <Button type="button" variant="outline" onClick={close}>
             Cancel
           </Button>
-          <Button
-            type="submit"
-            isLoading={mutation.isPending}
-            className="rounded-xl"
-          >
+          <Button type="submit" isLoading={mutation.isPending}>
             Add Payout Method
           </Button>
         </DialogFooter>

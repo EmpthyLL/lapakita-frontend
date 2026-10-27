@@ -61,6 +61,8 @@ export default function ResetPasswordPage() {
   return (
     <AuthShell
       layout="centered"
+      backHref="/forget-password"
+      backLabel="Back to recovery"
       illustration={{
         icon: ShieldCheck,
         eyebrow: "Secure your account",
