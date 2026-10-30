@@ -33,6 +33,8 @@ interface SheetContentProps extends React.ComponentPropsWithoutRef<
 > {
   side?: "top" | "right" | "bottom" | "left";
   showCloseButton?: boolean;
+  overlayClassName?: string;
+  dismissibleOverlay?: boolean;
 }
 
 const SheetContent = React.forwardRef<
@@ -40,11 +42,34 @@ const SheetContent = React.forwardRef<
   SheetContentProps
 >(
   (
-    { className, children, side = "right", showCloseButton = true, ...props },
+    {
+      className,
+      children,
+      side = "right",
+      showCloseButton = true,
+      overlayClassName,
+      dismissibleOverlay = false,
+      ...props
+    },
     ref,
   ) => (
     <SheetPortal>
-      <SheetOverlay />
+      {dismissibleOverlay ? (
+        <DialogPrimitive.Close asChild>
+          <button
+            type="button"
+            aria-label="Close sheet"
+            data-slot="sheet-overlay"
+            className={cn(
+              "fixed inset-0 z-40 bg-black/55 transition-opacity duration-150",
+              "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
+              overlayClassName,
+            )}
+          />
+        </DialogPrimitive.Close>
+      ) : (
+        <SheetOverlay className={overlayClassName} />
+      )}
       <DialogPrimitive.Content
         ref={ref}
         data-slot="sheet-content"

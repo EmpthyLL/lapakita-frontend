@@ -226,7 +226,7 @@
   .text-gradient-brand {
     background-image: linear-gradient(
       100deg,
-      var(--primary) 0%,
+      var(--tenant) 0%,
       var(--supplier) 55%,
       var(--owner) 100%
     );
@@ -238,16 +238,25 @@
   .bg-gradient-brand {
     background-image: linear-gradient(
       100deg,
-      var(--primary) 0%,
+      var(--tenant) 0%,
       var(--supplier) 55%,
       var(--owner) 100%
+    );
+  }
+
+  .bg-gradient-brand-light {
+    background-image: linear-gradient(
+      100deg,
+      color-mix(in oklch, var(--tenant), white 45%) 0%,
+      color-mix(in oklch, var(--supplier), white 45%) 55%,
+      color-mix(in oklch, var(--owner), white 45%) 100%
     );
   }
 
   .border-gradient-brand {
     border-image: linear-gradient(
         100deg,
-        var(--primary) 0%,
+        var(--tenant) 0%,
         var(--supplier) 55%,
         var(--owner) 100%
       )

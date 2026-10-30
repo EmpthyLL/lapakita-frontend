@@ -10,62 +10,75 @@ const guestOnlyPages = [
   "/register",
   "/verify-otp",
   "/forgot-password",
+  "/forget-password",
   "/reset-password",
 ];
 
 const getPathWithoutLocale = (pathname: string) => {
-  return pathname.replace(/^\/(en|id)/, "") || "/";
+  return pathname.replace(/^\/(en|id)(?=\/|$)/, "") || "/";
 };
+
+const isPathOrSubpath = (pathname: string, path: string) =>
+  pathname === path || pathname.startsWith(`${path}/`);
 
 const isGuestOnlyPage = (pathname: string) => {
   const path = getPathWithoutLocale(pathname);
-  return guestOnlyPages.some((page) => path.startsWith(page));
+  return guestOnlyPages.some((page) => isPathOrSubpath(path, page));
 };
 
 const isCompleteProfilePage = (pathname: string) => {
   const path = getPathWithoutLocale(pathname);
-  return path.startsWith("/complete-profile");
+  return isPathOrSubpath(path, "/complete-profile");
 };
 
 const isDashboardPage = (pathname: string) => {
   const path = getPathWithoutLocale(pathname);
-  return path.startsWith("/dashboard");
+  return isPathOrSubpath(path, "/dashboard");
 };
 
 export default async function middleware(request: NextRequest) {
   const response = handleI18nRouting(request);
 
   const pathname = request.nextUrl.pathname;
-  const match = pathname.match(/^\/(en|id)/);
+  const isGuestPage = isGuestOnlyPage(pathname);
+  const isProtectedPage =
+    isDashboardPage(pathname) || isCompleteProfilePage(pathname);
+
+  if (!isGuestPage && !isProtectedPage) {
+    return response;
+  }
+
+  const match = pathname.match(/^\/(en|id)(?=\/|$)/);
   const locale = match ? match[1] : routing.defaultLocale;
 
   const session = await auth();
+  const authenticatedUser =
+    session?.error !== "RefreshTokenError" && session?.user?.token
+      ? session.user
+      : undefined;
+  const isAuthenticated = Boolean(authenticatedUser);
 
-  // PERBAIKAN: Cek kelengkapan nama dan nomor telepon (number di dalam objek defaultPhone)
-  const isProfileIncomplete =
-    session?.user &&
-    (!session.user.defaultName ||
-      !session.user.defaultPhone ||
-      !session.user.defaultPhone.number);
+  const isProfileIncomplete = Boolean(
+    authenticatedUser &&
+      (!authenticatedUser.defaultName ||
+        !authenticatedUser.defaultPhone ||
+        !authenticatedUser.defaultPhone.number),
+  );
 
-  // 1. JIKA USER SUDAH LOGIN
-  if (session) {
-    // A. Buka /dashboard tapi profil belum lengkap -> redirect ke /complete-profile
+  if (isAuthenticated) {
     if (isProfileIncomplete && isDashboardPage(pathname)) {
       return NextResponse.redirect(
         new URL(`/${locale}/complete-profile`, request.url),
       );
     }
 
-    // B. Buka /complete-profile tapi profil SUDAH lengkap -> redirect ke /dashboard
     if (!isProfileIncomplete && isCompleteProfilePage(pathname)) {
       return NextResponse.redirect(
         new URL(`/${locale}/dashboard`, request.url),
       );
     }
 
-    // C. Buka Guest Pages (/login, /register, dll)
-    if (isGuestOnlyPage(pathname)) {
+    if (isGuestPage) {
       const targetPath = isProfileIncomplete
         ? "/complete-profile"
         : "/dashboard";
@@ -75,10 +88,9 @@ export default async function middleware(request: NextRequest) {
     }
   }
 
-  // 2. JIKA USER BELUM LOGIN & mencoba buka Halaman Terproteksi (/dashboard atau /complete-profile)
   if (
-    !session &&
-    (isDashboardPage(pathname) || isCompleteProfilePage(pathname))
+    !isAuthenticated &&
+    isProtectedPage
   ) {
     return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
   }

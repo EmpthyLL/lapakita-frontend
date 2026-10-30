@@ -34,6 +34,16 @@ const api = axios.create({
   },
 });
 
+function isProtectedAppPath(pathname: string) {
+  const path = pathname.replace(/^\/(en|id)(?=\/|$)/, "") || "/";
+  return (
+    path === "/dashboard" ||
+    path.startsWith("/dashboard/") ||
+    path === "/complete-profile" ||
+    path.startsWith("/complete-profile/")
+  );
+}
+
 api.interceptors.request.use(
   async (config) => {
     if (typeof window !== "undefined") {
@@ -51,13 +61,14 @@ api.interceptors.request.use(
         session = await getSession();
       }
 
-      // Force signout jika refresh token di NextAuth gagal
-      if (session?.error === "RefreshTokenError") {
-        await signOut({ redirect: true, callbackUrl: "/login" });
-        return Promise.reject(new Error("Session expired"));
-      }
+      const isProtectedPage = isProtectedAppPath(window.location.pathname);
 
-      if (session?.user?.token) {
+      if (session?.error === "RefreshTokenError") {
+        if (isProtectedPage) {
+          await signOut({ redirect: true, callbackUrl: "/login" });
+          return Promise.reject(new Error("Session expired"));
+        }
+      } else if (session?.user?.token) {
         config.headers.Authorization = `Bearer ${session.user.token}`;
       }
     }
@@ -98,14 +109,10 @@ api.interceptors.response.use(
 
     if (isUnauthorized && typeof window !== "undefined") {
       const currentPath = window.location.pathname;
-      const isPublicAuthPage =
-        currentPath.includes("/login") ||
-        currentPath.includes("/register") ||
-        currentPath.includes("/verify-otp") ||
-        currentPath.includes("/forgot-password") ||
-        currentPath.includes("/reset-password");
-
-      if (!isPublicAuthPage) {
+      const authorization =
+        error.config?.headers?.Authorization ??
+        error.config?.headers?.get?.("Authorization");
+      if (authorization && isProtectedAppPath(currentPath)) {
         await signOut({ redirect: true, callbackUrl: "/login" });
       }
     }

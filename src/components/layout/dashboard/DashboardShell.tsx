@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { DashboardMobileBottomNav } from "./DashboardMobileBottomNav";
 import { DashboardSidebar } from "./DashboardSidebar";
 import { DashboardTopbar } from "./DashboardTopbar";
 
@@ -13,10 +14,13 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       {/* Sidebar Desktop & Mobile Sheet */}
       <DashboardSidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col pb-16 md:pb-0">
         <DashboardTopbar onOpenMobileMenu={() => setMobileOpen(true)} />
         <main className="flex-1 p-4 sm:p-6">{children}</main>
       </div>
+
+      {/* Mobile App-like Bottom Navigation */}
+      <DashboardMobileBottomNav />
     </div>
   );
 }
