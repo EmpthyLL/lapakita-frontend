@@ -1,14 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { DataDisplayActionContext } from "@/components/common/long/data-display/Constant";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
 import { deletePhoneNumber } from "@/lib/data/api/user";
 import { PhoneNumberItem } from "@/lib/data/schema/user/phone_number";
 import { handleError } from "@/lib/error";
@@ -81,34 +81,39 @@ export function PhoneRowActions({ row, action }: PhoneRowActionsProps) {
   const phoneDisplayLabel = `${row.number || "+62"} ${row.dial_code || ""}`;
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-foreground"
-        >
-          <MoreVertical className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-36">
-        <DropdownMenuItem
-          onClick={() => action.openEdit()}
-          className="cursor-pointer gap-2 text-xs"
-        >
-          <Pencil className="h-3.5 w-3.5" /> Edit
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault();
-            action.openDelete(() => deleteMutation.mutate(), phoneDisplayLabel);
-          }}
-          className="cursor-pointer gap-2 text-xs text-destructive focus:text-destructive w-full"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-          Delete
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Menubar className="border-none bg-transparent p-0 shadow-none h-auto w-auto">
+      <MenubarMenu>
+        <MenubarTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer p-0"
+          >
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </MenubarTrigger>
+        <MenubarContent align="end" className="w-36 z-50">
+          <MenubarItem
+            onClick={() => action.openEdit()}
+            className="cursor-pointer gap-2 text-xs"
+          >
+            <Pencil className="h-3.5 w-3.5" /> Edit
+          </MenubarItem>
+          <MenubarItem
+            onSelect={(e) => {
+              e.preventDefault();
+              action.openDelete(
+                () => deleteMutation.mutate(),
+                phoneDisplayLabel,
+              );
+            }}
+            className="cursor-pointer gap-2 text-xs text-destructive focus:text-destructive w-full"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            Delete
+          </MenubarItem>
+        </MenubarContent>
+      </MenubarMenu>
+    </Menubar>
   );
 }

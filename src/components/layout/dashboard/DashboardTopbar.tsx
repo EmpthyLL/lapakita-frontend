@@ -5,18 +5,17 @@ import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
 import { RoleSelectPopover } from "@/components/common/input/RoleSelectPopover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
 import { getCountryFlag } from "@/lib/countries";
 import { cn } from "@/lib/utils";
 import { Role, RoleAndAll } from "@/types";
 import {
-  Bell,
   ChevronDown,
   ChevronRight,
   LogOut,
@@ -28,6 +27,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { NotificationPopover } from "./NotificationPopover";
 
 interface DashboardTopbarProps {
   userName?: string;
@@ -40,12 +40,27 @@ const VALID_ROLES: Role[] = ["tenant", "owner", "supplier"];
 const getRoleThemeClasses = (role: Role) => {
   switch (role) {
     case "owner":
-      return { text: "text-owner", bgSoft: "bg-owner/10" };
+      return {
+        text: "text-owner",
+        bgSoft: "bg-owner/10",
+        border: "data-[state=open]:border-owner",
+        ring: "data-[state=open]:ring-owner/20",
+      };
     case "supplier":
-      return { text: "text-supplier", bgSoft: "bg-supplier/10" };
+      return {
+        text: "text-supplier",
+        bgSoft: "bg-supplier/10",
+        border: "data-[state=open]:border-supplier",
+        ring: "data-[state=open]:ring-supplier/20",
+      };
     case "tenant":
     default:
-      return { text: "text-tenant", bgSoft: "bg-tenant/10" };
+      return {
+        text: "text-tenant",
+        bgSoft: "bg-tenant/10",
+        border: "data-[state=open]:border-tenant",
+        ring: "data-[state=open]:ring-tenant/20",
+      };
   }
 };
 
@@ -177,14 +192,8 @@ export function DashboardTopbar({
       <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <LanguageSwitcher showLabel={false} />
 
-        <button
-          type="button"
-          className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground outline-none cursor-pointer"
-          aria-label="Notifications"
-        >
-          <Bell className="h-4.5 w-4.5" />
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
-        </button>
+        {/* Panggil komponen NotificationPopover yang terpisah */}
+        <NotificationPopover />
 
         <div className="mx-0.5 sm:mx-1 h-4 w-px bg-border" />
 
@@ -198,31 +207,47 @@ export function DashboardTopbar({
           showGeneral={true}
         />
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-1.5 rounded-full outline-none ring-primary/40 focus-visible:ring-2 cursor-pointer">
-              <Avatar className="h-9 w-9 border border-border">
-                <AvatarImage
-                  src={userAvatarUrl}
-                  alt={userName}
-                  className="object-cover"
-                />
-                <AvatarFallback
+        <Menubar className="border-none bg-transparent p-0 shadow-none h-auto w-auto">
+          <MenubarMenu>
+            <MenubarTrigger
+              className={cn(
+                "group relative flex cursor-pointer items-center gap-1 rounded-full border border-transparent p-0.5 outline-none transition-all duration-150 focus-visible:ring-2 focus-visible:ring-ring/50 data-[state=open]:bg-transparent data-[state=open]:text-foreground data-[state=open]:ring-2",
+                theme.border,
+                theme.ring,
+              )}
+            >
+              <span className="relative flex shrink-0">
+                <Avatar className="h-8 w-8 border border-border">
+                  <AvatarImage
+                    src={userAvatarUrl}
+                    alt={userName}
+                    className="object-cover"
+                  />
+                  <AvatarFallback
+                    className={cn(
+                      "font-bold text-xs transition-colors",
+                      theme.bgSoft,
+                      theme.text,
+                    )}
+                  >
+                    {getInitials(userName)}
+                  </AvatarFallback>
+                </Avatar>
+                <span
                   className={cn(
-                    "font-bold text-xs transition-colors",
-                    theme.bgSoft,
-                    theme.text,
+                    "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-background",
+                    {
+                      "bg-tenant": displayRole === "tenant",
+                      "bg-owner": displayRole === "owner",
+                      "bg-supplier": displayRole === "supplier",
+                    },
                   )}
-                >
-                  {getInitials(userName)}
-                </AvatarFallback>
-              </Avatar>
-              <ChevronDown className="h-4 w-4 text-muted-foreground hidden sm:block" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-64">
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex items-center gap-3 py-1">
+                />
+              </span>
+              <ChevronDown className="ml-0.5 h-3.5 w-3.5 text-muted-foreground transition-transform duration-150 group-data-[state=open]:rotate-180" />
+            </MenubarTrigger>
+            <MenubarContent align="end" className="z-60 w-64">
+              <div className="flex items-center gap-3 py-1.5 px-3">
                 <Avatar className="h-10 w-10 border border-border shrink-0">
                   <AvatarImage
                     src={userAvatarUrl}
@@ -267,46 +292,46 @@ export function DashboardTopbar({
                   </p>
                 </div>
               </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
+              <MenubarSeparator />
 
-            <DropdownMenuItem asChild className="cursor-pointer">
-              <Link
-                href={profileRoutePath}
-                className="flex items-center w-full"
+              <MenubarItem asChild className="cursor-pointer">
+                <Link
+                  href={profileRoutePath}
+                  className="flex items-center w-full"
+                >
+                  <User className="mr-2 h-4 w-4" /> Profile
+                </Link>
+              </MenubarItem>
+
+              <MenubarItem asChild className="cursor-pointer">
+                <Link
+                  href="/dashboard/settings"
+                  className="flex items-center w-full"
+                >
+                  <Settings className="mr-2 h-4 w-4" /> Settings
+                </Link>
+              </MenubarItem>
+
+              <MenubarItem asChild className="cursor-pointer">
+                <Link
+                  href="/dashboard/wallet"
+                  className="flex items-center w-full"
+                >
+                  <Wallet className="mr-2 h-4 w-4" /> Wallet
+                </Link>
+              </MenubarItem>
+
+              <MenubarSeparator />
+
+              <MenubarItem
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                className="text-destructive focus:text-destructive cursor-pointer"
               >
-                <User className="mr-2 h-4 w-4" /> Profile
-              </Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem asChild className="cursor-pointer">
-              <Link
-                href="/dashboard/settings"
-                className="flex items-center w-full"
-              >
-                <Settings className="mr-2 h-4 w-4" /> Settings
-              </Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem asChild className="cursor-pointer">
-              <Link
-                href="/dashboard/wallet"
-                className="flex items-center w-full"
-              >
-                <Wallet className="mr-2 h-4 w-4" /> Wallet
-              </Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              className="text-destructive focus:text-destructive cursor-pointer"
-            >
-              <LogOut className="mr-2 h-4 w-4" /> Sign Out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+                <LogOut className="mr-2 h-4 w-4" /> Sign Out
+              </MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+        </Menubar>
       </div>
     </header>
   );

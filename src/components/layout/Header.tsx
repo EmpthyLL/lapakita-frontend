@@ -9,16 +9,16 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import {
@@ -96,6 +96,42 @@ export function SiteHeader() {
       desktopQuery.removeEventListener("change", syncSheetToViewport);
   }, [mobileOpen]);
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const root = document.documentElement;
+    const previousBodyStyles = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+      overflow: body.style.overflow,
+      overscrollBehavior: root.style.overscrollBehavior,
+    };
+
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
+    root.style.overscrollBehavior = "none";
+
+    return () => {
+      body.style.position = previousBodyStyles.position;
+      body.style.top = previousBodyStyles.top;
+      body.style.left = previousBodyStyles.left;
+      body.style.right = previousBodyStyles.right;
+      body.style.width = previousBodyStyles.width;
+      body.style.overflow = previousBodyStyles.overflow;
+      root.style.overscrollBehavior = previousBodyStyles.overscrollBehavior;
+      window.scrollTo(0, scrollY);
+    };
+  }, [mobileOpen]);
+
   const isLoggedIn = Boolean(session?.user);
 
   // 1. Role Aktif (Default: tenant)
@@ -137,7 +173,7 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full border-b border-border backdrop-blur supports-backdrop-filter:bg-background/70",
+        "sticky top-0 z-60 w-full border-b border-border backdrop-blur supports-backdrop-filter:bg-background/70",
         "bg-background/90",
       )}
     >
@@ -206,43 +242,52 @@ export function SiteHeader() {
                 </Button>
               </Link>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="relative flex items-center gap-1 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring/50">
-                    <Avatar className="h-8 w-8 border border-border">
-                      <AvatarImage
-                        src={userAvatarUrl}
-                        alt={userName}
-                        className="object-cover"
-                      />
-                      <AvatarFallback
+              {/* Menubar Desktop Profile */}
+              <Menubar className="border-none bg-transparent p-0 shadow-none h-auto w-auto">
+                <MenubarMenu>
+                  <MenubarTrigger
+                    className={cn(
+                      "group relative flex cursor-pointer items-center gap-1 rounded-full border border-transparent p-0.5 outline-none transition-all duration-150 focus-visible:ring-2 focus-visible:ring-ring/50 data-[state=open]:bg-transparent data-[state=open]:text-foreground data-[state=open]:ring-2",
+                      activeRole === "tenant" &&
+                        "data-[state=open]:border-tenant data-[state=open]:ring-tenant/20",
+                      activeRole === "owner" &&
+                        "data-[state=open]:border-owner data-[state=open]:ring-owner/20",
+                      activeRole === "supplier" &&
+                        "data-[state=open]:border-supplier data-[state=open]:ring-supplier/20",
+                    )}
+                  >
+                    <span className="relative flex shrink-0">
+                      <Avatar className="h-8 w-8 border border-border">
+                        <AvatarImage
+                          src={userAvatarUrl}
+                          alt={userName}
+                          className="object-cover"
+                        />
+                        <AvatarFallback
+                          className={cn(
+                            "font-bold text-xs transition-colors",
+                            theme.bgSoft,
+                            theme.text,
+                          )}
+                        >
+                          {getInitials(userName)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span
                         className={cn(
-                          "font-bold text-xs transition-colors",
-                          theme.bgSoft,
-                          theme.text,
+                          "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-background",
+                          {
+                            "bg-tenant": activeRole === "tenant",
+                            "bg-owner": activeRole === "owner",
+                            "bg-supplier": activeRole === "supplier",
+                          },
                         )}
-                      >
-                        {getInitials(userName)}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    {/* Status Dot Indicator Role Aktif */}
-                    <span
-                      className={cn(
-                        "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-background",
-                        {
-                          "bg-tenant": activeRole === "tenant",
-                          "bg-owner": activeRole === "owner",
-                          "bg-supplier": activeRole === "supplier",
-                        },
-                      )}
-                    />
-                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 z-50">
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
+                      />
+                    </span>
+                    <ChevronDown className="ml-0.5 h-3.5 w-3.5 text-muted-foreground transition-transform duration-150 group-data-[state=open]:rotate-180" />
+                  </MenubarTrigger>
+                  <MenubarContent align="end" className="z-60 w-56">
+                    <div className="flex flex-col space-y-1 px-3 py-2">
                       <p className="text-sm font-semibold leading-none text-foreground truncate">
                         {userName}
                       </p>
@@ -260,76 +305,76 @@ export function SiteHeader() {
                         </span>
                       </p>
                     </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
+                    <MenubarSeparator />
 
-                  <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link
-                      href="/dashboard/settings"
-                      className="flex items-center w-full"
+                    <MenubarItem asChild className="cursor-pointer">
+                      <Link
+                        href="/dashboard/settings"
+                        className="flex items-center w-full"
+                      >
+                        <Settings className="mr-2 h-4 w-4" /> {t("settings")}
+                      </Link>
+                    </MenubarItem>
+
+                    <MenubarItem asChild className="cursor-pointer">
+                      <Link
+                        href="/dashboard/wallet"
+                        className="flex items-center w-full"
+                      >
+                        <Wallet className="mr-2 h-4 w-4" /> {t("wallet")}
+                      </Link>
+                    </MenubarItem>
+
+                    <MenubarSub>
+                      <MenubarSubTrigger className="cursor-pointer">
+                        <Repeat className="mr-2 h-4 w-4" /> {t("switch_role")}
+                      </MenubarSubTrigger>
+                      <MenubarSubContent className="z-50">
+                        <MenubarItem asChild className="cursor-pointer">
+                          <Link
+                            href="/dashboard/tenant"
+                            className="flex items-center w-full"
+                          >
+                            <span className="mr-2 h-2 w-2 rounded-full bg-tenant" />
+                            {t("roles.tenant")}
+                          </Link>
+                        </MenubarItem>
+                        <MenubarItem asChild className="cursor-pointer">
+                          <Link
+                            href="/dashboard/owner"
+                            className="flex items-center w-full"
+                          >
+                            <span className="mr-2 h-2 w-2 rounded-full bg-owner" />
+                            {t("roles.owner")}
+                          </Link>
+                        </MenubarItem>
+                        <MenubarItem asChild className="cursor-pointer">
+                          <Link
+                            href="/dashboard/supplier"
+                            className="flex items-center w-full"
+                          >
+                            <span className="mr-2 h-2 w-2 rounded-full bg-supplier" />
+                            {t("roles.supplier")}
+                          </Link>
+                        </MenubarItem>
+                      </MenubarSubContent>
+                    </MenubarSub>
+
+                    <MenubarSeparator />
+                    <MenubarItem
+                      onClick={() => signOut({ callbackUrl: "/login" })}
+                      className="text-destructive focus:text-destructive cursor-pointer"
                     >
-                      <Settings className="mr-2 h-4 w-4" /> {t("settings")}
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link
-                      href="/dashboard/wallet"
-                      className="flex items-center w-full"
-                    >
-                      <Wallet className="mr-2 h-4 w-4" /> {t("wallet")}
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger className="cursor-pointer">
-                      <Repeat className="mr-2 h-4 w-4" /> {t("switch_role")}
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent className="z-50">
-                      <DropdownMenuItem asChild className="cursor-pointer">
-                        <Link
-                          href="/dashboard/tenant"
-                          className="flex items-center w-full"
-                        >
-                          <span className="mr-2 h-2 w-2 rounded-full bg-tenant" />
-                          {t("roles.tenant")}
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="cursor-pointer">
-                        <Link
-                          href="/dashboard/owner"
-                          className="flex items-center w-full"
-                        >
-                          <span className="mr-2 h-2 w-2 rounded-full bg-owner" />
-                          {t("roles.owner")}
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="cursor-pointer">
-                        <Link
-                          href="/dashboard/supplier"
-                          className="flex items-center w-full"
-                        >
-                          <span className="mr-2 h-2 w-2 rounded-full bg-supplier" />
-                          {t("roles.supplier")}
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuSub>
-
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => signOut({ callbackUrl: "/login" })}
-                    className="text-destructive focus:text-destructive cursor-pointer"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" /> {t("sign_out")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                      <LogOut className="mr-2 h-4 w-4" /> {t("sign_out")}
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+              </Menubar>
             </>
           )}
         </div>
 
-        {/* Mobile Hamburger & Sheet */}
+        {/* Mobile Hamburger & Sheet (Original Animation & Structure Preserved) */}
         <div className="flex items-center gap-2 lg:hidden">
           <LanguageSwitcher showLabel={false} />
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen} modal={false}>
@@ -361,11 +406,10 @@ export function SiteHeader() {
               side="right"
               showCloseButton={false}
               dismissibleOverlay
-              onInteractOutside={(event) => event.preventDefault()}
-              className="right-0 z-50 rounded-l-3xl border-l border-border/60 bg-background/95 p-0 pt-16 backdrop-blur-xl data-[side=right]:inset-y-0 data-[side=right]:h-dvh data-[side=right]:w-[min(24rem,calc(100vw-4rem))] data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95"
+              className="right-0 z-50 overflow-hidden rounded-l-3xl border-l border-border/60 bg-background/95 p-0 pt-16 backdrop-blur-xl data-[side=right]:inset-y-0 data-[side=right]:h-dvh data-[side=right]:w-[min(24rem,calc(100vw-4rem))] data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95"
             >
-              <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-                <div className="space-y-4 border-b border-border/60 bg-secondary/20 p-5">
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                <div className="shrink-0 space-y-4 border-b border-border/60 bg-secondary/20 p-5">
                   {!isLoggedIn ? (
                     <div className="flex flex-col gap-2">
                       <Link
@@ -443,53 +487,55 @@ export function SiteHeader() {
                           </p>
                         </div>
 
-                        {/* Dropdown Role tanpa panah, ada dot warna role, dan model sama persis */}
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button
-                              type="button"
-                              aria-label={t("switch_role")}
-                              className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground cursor-pointer"
-                            >
-                              <Repeat className="size-4" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="z-50">
-                            {(["tenant", "owner", "supplier"] as const).map(
-                              (role) => (
-                                <DropdownMenuItem
-                                  key={role}
-                                  asChild
-                                  className="cursor-pointer"
-                                >
-                                  <Link
-                                    href={`/dashboard/${role}`}
-                                    className="flex items-center w-full"
+                        {/* Menubar Switch Role di Mobile Sheet */}
+                        <Menubar className="border-none bg-transparent p-0 shadow-none h-auto w-auto">
+                          <MenubarMenu>
+                            <MenubarTrigger asChild>
+                              <button
+                                type="button"
+                                aria-label={t("switch_role")}
+                                className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground cursor-pointer"
+                              >
+                                <Repeat className="size-4" />
+                              </button>
+                            </MenubarTrigger>
+                            <MenubarContent align="end" className="z-60">
+                              {(["tenant", "owner", "supplier"] as const).map(
+                                (role) => (
+                                  <MenubarItem
+                                    key={role}
+                                    asChild
+                                    className="cursor-pointer"
                                   >
-                                    <span
-                                      className={cn(
-                                        "mr-2 h-2 w-2 rounded-full",
-                                        {
-                                          "bg-tenant": role === "tenant",
-                                          "bg-owner": role === "owner",
-                                          "bg-supplier": role === "supplier",
-                                        },
-                                      )}
-                                    />
-                                    <span
-                                      className={cn(
-                                        activeRole === role &&
-                                          getRoleThemeClasses(role).text,
-                                      )}
+                                    <Link
+                                      href={`/dashboard/${role}`}
+                                      className="flex items-center w-full"
                                     >
-                                      {t(`roles.${role}`)}
-                                    </span>
-                                  </Link>
-                                </DropdownMenuItem>
-                              ),
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                                      <span
+                                        className={cn(
+                                          "mr-2 h-2 w-2 rounded-full",
+                                          {
+                                            "bg-tenant": role === "tenant",
+                                            "bg-owner": role === "owner",
+                                            "bg-supplier": role === "supplier",
+                                          },
+                                        )}
+                                      />
+                                      <span
+                                        className={cn(
+                                          activeRole === role &&
+                                            getRoleThemeClasses(role).text,
+                                        )}
+                                      >
+                                        {t(`roles.${role}`)}
+                                      </span>
+                                    </Link>
+                                  </MenubarItem>
+                                ),
+                              )}
+                            </MenubarContent>
+                          </MenubarMenu>
+                        </Menubar>
                       </div>
 
                       <div className="flex flex-col gap-2">
@@ -542,35 +588,39 @@ export function SiteHeader() {
                   )}
                 </div>
 
-                <div className="space-y-1.5 p-5">
+                <div className="flex min-h-0 flex-1 flex-col p-5">
                   <p className="mb-3 px-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                     {t("main_menu")}
                   </p>
-                  {navLinks.map((link) => {
-                    const active = isNavLinkActive(pathname, link.href);
-                    return (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setMobileOpen(false)}
-                        aria-current={active ? "page" : undefined}
-                        className={cn(
-                          "relative flex items-center rounded-xl px-4 py-3 text-sm transition-colors duration-200",
-                          active
-                            ? "bg-gradient-brand-light font-bold shadow-xs"
-                            : "text-foreground font-semibold hover:bg-secondary/60",
-                        )}
-                      >
-                        <span
-                          className={
-                            active ? "text-white font-bold" : "text-foreground"
-                          }
+                  <nav className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain">
+                    {navLinks.map((link) => {
+                      const active = isNavLinkActive(pathname, link.href);
+                      return (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setMobileOpen(false)}
+                          aria-current={active ? "page" : undefined}
+                          className={cn(
+                            "relative flex items-center rounded-xl px-4 py-3 text-sm transition-colors duration-200",
+                            active
+                              ? "bg-gradient-brand-light font-bold shadow-xs"
+                              : "text-foreground font-semibold hover:bg-secondary/60",
+                          )}
                         >
-                          {link.label}
-                        </span>
-                      </Link>
-                    );
-                  })}
+                          <span
+                            className={
+                              active
+                                ? "text-white font-bold"
+                                : "text-foreground"
+                            }
+                          >
+                            {link.label}
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </nav>
                 </div>
               </div>
 
