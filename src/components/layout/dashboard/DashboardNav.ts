@@ -16,11 +16,11 @@ import {
   Package,
   Phone,
   Radar,
+  Receipt,
   Settings,
   ShieldCheck,
   ShoppingCart,
   Store,
-  SummaryIcon,
   Truck,
   UserCheck,
   UserCog,
@@ -88,11 +88,6 @@ export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
       icon: CalendarCheck,
     },
     {
-      label: "Deposits & Escrow",
-      href: "/dashboard/owner/deposits",
-      icon: Wallet,
-    },
-    {
       label: "Strategy Analytics",
       href: "/dashboard/owner/analytics",
       icon: BarChart3,
@@ -109,9 +104,13 @@ export const DASHBOARD_NAV: Record<Role, DashboardNavItem[]> = {
   supplier: [
     { label: "Overview", href: "/dashboard/supplier", icon: LayoutDashboard },
     { label: "Catalog", href: "/dashboard/supplier/catalog", icon: Package },
-    { label: "Orders", href: "/dashboard/supplier/orders", icon: Truck },
     {
-      label: "Subscribers",
+      label: "Orders & Shipping",
+      href: "/dashboard/supplier/orders",
+      icon: Truck,
+    },
+    {
+      label: "Regular Buyers",
       href: "/dashboard/supplier/subscribers",
       icon: Handshake,
     },
@@ -147,7 +146,7 @@ export const SETTINGS_NAV: DashboardNavItem[] = [
     icon: Lock,
   },
   {
-    label: "Legal Documents",
+    label: "Legal Identity Documents",
     href: "/dashboard/settings/documents",
     icon: FileCheck2,
   },
@@ -158,12 +157,12 @@ export const SETTINGS_NAV: DashboardNavItem[] = [
   },
 ];
 
-// ── WALLET & SUBSCRIPTION NAV  ───────
+// ── 3. WALLET & SUBSCRIPTION NAV ───────────────────────────────────────────
 export const WALLET_NAV: DashboardNavItem[] = [
   {
     label: "Wallet Overview",
     href: "/dashboard/wallet",
-    icon: SummaryIcon,
+    icon: Receipt,
   },
   {
     label: "Transaction History",
@@ -182,7 +181,7 @@ export const WALLET_NAV: DashboardNavItem[] = [
   },
 ];
 
-// ── PERSONA PROFILES SUB-NAV (Dipisah Per Role) ─────────────────────────────
+// ── 4. PERSONA PROFILES SUB-NAV (Dipisah Per Role) ─────────────────────────
 export const PERSONA_PROFILES_NAV: DashboardNavItem[] = [
   {
     label: "Tenant Profile",
@@ -204,22 +203,23 @@ export const PERSONA_PROFILES_NAV: DashboardNavItem[] = [
   },
 ];
 
-// ── 3. BUSINESS WORKSPACE NAV ──────────────────────────────────────────────
+// ── 5. BUSINESS WORKSPACE NAV (POS & Procurement) ──────────────────────────
 export function getBusinessWorkspaceNav(
   businessId: string,
 ): DashboardNavItem[] {
   const base = `/dashboard/business/${businessId}`;
   return [
     { label: "Business Overview", href: base, icon: LayoutDashboard },
-    { label: "POS Cashier", href: `${base}/pos`, icon: ShoppingCart },
-    { label: "Products & Stock", href: `${base}/products`, icon: Package },
+    { label: "POS Cashier System", href: `${base}/pos`, icon: ShoppingCart },
+    { label: "Products & Inventory", href: `${base}/products`, icon: Package },
     { label: "Staff Accounts", href: `${base}/staff`, icon: Users },
-    { label: "Supplier Procurement", href: `${base}/marketplace`, icon: Store },
+    { label: "B2B Supplier Orders", href: `${base}/marketplace`, icon: Store },
     { label: "Business Settings", href: `${base}/settings`, icon: Settings },
   ];
 }
 
+// ── 6. DASHBOARD FOOTER NAV ────────────────────────────────────────────────
 export const DASHBOARD_FOOTER_NAV: DashboardNavItem[] = [
   { label: "Account Settings", href: "/dashboard/settings", icon: Settings },
-  { label: "Wallet & Payouts", href: "/dashboard/wallet", icon: Wallet },
+  { label: "Wallet & Payments", href: "/dashboard/wallet", icon: Wallet },
 ];
