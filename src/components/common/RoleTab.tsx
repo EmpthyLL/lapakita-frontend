@@ -2,7 +2,7 @@
 
 import { useRoleFilter } from "@/components/providers/role_provider";
 import { cn } from "@/lib/utils";
-import type { RoleAndAll } from "@/types";
+import { ROLES_CONFIG, type RoleAndAll } from "@/types";
 import { useTranslations } from "next-intl";
 
 interface RoleTabItem {
@@ -29,6 +29,7 @@ export function RoleTab() {
       {TABS.map((tab) => {
         const active = activeRole === tab.value;
         const isAll = tab.value === "all";
+        const optionConfig = ROLES_CONFIG[tab.value];
 
         return (
           <button
@@ -40,19 +41,13 @@ export function RoleTab() {
             className={cn(
               "rounded-xl px-4 py-2 text-sm font-medium transition-all select-none",
               active
-                ? isAll
-                  ? "bg-foreground text-background shadow-xs font-semibold"
-                  : "shadow-xs font-semibold"
+                ? cn(
+                    optionConfig.bgSoftClass,
+                    "shadow-xs font-semibold ring-1 ring-inset ring-border/30",
+                  )
                 : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+              isAll && active && "bg-secondary text-foreground",
             )}
-            style={
-              active && !isAll
-                ? {
-                    backgroundColor: `var(--${tab.value})`,
-                    color: `var(--${tab.value}-foreground)`,
-                  }
-                : undefined
-            }
           >
             {t(tab.key)}
           </button>

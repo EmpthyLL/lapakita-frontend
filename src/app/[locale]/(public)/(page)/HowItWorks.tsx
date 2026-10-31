@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Role } from "@/types";
+import { ROLES_CONFIG, Role } from "@/types";
 import type { LucideIcon } from "lucide-react";
 import {
   Building2,
@@ -136,7 +136,8 @@ export function HowItWorks() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-border bg-muted/60 p-1.5">
             {(["tenant", "owner", "supplier"] as Role[]).map((role) => {
               const isActive = activeRole === role;
-              const color = WORKFLOWS[role].role;
+              const optionConfig = ROLES_CONFIG[role];
+
               return (
                 <button
                   key={role}
@@ -145,14 +146,12 @@ export function HowItWorks() {
                   className={cn(
                     "flex-1 rounded-xl px-4 py-2.5 text-xs font-semibold outline-none transition-all sm:flex-none sm:text-sm",
                     isActive
-                      ? "text-white shadow-sm"
+                      ? cn(
+                          optionConfig.bgSoftClass,
+                          "shadow-sm ring-1 ring-inset ring-border/30",
+                        )
                       : "text-muted-foreground hover:bg-background/50 hover:text-foreground",
                   )}
-                  style={
-                    isActive
-                      ? { backgroundColor: `var(--${color})` }
-                      : undefined
-                  }
                 >
                   {WORKFLOWS[role].label}
                 </button>

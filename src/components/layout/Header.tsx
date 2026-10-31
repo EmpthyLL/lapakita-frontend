@@ -21,8 +21,10 @@ import {
 } from "@/components/ui/menubar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { ROLES_CONFIG } from "@/types";
 import {
   ArrowUpRight,
+  Check,
   ChevronDown,
   LayoutDashboard,
   LogOut,
@@ -329,34 +331,44 @@ export function SiteHeader() {
                       <MenubarSubTrigger className="cursor-pointer">
                         <Repeat className="mr-2 h-4 w-4" /> {t("switch_role")}
                       </MenubarSubTrigger>
-                      <MenubarSubContent className="z-50">
-                        <MenubarItem asChild className="cursor-pointer">
-                          <Link
-                            href="/dashboard/tenant"
-                            className="flex items-center w-full"
-                          >
-                            <span className="mr-2 h-2 w-2 rounded-full bg-tenant" />
-                            {t("roles.tenant")}
-                          </Link>
-                        </MenubarItem>
-                        <MenubarItem asChild className="cursor-pointer">
-                          <Link
-                            href="/dashboard/owner"
-                            className="flex items-center w-full"
-                          >
-                            <span className="mr-2 h-2 w-2 rounded-full bg-owner" />
-                            {t("roles.owner")}
-                          </Link>
-                        </MenubarItem>
-                        <MenubarItem asChild className="cursor-pointer">
-                          <Link
-                            href="/dashboard/supplier"
-                            className="flex items-center w-full"
-                          >
-                            <span className="mr-2 h-2 w-2 rounded-full bg-supplier" />
-                            {t("roles.supplier")}
-                          </Link>
-                        </MenubarItem>
+                      <MenubarSubContent className="z-50 w-52 p-1">
+                        {(["tenant", "owner", "supplier"] as const).map(
+                          (role) => {
+                            const config = ROLES_CONFIG[role];
+                            const isActive = activeRole === role;
+
+                            return (
+                              <MenubarItem
+                                key={role}
+                                asChild
+                                className="cursor-pointer"
+                              >
+                                <Link
+                                  href={`/dashboard/${role}`}
+                                  className={cn(
+                                    "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
+                                    isActive
+                                      ? `${config.bgSoftClass} font-bold`
+                                      : "hover:bg-secondary",
+                                  )}
+                                >
+                                  <span className="flex items-center">
+                                    <span
+                                      className={cn(
+                                        "mr-2 h-2 w-2 rounded-full",
+                                        config.colorClass,
+                                      )}
+                                    />
+                                    {t(`roles.${role}`)}
+                                  </span>
+                                  {isActive && (
+                                    <Check className="h-3.5 w-3.5" />
+                                  )}
+                                </Link>
+                              </MenubarItem>
+                            );
+                          },
+                        )}
                       </MenubarSubContent>
                     </MenubarSub>
 
@@ -494,44 +506,55 @@ export function SiteHeader() {
                               <button
                                 type="button"
                                 aria-label={t("switch_role")}
-                                className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground cursor-pointer"
+                                data-slot="role-switch-trigger"
+                                className="group flex size-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground cursor-pointer"
                               >
-                                <Repeat className="size-4" />
+                                <Repeat className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                               </button>
                             </MenubarTrigger>
                             <MenubarContent align="end" className="z-60">
                               {(["tenant", "owner", "supplier"] as const).map(
-                                (role) => (
-                                  <MenubarItem
-                                    key={role}
-                                    asChild
-                                    className="cursor-pointer"
-                                  >
-                                    <Link
-                                      href={`/dashboard/${role}`}
-                                      className="flex items-center w-full"
+                                (role) => {
+                                  const config = ROLES_CONFIG[role];
+                                  const isActive = activeRole === role;
+
+                                  return (
+                                    <MenubarItem
+                                      key={role}
+                                      asChild
+                                      className="cursor-pointer"
                                     >
-                                      <span
+                                      <Link
+                                        href={`/dashboard/${role}`}
                                         className={cn(
-                                          "mr-2 h-2 w-2 rounded-full",
-                                          {
-                                            "bg-tenant": role === "tenant",
-                                            "bg-owner": role === "owner",
-                                            "bg-supplier": role === "supplier",
-                                          },
-                                        )}
-                                      />
-                                      <span
-                                        className={cn(
-                                          activeRole === role &&
-                                            getRoleThemeClasses(role).text,
+                                          "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
+                                          isActive
+                                            ? `${config.bgSoftClass} font-bold`
+                                            : "hover:bg-secondary",
                                         )}
                                       >
-                                        {t(`roles.${role}`)}
-                                      </span>
-                                    </Link>
-                                  </MenubarItem>
-                                ),
+                                        <span className="flex items-center">
+                                          <span
+                                            className={cn(
+                                              "mr-2 h-2 w-2 rounded-full",
+                                              config.colorClass,
+                                            )}
+                                          />
+                                          <span
+                                            className={cn(
+                                              isActive && config.bgSoftClass,
+                                            )}
+                                          >
+                                            {t(`roles.${role}`)}
+                                          </span>
+                                        </span>
+                                        {isActive && (
+                                          <Check className="h-3.5 w-3.5" />
+                                        )}
+                                      </Link>
+                                    </MenubarItem>
+                                  );
+                                },
                               )}
                             </MenubarContent>
                           </MenubarMenu>
