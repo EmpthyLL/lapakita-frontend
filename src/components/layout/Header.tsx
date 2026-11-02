@@ -1,5 +1,6 @@
 "use client";
 
+import { RoleSelectPopover } from "@/components/common/input/RoleSelectPopover";
 import {
   Accordion,
   AccordionContent,
@@ -14,22 +15,16 @@ import {
   MenubarItem,
   MenubarMenu,
   MenubarSeparator,
-  MenubarSub,
-  MenubarSubContent,
-  MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { ROLES_CONFIG } from "@/types";
 import {
   ArrowUpRight,
-  Check,
   ChevronDown,
   LayoutDashboard,
   LogOut,
   Menu,
-  Repeat,
   Settings,
   Wallet,
   X,
@@ -327,50 +322,13 @@ export function SiteHeader() {
                       </Link>
                     </MenubarItem>
 
-                    <MenubarSub>
-                      <MenubarSubTrigger className="cursor-pointer">
-                        <Repeat className="mr-2 h-4 w-4" /> {t("switch_role")}
-                      </MenubarSubTrigger>
-                      <MenubarSubContent className="z-50 w-52 p-1">
-                        {(["tenant", "owner", "supplier"] as const).map(
-                          (role) => {
-                            const config = ROLES_CONFIG[role];
-                            const isActive = activeRole === role;
-
-                            return (
-                              <MenubarItem
-                                key={role}
-                                asChild
-                                className="cursor-pointer"
-                              >
-                                <Link
-                                  href={`/dashboard/${role}`}
-                                  className={cn(
-                                    "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
-                                    isActive
-                                      ? `${config.bgSoftClass} font-bold`
-                                      : "hover:bg-secondary",
-                                  )}
-                                >
-                                  <span className="flex items-center">
-                                    <span
-                                      className={cn(
-                                        "mr-2 h-2 w-2 rounded-full",
-                                        config.colorClass,
-                                      )}
-                                    />
-                                    {t(`roles.${role}`)}
-                                  </span>
-                                  {isActive && (
-                                    <Check className="h-3.5 w-3.5" />
-                                  )}
-                                </Link>
-                              </MenubarItem>
-                            );
-                          },
-                        )}
-                      </MenubarSubContent>
-                    </MenubarSub>
+                    <RoleSelectPopover
+                      value={activeRole}
+                      onChange={(role) => {
+                        window.location.href = `/dashboard/${role}`;
+                      }}
+                      mode="menu"
+                    />
 
                     <MenubarSeparator />
                     <MenubarItem
@@ -499,66 +457,13 @@ export function SiteHeader() {
                           </p>
                         </div>
 
-                        {/* Menubar Switch Role di Mobile Sheet */}
-                        <Menubar className="border-none bg-transparent p-0 shadow-none h-auto w-auto">
-                          <MenubarMenu>
-                            <MenubarTrigger asChild>
-                              <button
-                                type="button"
-                                aria-label={t("switch_role")}
-                                data-slot="role-switch-trigger"
-                                className="group flex size-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground cursor-pointer"
-                              >
-                                <Repeat className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                              </button>
-                            </MenubarTrigger>
-                            <MenubarContent align="end" className="z-60">
-                              {(["tenant", "owner", "supplier"] as const).map(
-                                (role) => {
-                                  const config = ROLES_CONFIG[role];
-                                  const isActive = activeRole === role;
-
-                                  return (
-                                    <MenubarItem
-                                      key={role}
-                                      asChild
-                                      className="cursor-pointer"
-                                    >
-                                      <Link
-                                        href={`/dashboard/${role}`}
-                                        className={cn(
-                                          "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
-                                          isActive
-                                            ? `${config.bgSoftClass} font-bold`
-                                            : "hover:bg-secondary",
-                                        )}
-                                      >
-                                        <span className="flex items-center">
-                                          <span
-                                            className={cn(
-                                              "mr-2 h-2 w-2 rounded-full",
-                                              config.colorClass,
-                                            )}
-                                          />
-                                          <span
-                                            className={cn(
-                                              isActive && config.bgSoftClass,
-                                            )}
-                                          >
-                                            {t(`roles.${role}`)}
-                                          </span>
-                                        </span>
-                                        {isActive && (
-                                          <Check className="h-3.5 w-3.5" />
-                                        )}
-                                      </Link>
-                                    </MenubarItem>
-                                  );
-                                },
-                              )}
-                            </MenubarContent>
-                          </MenubarMenu>
-                        </Menubar>
+                        <RoleSelectPopover
+                          value={activeRole}
+                          onChange={(role) => {
+                            window.location.href = `/dashboard/${role}`;
+                          }}
+                          mode="toggle"
+                        />
                       </div>
 
                       <div className="flex flex-col gap-2">

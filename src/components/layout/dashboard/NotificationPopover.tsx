@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Role } from "@/types";
-import { Bell, CheckCircle2, Info } from "lucide-react";
+import { Bell, BellRing, CheckCircle2, Info, Sparkles } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,22 +24,24 @@ interface NotificationItem {
   type: "info" | "success" | "warning";
 }
 
-// Dummy data simulasi notifikasi per role
+type BrowserNotificationPermission = NotificationPermission | "unsupported";
+
 const DUMMY_NOTIFICATIONS: Record<Role, NotificationItem[]> = {
   tenant: [
     {
       id: "t-1",
-      title: "Sewa Kios Disetujui",
-      description: "Pengajuan sewa Kios A-12 Anda telah disetujui oleh Owner.",
-      time: "10 menit lalu",
+      title: "Kiosk Rental Approved",
+      description:
+        "Your rental application for Kiosk A-12 was approved by the owner.",
+      time: "10 min ago",
       read: false,
       type: "success",
     },
     {
       id: "t-2",
-      title: "Tagihan Bulanan",
-      description: "Jatuh tempo pembayaran sewa tinggal 3 hari lagi.",
-      time: "2 jam lalu",
+      title: "Monthly Rent Due",
+      description: "Your rental payment is due in 3 days.",
+      time: "2 hr ago",
       read: true,
       type: "info",
     },
@@ -47,17 +49,17 @@ const DUMMY_NOTIFICATIONS: Record<Role, NotificationItem[]> = {
   owner: [
     {
       id: "o-1",
-      title: "Pendaftaran Tenant Baru",
-      description: "Ada pengajuan sewa baru masuk untuk Kios B-05.",
-      time: "5 menit lalu",
+      title: "New Tenant Application",
+      description: "A new rental application was submitted for Kiosk B-05.",
+      time: "5 min ago",
       read: false,
       type: "success",
     },
     {
       id: "o-2",
-      title: "Dana Escrow Masuk",
-      description: "Deposit sewa bulanan telah diamankan ke sistem.",
-      time: "1 jam lalu",
+      title: "Escrow Funds Received",
+      description: "The monthly rental deposit has been secured in escrow.",
+      time: "1 hr ago",
       read: true,
       type: "info",
     },
@@ -65,17 +67,17 @@ const DUMMY_NOTIFICATIONS: Record<Role, NotificationItem[]> = {
   supplier: [
     {
       id: "s-1",
-      title: "Pesanan Stok Baru",
-      description: "Tenant Kios A-12 memesan suplai bahan baku baru.",
-      time: "15 menit lalu",
+      title: "New Supply Order",
+      description: "The tenant at Kiosk A-12 placed a new supply order.",
+      time: "15 min ago",
       read: false,
       type: "success",
     },
     {
       id: "s-2",
-      title: "Signal Permintaan Tinggi",
-      description: "Produk beras & minyak melonjak di area Anda.",
-      time: "3 jam lalu",
+      title: "High Demand Alert",
+      description: "Demand for rice and cooking oil is rising in your area.",
+      time: "3 hr ago",
       read: true,
       type: "info",
     },
@@ -96,10 +98,38 @@ const getRoleBadgeTheme = (role: Role) => {
 
 export function NotificationPopover() {
   const [open, setOpen] = useState(false);
+  const [permission, setPermission] =
+    useState<BrowserNotificationPermission>("default");
+  const [requestingPermission, setRequestingPermission] = useState(false);
   const pathname = usePathname();
   const { data: session } = useSession();
 
-  // Tentukan role aktif berdasarkan URL dashboard saat ini, atau fallback ke session activeRole
+  const handlePopoverChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (nextOpen) {
+      setPermission(
+        "Notification" in window
+          ? window.Notification.permission
+          : "unsupported",
+      );
+    }
+  };
+
+  const requestNotificationPermission = async () => {
+    if (!("Notification" in window)) {
+      setPermission("unsupported");
+      return;
+    }
+
+    setRequestingPermission(true);
+    try {
+      setPermission(await window.Notification.requestPermission());
+    } finally {
+      setRequestingPermission(false);
+    }
+  };
+
+  // Tentukan role aktif berdasarkan URL dashboard atau session
   const segments = pathname.split("/").filter(Boolean);
   const dashboardIndex = segments.lastIndexOf("dashboard");
   const currentPathRole = segments[dashboardIndex + 1] as Role;
@@ -108,7 +138,6 @@ export function NotificationPopover() {
     ? currentPathRole
     : (session?.user?.activeRole as Role) || "tenant";
 
-  // Ambil daftar notifikasi berdasarkan role aktif
   const notifications =
     DUMMY_NOTIFICATIONS[currentRole] || DUMMY_NOTIFICATIONS.tenant;
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -116,7 +145,7 @@ export function NotificationPopover() {
   const notificationPageUrl = `/dashboard/${currentRole}/notifications`;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handlePopoverChange}>
       <PopoverTrigger asChild>
         <button
           type="button"
@@ -132,60 +161,97 @@ export function NotificationPopover() {
 
       <PopoverContent
         align="end"
-        className="w-80 p-0 z-60 shadow-xl rounded-2xl"
+        className="w-84 p-0 z-60 shadow-xl rounded-2xl border-border/80 overflow-hidden bg-background"
       >
-        {/* Header Popover */}
-        <div className="flex items-center justify-between border-b border-border px-4 py-3 bg-secondary/30 rounded-t-2xl">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-sm">Notifikasi</span>
+        {/* Header Popover yang Lebih Rapi & Minimalis */}
+        <div className="flex items-center justify-between border-b border-border/60 bg-secondary/20 px-4 py-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="font-semibold text-sm tracking-tight text-foreground">
+              Notifications
+            </span>
+            {unreadCount > 0 && (
+              <span className="flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
+                {unreadCount}
+              </span>
+            )}
             <span
               className={cn(
-                "text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border",
+                "truncate rounded-full border px-2 py-0.5 text-[10px] font-bold capitalize tracking-wide",
                 getRoleBadgeTheme(currentRole),
               )}
             >
-              Mode {currentRole}
+              {currentRole}
             </span>
           </div>
-          {unreadCount > 0 && (
-            <span className="text-xs text-muted-foreground font-medium">
-              {unreadCount} baru
-            </span>
+
+          {/* Status / Request Permission Button Berbentuk Minimalis / Text Link */}
+          {permission === "granted" ? (
+            <div className="flex items-center gap-1 text-success text-xs font-medium bg-success/10 px-2 py-0.5 rounded-full">
+              <CheckCircle2 className="size-3.5" />
+              <span>Active</span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={requestNotificationPermission}
+              disabled={permission === "unsupported" || requestingPermission}
+              className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline transition-all disabled:opacity-50 cursor-pointer"
+            >
+              <BellRing className="size-3.5" />
+              <span>
+                {permission === "denied"
+                  ? "Blocked"
+                  : requestingPermission
+                    ? "Enabling..."
+                    : "Enable Push"}
+              </span>
+            </button>
           )}
         </div>
 
-        {/* List Notifikasi */}
-        <div className="max-h-72 overflow-y-auto divide-y divide-border/60">
+        {/* Improved Notification List (Lebih Bersih & Modern) */}
+        <div className="max-h-80 overflow-y-auto divide-y divide-border/40">
           {notifications.length === 0 ? (
-            <div className="py-8 text-center text-xs text-muted-foreground">
-              Tidak ada notifikasi saat ini.
+            <div className="py-10 text-center flex flex-col items-center justify-center gap-1.5 text-muted-foreground">
+              <Sparkles className="size-5 opacity-40" />
+              <p className="text-xs">You&apos;re all caught up!</p>
             </div>
           ) : (
             notifications.map((item) => (
               <div
                 key={item.id}
                 className={cn(
-                  "flex gap-3 p-3 transition-colors hover:bg-secondary/50 text-left",
-                  !item.read && "bg-primary/5",
+                  "group relative flex gap-3 p-3.5 transition-all hover:bg-secondary/40 text-left cursor-pointer",
+                  !item.read && "bg-primary/3 font-medium",
                 )}
               >
+                {/* Unread Indicator Line */}
+                {!item.read && (
+                  <span className="absolute left-0 top-3 bottom-3 w-1 rounded-r-full bg-primary" />
+                )}
+
                 <div className="mt-0.5 shrink-0">
                   {item.type === "success" ? (
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                    <div className="flex size-7 items-center justify-center rounded-full bg-suc-500/10 text-suc-500">
+                      <CheckCircle2 className="size-4" />
+                    </div>
                   ) : (
-                    <Info className="h-4 w-4 text-blue-500" />
+                    <div className="flex size-7 items-center justify-center rounded-full bg-blue-500/10 text-blue-500">
+                      <Info className="size-4" />
+                    </div>
                   )}
                 </div>
+
                 <div className="flex-1 space-y-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs font-semibold text-foreground truncate">
+                    <p className="text-xs font-semibold text-foreground tracking-tight truncate">
                       {item.title}
                     </p>
-                    <span className="text-[10px] text-muted-foreground shrink-0">
+                    <span className="text-[10px] text-muted-foreground font-normal shrink-0">
                       {item.time}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-muted-foreground/90 line-clamp-2 leading-normal">
                     {item.description}
                   </p>
                 </div>
@@ -194,14 +260,14 @@ export function NotificationPopover() {
           )}
         </div>
 
-        {/* Footer Link ke Halaman Notifikasi Spesifik Role */}
-        <div className="border-t border-border p-2 bg-secondary/10 rounded-b-2xl text-center">
+        {/* Footer Link */}
+        <div className="border-t border-border/60 p-2.5 bg-secondary/10 rounded-b-2xl text-center">
           <Link
             href={notificationPageUrl}
             onClick={() => setOpen(false)}
-            className="text-xs font-semibold text-primary hover:underline block py-1.5 transition-colors"
+            className="text-xs font-semibold text-primary hover:underline block py-1 transition-colors"
           >
-            Lihat semua notifikasi {currentRole} &rarr;
+            View all {currentRole} notifications &rarr;
           </Link>
         </div>
       </PopoverContent>
