@@ -5,84 +5,29 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { DUMMY_NOTIFICATIONS } from "@/lib/data/api/notification";
 import { cn } from "@/lib/utils";
-import { Role } from "@/types";
-import { Bell, BellRing, CheckCircle2, Info, Sparkles } from "lucide-react";
+import { Role, VALID_ROLES } from "@/types";
+import {
+  BadgePercent,
+  Bell,
+  BellRing,
+  CheckCircle2,
+  CreditCard,
+  FileText,
+  KeyRound,
+  Lock,
+  Package,
+  Sparkles,
+  Truck,
+  UserCheck,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
-const VALID_ROLES: Role[] = ["tenant", "owner", "supplier"];
-
-interface NotificationItem {
-  id: string;
-  title: string;
-  description: string;
-  time: string;
-  read: boolean;
-  type: "info" | "success" | "warning";
-}
-
 type BrowserNotificationPermission = NotificationPermission | "unsupported";
-
-const DUMMY_NOTIFICATIONS: Record<Role, NotificationItem[]> = {
-  tenant: [
-    {
-      id: "t-1",
-      title: "Kiosk Rental Approved",
-      description:
-        "Your rental application for Kiosk A-12 was approved by the owner.",
-      time: "10 min ago",
-      read: false,
-      type: "success",
-    },
-    {
-      id: "t-2",
-      title: "Monthly Rent Due",
-      description: "Your rental payment is due in 3 days.",
-      time: "2 hr ago",
-      read: true,
-      type: "info",
-    },
-  ],
-  owner: [
-    {
-      id: "o-1",
-      title: "New Tenant Application",
-      description: "A new rental application was submitted for Kiosk B-05.",
-      time: "5 min ago",
-      read: false,
-      type: "success",
-    },
-    {
-      id: "o-2",
-      title: "Escrow Funds Received",
-      description: "The monthly rental deposit has been secured in escrow.",
-      time: "1 hr ago",
-      read: true,
-      type: "info",
-    },
-  ],
-  supplier: [
-    {
-      id: "s-1",
-      title: "New Supply Order",
-      description: "The tenant at Kiosk A-12 placed a new supply order.",
-      time: "15 min ago",
-      read: false,
-      type: "success",
-    },
-    {
-      id: "s-2",
-      title: "High Demand Alert",
-      description: "Demand for rice and cooking oil is rising in your area.",
-      time: "3 hr ago",
-      read: true,
-      type: "info",
-    },
-  ],
-};
 
 const getRoleBadgeTheme = (role: Role) => {
   switch (role) {
@@ -94,6 +39,29 @@ const getRoleBadgeTheme = (role: Role) => {
     default:
       return "bg-tenant/10 text-tenant border-tenant/20";
   }
+};
+
+const getNotificationIcon = (typeCode: string) => {
+  if (typeCode.includes("lease") || typeCode.includes("application"))
+    return <KeyRound className="size-4" />;
+  if (typeCode.includes("order") || typeCode.includes("b2b"))
+    return <Truck className="size-4" />;
+  if (
+    typeCode.includes("rent") ||
+    typeCode.includes("payout") ||
+    typeCode.includes("payment")
+  )
+    return <CreditCard className="size-4" />;
+  if (typeCode.includes("deposit") || typeCode.includes("claim"))
+    return <BadgePercent className="size-4" />;
+  if (typeCode.includes("subscription")) return <Sparkles className="size-4" />;
+  if (typeCode.includes("security") || typeCode.includes("password"))
+    return <Lock className="size-4" />;
+  if (typeCode.includes("profile")) return <UserCheck className="size-4" />;
+  if (typeCode.includes("demand") || typeCode.includes("stock"))
+    return <Package className="size-4" />;
+  if (typeCode.includes("inspection")) return <FileText className="size-4" />;
+  return <CheckCircle2 className="size-4" />;
 };
 
 export function NotificationPopover() {
@@ -129,7 +97,11 @@ export function NotificationPopover() {
     }
   };
 
-  // Tentukan role aktif berdasarkan URL dashboard atau session
+  // Deteksi Konteks Halaman
+  const isWalletPage = pathname.startsWith("/dashboard/wallet");
+  const isSettingsPage = pathname.startsWith("/dashboard/settings");
+
+  // Tentukan role aktif
   const segments = pathname.split("/").filter(Boolean);
   const dashboardIndex = segments.lastIndexOf("dashboard");
   const currentPathRole = segments[dashboardIndex + 1] as Role;
@@ -138,11 +110,34 @@ export function NotificationPopover() {
     ? currentPathRole
     : (session?.user?.activeRole as Role) || "tenant";
 
-  const notifications =
+  const rawNotifications =
     DUMMY_NOTIFICATIONS[currentRole] || DUMMY_NOTIFICATIONS.tenant;
-  const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const notificationPageUrl = `/dashboard/${currentRole}/notifications`;
+  // Pemisahan tegas berdasarkan halaman saat ini (tidak dicampur)
+  let notifications = rawNotifications;
+  let contextLabel = `Op (${currentRole})`;
+  let linkTargetUrl = `/dashboard/${currentRole}/notifications`;
+
+  if (isWalletPage) {
+    // Di halaman Wallet: HANYA menampilkan notifikasi kategori finance
+    notifications = rawNotifications.filter((n) => n.category === "finance");
+    contextLabel = "Finance Wallet";
+    linkTargetUrl = "/dashboard/wallet/notifications";
+  } else if (isSettingsPage) {
+    // Di halaman Settings: HANYA menampilkan notifikasi kategori system
+    notifications = rawNotifications.filter((n) => n.category === "system");
+    contextLabel = "System Security";
+    linkTargetUrl = "/dashboard/settings/notifications";
+  } else {
+    // Di Dashboard Role: HANYA menampilkan notifikasi kategori operational sesuai role
+    notifications = rawNotifications.filter(
+      (n) => n.category === "operational",
+    );
+    contextLabel = `${currentRole} Operational`;
+    linkTargetUrl = `/dashboard/${currentRole}/notifications`;
+  }
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <Popover open={open} onOpenChange={handlePopoverChange}>
@@ -161,9 +156,9 @@ export function NotificationPopover() {
 
       <PopoverContent
         align="end"
-        className="w-84 p-0 z-60 shadow-xl rounded-2xl border-border/80 overflow-hidden bg-background"
+        className="w-88 p-0 z-60 shadow-xl rounded-2xl border-border/80 overflow-hidden bg-background"
       >
-        {/* Header Popover yang Lebih Rapi & Minimalis */}
+        {/* Header Popover */}
         <div className="flex items-center justify-between border-b border-border/60 bg-secondary/20 px-4 py-3">
           <div className="flex min-w-0 items-center gap-2">
             <span className="font-semibold text-sm tracking-tight text-foreground">
@@ -177,16 +172,20 @@ export function NotificationPopover() {
             <span
               className={cn(
                 "truncate rounded-full border px-2 py-0.5 text-[10px] font-bold capitalize tracking-wide",
-                getRoleBadgeTheme(currentRole),
+                isWalletPage
+                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                  : isSettingsPage
+                    ? "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20"
+                    : getRoleBadgeTheme(currentRole),
               )}
             >
-              {currentRole}
+              {contextLabel}
             </span>
           </div>
 
-          {/* Status / Request Permission Button Berbentuk Minimalis / Text Link */}
+          {/* Browser Notification Permission Button */}
           {permission === "granted" ? (
-            <div className="flex items-center gap-1 text-success text-xs font-medium bg-success/10 px-2 py-0.5 rounded-full">
+            <div className="flex items-center gap-1 text-emerald-500 text-xs font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full">
               <CheckCircle2 className="size-3.5" />
               <span>Active</span>
             </div>
@@ -209,12 +208,12 @@ export function NotificationPopover() {
           )}
         </div>
 
-        {/* Improved Notification List (Lebih Bersih & Modern) */}
+        {/* List Notifikasi Sesuai Konteks Terisolasi */}
         <div className="max-h-80 overflow-y-auto divide-y divide-border/40">
           {notifications.length === 0 ? (
             <div className="py-10 text-center flex flex-col items-center justify-center gap-1.5 text-muted-foreground">
               <Sparkles className="size-5 opacity-40" />
-              <p className="text-xs">You&apos;re all caught up!</p>
+              <p className="text-xs">No notifications for this section.</p>
             </div>
           ) : (
             notifications.map((item) => (
@@ -231,15 +230,21 @@ export function NotificationPopover() {
                 )}
 
                 <div className="mt-0.5 shrink-0">
-                  {item.type === "success" ? (
-                    <div className="flex size-7 items-center justify-center rounded-full bg-suc-500/10 text-suc-500">
-                      <CheckCircle2 className="size-4" />
-                    </div>
-                  ) : (
-                    <div className="flex size-7 items-center justify-center rounded-full bg-blue-500/10 text-blue-500">
-                      <Info className="size-4" />
-                    </div>
-                  )}
+                  <div
+                    className={cn(
+                      "flex size-7 items-center justify-center rounded-full border",
+                      item.variant === "success" &&
+                        "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+                      item.variant === "warning" &&
+                        "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+                      item.variant === "destructive" &&
+                        "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
+                      item.variant === "info" &&
+                        "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20",
+                    )}
+                  >
+                    {getNotificationIcon(item.typeCode)}
+                  </div>
                 </div>
 
                 <div className="flex-1 space-y-1 min-w-0">
@@ -260,14 +265,18 @@ export function NotificationPopover() {
           )}
         </div>
 
-        {/* Footer Link */}
+        {/* Footer Link Dinamis Sesuai Konteks Halaman */}
         <div className="border-t border-border/60 p-2.5 bg-secondary/10 rounded-b-2xl text-center">
           <Link
-            href={notificationPageUrl}
+            href={linkTargetUrl}
             onClick={() => setOpen(false)}
             className="text-xs font-semibold text-primary hover:underline block py-1 transition-colors"
           >
-            View all {currentRole} notifications &rarr;
+            {isWalletPage
+              ? "View all wallet & finance notifications \u2192"
+              : isSettingsPage
+                ? "View all security & system logs \u2192"
+                : `View all ${currentRole} operational notifications \u2192`}
           </Link>
         </div>
       </PopoverContent>
