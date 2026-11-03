@@ -1,11 +1,11 @@
 "use client";
 
-import { useRoleFilter } from "@/components/providers/role_provider";
+import { useRoleContext } from "@/hooks/use-role-context";
 import { ROLE_CONTENT, ROLE_ORDER } from "./FeatureData";
 import { RoleContentSection } from "./RoleSection";
 
 export function FeaturesContent() {
-  const { activeRole } = useRoleFilter();
+  const { activeRole } = useRoleContext("role", "all");
 
   if (activeRole === "all") {
     return (

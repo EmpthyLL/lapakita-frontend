@@ -1,6 +1,5 @@
 "use client";
 
-import { RoleFilterProvider } from "@/components/providers/role_provider";
 import { Suspense, useState } from "react";
 import { BillingCycle, BillingToggle } from "./BillingToggle";
 import { PricingBreakdown } from "./PricingBreakdown";
@@ -54,12 +53,10 @@ function PricingHero() {
 export default function PricingPage() {
   return (
     <Suspense fallback={null}>
-      <RoleFilterProvider paramKey="role">
-        <PricingHero />
-        <PricingBreakdown />
-        <PricingTrust />
-        <PricingFaq />
-      </RoleFilterProvider>
+      <PricingHero />
+      <PricingBreakdown />
+      <PricingTrust />
+      <PricingFaq />
     </Suspense>
   );
 }

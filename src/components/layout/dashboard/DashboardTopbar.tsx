@@ -12,6 +12,7 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import { useRoleContext } from "@/hooks/use-role-context";
 import { getCountryFlag } from "@/lib/countries";
 import { cn } from "@/lib/utils";
 import { Role, RoleAndAll } from "@/types";
@@ -19,12 +20,11 @@ import {
   ChevronDown,
   ChevronRight,
   LogOut,
-  Menu,
   Settings,
   User,
   Wallet,
 } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NotificationPopover } from "./NotificationPopover";
@@ -34,8 +34,6 @@ interface DashboardTopbarProps {
   userAvatarUrl?: string;
   onOpenMobileMenu?: () => void;
 }
-
-const VALID_ROLES: Role[] = ["tenant", "owner", "supplier"];
 
 const getRoleThemeClasses = (role: Role) => {
   switch (role) {
@@ -89,22 +87,18 @@ function useBreadcrumb(pathname: string) {
 export function DashboardTopbar({
   userName: propUserName,
   userAvatarUrl: propAvatarUrl,
-  onOpenMobileMenu,
 }: DashboardTopbarProps) {
   const pathname = usePathname();
   const breadcrumb = useBreadcrumb(pathname);
-  const { data: session } = useSession();
 
-  const isWalletPage = pathname.startsWith("/dashboard/wallet");
-  const isSettingsPage = pathname.startsWith("/dashboard/settings");
+  const {
+    activeRole: detectedRole,
+    isWalletPage,
+    isSettingsPage,
+    session,
+  } = useRoleContext();
 
-  const segments = pathname.split("/").filter(Boolean);
-  const dashboardIndex = segments.lastIndexOf("dashboard");
-  const currentPathRole = segments[dashboardIndex + 1] as Role;
-
-  const currentRole: Role = VALID_ROLES.includes(currentPathRole)
-    ? currentPathRole
-    : (session?.user?.activeRole as Role) || "tenant";
+  const currentRole: Role = detectedRole;
 
   const activeRole: RoleAndAll =
     isWalletPage || isSettingsPage ? "all" : currentRole;
@@ -154,18 +148,10 @@ export function DashboardTopbar({
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background/95 px-4 sm:px-6 backdrop-blur">
       <div className="flex items-center gap-3 min-w-0">
-        {/* Tombol Hamburger Menu untuk layar mobile */}
-        <button
-          type="button"
-          onClick={onOpenMobileMenu}
-          className="flex md:hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground outline-none cursor-pointer"
-          aria-label="Open mobile menu"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
+        {/* Tombol menu sidebar mobile dihapus total karena sidebar mobile ditiadakan */}
 
-        {/* Breadcrumb disembunyikan sebagian di mobile agar muat */}
-        <nav className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground truncate">
+        {/* BREADCRUMB: Hanya tampil di Web (hidden di mobile) */}
+        <nav className="hidden md:flex items-center gap-1.5 text-sm text-muted-foreground truncate">
           {breadcrumb.map((crumb, i) => (
             <span
               key={crumb.href}
@@ -192,26 +178,42 @@ export function DashboardTopbar({
       <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <LanguageSwitcher showLabel={false} />
 
-        {/* Panggil komponen NotificationPopover yang terpisah */}
         <NotificationPopover />
 
         <div className="mx-0.5 sm:mx-1 h-4 w-px bg-border" />
 
-        <RoleSelectPopover
-          value={activeRole}
-          onChange={(role) => {
-            window.location.href =
-              role === "all" ? "/dashboard/settings" : `/dashboard/${role}`;
-          }}
-          mode="topbar"
-          showGeneral={true}
-        />
+        {/* ROLE SELECTOR: Mode topbar untuk Web, Mode toggle compact untuk Mobile */}
+        <div className="hidden sm:block">
+          <RoleSelectPopover
+            value={activeRole}
+            onChange={(role) => {
+              window.location.href =
+                role === "all" ? "/dashboard/settings" : `/dashboard/${role}`;
+            }}
+            mode="topbar"
+            showGeneral={true}
+          />
+        </div>
+        <div className="block sm:hidden">
+          <RoleSelectPopover
+            value={activeRole}
+            onChange={(role) => {
+              window.location.href =
+                role === "all" ? "/dashboard/settings" : `/dashboard/${role}`;
+            }}
+            mode="toggle"
+            showGeneral={true}
+          />
+        </div>
 
+        {/* AVATAR MENU TUNGGAL: Menggunakan CSS/Responsive trigger agar tidak duplikasi kode */}
         <Menubar className="border-none bg-transparent p-0 shadow-none h-auto w-auto">
           <MenubarMenu>
             <MenubarTrigger
               className={cn(
-                "group relative flex cursor-pointer items-center gap-1 rounded-full border border-transparent p-0.5 outline-none transition-all duration-150 focus-visible:ring-2 focus-visible:ring-ring/50 data-[state=open]:bg-transparent data-[state=open]:text-foreground data-[state=open]:ring-2",
+                "group relative flex cursor-pointer items-center rounded-full border border-transparent p-0.5 outline-none transition-all duration-150 focus-visible:ring-2 focus-visible:ring-ring/50 data-[state=open]:bg-transparent data-[state=open]:ring-2",
+                // Web pakai gap & ChevronDown, Mobile rapat tanpa panah
+                "gap-0 sm:gap-1",
                 theme.border,
                 theme.ring,
               )}
@@ -244,7 +246,8 @@ export function DashboardTopbar({
                   )}
                 />
               </span>
-              <ChevronDown className="ml-0.5 h-3.5 w-3.5 text-muted-foreground transition-transform duration-150 group-data-[state=open]:rotate-180" />
+              {/* ChevronDown disembunyikan di mobile (hidden sm:block) */}
+              <ChevronDown className="hidden sm:block ml-0.5 h-3.5 w-3.5 text-muted-foreground transition-transform duration-150 group-data-[state=open]:rotate-180" />
             </MenubarTrigger>
             <MenubarContent align="end" className="z-60 w-64">
               <div className="flex items-center gap-3 py-1.5 px-3">

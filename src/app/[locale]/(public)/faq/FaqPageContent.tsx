@@ -3,11 +3,8 @@
 import { RoleTab } from "@/components/common/RoleTab";
 import { Spinner } from "@/components/common/Spinner";
 import { TocList } from "@/components/common/TOCList";
-import {
-  RoleFilterProvider,
-  useRoleFilter,
-} from "@/components/providers/role_provider";
 import { Button } from "@/components/ui/button";
+import { useRoleContext } from "@/hooks/use-role-context";
 import { getFAQs } from "@/lib/data/api/public";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -22,7 +19,7 @@ import Link from "next/link";
 import { FaqCategoryContent } from "./FaqCategoryContent";
 
 function FaqBody() {
-  const { activeRole } = useRoleFilter();
+  const { activeRole } = useRoleContext("tab", "all");
   const t = useTranslations("public.faq");
   const locale = useLocale();
 
@@ -82,7 +79,7 @@ function FaqBody() {
         </div>
 
         <div className="mt-10 flex justify-center">
-          <RoleTab />
+          <RoleTab paramKey="tab" />
         </div>
 
         {/* --- STATE LOADING --- */}
@@ -150,9 +147,5 @@ function FaqBody() {
 }
 
 export function FaqPageContent() {
-  return (
-    <RoleFilterProvider paramKey="tab">
-      <FaqBody />
-    </RoleFilterProvider>
-  );
+  return <FaqBody />;
 }

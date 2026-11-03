@@ -10,51 +10,56 @@ export default function NotFound() {
   return (
     <>
       <SiteHeader />
-      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-background px-4 py-10">
-        <div className="mx-auto w-full max-w-xl rounded-[2rem] border border-border/70 bg-card/80 p-10 shadow-2xl shadow-black/10 backdrop-blur-xl">
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-background px-4 py-8 sm:py-12 md:py-16">
+        <div className="mx-auto w-full max-w-xl rounded-2xl sm:rounded-[2rem] border border-border/70 bg-card/80 p-6 sm:p-8 md:p-10 shadow-2xl shadow-black/10 backdrop-blur-xl">
           <div className="flex flex-col items-center text-center">
-            <div className="mb-6">
-              <Logo variant="mark" className="mx-auto h-24 w-24" />
+            {/* Logo Utama */}
+            <div className="mb-4 sm:mb-6">
+              <Logo
+                variant="mark"
+                className="mx-auto h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24"
+              />
             </div>
-            <div className="relative mb-6">
-              <div className="flex h-20 w-20 items-center justify-center rounded-[1.75rem] bg-primary-secondary">
-                <Store className="h-10 w-10 text-primary" />
+
+            {/* Ikon 404 Visual */}
+            <div className="relative mb-4 sm:mb-6">
+              <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-[1.25rem] sm:rounded-[1.75rem] bg-primary-secondary">
+                <Store className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
               </div>
-              <div className="absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-full border-4 border-background bg-destructive text-white">
-                <SearchX className="h-4 w-4" />
+              <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-full border-2 sm:border-4 border-background bg-destructive text-white">
+                <SearchX className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
             </div>
-            <span className="text-sm font-semibold uppercase tracking-[0.32em] text-primary">
+
+            {/* Teks Label & Judul */}
+            <span className="text-xs sm:text-sm font-semibold uppercase tracking-[0.25em] sm:tracking-[0.32em] text-primary">
               Error 404
             </span>
-            <h1 className="mt-4 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+            <h1 className="mt-2 sm:mt-4 text-2xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-foreground">
               This Stall Doesn&apos;t Exist
             </h1>
-            <p className="mt-4 max-w-lg text-base leading-7 text-muted-foreground">
+            <p className="mt-3 sm:mt-4 max-w-md sm:max-w-lg text-sm sm:text-base leading-relaxed sm:leading-7 text-muted-foreground">
               The page you&apos;re looking for may have moved, been rented out,
               or never existed in the first place.
             </p>
 
-            <div className="mt-10 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
-              <div className="w-full sm:w-auto">
-                <Link href="/">
-                  <Button className="justify-center flex items-center gap-2">
-                    <Home className="h-4 w-4" />
-                    Back to Home
-                  </Button>
-                </Link>
-              </div>
-              <div className="w-full sm:w-auto">
-                <Link href="/stalls">
-                  <Button
-                    variant="outline"
-                    className="justify-center flex items-center gap-2"
-                  >
-                    <LayoutGrid className="mr-2 h-4 w-4" />
-                    Browse Stalls
-                  </Button>
-                </Link>
-              </div>
+            {/* Tombol Aksi Responsif */}
+            <div className="mt-8 sm:mt-10 flex w-full flex-col sm:flex-row items-center justify-center gap-3">
+              <Link href="/" className="w-full sm:w-auto">
+                <Button className="w-full sm:w-auto justify-center flex items-center gap-2">
+                  <Home className="h-4 w-4" />
+                  Back to Home
+                </Button>
+              </Link>
+              <Link href="/stalls" className="w-full sm:w-auto">
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto justify-center flex items-center gap-2"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                  Browse Stalls
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

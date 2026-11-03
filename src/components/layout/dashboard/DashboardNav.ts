@@ -37,7 +37,7 @@ export interface NavItem {
   role?: Role;
 }
 
-// ── 1. MAIN DASHBOARD NAV (5 ITEMS PER ROLE) ────────────────────────────────
+// ── 1. MAIN DASHBOARD NAV (DITAMBAHKAN NOTIFIKASI DI TIAP ROLE) ────────────────
 export const DASHBOARD_NAV: Record<Role, NavItem[]> = {
   tenant: [
     {
@@ -69,6 +69,12 @@ export const DASHBOARD_NAV: Record<Role, NavItem[]> = {
       mobileLabel: "Analytics",
       href: "/dashboard/tenant/analytics",
       icon: BarChart3,
+    },
+    {
+      label: "Notifications",
+      mobileLabel: "Notifications",
+      href: "/dashboard/tenant/notifications",
+      icon: Bell,
     },
   ],
 
@@ -103,6 +109,12 @@ export const DASHBOARD_NAV: Record<Role, NavItem[]> = {
       href: "/dashboard/owner/analytics",
       icon: BarChart3,
     },
+    {
+      label: "Notifications",
+      mobileLabel: "Notifications",
+      href: "/dashboard/owner/notifications",
+      icon: Bell,
+    },
   ],
 
   supplier: [
@@ -135,6 +147,12 @@ export const DASHBOARD_NAV: Record<Role, NavItem[]> = {
       mobileLabel: "Demand",
       href: "/dashboard/supplier/demand",
       icon: Radar,
+    },
+    {
+      label: "Notifications",
+      mobileLabel: "Notifications",
+      href: "/dashboard/supplier/notifications",
+      icon: Bell,
     },
   ],
 };

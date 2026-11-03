@@ -1,6 +1,6 @@
 "use client";
 
-import { useRoleFilter } from "@/components/providers/role_provider";
+import { useRoleContext } from "@/hooks/use-role-context";
 import { cn } from "@/lib/utils";
 import { ROLES_CONFIG, type RoleAndAll } from "@/types";
 import { useTranslations } from "next-intl";
@@ -17,8 +17,8 @@ const TABS: RoleTabItem[] = [
   { value: "supplier", key: "supplier" },
 ];
 
-export function RoleTab() {
-  const { activeRole, setActiveRole } = useRoleFilter();
+export function RoleTab({ paramKey = "role" }: { paramKey?: string }) {
+  const { activeRole, setActiveRole } = useRoleContext(paramKey, "all");
   const t = useTranslations("common.role_tab");
 
   return (

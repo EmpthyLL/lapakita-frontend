@@ -1,8 +1,6 @@
-/* eslint-disable react-hooks/purity */
 "use client";
 
 import { Logo } from "@/components/layout/Logo";
-import { useRoleTheme } from "@/components/providers/theme_provider";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import {
   Tooltip,
@@ -10,10 +8,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useRoleContext } from "@/hooks/use-role-context";
 import { cn } from "@/lib/utils";
 import { Role } from "@/types";
 import { ChevronsLeft, ChevronsRight, LayoutDashboard } from "lucide-react";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -53,32 +51,21 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const { role } = useRoleTheme();
-  const { data: session } = useSession();
 
-  const plan = session?.user?.subscriptionPlan;
-  const expiresAt = session?.user?.subscriptionExpiresAt;
+  // Menggunakan hook general useRoleContext
+  const { activeRole, isWalletPage, isSettingsPage, session } =
+    useRoleContext();
+
   const sessionActiveRole =
-    (session?.user?.activeRole as Role) || role || "tenant";
+    (session?.user?.activeRole as Role) || activeRole || "tenant";
 
-  const isWalletPage = pathname.startsWith("/dashboard/wallet");
-  const isSettingsPage = pathname.startsWith("/dashboard/settings");
   const isGeneralPage = isWalletPage || isSettingsPage;
 
-  function canAccessMenuItem(itemBadge?: string): boolean {
-    if (itemBadge !== "PRO") return true;
-    if (!plan || plan === "free") return false;
-    if (plan === "all_access") return true;
-
-    if (!expiresAt) return false;
-    return new Date(expiresAt).getTime() > Date.now();
-  }
-
-  let rawNavItems = DASHBOARD_NAV[role as Role] ?? DASHBOARD_NAV.tenant;
+  let rawNavItems = DASHBOARD_NAV[activeRole] ?? DASHBOARD_NAV.tenant;
   let sectionLabel =
-    role === "tenant"
+    activeRole === "tenant"
       ? "Tenant Mode"
-      : role === "owner"
+      : activeRole === "owner"
         ? "Stall Owner Mode"
         : "Supplier Mode";
 
@@ -90,7 +77,8 @@ export function DashboardSidebar({
     sectionLabel = "General Mode";
   }
 
-  const navItems = rawNavItems.filter((item) => canAccessMenuItem(item.badge));
+  // Badge PRO dihilangkan, navigasi langsung dirender sepenuhnya
+  const navItems = rawNavItems;
 
   const sidebarContent = (isMob = false) => (
     <div className="flex h-full flex-col bg-card">
@@ -177,7 +165,7 @@ export function DashboardSidebar({
 
           const hoverClass = isGeneralPage
             ? "hover:bg-secondary hover:text-foreground"
-            : (ROLE_HOVER_CLASSES[role as Role] ??
+            : (ROLE_HOVER_CLASSES[activeRole] ??
               "hover:bg-secondary hover:text-foreground");
 
           const linkEl = (
@@ -196,21 +184,7 @@ export function DashboardSidebar({
             >
               <item.icon className="h-4.5 w-4.5 shrink-0" />
               {(!collapsed || isMob) && (
-                <>
-                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                  {item.badge && (
-                    <span
-                      className={cn(
-                        "shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase",
-                        active
-                          ? "bg-primary-foreground/20 text-primary-foreground"
-                          : "bg-primary-secondary text-primary",
-                      )}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
-                </>
+                <span className="min-w-0 flex-1 truncate">{item.label}</span>
               )}
             </Link>
           );
@@ -263,7 +237,6 @@ export function DashboardSidebar({
 
   return (
     <TooltipProvider delayDuration={0}>
-      {/* Sidebar Desktop (Hidden di layar kecil) */}
       <aside
         className={cn(
           "sticky top-0 hidden md:flex h-screen shrink-0 flex-col border-r border-border bg-card transition-all duration-200",
@@ -273,7 +246,6 @@ export function DashboardSidebar({
         {sidebarContent(false)}
       </aside>
 
-      {/* Sidebar Mobile (Sheet / Drawer) */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="p-0 w-72 border-r border-border">
           <SheetTitle className="sr-only">Navigation Menu</SheetTitle>

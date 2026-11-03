@@ -6,12 +6,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useRoleContext } from "@/hooks/use-role-context";
 import { usePathname, useRouter } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
-import { VALID_ROLES, type Role } from "@/types";
+import type { Role } from "@/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronDown, Globe } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { Locale, useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -61,18 +61,13 @@ export function LanguageSwitcher({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
+
+  // Memakai hook general useRoleContext
+  const { activeRole } = useRoleContext();
+  const activeRoleStyle =
+    ROLE_ACTIVE_STYLES[activeRole] || ROLE_ACTIVE_STYLES.tenant;
 
   const [open, setOpen] = useState(false);
-  const pathSegments = pathname.split("/").filter(Boolean);
-  const dashboardIndex = pathSegments.lastIndexOf("dashboard");
-  const routeRole = pathSegments[dashboardIndex + 1] as Role;
-  const sessionRole = session?.user?.activeRole ?? "tenant";
-  const activeRole =
-    dashboardIndex >= 0 && VALID_ROLES.includes(routeRole)
-      ? routeRole
-      : sessionRole;
-  const activeRoleStyle = ROLE_ACTIVE_STYLES[activeRole];
 
   const handleLocaleChange = (nextLocale: string) => {
     setOpen(false);

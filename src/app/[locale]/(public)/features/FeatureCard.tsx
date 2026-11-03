@@ -1,6 +1,6 @@
 "use client";
 
-import { useRoleFilter } from "@/components/providers/role_provider";
+import { useRoleContext } from "@/hooks/use-role-context";
 import { cn } from "@/lib/utils";
 import { Role } from "@/types";
 import type { LucideIcon } from "lucide-react";
@@ -19,7 +19,7 @@ export function FeatureCard({
   description,
   roles = ["all"],
 }: FeatureCardProps) {
-  const { activeRole } = useRoleFilter();
+  const { activeRole } = useRoleContext("role", "all");
   const isDimmed =
     activeRole !== "all" &&
     !roles.includes("all") &&

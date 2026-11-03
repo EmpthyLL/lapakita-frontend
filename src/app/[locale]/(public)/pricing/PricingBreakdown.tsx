@@ -1,13 +1,13 @@
 "use client";
 
 import { RoleTab } from "@/components/common/RoleTab";
-import { useRoleFilter } from "@/components/providers/role_provider";
+import { useRoleContext } from "@/hooks/use-role-context";
 import type { Role } from "@/types";
 import { PRICING_FEATURE_TABLES, ROLE_LABELS } from "./PricingData";
 import { PricingFeatureTable } from "./PricingFeatureTable";
 
 export function PricingBreakdown() {
-  const { activeRole } = useRoleFilter();
+  const { activeRole } = useRoleContext("role", "all");
   const isAll = activeRole === "all";
   const role: Role = isAll ? "tenant" : activeRole;
 
