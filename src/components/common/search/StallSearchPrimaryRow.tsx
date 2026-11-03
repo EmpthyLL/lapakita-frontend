@@ -47,7 +47,7 @@ export function StallSearchPrimaryRow({
         <LocationAutocomplete
           value={location}
           onChange={onLocationChange}
-          className="flex-1"
+          className="min-w-0 flex-1"
         />
 
         <Autocomplete<BusinessType, GetBusinessTypesQuery>
@@ -63,7 +63,7 @@ export function StallSearchPrimaryRow({
           groupKey="group_name"
           placeholder={t("business_type_placeholder")}
           mode="solid"
-          className={"lg:w-90"}
+          className="lg:w-60 lg:shrink-0"
         />
 
         <Button

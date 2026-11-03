@@ -237,8 +237,8 @@ export function LocationAutocomplete({
   }
 
   return (
-    <div className="w-full space-y-4">
-      <div ref={containerRef} className={cn("relative w-full", className)}>
+    <div className={cn("w-full space-y-4", className)}>
+      <div ref={containerRef} className="relative w-full">
         <MapPin
           className={cn(
             "pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 transition-colors",
