@@ -34,10 +34,20 @@ function isFooterActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-const ROLE_HOVER_CLASSES: Record<Role, string> = {
-  tenant: "hover:bg-tenant-secondary hover:text-tenant",
-  owner: "hover:bg-owner-secondary hover:text-owner",
-  supplier: "hover:bg-supplier-secondary hover:text-supplier",
+// Styling khusus hover & active per role agar selaras
+const ROLE_THEME_CLASSES: Record<Role, { active: string; hover: string }> = {
+  tenant: {
+    active: "bg-tenant-secondary text-tenant font-semibold shadow-xs",
+    hover: "hover:bg-tenant-secondary hover:text-tenant",
+  },
+  owner: {
+    active: "bg-owner-secondary text-owner font-semibold shadow-xs",
+    hover: "hover:bg-owner-secondary hover:text-owner",
+  },
+  supplier: {
+    active: "bg-supplier-secondary text-supplier font-semibold shadow-xs",
+    hover: "hover:bg-supplier-secondary hover:text-supplier",
+  },
 };
 
 interface DashboardSidebarProps {
@@ -77,7 +87,6 @@ export function DashboardSidebar({
     sectionLabel = "General Mode";
   }
 
-  // Badge PRO dihilangkan, navigasi langsung dirender sepenuhnya
   const navItems = rawNavItems;
 
   const sidebarContent = (isMob = false) => (
@@ -163,10 +172,18 @@ export function DashboardSidebar({
         {navItems.map((item) => {
           const active = isNavActive(pathname, item.href);
 
+          const roleTheme = ROLE_THEME_CLASSES[activeRole] ?? {
+            active: "bg-secondary text-foreground font-semibold shadow-xs",
+            hover: "hover:bg-secondary hover:text-foreground",
+          };
+
+          const activeClass = isGeneralPage
+            ? "bg-secondary text-foreground font-semibold shadow-xs"
+            : roleTheme.active;
+
           const hoverClass = isGeneralPage
             ? "hover:bg-secondary hover:text-foreground"
-            : (ROLE_HOVER_CLASSES[activeRole] ??
-              "hover:bg-secondary hover:text-foreground");
+            : roleTheme.hover;
 
           const linkEl = (
             <Link
@@ -175,11 +192,7 @@ export function DashboardSidebar({
               className={cn(
                 "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                 collapsed && !isMob && "justify-center px-0",
-                active
-                  ? isGeneralPage
-                    ? "bg-secondary text-foreground font-semibold shadow-xs"
-                    : "bg-primary text-primary-foreground shadow-xs"
-                  : cn("text-muted-foreground", hoverClass),
+                active ? activeClass : cn("text-muted-foreground", hoverClass),
               )}
             >
               <item.icon className="h-4.5 w-4.5 shrink-0" />
