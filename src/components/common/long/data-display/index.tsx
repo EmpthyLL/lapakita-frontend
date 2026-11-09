@@ -18,9 +18,9 @@ import {
   ConfirmDialogOptions,
   SurfaceDetail,
   SurfaceForm,
+  SurfaceRenderer,
   SurfaceType,
-} from "@/components/common/surface";
-import { SurfaceRenderer } from "@/components/common/SurfaceRenderer";
+} from "@/components/common/SurfaceRenderer";
 import { Spinner } from "../../Spinner";
 import {
   ColumnDef,

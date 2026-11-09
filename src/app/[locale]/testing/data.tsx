@@ -2,6 +2,7 @@ import {
   createColumnHelpers,
   DataDisplayQuery,
 } from "@/components/common/long/data-display/Constant";
+import { SurfaceComponentProps } from "@/components/common/SurfaceRenderer";
 import { Button } from "@/components/ui/button";
 import { PaginatedResponse } from "@/lib/data/schema/base";
 import {
@@ -186,7 +187,8 @@ export const stallQueryConfig: DataDisplayQuery<StallItem, StallQueryParams> = {
 };
 
 // Komponen Detail View untuk Modal / Expandable
-export function StallDetailView({ row }: { row: StallItem }) {
+export function StallDetailView({ row }: SurfaceComponentProps<StallItem>) {
+  if (!row) return null;
   return (
     <div className="space-y-3 py-2 text-sm">
       <div className="grid grid-cols-2 gap-2">
@@ -208,7 +210,10 @@ export function StallDetailView({ row }: { row: StallItem }) {
 }
 
 // Tambahkan di dalam file data.ts Anda
-export function StallExpandableDetail({ row }: { row: StallItem }) {
+export function StallExpandableDetail({
+  row,
+}: SurfaceComponentProps<StallItem>) {
+  if (!row) return null;
   return (
     <div className="rounded-xl border border-border/60 bg-background/60 p-4 space-y-3 my-2 shadow-inner">
       <div className="flex items-center justify-between border-b border-border/40 pb-2">
@@ -250,11 +255,7 @@ export function StallForm({
   mode,
   row,
   close,
-}: {
-  mode: "create" | "edit";
-  row?: StallItem;
-  close: () => void;
-}) {
+}: SurfaceComponentProps<StallItem>) {
   return (
     <div className="space-y-4 py-2">
       <p className="text-xs text-muted-foreground">

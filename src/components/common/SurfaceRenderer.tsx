@@ -40,13 +40,6 @@ export type SurfaceForm<TData> = SurfaceConfig & {
   component: (props: SurfaceComponentProps<TData>) => ReactNode;
 };
 
-export type DataDisplaySurface = SurfaceType;
-export type DataDisplaySurfaceComponentProps<TData> =
-  SurfaceComponentProps<TData>;
-export type DataDisplayForm<TData> = SurfaceForm<TData>;
-export type DataDisplayDetail<TData> = SurfaceDetail<TData>;
-export type DataDisplayConfirmOptions = ConfirmDialogOptions;
-
 export interface AddActionConfig<TData> {
   label?: ReactNode;
   form: SurfaceForm<TData>;

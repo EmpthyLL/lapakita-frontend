@@ -21,12 +21,12 @@ export async function getPaymentMethods(
       const found = PAYOUT_PROVIDERS.banks.find(
         (b) => b.code === item.provider_code,
       );
-      logoUrl = found?.logoUrl || "";
+      logoUrl = found?.icon || "";
     } else if (item.payout_type === "e_wallet") {
       const found = PAYOUT_PROVIDERS.eWallets.find(
         (e) => e.code === item.provider_code,
       );
-      logoUrl = found?.logoUrl || "";
+      logoUrl = found?.icon || "";
     }
 
     return {
