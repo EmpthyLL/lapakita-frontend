@@ -7,7 +7,7 @@ import {
 } from "@/components/common/SurfaceRenderer";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
-import { DataDisplayActionContext } from "./Constant";
+import { DataDisplayActionContext } from "./constant";
 
 interface DataDisplayPresetProps<TData> {
   rows: TData[];

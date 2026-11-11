@@ -1,19 +1,5 @@
 import { DateRange } from "react-day-picker";
 
-export const formatDate = (date: Date, locale: string = "en-US"): string => {
-  return date.toLocaleDateString(locale, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
-
-export const isValidDate = (date: Date | string | undefined): boolean => {
-  if (date === undefined) return false;
-  const parsedDate = typeof date === "string" ? new Date(date) : date;
-  return parsedDate instanceof Date && !isNaN(parsedDate.getTime());
-};
-
 export const getPresetRange = (presetName: string): DateRange => {
   const from = new Date();
   const to = new Date();

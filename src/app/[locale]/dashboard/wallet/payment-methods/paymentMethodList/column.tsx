@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { createColumnHelpers } from "@/components/common/long/data-display/Constant";
+import { createColumnHelpers } from "@/components/common/long/data-display/constant";
 import { PaymentMethodItem } from "@/lib/data/schema/wallet/payment_method";
 import { Building2, CreditCard, Hash, ShieldCheck, User } from "lucide-react";
 import { useMemo } from "react";

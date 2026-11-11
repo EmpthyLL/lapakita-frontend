@@ -6,7 +6,7 @@ import {
   ColumnConfig,
   DataDisplayActionContext,
   FieldColumnDef,
-} from "../Constant";
+} from "../constant";
 
 const NUMBER_BADGE_COLORS = [
   "text-info bg-info/10 border-info/20",

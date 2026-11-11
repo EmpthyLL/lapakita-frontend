@@ -1,7 +1,7 @@
 "use client";
 
 import { DataDisplay } from "@/components/common/long/data-display";
-import { DataDisplayQuery } from "@/components/common/long/data-display/Constant";
+import { DataDisplayQuery } from "@/components/common/long/data-display/constant";
 import { Button } from "@/components/ui/button";
 import { getPaymentMethods } from "@/lib/data/api/wallet";
 import {

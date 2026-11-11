@@ -111,6 +111,20 @@ export function formatRelativeTime(
   return `${diffInSeconds} sec${diffInSeconds > 1 ? "s" : ""} ago`;
 }
 
+export const formatDate = (date: Date, locale: string = "en-US"): string => {
+  return date.toLocaleDateString(locale, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
+export const isValidDate = (date: Date | string | undefined): boolean => {
+  if (date === undefined) return false;
+  const parsedDate = typeof date === "string" ? new Date(date) : date;
+  return parsedDate instanceof Date && !isNaN(parsedDate.getTime());
+};
+
 /**
  * Format tanggal absolut
  */

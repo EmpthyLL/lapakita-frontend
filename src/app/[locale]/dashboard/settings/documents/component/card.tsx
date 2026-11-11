@@ -4,7 +4,7 @@ import {
   ColumnConfig,
   DataDisplayActionContext,
   FieldColumnDef,
-} from "@/components/common/long/data-display/Constant";
+} from "@/components/common/long/data-display/constant";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
 import { FileText } from "lucide-react";
 import { formatDocType, getDocumentNumberLabel } from "./config";

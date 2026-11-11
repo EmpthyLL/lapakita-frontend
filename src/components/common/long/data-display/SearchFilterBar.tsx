@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Search, SlidersHorizontal, X, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ReactNode, useState } from "react";
-import { FilterOption } from "./Constant";
+import { FilterOption } from "./constant";
 import { FilterItem } from "./FilterItem";
 import { FilterOptions } from "./FilterOptions";
 

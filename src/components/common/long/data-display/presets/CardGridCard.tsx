@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ColumnConfig, DataDisplayActionContext } from "../Constant";
+import { ColumnConfig, DataDisplayActionContext } from "../constant";
 
 const GLOW_TINTS = [
   "bg-info/15",

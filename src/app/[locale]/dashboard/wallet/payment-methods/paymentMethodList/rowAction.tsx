@@ -1,6 +1,6 @@
 "use client";
 
-import { DataDisplayActionContext } from "@/components/common/long/data-display/Constant";
+import { DataDisplayActionContext } from "@/components/common/long/data-display/constant";
 import { Button } from "@/components/ui/button";
 import {
   deletePaymentMethod,

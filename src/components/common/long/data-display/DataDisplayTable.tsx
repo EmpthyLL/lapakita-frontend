@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { Fragment } from "react";
 import { SurfaceDetail, SurfaceForm, SurfaceType } from "../../SurfaceRenderer";
-import { ColumnConfig, DataDisplayActionContext } from "./Constant";
+import { ColumnConfig, DataDisplayActionContext } from "./constant";
 import { EmptyState, RowIndexBadge, SkeletonRows } from "./TableStates";
 
 interface DataDisplayTableProps<TData> {

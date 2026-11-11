@@ -17,7 +17,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { FILTER_TYPE_ICON, FilterOption } from "./Constant";
+import { FILTER_TYPE_ICON, FilterOption } from "./constant";
 
 interface FilterOptionsProps<TData> {
   options: FilterOption<TData>[];

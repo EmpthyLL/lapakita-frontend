@@ -1,7 +1,7 @@
 import {
   createColumnHelpers,
   DataDisplayQuery,
-} from "@/components/common/long/data-display/Constant";
+} from "@/components/common/long/data-display/constant";
 import { SurfaceComponentProps } from "@/components/common/SurfaceRenderer";
 import { Button } from "@/components/ui/button";
 import { PaginatedResponse } from "@/lib/data/schema/base";
@@ -283,3 +283,73 @@ export function StallForm({
     </div>
   );
 }
+
+import { ChartDetailConfig } from "@/components/common/long/chart";
+
+export interface RevenueItem {
+  month: string;
+  revenue: number;
+  expenses: number;
+  transactions: number;
+}
+
+export const MOCK_REVENUE_DATA: RevenueItem[] = [
+  { month: "Jan", revenue: 12500000, expenses: 8000000, transactions: 340 },
+  { month: "Feb", revenue: 15000000, expenses: 9500000, transactions: 420 },
+  { month: "Mar", revenue: 18200000, expenses: 11000000, transactions: 510 },
+  { month: "Apr", revenue: 14000000, expenses: 8500000, transactions: 380 },
+  { month: "May", revenue: 22000000, expenses: 13000000, transactions: 630 },
+  { month: "Jun", revenue: 25500000, expenses: 14500000, transactions: 720 },
+];
+
+export const MOCK_CATEGORY_SHARE = [
+  { name: "F&B Kuliner", value: 45 },
+  { name: "Retail Fashion", value: 30 },
+  { name: "Jasa & Layanan", value: 25 },
+];
+
+// Komponen Detail View untuk Klik Chart
+export function ChartDetailView({ row }: SurfaceComponentProps<any>) {
+  if (!row) return null;
+  return (
+    <div className="space-y-3 py-2 text-sm">
+      <div className="grid grid-cols-2 gap-2">
+        <span className="text-muted-foreground">Periode / Kategori:</span>
+        <span className="font-medium text-foreground">
+          {row.month ?? row.name}
+        </span>
+        {row.revenue !== undefined && (
+          <>
+            <span className="text-muted-foreground">Pendapatan:</span>
+            <span className="font-medium text-emerald-600">
+              Rp {row.revenue.toLocaleString("id-ID")}
+            </span>
+            <span className="text-muted-foreground">Pengeluaran:</span>
+            <span className="font-medium text-rose-600">
+              Rp {row.expenses.toLocaleString("id-ID")}
+            </span>
+            <span className="text-muted-foreground">Total Transaksi:</span>
+            <span className="font-medium text-foreground">
+              {row.transactions} pesanan
+            </span>
+          </>
+        )}
+        {row.value !== undefined && (
+          <>
+            <span className="text-muted-foreground">Persentase / Nilai:</span>
+            <span className="font-medium text-foreground">{row.value}%</span>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export const chartDetailConfig: ChartDetailConfig<any> = {
+  detail: {
+    type: "dialog",
+    title: "Detail Statistik & Metrik",
+    description: "Analisis mendalam berdasarkan titik data yang dipilih.",
+    component: ChartDetailView,
+  },
+};

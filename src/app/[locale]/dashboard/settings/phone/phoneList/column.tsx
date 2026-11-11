@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { createColumnHelpers } from "@/components/common/long/data-display/Constant";
+import { createColumnHelpers } from "@/components/common/long/data-display/constant";
 import { Badge } from "@/components/ui/badge";
 import { getCountryFlag } from "@/lib/countries";
 import { PhoneNumberItem } from "@/lib/data/schema/user/phone_number";

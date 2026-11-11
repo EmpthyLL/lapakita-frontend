@@ -15,7 +15,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { OptionIcon } from "../../input/OptionIcon";
 import { Autocomplete } from "../autocomplete";
-import { FILTER_TYPE_ICON, FilterOption } from "./Constant";
+import { FILTER_TYPE_ICON, FilterOption } from "./constant";
 
 interface FilterItemProps<TData, TParams extends Record<string, unknown>> {
   option: FilterOption<TData>;

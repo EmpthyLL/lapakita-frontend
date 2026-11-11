@@ -1,6 +1,6 @@
 "use client";
 
-import { DataDisplayActionContext } from "@/components/common/long/data-display/Constant";
+import { DataDisplayActionContext } from "@/components/common/long/data-display/constant";
 import { Button } from "@/components/ui/button";
 import { deleteDocument } from "@/lib/data/api/user";
 import { GetDocumentData } from "@/lib/data/schema/user/document";

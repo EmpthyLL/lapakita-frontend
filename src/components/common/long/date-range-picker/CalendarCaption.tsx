@@ -11,7 +11,7 @@ import { ChevronDownIcon } from "lucide-react";
 import { useLocale } from "next-intl";
 import { useRef, useState } from "react";
 import { useDayPicker, type MonthCaptionProps } from "react-day-picker";
-import { MONTH_LABELS } from "./Types";
+import { MONTH_LABELS } from "./types";
 
 interface CalendarCaptionProps extends MonthCaptionProps {
   fromYear: number;

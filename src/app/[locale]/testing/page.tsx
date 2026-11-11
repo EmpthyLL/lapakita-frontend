@@ -5,8 +5,9 @@ import {
   DocumentFileItem,
   DocumentInput,
 } from "@/components/common/input/DocumentInput";
+import { Chart } from "@/components/common/long/chart";
 import { DataDisplay } from "@/components/common/long/data-display";
-import { createColumnHelpers } from "@/components/common/long/data-display/Constant";
+import { createColumnHelpers } from "@/components/common/long/data-display/constant";
 import { DateRangePicker } from "@/components/common/long/date-range-picker";
 import { Button } from "@/components/ui/button";
 import { showToast } from "@/lib/toast";
@@ -14,6 +15,9 @@ import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
 import {
+  chartDetailConfig,
+  MOCK_CATEGORY_SHARE,
+  MOCK_REVENUE_DATA,
   StallDetailView,
   StallExpandableDetail,
   StallForm,
@@ -291,6 +295,91 @@ export default function ComponentSandboxPage() {
             description: "Silakan isi atau perbarui informasi lapak.",
             component: StallForm,
           }}
+        />
+      </Demo>
+
+      <Demo
+        title="5. Chart (Graph Bar & Line + Download + Detail Dialog)"
+        desc="Visualisasi grafik batang & garis interaktif dengan opsi unduh CSV/SVG/PNG serta popup detail saat bar/titik diklik."
+      >
+        <Chart
+          chart={[
+            {
+              type: "graph",
+              chartType: "bar",
+              dataKey: "revenue",
+              label: "Pendapatan (Rp)",
+              color: "#0657BD",
+            },
+            {
+              type: "graph",
+              chartType: "line",
+              dataKey: "expenses",
+              label: "Pengeluaran (Rp)",
+              color: "#F43F5E",
+            },
+          ]}
+          data={MOCK_REVENUE_DATA}
+          xAxisKey="month"
+          height={380}
+          isDownload
+          downloadFilename="laporan-keuangan-bulanan"
+          detailConfig={chartDetailConfig}
+        />
+      </Demo>
+
+      <Demo
+        title="6. Chart (Donut & Circle Chart + Interactive Detail)"
+        desc="Visualisasi porsi kategori usaha dalam bentuk Donut Chart dengan ringkasan total di bagian tengah."
+      >
+        <Chart
+          chart={{
+            type: "circle",
+            chartType: "donut",
+            data: MOCK_CATEGORY_SHARE,
+            label: "Distribusi Kategori",
+          }}
+          height={340}
+          donutLabel="Total Kategori"
+          showValue={false}
+          isDownload
+          downloadFilename="distribusi-kategori-usaha"
+          detailConfig={chartDetailConfig}
+        />
+      </Demo>
+
+      <Demo
+        title="7. Chart (Perbandingan Donut & Pie + Interactive Detail)"
+        desc="Membandingkan distribusi kategori usaha dalam bentuk Donut Chart dan Pie Chart dengan detail interaktif."
+      >
+        <Chart
+          chart={[
+            {
+              type: "circle",
+              chartType: "donut",
+              data: [
+                { name: "F&B", value: 45 },
+                { name: "Retail", value: 30 },
+                { name: "Jasa", value: 25 },
+              ],
+              label: "Semester 1",
+            },
+            {
+              type: "circle",
+              chartType: "pie",
+              data: [
+                { name: "F&B", value: 55 },
+                { name: "Retail", value: 25 },
+                { name: "Jasa", value: 20 },
+              ],
+              label: "Semester 2",
+            },
+          ]}
+          height={360}
+          donutLabel="Total S1"
+          isDownload
+          downloadFilename="perbandingan-semester-circle"
+          detailConfig={chartDetailConfig}
         />
       </Demo>
     </div>

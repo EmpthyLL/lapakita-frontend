@@ -1,6 +1,6 @@
 "use client";
 
-import { createColumnHelpers } from "@/components/common/long/data-display/Constant";
+import { createColumnHelpers } from "@/components/common/long/data-display/constant";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
 import { CreditCard, Hash, Tag, User } from "lucide-react";
 import { useMemo } from "react";
