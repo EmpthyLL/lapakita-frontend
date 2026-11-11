@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import { format, formatDistanceToNow } from "date-fns";
 import slugify from "slugify";
 import { twMerge } from "tailwind-merge";
 
@@ -29,95 +30,32 @@ export const formatCurrency = (
   );
 };
 
+export function formatNumber(
+  value: number,
+  options: {
+    locale?: string;
+    maximumFractionDigits?: number;
+    notation?: "standard" | "compact";
+  } = {},
+) {
+  const {
+    locale = "id-ID",
+    maximumFractionDigits = 1,
+    notation = "standard",
+  } = options;
+
+  return new Intl.NumberFormat(locale, {
+    notation,
+    maximumFractionDigits,
+  }).format(value);
+}
+
 export function toWhatsAppLink(phone: string, message?: string) {
   let digits = phone.replace(/[^\d]/g, "");
   if (digits.startsWith("0")) digits = `62${digits.slice(1)}`;
   const base = `https://wa.me/${digits}`;
   return message ? `${base}?text=${encodeURIComponent(message)}` : base;
 }
-
-export interface FormatRelativeOptions {
-  /** Maksimal selisih hari sebelum beralih ke format tanggal pasti (Default: 7 hari) */
-  maxRelativeDays?: number;
-  /** Format tanggal pasti jika melewati maxRelativeDays (Default: "DD MMM YYYY") */
-  dateFormat?: "short" | "medium" | "full";
-  /** Menampilkan unit waktu hingga kedalaman tertentu (e.g. "week" | "day" | "hour") */
-  maxUnit?: "year" | "month" | "week" | "day" | "hour" | "minute";
-}
-
-/**
-  Formats an RFC3339/ISO date string into a readable relative time string or absolute date.
- * Examples: "2 mins ago", "3 days ago", "2 weeks ago", "15 Aug 2026"
- */
-export function formatRelativeTime(
-  dateInput: string | Date | number,
-  options: FormatRelativeOptions = {},
-): string {
-  if (!dateInput) return "";
-
-  const date = new Date(dateInput);
-  if (isNaN(date.getTime())) return "";
-
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  // Jika waktu di masa depan atau < 5 detik
-  if (diffInSeconds < 5) return "Just now";
-
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  const diffInDays = Math.floor(diffInHours / 24);
-  const diffInWeeks = Math.floor(diffInDays / 7);
-  const diffInMonths = Math.floor(diffInDays / 30);
-  const diffInYears = Math.floor(diffInDays / 365);
-
-  const { maxRelativeDays = 7, dateFormat = "medium", maxUnit } = options;
-
-  // 1. Jika melebihi batas hari relatif -> Format ke Tanggal Absolut
-  if (diffInDays > maxRelativeDays) {
-    return formatDateAbsolute(date, dateFormat);
-  }
-
-  // 2. Evaluasi berdasarkan kedalaman maxUnit atau hirarki alami
-  if (
-    diffInYears >= 1 &&
-    maxUnit !== "month" &&
-    maxUnit !== "week" &&
-    maxUnit !== "day"
-  ) {
-    return `${diffInYears} yr${diffInYears > 1 ? "s" : ""} ago`;
-  }
-
-  if (diffInMonths >= 1 && maxUnit !== "week" && maxUnit !== "day") {
-    return `${diffInMonths} mo${diffInMonths > 1 ? "s" : ""} ago`;
-  }
-
-  if (diffInWeeks >= 1 && maxUnit !== "day" && maxUnit !== "hour") {
-    return `${diffInWeeks} wk${diffInWeeks > 1 ? "s" : ""} ago`;
-  }
-
-  if (diffInDays >= 1 && maxUnit !== "hour" && maxUnit !== "minute") {
-    return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
-  }
-
-  if (diffInHours >= 1 && maxUnit !== "minute") {
-    return `${diffInHours} hr${diffInHours > 1 ? "s" : ""} ago`;
-  }
-
-  if (diffInMinutes >= 1) {
-    return `${diffInMinutes} min${diffInMinutes > 1 ? "s" : ""} ago`;
-  }
-
-  return `${diffInSeconds} sec${diffInSeconds > 1 ? "s" : ""} ago`;
-}
-
-export const formatDate = (date: Date, locale: string = "en-US"): string => {
-  return date.toLocaleDateString(locale, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
 
 export const isValidDate = (date: Date | string | undefined): boolean => {
   if (date === undefined) return false;
@@ -126,34 +64,71 @@ export const isValidDate = (date: Date | string | undefined): boolean => {
 };
 
 /**
- * Format tanggal absolut
+ * Universal Date Formatter menggunakan date-fns dengan preset yang diperkaya
  */
-export function formatDateAbsolute(
-  date: Date,
-  format: "short" | "medium" | "full" = "medium",
+export function formatDate(
+  dateInput: Date | string | number,
+  formatStr:
+    | "short" // 11/11/26
+    | "medium" // 11 Nov 2026
+    | "full" // 11 November 2026
+    | "long" // Thursday, November 11, 2026
+    | "with-day" // Wed, 11 Nov 2026
+    | "with-day-full" // Wednesday, 11 November 2026
+    | "time" // 16:46
+    | "datetime" // 11 Nov 2026, 16:46
+    | string = "medium",
 ): string {
-  if (format === "short") {
-    // 15/08/26
-    return new Intl.DateTimeFormat("id-ID", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "2-digit",
-    }).format(date);
+  if (!dateInput) return "";
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return "";
+
+  switch (formatStr) {
+    case "short":
+      return format(date, "dd/MM/yy");
+    case "medium":
+      return format(date, "dd MMM yyyy");
+    case "full":
+      return format(date, "dd MMMM yyyy");
+    case "long":
+      return format(date, "EEEE, MMMM d, yyyy");
+    case "with-day":
+      return format(date, "EEE, dd MMM yyyy");
+    case "with-day-full":
+      return format(date, "EEEE, dd MMMM yyyy");
+    case "time":
+      return format(date, "HH:mm");
+    case "datetime":
+      return format(date, "dd MMM yyyy, HH:mm");
+    default:
+      // Custom format string langsung dari date-fns
+      return format(date, formatStr);
+  }
+}
+
+export interface FormatRelativeOptions {
+  maxRelativeDays?: number;
+  dateFormat?: Parameters<typeof formatDate>[1];
+}
+
+export function formatRelativeTime(
+  dateInput: string | Date | number,
+  options: FormatRelativeOptions = {},
+): string {
+  if (!dateInput) return "";
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return "";
+
+  const now = new Date();
+  const diffInDays = Math.floor(
+    (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
+  );
+
+  const { maxRelativeDays = 7, dateFormat = "medium" } = options;
+
+  if (diffInDays > maxRelativeDays) {
+    return formatDate(date, dateFormat);
   }
 
-  if (format === "full") {
-    // 15 Agustus 2026
-    return new Intl.DateTimeFormat("en-US", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }).format(date);
-  }
-
-  // Medium default: 15 Aug 2026
-  return new Intl.DateTimeFormat("en-US", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(date);
+  return formatDistanceToNow(date, { addSuffix: true });
 }

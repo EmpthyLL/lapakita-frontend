@@ -16,13 +16,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn, isValidDate } from "@/lib/utils";
+import { cn, formatDate, isValidDate } from "@/lib/utils";
 import { CheckIcon, ChevronDownIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import React, { useEffect, useRef, useState, type FC } from "react";
 import { DateRange } from "react-day-picker";
-
-import { formatDate } from "date-fns";
 import { CalendarCaption } from "./CalendarCaption";
 import { DateRangePickerProps, PRESET_KEYS } from "./types";
 import { areRangesEqual, getPresetRange } from "./utils";
@@ -281,10 +279,8 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
             <div className="py-1">
               <div>
                 {range.from
-                  ? `${formatDate(range.from, currentLocale)}${
-                      range.to
-                        ? ` - ${formatDate(range.to, currentLocale)}`
-                        : ""
+                  ? `${formatDate(range.from, "medium")}${
+                      range.to ? ` - ${formatDate(range.to, "medium")}` : ""
                     }`
                   : t("select_date")}
               </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, formatNumber } from "@/lib/utils";
 import { Download } from "lucide-react";
 import {
   useMemo,
@@ -15,8 +15,6 @@ import {
   downloadCsv,
   downloadPng,
   downloadSvg,
-  formatAxisNumber,
-  formatNumber,
   getColor,
   getLabelValue,
   getNumericValue,
@@ -266,7 +264,7 @@ export function GraphChartView<TData extends object>({
               fill="#9CA3AF"
               fontSize={12}
             >
-              {formatAxisNumber(value)}
+              {formatNumber(value)}
             </text>
           </g>
         ))}

@@ -1,6 +1,5 @@
 "use client";
 
-import { format } from "date-fns";
 import { Calendar as CalendarIcon, X } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { useState } from "react";
 
 import { Matcher } from "react-day-picker";
@@ -75,7 +74,7 @@ export function DatePicker({
           /* Focus state normal */
           "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
 
-          /* Error State (Parent <Field data-invalid="true">, aria-invalid, atau prop error) */
+          /* Error State */
           "group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-within:border-destructive group-data-[invalid=true]/field:focus-within:ring-2 group-data-[invalid=true]/field:focus-within:ring-destructive/20",
           "aria-invalid:border-destructive aria-invalid:focus-within:border-destructive aria-invalid:focus-within:ring-2 aria-invalid:focus-within:ring-destructive/20",
           error &&
@@ -92,13 +91,12 @@ export function DatePicker({
             <CalendarIcon className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
             {parsedValue ? (
               <span className="text-foreground">
-                {format(parsedValue, "dd MMMM yyyy")}
+                {formatDate(parsedValue, "full")}
               </span>
             ) : (
               <span
                 className={cn(
                   "whitespace-nowrap text-muted-foreground/70 transition-colors",
-                  /* Red placeholder saat error */
                   "group-data-[invalid=true]/field:text-destructive/70",
                   "aria-invalid:text-destructive/70",
                   error && "text-destructive/70",

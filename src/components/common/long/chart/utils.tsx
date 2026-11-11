@@ -1,29 +1,16 @@
-import {
-  CHART_COLORS,
-  SVG_WIDTH,
-  DEFAULT_HEIGHT,
-  type ChartDetailConfig,
-} from "./types";
-import { SurfaceRenderer } from "@/components/common/SurfaceRenderer";
 import type { SurfaceType } from "@/components/common/SurfaceRenderer";
+import { SurfaceRenderer } from "@/components/common/SurfaceRenderer";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import {
+  CHART_COLORS,
+  DEFAULT_HEIGHT,
+  SVG_WIDTH,
+  type ChartDetailConfig,
+} from "./types";
 
 export function getColor(index: number) {
   return CHART_COLORS[index % CHART_COLORS.length];
-}
-
-export function formatNumber(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    maximumFractionDigits: 1,
-  }).format(value);
-}
-
-export function formatAxisNumber(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    notation: "compact",
-    maximumFractionDigits: 1,
-  }).format(value);
 }
 
 export function getNumericValue<TData extends object>(

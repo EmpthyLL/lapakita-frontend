@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, formatNumber } from "@/lib/utils";
 import { Download } from "lucide-react";
 import {
   useMemo,
@@ -20,7 +20,6 @@ import {
   downloadCsv,
   downloadPng,
   downloadSvg,
-  formatNumber,
   getColor,
   getSlicePath,
   useChartSurfaces,
