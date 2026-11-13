@@ -53,16 +53,16 @@ export const DASHBOARD_NAV: Record<Role, NavItem[]> = {
       icon: Store,
     },
     {
+      label: "My Stalls",
+      mobileLabel: "Stalls",
+      href: "/dashboard/tenant/stalls",
+      icon: Building2,
+    },
+    {
       label: "My Leases",
       mobileLabel: "Leases",
       href: "/dashboard/tenant/leases",
       icon: KeyRound,
-    },
-    {
-      label: "Billing & Invoices",
-      mobileLabel: "Invoices",
-      href: "/dashboard/tenant/billing",
-      icon: Wallet,
     },
     {
       label: "Analytics & Reports",

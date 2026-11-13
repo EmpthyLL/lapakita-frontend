@@ -8,7 +8,7 @@ import {
 import { useRoleContext } from "@/hooks/use-role-context";
 import { getNotifications } from "@/lib/data/api/notification";
 import { NotificationItem } from "@/lib/data/schema/notification/get_notif";
-import { cn } from "@/lib/utils";
+import { cn, formatRelativeTime } from "@/lib/utils";
 import { Role } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -32,15 +32,37 @@ import { useState } from "react";
 
 type BrowserNotificationPermission = NotificationPermission | "unsupported";
 
-const getRoleBadgeTheme = (role: Role) => {
-  switch (role) {
-    case "owner":
-      return "bg-owner/10 text-owner border-owner/20";
-    case "supplier":
-      return "bg-supplier/10 text-supplier border-supplier/20";
+// Helper untuk menentukan warna strip dan background tint berdasarkan targetRole
+const getRoleThemeStyles = (targetRole: string, isUnread: boolean) => {
+  switch (targetRole) {
     case "tenant":
+      return {
+        strip: "bg-[var(--tenant)]",
+        unreadBg: isUnread
+          ? "bg-[color-mix(in_oklch,var(--tenant),transparent_90%)] font-medium"
+          : "",
+      };
+    case "owner":
+      return {
+        strip: "bg-[var(--owner)]",
+        unreadBg: isUnread
+          ? "bg-[color-mix(in_oklch,var(--owner),transparent_90%)] font-medium"
+          : "",
+      };
+    case "supplier":
+      return {
+        strip: "bg-[var(--supplier)]",
+        unreadBg: isUnread
+          ? "bg-[color-mix(in_oklch,var(--supplier),transparent_90%)] font-medium"
+          : "",
+      };
+    case "all":
     default:
-      return "bg-tenant/10 text-tenant border-tenant/20";
+      // Disamakan dengan warna general sidebar (secondary / muted)
+      return {
+        strip: "bg-muted-foreground/60",
+        unreadBg: isUnread ? "bg-secondary font-medium" : "",
+      };
   }
 };
 
@@ -227,26 +249,63 @@ export function NotificationPopover() {
         </div>
 
         <div className="max-h-[60vh] sm:max-h-80 overflow-y-auto divide-y divide-border/40">
-          {notifications.length === 0 ? (
-            <div className="py-10 text-center flex flex-col items-center justify-center gap-1.5 text-muted-foreground">
-              <Sparkles className="size-5 opacity-40" />
-              <p className="text-xs">No notifications for this section.</p>
-            </div>
-          ) : (
-            notifications.map((item) => (
+          {notifications.map((item) => {
+            const getRoleThemeStyles = (
+              targetRole: string,
+              isUnread: boolean,
+            ) => {
+              switch (targetRole) {
+                case "tenant":
+                  return {
+                    strip: "bg-[var(--tenant)]",
+                    unreadBg: isUnread
+                      ? "bg-[color-mix(in_oklch,var(--tenant),transparent_90%)] font-medium"
+                      : "",
+                  };
+                case "owner":
+                  return {
+                    strip: "bg-[var(--owner)]",
+                    unreadBg: isUnread
+                      ? "bg-[color-mix(in_oklch,var(--owner),transparent_90%)] font-medium"
+                      : "",
+                  };
+                case "supplier":
+                  return {
+                    strip: "bg-[var(--supplier)]",
+                    unreadBg: isUnread
+                      ? "bg-[color-mix(in_oklch,var(--supplier),transparent_90%)] font-medium"
+                      : "",
+                  };
+                case "all":
+                default:
+                  return {
+                    strip: "bg-muted-foreground/40",
+                    unreadBg: isUnread ? "bg-muted/40 font-medium" : "",
+                  };
+              }
+            };
+
+            const theme = getRoleThemeStyles(item.targetRole, !item.read);
+
+            return (
               <div
                 key={item.id}
                 onClick={() => handleItemClick(item)}
                 className={cn(
                   "group relative flex gap-3 p-3.5 transition-all hover:bg-secondary/40 text-left cursor-pointer",
-                  !item.read && "bg-primary/3 font-medium",
+                  theme.unreadBg,
                 )}
               >
-                {!item.read && (
-                  <span className="absolute left-0 top-3 bottom-3 w-1 rounded-r-full bg-primary" />
-                )}
+                {/* Garis strip selalu ada */}
+                <span
+                  className={cn(
+                    "absolute left-0 top-3 bottom-3 w-1 rounded-r-full",
+                    theme.strip,
+                    !item.read ? "opacity-100" : "opacity-40",
+                  )}
+                />
 
-                <div className="mt-0.5 shrink-0">
+                <div className="mt-0.5 shrink-0 pl-1.5">
                   <div
                     className={cn(
                       "flex size-7 items-center justify-center rounded-full border",
@@ -270,7 +329,9 @@ export function NotificationPopover() {
                       {item.title}
                     </p>
                     <span className="text-[10px] text-muted-foreground font-normal shrink-0">
-                      {item.time}
+                      {formatRelativeTime(item.createdAt, {
+                        maxRelativeDays: 7,
+                      })}
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground/95 line-clamp-2 leading-normal">
@@ -278,8 +339,8 @@ export function NotificationPopover() {
                   </p>
                 </div>
               </div>
-            ))
-          )}
+            );
+          })}
         </div>
 
         <div className="border-t border-border/60 p-2.5 bg-secondary/10 rounded-b-2xl text-center">

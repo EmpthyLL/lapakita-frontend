@@ -3,25 +3,41 @@ import { BasePaginationQuery, PaginatedResponse } from "../schema/base";
 import {
   DUMMY_NOTIFICATIONS,
   NotificationItem,
+  NotificationTargetRole,
 } from "../schema/notification/get_notif";
 
 export async function getNotifications(
-  params: BasePaginationQuery & { role?: Role; category?: string },
+  params: BasePaginationQuery & {
+    role?: Role;
+    category?: string;
+    targetRole?: NotificationTargetRole;
+  },
 ): Promise<PaginatedResponse<NotificationItem>> {
   const page = params.page ?? 1;
   const limit = params.limit ?? 10;
-  const role = params.role ?? "tenant";
 
   // Simulasi network delay
-  await new Promise((resolve) => setTimeout(resolve, 400));
+  await new Promise((resolve) => setTimeout(resolve, 300));
 
-  const allRoleNotifs = DUMMY_NOTIFICATIONS[role] || DUMMY_NOTIFICATIONS.tenant;
+  let filtered = [...DUMMY_NOTIFICATIONS];
 
-  // Filter berdasarkan kategori jika ada
-  let filtered = allRoleNotifs;
-  if (params.category && params.category !== "all") {
-    filtered = allRoleNotifs.filter((n) => n.category === params.category);
-  }
+  filtered = filtered.filter((notif) => {
+    // 1. Filter berdasarkan role jika diberikan
+    if (
+      params.role &&
+      notif.targetRole !== params.role &&
+      notif.targetRole !== "all"
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+
+  // 3. Urutkan berdasarkan createdAt terbaru (descending)
+  filtered.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
 
   const start = (page - 1) * limit;
   const pageItems = filtered.slice(start, start + limit);
