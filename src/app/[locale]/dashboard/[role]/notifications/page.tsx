@@ -7,11 +7,10 @@ import { getNotifications } from "@/lib/data/api/notification";
 import {
   NotificationCategory,
   NotificationItem,
-  NotificationTargetRole,
   NotificationVariant,
 } from "@/lib/data/schema/notification/get_notif";
 import { cn, formatRelativeTime } from "@/lib/utils";
-import { Role } from "@/types";
+import { Role, RoleAndAll } from "@/types";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import {
   AlertTriangle,
@@ -45,8 +44,42 @@ function getNotificationIcon(
   return Package;
 }
 
+// Helper untuk menentukan warna strip dan background tint berdasarkan targetRole (Konsisten di semua tempat)
+export const getRoleThemeStyles = (targetRole: string, isUnread: boolean) => {
+  switch (targetRole) {
+    case "tenant":
+      return {
+        strip: "bg-[var(--tenant)]",
+        unreadBg: isUnread
+          ? "bg-[color-mix(in_oklch,var(--tenant),transparent_90%)] font-medium"
+          : "",
+      };
+    case "owner":
+      return {
+        strip: "bg-[var(--owner)]",
+        unreadBg: isUnread
+          ? "bg-[color-mix(in_oklch,var(--owner),transparent_90%)] font-medium"
+          : "",
+      };
+    case "supplier":
+      return {
+        strip: "bg-[var(--supplier)]",
+        unreadBg: isUnread
+          ? "bg-[color-mix(in_oklch,var(--supplier),transparent_90%)] font-medium"
+          : "",
+      };
+    case "all":
+    default:
+      // Disamakan dengan warna general sidebar (secondary / muted)
+      return {
+        strip: "bg-muted-foreground/60",
+        unreadBg: isUnread ? "bg-secondary font-medium" : "",
+      };
+  }
+};
+
 // Helper untuk memberikan warna background/border tombol sesuai role target
-function getRoleFilterStyle(target: string, isActive: boolean) {
+export function getRoleFilterStyle(target: string, isActive: boolean) {
   if (!isActive) {
     return "bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground";
   }
@@ -73,25 +106,22 @@ export default function RoleNotificationsPage() {
   const isWalletPage = pathname.includes("/wallet");
   const isSettingsPage = pathname.includes("/settings");
 
-  const defaultCategory = isWalletPage
-    ? "finance"
+  const pageType = isWalletPage
+    ? "wallet"
     : isSettingsPage
-      ? "system"
-      : "all";
-
-  const [selectedCategory, setSelectedCategory] =
-    useState<string>(defaultCategory);
+      ? "settings"
+      : "dashboard";
 
   const [selectedTargetRole, setSelectedTargetRole] = useState<
-    NotificationTargetRole | "all" | "general"
-  >("all");
+    RoleAndAll | undefined
+  >(undefined);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery({
       queryKey: [
         "notifications-infinite",
         activeRole,
-        selectedCategory,
+        pageType,
         selectedTargetRole,
       ],
       queryFn: ({ pageParam = 1 }) =>
@@ -99,7 +129,7 @@ export default function RoleNotificationsPage() {
           role: activeRole as Role,
           page: pageParam,
           limit: 5,
-          category: selectedCategory,
+          pageType: pageType,
           targetRole: selectedTargetRole,
         }),
       getNextPageParam: (lastPage) =>
@@ -189,33 +219,35 @@ export default function RoleNotificationsPage() {
           )}
         </div>
 
-        {/* Filter Bar Target Role dengan Warna Dinamis Sesuai Role */}
+        {/* Filter Bar Target Role */}
         {isWalletPage && (
           <div className="mt-6 flex flex-wrap items-center gap-2 pt-4 border-t border-border/60">
             <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mr-2">
               <Filter className="size-3.5" /> Filter Target:
             </span>
-            {(["all", "general", "tenant", "owner", "supplier"] as const).map(
-              (target) => {
-                const isActive = selectedTargetRole === target;
-                return (
-                  <button
-                    key={target}
-                    onClick={() => setSelectedTargetRole(target)}
-                    className={cn(
-                      "rounded-xl px-3.5 py-1.5 text-xs font-semibold capitalize transition-all cursor-pointer",
-                      getRoleFilterStyle(target, isActive),
-                    )}
-                  >
-                    {target === "all"
-                      ? "All (No Filter)"
-                      : target === "general"
-                        ? "General (System/All)"
-                        : target}
-                  </button>
-                );
-              },
-            )}
+            {(
+              [
+                { label: "All (No Filter)", value: undefined },
+                { label: "General (All Target)", value: "all" },
+                { label: "Tenant", value: "tenant" },
+                { label: "Owner", value: "owner" },
+                { label: "Supplier", value: "supplier" },
+              ] as const
+            ).map((target) => {
+              const isActive = selectedTargetRole === target.value;
+              return (
+                <button
+                  key={String(target.value)}
+                  onClick={() => setSelectedTargetRole(target.value)}
+                  className={cn(
+                    "rounded-xl px-3.5 py-1.5 text-xs font-semibold capitalize transition-all cursor-pointer",
+                    getRoleFilterStyle(String(target.value ?? "all"), isActive),
+                  )}
+                >
+                  {target.label}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
@@ -234,43 +266,6 @@ export default function RoleNotificationsPage() {
                 item.category,
                 item.variant,
               );
-
-              // Helper untuk menentukan warna strip dan background tint berdasarkan targetRole
-              const getRoleThemeStyles = (
-                targetRole: string,
-                isUnread: boolean,
-              ) => {
-                switch (targetRole) {
-                  case "tenant":
-                    return {
-                      strip: "bg-[var(--tenant)]",
-                      unreadBg: isUnread
-                        ? "bg-[color-mix(in_oklch,var(--tenant),transparent_90%)] font-medium"
-                        : "",
-                    };
-                  case "owner":
-                    return {
-                      strip: "bg-[var(--owner)]",
-                      unreadBg: isUnread
-                        ? "bg-[color-mix(in_oklch,var(--owner),transparent_90%)] font-medium"
-                        : "",
-                    };
-                  case "supplier":
-                    return {
-                      strip: "bg-[var(--supplier)]",
-                      unreadBg: isUnread
-                        ? "bg-[color-mix(in_oklch,var(--supplier),transparent_90%)] font-medium"
-                        : "",
-                    };
-                  case "all":
-                  default:
-                    return {
-                      strip: "bg-muted-foreground/40",
-                      unreadBg: isUnread ? "bg-muted/40 font-medium" : "",
-                    };
-                }
-              };
-
               const theme = getRoleThemeStyles(item.targetRole, !item.read);
 
               return (
@@ -287,7 +282,7 @@ export default function RoleNotificationsPage() {
                     className={cn(
                       "absolute left-0 top-3 bottom-3 w-1.5 rounded-r-full",
                       theme.strip,
-                      !item.read ? "opacity-100" : "opacity-40", // Lebih transparan jika sudah dibaca
+                      !item.read ? "opacity-100" : "opacity-40",
                     )}
                   />
 

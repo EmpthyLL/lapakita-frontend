@@ -1,16 +1,16 @@
-import { Role } from "@/types";
+import { Role, RoleAndAll } from "@/types";
 import { BasePaginationQuery, PaginatedResponse } from "../schema/base";
 import {
   DUMMY_NOTIFICATIONS,
   NotificationItem,
-  NotificationTargetRole,
 } from "../schema/notification/get_notif";
 
 export async function getNotifications(
   params: BasePaginationQuery & {
+    pageType?: "dashboard" | "settings" | "wallet";
     role?: Role;
-    category?: string;
-    targetRole?: NotificationTargetRole;
+    targetRole?: RoleAndAll | null;
+    category?: "operational" | "finance" | "system" | "all";
   },
 ): Promise<PaginatedResponse<NotificationItem>> {
   const page = params.page ?? 1;
@@ -22,13 +22,28 @@ export async function getNotifications(
   let filtered = [...DUMMY_NOTIFICATIONS];
 
   filtered = filtered.filter((notif) => {
-    // 1. Filter berdasarkan role jika diberikan
-    if (
-      params.role &&
-      notif.targetRole !== params.role &&
-      notif.targetRole !== "all"
+    // 1. Filter berdasarkan halaman (pageType) atau kategori eksplisit
+    if (params.pageType === "settings" || params.category === "system") {
+      if (notif.category !== "system") return false;
+    } else if (params.pageType === "wallet" || params.category === "finance") {
+      if (notif.category !== "finance") return false;
+    } else if (
+      params.pageType === "dashboard" ||
+      params.category === "operational"
     ) {
-      return false;
+      // Di dashboard, secara default tampilkan operational milik role aktif ATAU target "all"
+      if (params.role) {
+        if (notif.targetRole !== params.role && notif.targetRole !== "all") {
+          return false;
+        }
+      }
+    }
+
+    // 2. Filter berdasarkan targetRole eksplisit (jika parameter targetRole dikirimkan)
+    if (params.targetRole !== undefined && params.targetRole !== null) {
+      if (notif.targetRole !== params.targetRole) {
+        return false;
+      }
     }
 
     return true;

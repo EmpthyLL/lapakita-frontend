@@ -27,7 +27,7 @@ import {
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NotificationPopover } from "./NotificationPopover";
+import { NotificationPopover } from "../../../app/[locale]/dashboard/[role]/notifications/NotificationPopover";
 
 interface DashboardTopbarProps {
   userName?: string;

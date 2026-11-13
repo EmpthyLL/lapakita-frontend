@@ -29,42 +29,9 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { getRoleThemeStyles } from "./page";
 
 type BrowserNotificationPermission = NotificationPermission | "unsupported";
-
-// Helper untuk menentukan warna strip dan background tint berdasarkan targetRole
-const getRoleThemeStyles = (targetRole: string, isUnread: boolean) => {
-  switch (targetRole) {
-    case "tenant":
-      return {
-        strip: "bg-[var(--tenant)]",
-        unreadBg: isUnread
-          ? "bg-[color-mix(in_oklch,var(--tenant),transparent_90%)] font-medium"
-          : "",
-      };
-    case "owner":
-      return {
-        strip: "bg-[var(--owner)]",
-        unreadBg: isUnread
-          ? "bg-[color-mix(in_oklch,var(--owner),transparent_90%)] font-medium"
-          : "",
-      };
-    case "supplier":
-      return {
-        strip: "bg-[var(--supplier)]",
-        unreadBg: isUnread
-          ? "bg-[color-mix(in_oklch,var(--supplier),transparent_90%)] font-medium"
-          : "",
-      };
-    case "all":
-    default:
-      // Disamakan dengan warna general sidebar (secondary / muted)
-      return {
-        strip: "bg-muted-foreground/60",
-        unreadBg: isUnread ? "bg-secondary font-medium" : "",
-      };
-  }
-};
 
 const getNotificationIcon = (typeCode: string) => {
   if (typeCode.includes("lease") || typeCode.includes("application"))
@@ -89,6 +56,18 @@ const getNotificationIcon = (typeCode: string) => {
   return <CheckCircle2 className="size-4" />;
 };
 
+const getRoleBadgeTheme = (role: Role) => {
+  switch (role) {
+    case "owner":
+      return "bg-owner/10 text-owner border-owner/20";
+    case "supplier":
+      return "bg-supplier/10 text-supplier border-supplier/20";
+    case "tenant":
+    default:
+      return "bg-tenant/10 text-tenant border-tenant/20";
+  }
+};
+
 export function NotificationPopover() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -98,11 +77,11 @@ export function NotificationPopover() {
 
   const { activeRole, isWalletPage, isSettingsPage } = useRoleContext();
 
-  const categoryFilter = isWalletPage
-    ? "finance"
+  const pageType = isWalletPage
+    ? "wallet"
     : isSettingsPage
-      ? "system"
-      : "operational";
+      ? "settings"
+      : "dashboard";
 
   const contextLabel = isWalletPage
     ? "Finance & Wallet"
@@ -118,11 +97,11 @@ export function NotificationPopover() {
 
   // Menggunakan useQuery untuk mengambil 10 item pertama
   const { data, refetch } = useQuery({
-    queryKey: ["notifications", activeRole, categoryFilter],
+    queryKey: ["notifications-popover", activeRole, pageType],
     queryFn: () =>
       getNotifications({
         role: activeRole as Role,
-        category: categoryFilter,
+        pageType: pageType,
         page: 1,
         limit: 10,
       }),
@@ -250,41 +229,6 @@ export function NotificationPopover() {
 
         <div className="max-h-[60vh] sm:max-h-80 overflow-y-auto divide-y divide-border/40">
           {notifications.map((item) => {
-            const getRoleThemeStyles = (
-              targetRole: string,
-              isUnread: boolean,
-            ) => {
-              switch (targetRole) {
-                case "tenant":
-                  return {
-                    strip: "bg-[var(--tenant)]",
-                    unreadBg: isUnread
-                      ? "bg-[color-mix(in_oklch,var(--tenant),transparent_90%)] font-medium"
-                      : "",
-                  };
-                case "owner":
-                  return {
-                    strip: "bg-[var(--owner)]",
-                    unreadBg: isUnread
-                      ? "bg-[color-mix(in_oklch,var(--owner),transparent_90%)] font-medium"
-                      : "",
-                  };
-                case "supplier":
-                  return {
-                    strip: "bg-[var(--supplier)]",
-                    unreadBg: isUnread
-                      ? "bg-[color-mix(in_oklch,var(--supplier),transparent_90%)] font-medium"
-                      : "",
-                  };
-                case "all":
-                default:
-                  return {
-                    strip: "bg-muted-foreground/40",
-                    unreadBg: isUnread ? "bg-muted/40 font-medium" : "",
-                  };
-              }
-            };
-
             const theme = getRoleThemeStyles(item.targetRole, !item.read);
 
             return (

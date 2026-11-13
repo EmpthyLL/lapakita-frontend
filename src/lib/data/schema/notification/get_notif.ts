@@ -1,5 +1,6 @@
+import { RoleAndAll } from "@/types";
+
 export type NotificationCategory = "operational" | "finance" | "system";
-export type NotificationTargetRole = "tenant" | "owner" | "supplier" | "all";
 export type NotificationVariant =
   | "info"
   | "success"
@@ -13,7 +14,7 @@ export interface NotificationItem {
   description: string;
   read: boolean;
   category: NotificationCategory;
-  targetRole: NotificationTargetRole;
+  targetRole: RoleAndAll;
   variant: NotificationVariant;
   actionUrl?: string;
   metadata?: Record<string, unknown>;
