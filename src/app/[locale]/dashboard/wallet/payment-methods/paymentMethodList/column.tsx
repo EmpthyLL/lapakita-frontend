@@ -6,7 +6,10 @@ import { PaymentMethodItem } from "@/lib/data/schema/wallet/payment_method";
 import { Building2, CreditCard, Hash, ShieldCheck, User } from "lucide-react";
 import { useMemo } from "react";
 import { formatPayoutType } from "../component/config";
-import { PaymentMethodRowActions } from "./rowAction";
+import {
+  PaymentMethodDeleteAction,
+  PaymentMethodPrimaryAction,
+} from "./rowAction";
 
 export function usePaymentMethodColumns() {
   const { field, action } = createColumnHelpers<PaymentMethodItem>();
@@ -62,18 +65,26 @@ export function usePaymentMethodColumns() {
         icon: ShieldCheck,
         render: (val) =>
           val ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+            <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-semibold text-success">
               Primary
             </span>
           ) : (
             <span className="text-xs text-muted-foreground">-</span>
           ),
       }),
+      // Action Pertama (Atas - Set Primary Icon)
+      action({
+        header: "Primary",
+        render: (row, _index, action) => (
+          <PaymentMethodPrimaryAction row={row} action={action!} />
+        ),
+      }),
+      // Action Kedua (Bawah - Delete)
       action({
         header: "Actions",
-        className: "w-32 text-right",
+        className: "w-20 text-right",
         render: (row, _index, action) => (
-          <PaymentMethodRowActions row={row} action={action!} />
+          <PaymentMethodDeleteAction row={row} action={action!} />
         ),
       }),
     ],

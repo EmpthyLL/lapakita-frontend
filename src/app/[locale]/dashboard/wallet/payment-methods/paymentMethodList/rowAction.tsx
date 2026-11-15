@@ -12,15 +12,12 @@ import { showToast } from "@/lib/toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Star, Trash2 } from "lucide-react";
 
-interface PaymentMethodRowActionsProps {
+interface PaymentMethodActionProps {
   row: PaymentMethodItem;
   action: DataDisplayActionContext<PaymentMethodItem>;
 }
 
-export function PaymentMethodRowActions({
-  row,
-  action,
-}: PaymentMethodRowActionsProps) {
+export function PaymentMethodPrimaryAction({ row }: PaymentMethodActionProps) {
   const queryClient = useQueryClient();
 
   const primaryMutation = useMutation({
@@ -34,6 +31,28 @@ export function PaymentMethodRowActions({
     onError: handleError,
   });
 
+  if (row.is_primary) return null;
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon-sm"
+      onClick={() => primaryMutation.mutate()}
+      isLoading={primaryMutation.isPending}
+      title="Set as Primary"
+      className="h-8 w-8 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/10"
+    >
+      <Star className="h-4 w-4" />
+    </Button>
+  );
+}
+
+export function PaymentMethodDeleteAction({
+  row,
+  action,
+}: PaymentMethodActionProps) {
+  const queryClient = useQueryClient();
+
   const deleteMutation = useMutation({
     mutationFn: async () => {
       await deletePaymentMethod(row.id);
@@ -46,35 +65,20 @@ export function PaymentMethodRowActions({
   });
 
   return (
-    <div
-      className="flex items-center gap-1.5"
-      onClick={(e) => e.stopPropagation()}
+    <Button
+      variant="destructive"
+      size="icon-sm"
+      onClick={() => {
+        action.openDelete(
+          () => deleteMutation.mutate(),
+          `${row.provider_name} (${row.account_number})`,
+        );
+      }}
+      isLoading={deleteMutation.isPending}
+      title="Delete"
+      className="rounded-xl h-8 w-8"
     >
-      {!row.is_primary && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => primaryMutation.mutate()}
-          isLoading={primaryMutation.isPending}
-          className="h-8 gap-1 rounded-xl text-xs font-semibold"
-        >
-          <Star className="h-3.5 w-3.5" /> Set Primary
-        </Button>
-      )}
-      <Button
-        variant="destructive"
-        size="icon-sm"
-        onClick={() => {
-          action.openDelete(
-            () => deleteMutation.mutate(),
-            `${row.provider_name} (${row.account_number})`,
-          );
-        }}
-        isLoading={deleteMutation.isPending}
-        className="rounded-xl"
-      >
-        <Trash2 className="size-4" />
-      </Button>
-    </div>
+      <Trash2 className="size-4" />
+    </Button>
   );
 }

@@ -7,7 +7,19 @@ import {
 } from "@/components/common/SurfaceRenderer";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
-import { DataDisplayActionContext } from "./constant";
+import {
+  DataDisplayActionContext,
+  DataDisplayCardColumns,
+} from "./constant";
+
+const CARD_GRID_CLASSES: Record<DataDisplayCardColumns, string> = {
+  1: "grid-cols-1",
+  2: "grid-cols-1 sm:grid-cols-2",
+  3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+  4: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4",
+  5: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-5",
+  6: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-6",
+};
 
 interface DataDisplayPresetProps<TData> {
   rows: TData[];
@@ -40,6 +52,7 @@ interface DataDisplayPresetProps<TData> {
   ) => DataDisplayActionContext<TData>;
   openDetailExpandable: (row: TData, index: number) => void;
   renderPresetItem: (row: TData, index: number) => React.ReactNode;
+  cardColumns?: DataDisplayCardColumns;
 }
 
 export function DataDisplayPreset<TData>({
@@ -56,12 +69,13 @@ export function DataDisplayPreset<TData>({
   getActionContext,
   openDetailExpandable,
   renderPresetItem,
+  cardColumns = 3,
 }: DataDisplayPresetProps<TData>) {
   return (
     <div
       className={cn(
         variant === "card"
-          ? "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          ? cn("grid items-start gap-4", CARD_GRID_CLASSES[cardColumns])
           : "flex flex-col gap-3",
       )}
     >
@@ -80,15 +94,13 @@ export function DataDisplayPreset<TData>({
           <div
             key={String(row[rowKey])}
             className={cn(
-              "flex flex-col",
-              variant === "card" && (detailIsExpandable || formIsExpandable)
-                ? "col-span-full sm:col-span-1"
-                : "",
+              "flex min-w-0 flex-col",
+              variant === "card" && "h-fit self-start",
             )}
           >
             <div
               className={cn(
-                "flex items-start gap-2",
+                "flex min-w-0 items-start gap-2",
                 onRowClick && "cursor-pointer",
               )}
               onClick={() => onRowClick?.(row, index, rowActionCtx)}

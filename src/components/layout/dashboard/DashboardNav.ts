@@ -200,16 +200,16 @@ export const SETTINGS_NAV: NavItem[] = [
     icon: UserCog,
   },
   {
-    label: "Legal Documents",
-    mobileLabel: "Legal ID",
-    href: "/dashboard/settings/documents",
-    icon: FileCheck2,
-  },
-  {
     label: "Phone & Contact",
     mobileLabel: "Contacts",
     href: "/dashboard/settings/phone",
     icon: Phone,
+  },
+  {
+    label: "Legal Documents",
+    mobileLabel: "Legal ID",
+    href: "/dashboard/settings/documents",
+    icon: FileCheck2,
   },
   {
     label: "Security & Password",

@@ -212,7 +212,7 @@ export function ShareSheet({ title, text, url, trigger }: ShareSheetProps) {
           onClick={handleCopy}
           className={cn(
             "h-7 shrink-0 gap-1.5 rounded-lg px-2.5 text-xs font-medium transition-colors",
-            copied && "bg-emerald-600 hover:bg-emerald-600 text-white",
+            copied && "bg-success text-white",
           )}
         >
           {copied ? (

@@ -28,9 +28,9 @@ import {
   DataDisplayActionContext,
   DataDisplayLoadMode,
   DataDisplayQuery,
+  DataDisplayRenderer,
   DataDisplayVariant,
   FilterOption,
-  ListItemRenderer,
   RowAction,
   ToolbarExtraAction,
 } from "./constant";
@@ -54,9 +54,9 @@ interface DataDisplayProps<TData, TParams extends Record<string, any>> {
   emptyText?: string;
   variant?: DataDisplayVariant;
   loadMode?: DataDisplayLoadMode;
-  renderItem?: ListItemRenderer<TData>;
+  renderer?: DataDisplayRenderer<TData>;
   onRowClick?: RowAction<TData>;
-  columns?: ColumnDef<TData>[]; // <-- Diubah dari ColumnConfig menjadi array ColumnDef[]
+  columns?: ColumnDef<TData>[];
   showFilter?: boolean;
   showCount?: boolean;
   countList?: number[];
@@ -71,7 +71,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   rowKey,
   variant = "list",
   loadMode = "infinite-scroll",
-  renderItem,
+  renderer,
   onRowClick,
   columns = [], // <-- Default berupa array kosong
   showFilter = false,
@@ -302,7 +302,20 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   const globalActionCtx = getActionContext();
   function renderPresetItem(row: TData, index: number) {
     const action = getActionContext(row, index);
-    if (renderItem) return renderItem(row, index, columnConfig, action);
+    const CustomRenderer =
+      variant === "card"
+        ? renderer?.card?.component
+        : renderer?.list?.component;
+    if (CustomRenderer) {
+      return (
+        <CustomRenderer
+          row={row}
+          index={index}
+          columns={columnConfig}
+          action={action}
+        />
+      );
+    }
     return variant === "card" ? (
       <CardGridCard
         row={row}
@@ -402,6 +415,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
           activeForm={activeForm}
           onRowClick={onRowClick}
           getActionContext={getActionContext}
+          renderer={renderer}
           openDetailExpandable={(row, index) =>
             getActionContext(row, index).openDetail("expandable")
           }
@@ -431,6 +445,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
             getActionContext(row, index).openDetail("expandable")
           }
           renderPresetItem={renderPresetItem}
+          cardColumns={renderer?.cardColumns}
         />
       )}
 

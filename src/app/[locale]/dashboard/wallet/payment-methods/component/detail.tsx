@@ -2,18 +2,15 @@
 "use client";
 
 import { SurfaceComponentProps } from "@/components/common/SurfaceRenderer";
-import { Button } from "@/components/ui/button";
 import { PaymentMethodItem } from "@/lib/data/schema/wallet/payment_method";
-import { Building2, CreditCard, Hash, ShieldCheck, User } from "lucide-react";
+import { CreditCard, Hash, ShieldCheck, User } from "lucide-react";
 import { formatPayoutType, PAYOUT_PROVIDERS } from "./config";
 
 export function PaymentMethodDetail({
   row: method,
-  close,
 }: SurfaceComponentProps<PaymentMethodItem>) {
   if (!method) return null;
 
-  // Ambil logo otomatis dari PAYOUT_PROVIDERS jika logo_url dari backend kosong
   const resolvedLogo =
     method.logo_url ||
     (() => {
@@ -26,85 +23,69 @@ export function PaymentMethodDetail({
     })();
 
   return (
-    <div className="space-y-6 pt-2">
-      <div className="flex items-center gap-4 rounded-3xl bg-secondary/30 p-5 border border-border/80">
-        {resolvedLogo ? (
-          <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-2xl border border-border bg-background p-2.5 shadow-xs">
-            <img
-              src={resolvedLogo}
-              alt={method.provider_name}
-              className="h-full w-full object-contain"
-            />
+    <div className="min-w-0 space-y-2.5 px-1 py-1">
+      {/* Konsep Belakang Kartu (Card Back) */}
+      <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-payment-card-pattern p-3.5 shadow-sm space-y-3">
+        {/* Atas: Primary Badge (jika bukan primary, dibiarkan kosong) */}
+        <div className="flex items-center h-2">
+          {method.is_primary && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-[11px] font-bold text-success">
+              <ShieldCheck className="h-3 w-3" /> Primary Account
+            </span>
+          )}
+        </div>
+
+        {/* Strip Hitam Magnetik dari Ujung ke Ujung: Kiri Logo, Kanan Nama Bank */}
+        <div className="-mx-3.5 mb-1.5 h-10 w-[calc(100%+1.75rem)] bg-zinc-900 dark:bg-zinc-950 flex items-center px-3.5 justify-between">
+          {resolvedLogo ? (
+            <div className="flex h-6 w-9 shrink-0 items-center justify-center rounded-md bg-white p-1 shadow-2xs">
+              <img
+                src={resolvedLogo}
+                alt={method.provider_name}
+                className="h-full w-full object-contain"
+              />
+            </div>
+          ) : (
+            <div className="w-6" />
+          )}
+          <span className="text-xs font-mono font-bold tracking-widest text-zinc-100 uppercase truncate">
+            {method.provider_name}
+          </span>
+        </div>
+
+        {/* Kotak Tengah: Berisi Nomor Rekening */}
+        <div className="space-y-1">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Account Number / Registered ID
+          </p>
+          <div className="h-10 rounded-xl border border-border/80 bg-background px-3.5 flex items-center justify-between shadow-2xs">
+            <span className="font-mono text-sm font-bold tracking-[0.2em] text-foreground">
+              {method.account_number}
+            </span>
+            <Hash className="h-4 w-4 text-muted-foreground/60" />
           </div>
-        ) : (
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <CreditCard className="h-8 w-8" />
+        </div>
+
+        {/* Informasi Detail Pendukung di Bawahnya (2 item) */}
+        <div className="border-t border-border/60 pt-2 space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="flex items-center gap-1.5 text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">
+              <User className="h-3.5 w-3.5 text-primary" /> Account Holder
+            </span>
+            <span className="font-bold uppercase text-foreground">
+              {method.account_holder_name}
+            </span>
           </div>
-        )}
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-bold text-foreground">
-              {method.provider_name}
-            </h3>
-            {method.is_primary && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
-                <ShieldCheck className="h-3 w-3" /> Primary Account
-              </span>
-            )}
+
+          <div className="flex items-center justify-between text-xs">
+            <span className="flex items-center gap-1.5 text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">
+              <CreditCard className="h-3.5 w-3.5 text-primary" /> Payout Type
+            </span>
+            <span className="font-semibold text-foreground">
+              {formatPayoutType(method.payout_type)}
+            </span>
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5 font-mono">
-            {method.account_number}
-          </p>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-3xl bg-card p-5 border border-border shadow-xs">
-        <div className="space-y-1">
-          <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            <User className="h-3.5 w-3.5 text-primary" /> Account Holder
-          </span>
-          <p className="font-semibold text-foreground text-sm tracking-tight">
-            {method.account_holder_name}
-          </p>
-        </div>
-
-        <div className="space-y-1">
-          <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            <CreditCard className="h-3.5 w-3.5 text-primary" /> Payout Type
-          </span>
-          <p className="font-semibold text-foreground text-sm tracking-tight">
-            {formatPayoutType(method.payout_type)}
-          </p>
-        </div>
-
-        <div className="space-y-1">
-          <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            <Hash className="h-3.5 w-3.5 text-primary" /> Account Number
-          </span>
-          <p className="font-mono font-semibold text-foreground text-sm tracking-wide">
-            {method.account_number}
-          </p>
-        </div>
-
-        <div className="space-y-1">
-          <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            <Building2 className="h-3.5 w-3.5 text-primary" /> Provider Code
-          </span>
-          <p className="font-mono font-semibold text-foreground text-sm tracking-wide uppercase">
-            {method.provider_code}
-          </p>
-        </div>
-      </div>
-
-      <div className="pt-4 border-t border-border flex justify-end">
-        <Button
-          type="button"
-          variant="default"
-          onClick={close}
-          className="rounded-2xl px-6 font-semibold shadow-sm transition-all hover:shadow"
-        >
-          Close Detail
-        </Button>
       </div>
     </div>
   );

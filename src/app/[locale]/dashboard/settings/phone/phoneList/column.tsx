@@ -62,7 +62,7 @@ export function usePhoneColumns() {
       icon: ShieldCheck,
       render: (val) =>
         val ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+          <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success">
             <CheckCircle2 className="h-3 w-3" /> Primary
           </span>
         ) : (

@@ -82,14 +82,10 @@ export default function DocumentList() {
           size: "lg",
           component: DocumentForm,
         }}
-        renderItem={(row, index, itemColumns, action) => (
-          <DocumentCard
-            row={row}
-            index={index}
-            columns={itemColumns}
-            action={action}
-          />
-        )}
+        renderer={{
+          card: { component: DocumentCard },
+          cardColumns: 3,
+        }}
         toolbarExtraAction={({ openCreate, isLoading }) => (
           <Button
             onClick={() => openCreate("dialog")}

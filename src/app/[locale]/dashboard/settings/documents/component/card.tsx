@@ -1,31 +1,20 @@
 "use client";
 
 import {
-  ColumnConfig,
-  DataDisplayActionContext,
+  DataDisplayRendererProps,
   FieldColumnDef,
 } from "@/components/common/long/data-display/constant";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
 import { FileText } from "lucide-react";
 import { formatDocType, getDocumentNumberLabel } from "./config";
 
-interface DocumentCardProps {
-  row: GetDocumentData;
-  index: number;
-  columns: ColumnConfig<GetDocumentData>;
-  action: DataDisplayActionContext<GetDocumentData>;
-}
-
 export function DocumentCard({
   row,
   index,
   columns,
   action,
-}: DocumentCardProps) {
+}: DataDisplayRendererProps<GetDocumentData>) {
   const fieldColumns = (columns.fields ?? []).filter(
-    (column) => !column.hideInPreset,
-  );
-  const actionColumns = (columns.actions ?? []).filter(
     (column) => !column.hideInPreset,
   );
 
@@ -80,7 +69,7 @@ export function DocumentCard({
             </div>
 
             <div className="flex shrink-0 items-center gap-1">
-              {actionColumns.map((column, actionIndex) => (
+              {columns.actions!.map((column, actionIndex) => (
                 <div key={`action-${actionIndex}`}>
                   {column.render(row, index, action)}
                 </div>

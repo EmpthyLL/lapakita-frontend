@@ -9,6 +9,7 @@ import {
   PaymentMethodQueryParams,
 } from "@/lib/data/schema/wallet/payment_method";
 import { Plus } from "lucide-react";
+import { PaymentMethodCard } from "../component/card";
 import { PAYOUT_PROVIDERS } from "../component/config";
 import { PaymentMethodDetail } from "../component/detail";
 import { PaymentMethodForm } from "../component/form";
@@ -59,17 +60,23 @@ export default function PaymentMethodList() {
   };
 
   return (
-    <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+    <div className="rounded-3xl border border-border/80 bg-card p-6 shadow-sm sm:p-8">
       <DataDisplay
         query={queryConfig}
         columns={columns}
         rowKey="id"
-        variant="list"
+        variant="card"
         loadMode="pagination"
         showFilter
         showCount
+        renderer={{
+          cardColumns: 3,
+          card: {
+            component: PaymentMethodCard,
+          },
+        }}
         onRowClick={(row, _index, action) => {
-          action.openDetail();
+          action.openDetail("expandable");
         }}
         detail={{
           type: "expandable",

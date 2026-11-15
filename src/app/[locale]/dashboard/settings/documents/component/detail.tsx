@@ -2,14 +2,12 @@
 
 import FileViewer from "@/components/common/FileViewer";
 import { SurfaceComponentProps } from "@/components/common/SurfaceRenderer";
-import { Button } from "@/components/ui/button";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
 import { CreditCard, FileText, Hash, Tag, User } from "lucide-react";
 import { formatDocType, getDocumentNumberLabel } from "./config";
 
 export function DocumentDetail({
   row: document,
-  close,
 }: SurfaceComponentProps<GetDocumentData>) {
   if (!document) return null;
 
@@ -68,17 +66,6 @@ export function DocumentDetail({
           subtitle={`No: ${document.document_number}`}
           type="display"
         />
-      </div>
-
-      <div className="pt-4 border-t border-border flex justify-end">
-        <Button
-          type="button"
-          variant="default"
-          onClick={close}
-          className="rounded-2xl px-6 font-semibold shadow-sm transition-all hover:shadow"
-        >
-          Close Detail
-        </Button>
       </div>
     </div>
   );

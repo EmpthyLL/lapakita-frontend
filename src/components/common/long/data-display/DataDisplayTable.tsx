@@ -12,7 +12,11 @@ import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { Fragment } from "react";
 import { SurfaceDetail, SurfaceForm, SurfaceType } from "../../SurfaceRenderer";
-import { ColumnConfig, DataDisplayActionContext } from "./constant";
+import {
+  ColumnConfig,
+  DataDisplayActionContext,
+  DataDisplayRenderer,
+} from "./constant";
 import { EmptyState, RowIndexBadge, SkeletonRows } from "./TableStates";
 
 interface DataDisplayTableProps<TData> {
@@ -26,6 +30,7 @@ interface DataDisplayTableProps<TData> {
   formIsExpandable: boolean;
   detail?: SurfaceDetail<TData>;
   form?: SurfaceForm<TData>;
+  renderer?: DataDisplayRenderer<TData>;
   activeDetail: {
     row?: TData;
     index?: number;
@@ -61,6 +66,7 @@ export function DataDisplayTable<TData>({
   formIsExpandable,
   detail,
   form,
+  renderer,
   activeDetail,
   activeForm,
   onRowClick,
@@ -69,6 +75,7 @@ export function DataDisplayTable<TData>({
 }: DataDisplayTableProps<TData>) {
   const fieldColumns = columns.fields ?? [];
   const actionColumns = columns.actions ?? [];
+  const CustomRow = renderer?.tableRow?.component;
   const totalColumnCount = fieldColumns.length + actionColumns.length + 1; // ditambah kolom checkbox/index
 
   return (
@@ -136,69 +143,82 @@ export function DataDisplayTable<TData>({
 
                 return (
                   <Fragment key={String(row[rowKey])}>
-                    <TableRow
-                      className={cn(
-                        "group border-l-2 border-l-transparent transition-colors",
-                        "hover:border-l-primary hover:bg-primary/4",
-                        onRowClick && "cursor-pointer",
-                        index % 2 === 1 && "bg-secondary/20",
-                      )}
-                      onClick={() => onRowClick?.(row, index, rowActionCtx)}
-                      tabIndex={onRowClick ? 0 : undefined}
-                      role={onRowClick ? "button" : undefined}
-                    >
-                      <TableCell className="w-10">
-                        <div className="flex items-center gap-1">
-                          {detailIsExpandable && (
-                            <button
-                              type="button"
-                              aria-label="Toggle details"
-                              className="rounded p-1 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                openDetailExpandable(row, index);
-                              }}
-                            >
-                              <ChevronRight
-                                className={cn(
-                                  "h-4 w-4 transition-transform duration-300",
-                                  isDetailExpanded && "rotate-90",
-                                )}
-                              />
-                            </button>
-                          )}
-                          <RowIndexBadge index={index} />
-                        </div>
-                      </TableCell>
-
-                      {/* Render Field Cells */}
-                      {fieldColumns.map((fieldCol) => {
-                        const val = row[fieldCol.key];
-                        return (
-                          <TableCell
-                            key={String(fieldCol.key)}
-                            className={fieldCol.className}
-                          >
-                            {fieldCol.render
-                              ? fieldCol.render(val, row, index)
-                              : String(val ?? "")}
-                          </TableCell>
-                        );
-                      })}
-
-                      {/* Render Action Cells */}
-                      {actionColumns.map((actionCol, colIdx) => (
-                        <TableCell
-                          key={`action-cell-${colIdx}`}
-                          className={cn("w-24 text-right", actionCol.className)}
-                          onClick={(event) => event.stopPropagation()}
-                        >
-                          <div className="flex justify-end">
-                            {actionCol.render(row, index, rowActionCtx)}
+                    {CustomRow ? (
+                      <CustomRow
+                        row={row}
+                        index={index}
+                        columns={columns}
+                        action={rowActionCtx}
+                        onClick={() => onRowClick?.(row, index, rowActionCtx)}
+                        isDetailExpanded={isDetailExpanded}
+                        toggleDetail={() => openDetailExpandable(row, index)}
+                      />
+                    ) : (
+                      <TableRow
+                        className={cn(
+                          "group border-l-2 border-l-transparent transition-colors",
+                          "hover:border-l-primary hover:bg-primary/4",
+                          onRowClick && "cursor-pointer",
+                          index % 2 === 1 && "bg-secondary/20",
+                        )}
+                        onClick={() => onRowClick?.(row, index, rowActionCtx)}
+                        tabIndex={onRowClick ? 0 : undefined}
+                        role={onRowClick ? "button" : undefined}
+                      >
+                        <TableCell className="w-10">
+                          <div className="flex items-center gap-1">
+                            {detailIsExpandable && (
+                              <button
+                                type="button"
+                                aria-label="Toggle details"
+                                className="rounded p-1 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  openDetailExpandable(row, index);
+                                }}
+                              >
+                                <ChevronRight
+                                  className={cn(
+                                    "h-4 w-4 transition-transform duration-300",
+                                    isDetailExpanded && "rotate-90",
+                                  )}
+                                />
+                              </button>
+                            )}
+                            <RowIndexBadge index={index} />
                           </div>
                         </TableCell>
-                      ))}
-                    </TableRow>
+
+                        {fieldColumns.map((fieldCol) => {
+                          const val = row[fieldCol.key];
+                          return (
+                            <TableCell
+                              key={String(fieldCol.key)}
+                              className={fieldCol.className}
+                            >
+                              {fieldCol.render
+                                ? fieldCol.render(val, row, index)
+                                : String(val ?? "")}
+                            </TableCell>
+                          );
+                        })}
+
+                        {actionColumns.map((actionCol, colIdx) => (
+                          <TableCell
+                            key={`action-cell-${colIdx}`}
+                            className={cn(
+                              "w-24 text-right",
+                              actionCol.className,
+                            )}
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            <div className="flex justify-end">
+                              {actionCol.render(row, index, rowActionCtx)}
+                            </div>
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    )}
 
                     {/* Expandable Detail Row */}
                     {detailIsExpandable && detail && detail.component && (

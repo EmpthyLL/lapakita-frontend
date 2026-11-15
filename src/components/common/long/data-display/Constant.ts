@@ -7,7 +7,7 @@ import {
   LucideIcon,
   SlidersHorizontal,
 } from "lucide-react";
-import { ReactNode } from "react";
+import { ComponentType, ReactNode } from "react";
 import { IconValue } from "../../input/OptionIcon";
 import { ConfirmDialogOptions, SurfaceType } from "../../SurfaceRenderer";
 
@@ -106,13 +106,6 @@ export const FILTER_TYPE_ICON: Record<
   select: ListFilter,
 };
 
-export type ListItemRenderer<TData> = (
-  row: TData,
-  index: number,
-  columns: ColumnConfig<TData>,
-  action: DataDisplayActionContext<TData>,
-) => ReactNode;
-
 export interface DataDisplayActionContext<TData> {
   row: TData;
   index: number;
@@ -121,6 +114,36 @@ export interface DataDisplayActionContext<TData> {
   openCreate: (type?: SurfaceType) => void;
   openConfirm: (onConfirm: () => void, options?: ConfirmDialogOptions) => void;
   openDelete: (onDelete: () => void, itemName?: string) => void;
+}
+
+export interface DataDisplayRendererProps<TData> {
+  row: TData;
+  index: number;
+  columns: ColumnConfig<TData>;
+  action: DataDisplayActionContext<TData>;
+}
+
+export interface DataDisplayTableRowRendererProps<
+  TData,
+> extends DataDisplayRendererProps<TData> {
+  onClick: () => void;
+  isDetailExpanded: boolean;
+  toggleDetail: () => void;
+}
+
+export type DataDisplayCardColumns = 1 | 2 | 3 | 4 | 5 | 6;
+
+export interface DataDisplayRenderer<TData> {
+  card?: {
+    component: ComponentType<DataDisplayRendererProps<TData>>;
+  };
+  list?: {
+    component: ComponentType<DataDisplayRendererProps<TData>>;
+  };
+  tableRow?: {
+    component: ComponentType<DataDisplayTableRowRendererProps<TData>>;
+  };
+  cardColumns?: DataDisplayCardColumns;
 }
 
 export interface DataDisplayToolbarActionContext<TData> {

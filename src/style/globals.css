@@ -253,6 +253,21 @@
     );
   }
 
+  .bg-payment-card-pattern {
+    background-image:
+      repeating-linear-gradient(
+        135deg,
+        transparent 0 18px,
+        color-mix(in oklch, var(--primary) 4%, transparent) 18px 19px
+      ),
+      linear-gradient(
+        120deg,
+        color-mix(in oklch, var(--tenant) 4%, var(--card)),
+        color-mix(in oklch, var(--supplier) 4%, var(--card)) 52%,
+        color-mix(in oklch, var(--owner) 4%, var(--card))
+      );
+  }
+
   .border-gradient-brand {
     border-image: linear-gradient(
         100deg,

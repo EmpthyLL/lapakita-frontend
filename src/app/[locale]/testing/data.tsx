@@ -127,10 +127,10 @@ export function useStallColumns() {
             <span
               className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
                 isVerified
-                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                  ? "bg-success/10 text-success"
                   : isPending
-                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                    : "bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                    ? "bg-warning/10 text-warning"
+                    : "bg-destructive/10 text-destructive"
               }`}
             >
               <CheckCircle2 className="h-3 w-3" />
@@ -321,11 +321,11 @@ export function ChartDetailView({ row }: SurfaceComponentProps<any>) {
         {row.revenue !== undefined && (
           <>
             <span className="text-muted-foreground">Pendapatan:</span>
-            <span className="font-medium text-emerald-600">
+            <span className="font-medium text-success">
               Rp {row.revenue.toLocaleString("id-ID")}
             </span>
             <span className="text-muted-foreground">Pengeluaran:</span>
-            <span className="font-medium text-rose-600">
+            <span className="font-medium text-destructive">
               Rp {row.expenses.toLocaleString("id-ID")}
             </span>
             <span className="text-muted-foreground">Total Transaksi:</span>

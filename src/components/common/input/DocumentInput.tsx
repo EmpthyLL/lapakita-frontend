@@ -146,7 +146,7 @@ export function DocumentInput({
       name.endsWith(".xls") ||
       name.endsWith(".csv")
     ) {
-      return <FileSpreadsheet className="size-6 text-emerald-600" />;
+      return <FileSpreadsheet className="size-6 text-success" />;
     }
     if (
       type.includes("word") ||
@@ -154,7 +154,7 @@ export function DocumentInput({
       name.endsWith(".docx") ||
       name.endsWith(".doc")
     ) {
-      return <FileText className="size-6 text-blue-600" />;
+      return <FileText className="size-6 text-info" />;
     }
     return <FileText className="size-6 text-primary" />;
   };

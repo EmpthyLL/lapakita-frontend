@@ -86,7 +86,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
               src={src}
               fill
               alt={alt}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               onLoad={onLoad}
               onError={() => setHasError(true)}
@@ -99,7 +99,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
       <DialogContent
         hideClose
         className={cn(
-          "relative flex flex-col gap-0 overflow-hidden rounded-3xl border border-border bg-card p-0 shadow-2xl sm:max-w-3xl md:max-w-4xl max-h-[92vh]",
+          "relative flex flex-col gap-0 overflow-hidden rounded-3xl border border-border bg-card p-0 shadow-2xl min-w-max max-h-[92vh]",
         )}
         onClick={(e: React.MouseEvent) => e.stopPropagation()}
       >
