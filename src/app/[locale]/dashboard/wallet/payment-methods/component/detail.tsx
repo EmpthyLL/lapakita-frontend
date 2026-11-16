@@ -26,7 +26,7 @@ export function PaymentMethodDetail({
     <div className="min-w-0 space-y-2.5 px-1 py-1">
       {/* Konsep Belakang Kartu (Card Back) */}
       <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-payment-card-pattern p-3.5 shadow-sm space-y-3">
-        {/* Atas: Primary Badge (jika bukan primary, dibiarkan kosong) */}
+        {/* Atas: Primary Badge */}
         <div className="flex items-center h-2">
           {method.is_primary && (
             <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-[11px] font-bold text-success">
@@ -35,7 +35,7 @@ export function PaymentMethodDetail({
           )}
         </div>
 
-        {/* Strip Hitam Magnetik dari Ujung ke Ujung: Kiri Logo, Kanan Nama Bank */}
+        {/* Strip Hitam Magnetik: Kiri Logo, Kanan Nama Provider Lengkap */}
         <div className="-mx-3.5 mb-1.5 h-10 w-[calc(100%+1.75rem)] bg-zinc-900 dark:bg-zinc-950 flex items-center px-3.5 justify-between">
           {resolvedLogo ? (
             <div className="flex h-6 w-9 shrink-0 items-center justify-center rounded-md bg-white p-1 shadow-2xs">
@@ -53,7 +53,7 @@ export function PaymentMethodDetail({
           </span>
         </div>
 
-        {/* Kotak Tengah: Berisi Nomor Rekening */}
+        {/* Kotak Tengah: Nomor Rekening Lengkap (Full) */}
         <div className="space-y-1">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             Account Number / Registered ID
@@ -66,7 +66,7 @@ export function PaymentMethodDetail({
           </div>
         </div>
 
-        {/* Informasi Detail Pendukung di Bawahnya (2 item) */}
+        {/* Informasi Detail Pendukung di Bawahnya */}
         <div className="border-t border-border/60 pt-2 space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="flex items-center gap-1.5 text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">

@@ -1,36 +1,16 @@
 "use client";
 
-import {
-  DataDisplayRendererProps,
-  FieldColumnDef,
-} from "@/components/common/long/data-display/constant";
+import { DataDisplayRendererProps } from "@/components/common/long/data-display/constant";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
 import { FileText } from "lucide-react";
+import { DocumentRowActions } from "../documentList/rowAction";
 import { formatDocType, getDocumentNumberLabel } from "./config";
 
 export function DocumentCard({
   row,
   index,
-  columns,
   action,
 }: DataDisplayRendererProps<GetDocumentData>) {
-  const fieldColumns = (columns.fields ?? []).filter(
-    (column) => !column.hideInPreset,
-  );
-
-  const primaryColumn =
-    fieldColumns.find((column) => column.primary) ?? fieldColumns[0];
-  const secondaryColumns = fieldColumns.filter(
-    (column) => column.key !== primaryColumn?.key,
-  );
-
-  const renderField = (
-    column: FieldColumnDef<GetDocumentData, keyof GetDocumentData>,
-  ) =>
-    column.render
-      ? column.render(row[column.key], row, index)
-      : String(row[column.key] ?? "");
-
   const numLabel = getDocumentNumberLabel(row.document_type);
 
   return (
@@ -61,7 +41,7 @@ export function DocumentCard({
                 </span>
               </div>
               <h4 className="truncate text-sm font-semibold text-foreground">
-                {primaryColumn ? renderField(primaryColumn) : ""}
+                {row.full_name_identity}
               </h4>
               <p className="truncate text-[11px] text-muted-foreground font-mono mt-0.5">
                 {numLabel}: {row.document_number}
@@ -69,40 +49,19 @@ export function DocumentCard({
             </div>
 
             <div className="flex shrink-0 items-center gap-1">
-              {columns.actions!.map((column, actionIndex) => (
-                <div key={`action-${actionIndex}`}>
-                  {column.render(row, index, action)}
-                </div>
-              ))}
+              <DocumentRowActions row={row} index={index} action={action} />
             </div>
           </div>
 
           <div className="grid gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
-            {secondaryColumns
-              .filter(
-                (col) =>
-                  col.key !== "document_number" &&
-                  col.key !== "full_name_identity" &&
-                  col.key !== "document_label",
-              )
-              .map((column) => (
-                <div
-                  key={String(column.key)}
-                  className="flex min-w-0 items-center justify-between gap-2"
-                >
-                  <span className="flex items-center gap-1.5 truncate">
-                    {column.icon && (
-                      <column.icon className="h-3.5 w-3.5 shrink-0 text-primary" />
-                    )}
-                    {column.header}
-                  </span>
-                  <strong className="font-medium text-foreground">
-                    {column.key === "document_type"
-                      ? formatDocType(row.document_type)
-                      : renderField(column)}
-                  </strong>
-                </div>
-              ))}
+            <div className="flex min-w-0 items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 truncate">
+                Document type
+              </span>
+              <strong className="font-medium text-foreground">
+                {formatDocType(row.document_type)}
+              </strong>
+            </div>
           </div>
         </div>
       </div>

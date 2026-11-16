@@ -13,11 +13,8 @@ import { PaymentMethodCard } from "../component/card";
 import { PAYOUT_PROVIDERS } from "../component/config";
 import { PaymentMethodDetail } from "../component/detail";
 import { PaymentMethodForm } from "../component/form";
-import { usePaymentMethodColumns } from "./column";
 
 export default function PaymentMethodList() {
-  const columns = usePaymentMethodColumns();
-
   const providerOptions = [
     ...PAYOUT_PROVIDERS.banks.map((b) => ({ label: b.name, value: b.code })),
     ...PAYOUT_PROVIDERS.eWallets.map((e) => ({ label: e.name, value: e.code })),
@@ -63,7 +60,6 @@ export default function PaymentMethodList() {
     <div className="rounded-3xl border border-border/80 bg-card p-6 shadow-sm sm:p-8">
       <DataDisplay
         query={queryConfig}
-        columns={columns}
         rowKey="id"
         variant="card"
         loadMode="pagination"

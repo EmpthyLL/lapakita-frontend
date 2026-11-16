@@ -1,6 +1,6 @@
 "use client";
 
-import { DataDisplayActionContext } from "@/components/common/long/data-display/constant";
+import { DataDisplayRowActionProps } from "@/components/common/long/data-display/constant";
 import { Button } from "@/components/ui/button";
 import { deleteDocument } from "@/lib/data/api/user";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
@@ -9,12 +9,10 @@ import { showToast } from "@/lib/toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 
-interface DocumentRowActionsProps {
-  row: GetDocumentData;
-  action: DataDisplayActionContext<GetDocumentData>;
-}
-
-export function DocumentRowActions({ row, action }: DocumentRowActionsProps) {
+export function DocumentRowActions({
+  row,
+  action,
+}: DataDisplayRowActionProps<GetDocumentData>) {
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({

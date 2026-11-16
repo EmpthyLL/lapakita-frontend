@@ -140,14 +140,12 @@ export function DataDisplayTable<TData>({
                   formIsExpandable &&
                   activeForm?.row === row &&
                   activeForm.type === "expandable";
-
                 return (
                   <Fragment key={String(row[rowKey])}>
                     {CustomRow ? (
                       <CustomRow
                         row={row}
                         index={index}
-                        columns={columns}
                         action={rowActionCtx}
                         onClick={() => onRowClick?.(row, index, rowActionCtx)}
                         isDetailExpanded={isDetailExpanded}

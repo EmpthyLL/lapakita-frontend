@@ -307,14 +307,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
         ? renderer?.card?.component
         : renderer?.list?.component;
     if (CustomRenderer) {
-      return (
-        <CustomRenderer
-          row={row}
-          index={index}
-          columns={columnConfig}
-          action={action}
-        />
-      );
+      return <CustomRenderer row={row} index={index} action={action} />;
     }
     return variant === "card" ? (
       <CardGridCard

@@ -1,6 +1,6 @@
 "use client";
 
-import { DataDisplayActionContext } from "@/components/common/long/data-display/constant";
+import { DataDisplayRowActionProps } from "@/components/common/long/data-display/constant";
 import { Button } from "@/components/ui/button";
 import {
   deletePaymentMethod,
@@ -12,12 +12,9 @@ import { showToast } from "@/lib/toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Star, Trash2 } from "lucide-react";
 
-interface PaymentMethodActionProps {
-  row: PaymentMethodItem;
-  action: DataDisplayActionContext<PaymentMethodItem>;
-}
-
-export function PaymentMethodPrimaryAction({ row }: PaymentMethodActionProps) {
+export function PaymentMethodPrimaryAction({
+  row,
+}: DataDisplayRowActionProps<PaymentMethodItem>) {
   const queryClient = useQueryClient();
 
   const primaryMutation = useMutation({
@@ -50,7 +47,7 @@ export function PaymentMethodPrimaryAction({ row }: PaymentMethodActionProps) {
 export function PaymentMethodDeleteAction({
   row,
   action,
-}: PaymentMethodActionProps) {
+}: DataDisplayRowActionProps<PaymentMethodItem>) {
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({

@@ -7,10 +7,7 @@ import {
 } from "@/components/common/SurfaceRenderer";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
-import {
-  DataDisplayActionContext,
-  DataDisplayCardColumns,
-} from "./constant";
+import { DataDisplayActionContext, DataDisplayCardColumns } from "./constant";
 
 const CARD_GRID_CLASSES: Record<DataDisplayCardColumns, string> = {
   1: "grid-cols-1",

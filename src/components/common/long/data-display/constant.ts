@@ -38,6 +38,12 @@ export type FieldColumnDef<
   ) => ReactNode;
 };
 
+export interface DataDisplayRowActionProps<TData> {
+  row: TData;
+  index: number;
+  action: DataDisplayActionContext<TData>;
+}
+
 export type ActionColumnDef<TData> = BaseColumnDef & {
   kind?: "action";
   render: (
@@ -116,12 +122,7 @@ export interface DataDisplayActionContext<TData> {
   openDelete: (onDelete: () => void, itemName?: string) => void;
 }
 
-export interface DataDisplayRendererProps<TData> {
-  row: TData;
-  index: number;
-  columns: ColumnConfig<TData>;
-  action: DataDisplayActionContext<TData>;
-}
+export type DataDisplayRendererProps<TData> = DataDisplayRowActionProps<TData>;
 
 export interface DataDisplayTableRowRendererProps<
   TData,

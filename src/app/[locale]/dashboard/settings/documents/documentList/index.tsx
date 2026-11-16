@@ -12,11 +12,8 @@ import { Plus } from "lucide-react";
 import { DocumentCard } from "../component/card";
 import { DocumentDetail } from "../component/detail";
 import { DocumentForm } from "../component/form";
-import { useDocumentColumns } from "./column";
 
 export default function DocumentList() {
-  const columns = useDocumentColumns();
-
   const queryConfig: DataDisplayQuery<GetDocumentData, DocumentQueryParams> = {
     queryFn: async (params) => {
       const response = await getDocument(params);
@@ -58,7 +55,6 @@ export default function DocumentList() {
     <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
       <DataDisplay
         query={queryConfig}
-        columns={columns}
         rowKey="id"
         variant="card"
         loadMode="pagination"

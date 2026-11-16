@@ -1,34 +1,29 @@
 "use client";
 
-import {
-  ColumnConfig,
-  DataDisplayActionContext,
-} from "@/components/common/long/data-display/constant";
+import { DataDisplayRendererProps } from "@/components/common/long/data-display/constant";
 import { PaymentMethodItem } from "@/lib/data/schema/wallet/payment_method";
 import { CreditCard, ShieldCheck, Wifi } from "lucide-react";
+import {
+  PaymentMethodDeleteAction,
+  PaymentMethodPrimaryAction,
+} from "../paymentMethodList/rowAction";
 import { formatPayoutType } from "./config";
-
-interface PaymentMethodCardProps {
-  row: PaymentMethodItem;
-  index: number;
-  columns: ColumnConfig<PaymentMethodItem>;
-  action: DataDisplayActionContext<PaymentMethodItem>;
-}
 
 export function PaymentMethodCard({
   row,
   index,
-  columns,
   action,
-}: PaymentMethodCardProps) {
-  const actionColumns = (columns.actions ?? []).filter(
-    (column) => !column.hideInPreset,
-  );
+}: DataDisplayRendererProps<PaymentMethodItem>) {
+  // Fungsi helper untuk mask nomor rekening agar ringkas di card (misal: •••• 1234)
+  const maskedAccountNumber =
+    row.account_number.length > 4
+      ? `••••••••${row.account_number.slice(-4)}`
+      : row.account_number;
 
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-border/70 bg-payment-card-pattern p-4 text-foreground shadow-sm transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
       <div className="relative z-10 space-y-4">
-        {/* Header: Logo, Name, Primary Badge, & Tombol Action Primary di Atas Kanan */}
+        {/* Header: Logo, Code Singkat, Primary Badge, & Tombol Action Primary */}
         <div className="flex min-w-0 items-start justify-between gap-2.5">
           <div className="flex min-w-0 items-center gap-2.5">
             {row.logo_url ? (
@@ -44,8 +39,9 @@ export function PaymentMethodCard({
               </div>
             )}
             <div className="min-w-0">
-              <h3 className="truncate text-sm font-bold text-foreground">
-                {row.provider_name}
+              {/* Hanya menampilkan kode/singkatan provider agar tidak panjang */}
+              <h3 className="truncate text-sm font-bold uppercase tracking-wider text-foreground">
+                {row.provider_code}
               </h3>
               <p className="mt-0.5 text-[10px] font-medium text-muted-foreground">
                 {formatPayoutType(row.payout_type)}
@@ -61,19 +57,20 @@ export function PaymentMethodCard({
               </span>
             )}
 
-            {/* Action Pertama (Tombol Set Primary) di Atas Kanan */}
-            {actionColumns[0] && (
-              <div
-                className="flex items-center"
-                onClick={(event) => event.stopPropagation()}
-              >
-                {actionColumns[0].render(row, index, action)}
-              </div>
-            )}
+            <div
+              className="flex items-center"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <PaymentMethodPrimaryAction
+                row={row}
+                index={index}
+                action={action}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Card Chip & Account Number */}
+        {/* Card Chip & Masked Account Number */}
         <div className="flex min-w-0 items-center gap-3 py-0.5">
           <div className="flex h-7 w-9 shrink-0 items-center justify-center rounded-md border border-border/80 bg-linear-to-tr from-amber-500/20 via-amber-400/10 to-yellow-500/20 shadow-2xs">
             <div className="grid h-4 w-6 grid-cols-2 grid-rows-2 overflow-hidden rounded-2xs border border-amber-600/30">
@@ -85,30 +82,31 @@ export function PaymentMethodCard({
           </div>
           <Wifi className="h-3.5 w-3.5 shrink-0 rotate-90 text-muted-foreground/60" />
           <p className="min-w-0 flex-1 break-all font-mono text-sm font-bold tracking-[0.14em] text-foreground sm:text-base">
-            {row.account_number}
+            {maskedAccountNumber}
           </p>
         </div>
 
-        {/* Footer: Holder & Action Kedua (Delete) di Bawah */}
+        {/* Footer: Holder & Action Delete */}
         <div className="flex min-w-0 items-end justify-between gap-2 border-t border-border/50 pt-3">
           <div className="min-w-0 flex-1">
             <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
               Account Holder
             </p>
-            <p className="wrap-break-word text-xs font-bold uppercase tracking-tight text-foreground">
+            <p className="wrap-break-word text-xs font-bold uppercase tracking-tight text-foreground truncate">
               {row.account_holder_name}
             </p>
           </div>
 
-          {/* Action Kedua (Delete Button) di Bawah */}
-          {actionColumns[1] && (
-            <div
-              className="flex shrink-0 items-center gap-1"
-              onClick={(event) => event.stopPropagation()}
-            >
-              {actionColumns[1].render(row, index, action)}
-            </div>
-          )}
+          <div
+            className="flex shrink-0 items-center gap-1"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <PaymentMethodDeleteAction
+              row={row}
+              index={index}
+              action={action}
+            />
+          </div>
         </div>
       </div>
     </div>
