@@ -56,7 +56,6 @@ export default function DocumentList() {
       <DataDisplay
         query={queryConfig}
         rowKey="id"
-        variant="card"
         loadMode="pagination"
         showFilter
         showCount
@@ -79,7 +78,8 @@ export default function DocumentList() {
           component: DocumentForm,
         }}
         renderer={{
-          card: { component: DocumentCard },
+          variant: "card",
+          component: DocumentCard,
           cardColumns: 3,
         }}
         toolbarExtraAction={({ openCreate, isLoading }) => (

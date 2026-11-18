@@ -61,15 +61,13 @@ export default function PaymentMethodList() {
       <DataDisplay
         query={queryConfig}
         rowKey="id"
-        variant="card"
         loadMode="pagination"
         showFilter
         showCount
         renderer={{
+          variant: "card",
           cardColumns: 3,
-          card: {
-            component: PaymentMethodCard,
-          },
+          component: PaymentMethodCard,
         }}
         onRowClick={(row, _index, action) => {
           action.openDetail("expandable");

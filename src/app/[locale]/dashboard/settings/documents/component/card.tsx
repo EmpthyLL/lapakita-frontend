@@ -1,6 +1,6 @@
 "use client";
 
-import { DataDisplayRendererProps } from "@/components/common/long/data-display/constant";
+import { DataDisplayActionProps } from "@/components/common/long/data-display/constant";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
 import { FileText } from "lucide-react";
 import { DocumentRowActions } from "../documentList/rowAction";
@@ -10,7 +10,7 @@ export function DocumentCard({
   row,
   index,
   action,
-}: DataDisplayRendererProps<GetDocumentData>) {
+}: DataDisplayActionProps<GetDocumentData>) {
   const numLabel = getDocumentNumberLabel(row.document_type);
 
   return (

@@ -236,10 +236,12 @@ export default function ComponentSandboxPage() {
         desc="Tabel data lengkap dengan aksi baris interaktif, modal detail, drawer form edit/tambah, serta toolbar action."
       >
         <DataDisplay
-          columns={columnsWithActions}
           query={stallQueryConfig}
           rowKey="id"
-          variant="table"
+          renderer={{
+            variant: "table",
+            columns: columnsWithActions,
+          }}
           loadMode="pagination"
           showFilter
           showCount
@@ -278,10 +280,12 @@ export default function ComponentSandboxPage() {
         desc="Menampilkan detail informasi baris secara langsung di bawah baris tabel saat diklik atau dipicu."
       >
         <DataDisplay
-          columns={columnsWithActions}
           query={stallQueryConfig}
           rowKey="id"
-          variant="card"
+          renderer={{
+            variant: "card",
+            columns: columnsWithActions,
+          }}
           loadMode="pagination"
           showFilter
           showCount

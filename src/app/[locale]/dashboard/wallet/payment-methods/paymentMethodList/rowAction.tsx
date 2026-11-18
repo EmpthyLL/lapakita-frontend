@@ -1,6 +1,6 @@
 "use client";
 
-import { DataDisplayRowActionProps } from "@/components/common/long/data-display/constant";
+import { DataDisplayRendererProps } from "@/components/common/long/data-display/constant";
 import { Button } from "@/components/ui/button";
 import {
   deletePaymentMethod,
@@ -14,7 +14,7 @@ import { Star, Trash2 } from "lucide-react";
 
 export function PaymentMethodPrimaryAction({
   row,
-}: DataDisplayRowActionProps<PaymentMethodItem>) {
+}: DataDisplayRendererProps<PaymentMethodItem>) {
   const queryClient = useQueryClient();
 
   const primaryMutation = useMutation({
@@ -47,7 +47,7 @@ export function PaymentMethodPrimaryAction({
 export function PaymentMethodDeleteAction({
   row,
   action,
-}: DataDisplayRowActionProps<PaymentMethodItem>) {
+}: DataDisplayRendererProps<PaymentMethodItem>) {
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({

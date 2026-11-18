@@ -1,6 +1,6 @@
 "use client";
 
-import { DataDisplayRendererProps } from "@/components/common/long/data-display/constant";
+import { DataDisplayActionProps } from "@/components/common/long/data-display/constant";
 import { PaymentMethodItem } from "@/lib/data/schema/wallet/payment_method";
 import { CreditCard, ShieldCheck, Wifi } from "lucide-react";
 import {
@@ -13,8 +13,7 @@ export function PaymentMethodCard({
   row,
   index,
   action,
-}: DataDisplayRendererProps<PaymentMethodItem>) {
-  // Fungsi helper untuk mask nomor rekening agar ringkas di card (misal: •••• 1234)
+}: DataDisplayActionProps<PaymentMethodItem>) {
   const maskedAccountNumber =
     row.account_number.length > 4
       ? `••••••••${row.account_number.slice(-4)}`

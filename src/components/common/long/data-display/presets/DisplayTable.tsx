@@ -11,15 +11,19 @@ import {
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { Fragment } from "react";
-import { SurfaceDetail, SurfaceForm, SurfaceType } from "../../SurfaceRenderer";
+import {
+  SurfaceDetail,
+  SurfaceForm,
+  SurfaceType,
+} from "../../../SurfaceRenderer";
 import {
   ColumnConfig,
   DataDisplayActionContext,
   DataDisplayRenderer,
-} from "./constant";
-import { EmptyState, RowIndexBadge, SkeletonRows } from "./TableStates";
+} from "../constant";
+import { EmptyState, RowIndexBadge, SkeletonRows } from "../TableStates";
 
-interface DataDisplayTableProps<TData> {
+interface DisplayTableProps<TData> {
   columns: ColumnConfig<TData>;
   rows: TData[];
   rowKey: keyof TData;
@@ -30,7 +34,7 @@ interface DataDisplayTableProps<TData> {
   formIsExpandable: boolean;
   detail?: SurfaceDetail<TData>;
   form?: SurfaceForm<TData>;
-  renderer?: DataDisplayRenderer<TData>;
+  renderer: DataDisplayRenderer<TData>;
   activeDetail: {
     row?: TData;
     index?: number;
@@ -55,7 +59,7 @@ interface DataDisplayTableProps<TData> {
   openDetailExpandable: (row: TData, index: number) => void;
 }
 
-export function DataDisplayTable<TData>({
+export function DisplayTable<TData>({
   columns,
   rows,
   rowKey,
@@ -72,10 +76,11 @@ export function DataDisplayTable<TData>({
   onRowClick,
   getActionContext,
   openDetailExpandable,
-}: DataDisplayTableProps<TData>) {
+}: DisplayTableProps<TData>) {
   const fieldColumns = columns.fields ?? [];
   const actionColumns = columns.actions ?? [];
-  const CustomRow = renderer?.tableRow?.component;
+  const CustomRow =
+    renderer.variant === "table" ? renderer.component : undefined;
   const totalColumnCount = fieldColumns.length + actionColumns.length + 1; // ditambah kolom checkbox/index
 
   return (
@@ -147,9 +152,6 @@ export function DataDisplayTable<TData>({
                         row={row}
                         index={index}
                         action={rowActionCtx}
-                        onClick={() => onRowClick?.(row, index, rowActionCtx)}
-                        isDetailExpanded={isDetailExpanded}
-                        toggleDetail={() => openDetailExpandable(row, index)}
                       />
                     ) : (
                       <TableRow

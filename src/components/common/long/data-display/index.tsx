@@ -23,20 +23,17 @@ import {
 } from "@/components/common/SurfaceRenderer";
 import { Spinner } from "../../Spinner";
 import {
-  ColumnDef,
-  createColumnHelpers, // <-- Import createColumnHelpers untuk resolve
+  createColumnHelpers,
   DataDisplayActionContext,
   DataDisplayLoadMode,
   DataDisplayQuery,
   DataDisplayRenderer,
-  DataDisplayVariant,
   FilterOption,
   RowAction,
   ToolbarExtraAction,
 } from "./constant";
 import { DataDisplayPagination } from "./DataDisplayPagination";
 import { DataDisplayPreset } from "./DataDisplayPreset";
-import { DataDisplayTable } from "./DataDisplayTable";
 import {
   CardSkeleton,
   DataEmptyState,
@@ -45,18 +42,17 @@ import {
 } from "./ListStates";
 import { LoadMoreFooter } from "./LoadMoreFooter";
 import { CardGridCard } from "./presets/CardGridCard";
+import { DisplayTable } from "./presets/DisplayTable";
 import { ListRowCard } from "./presets/ListRowCard";
 import { SearchFilterBar } from "./SearchFilterBar";
 
 interface DataDisplayProps<TData, TParams extends Record<string, any>> {
   query: DataDisplayQuery<TData, TParams>;
   rowKey: keyof TData;
+  renderer: DataDisplayRenderer<TData>;
   emptyText?: string;
-  variant?: DataDisplayVariant;
   loadMode?: DataDisplayLoadMode;
-  renderer?: DataDisplayRenderer<TData>;
   onRowClick?: RowAction<TData>;
-  columns?: ColumnDef<TData>[];
   showFilter?: boolean;
   showCount?: boolean;
   countList?: number[];
@@ -69,11 +65,9 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   query,
   emptyText,
   rowKey,
-  variant = "list",
   loadMode = "infinite-scroll",
   renderer,
   onRowClick,
-  columns = [], // <-- Default berupa array kosong
   showFilter = false,
   showCount = false,
   countList = [10, 20, 50, 100],
@@ -82,6 +76,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   form,
 }: DataDisplayProps<TData, TParams>) {
   const t = useTranslations("common.data_display");
+  const variant = renderer.variant;
   const [searchValue, setSearchValue] = useState("");
   const [selectedOptions, setSelectedOptions] = useState<
     FilterOption<TParams>[]
@@ -90,9 +85,9 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
 
-  // Menggunakan helper resolve untuk otomatis memecah array kolom menjadi fields & actions
+  // Resolve renderer columns into field and action groups for preset displays.
   const { resolve } = createColumnHelpers<TData>();
-  const columnConfig = resolve(columns);
+  const columnConfig = resolve(renderer.columns ?? []);
 
   const [activeDetail, setActiveDetail] = useState<{
     row?: TData;
@@ -303,9 +298,9 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   function renderPresetItem(row: TData, index: number) {
     const action = getActionContext(row, index);
     const CustomRenderer =
-      variant === "card"
-        ? renderer?.card?.component
-        : renderer?.list?.component;
+      renderer.variant === "card" || renderer.variant === "list"
+        ? renderer.component
+        : undefined;
     if (CustomRenderer) {
       return <CustomRenderer row={row} index={index} action={action} />;
     }
@@ -393,7 +388,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
       />
 
       {variant === "table" ? (
-        <DataDisplayTable
+        <DisplayTable
           columns={columnConfig}
           rows={rows}
           rowKey={rowKey}
@@ -438,7 +433,9 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
             getActionContext(row, index).openDetail("expandable")
           }
           renderPresetItem={renderPresetItem}
-          cardColumns={renderer?.cardColumns}
+          cardColumns={
+            renderer.variant === "card" ? renderer.cardColumns : undefined
+          }
         />
       )}
 

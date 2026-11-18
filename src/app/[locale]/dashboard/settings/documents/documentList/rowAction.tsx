@@ -1,6 +1,6 @@
 "use client";
 
-import { DataDisplayRowActionProps } from "@/components/common/long/data-display/constant";
+import { DataDisplayRendererProps } from "@/components/common/long/data-display/constant";
 import { Button } from "@/components/ui/button";
 import { deleteDocument } from "@/lib/data/api/user";
 import { GetDocumentData } from "@/lib/data/schema/user/document";
@@ -12,7 +12,7 @@ import { Trash2 } from "lucide-react";
 export function DocumentRowActions({
   row,
   action,
-}: DataDisplayRowActionProps<GetDocumentData>) {
+}: DataDisplayRendererProps<GetDocumentData>) {
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({

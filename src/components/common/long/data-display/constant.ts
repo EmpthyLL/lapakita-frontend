@@ -38,7 +38,17 @@ export type FieldColumnDef<
   ) => ReactNode;
 };
 
-export interface DataDisplayRowActionProps<TData> {
+export interface DataDisplayActionContext<TData> {
+  row: TData;
+  index: number;
+  openDetail: (type?: SurfaceType) => void;
+  openEdit: (type?: SurfaceType) => void;
+  openCreate: (type?: SurfaceType) => void;
+  openConfirm: (onConfirm: () => void, options?: ConfirmDialogOptions) => void;
+  openDelete: (onDelete: () => void, itemName?: string) => void;
+}
+
+export interface DataDisplayActionProps<TData> {
   row: TData;
   index: number;
   action: DataDisplayActionContext<TData>;
@@ -112,40 +122,32 @@ export const FILTER_TYPE_ICON: Record<
   select: ListFilter,
 };
 
-export interface DataDisplayActionContext<TData> {
-  row: TData;
-  index: number;
-  openDetail: (type?: SurfaceType) => void;
-  openEdit: (type?: SurfaceType) => void;
-  openCreate: (type?: SurfaceType) => void;
-  openConfirm: (onConfirm: () => void, options?: ConfirmDialogOptions) => void;
-  openDelete: (onDelete: () => void, itemName?: string) => void;
-}
-
-export type DataDisplayRendererProps<TData> = DataDisplayRowActionProps<TData>;
-
-export interface DataDisplayTableRowRendererProps<
-  TData,
-> extends DataDisplayRendererProps<TData> {
-  onClick: () => void;
-  isDetailExpanded: boolean;
-  toggleDetail: () => void;
-}
-
 export type DataDisplayCardColumns = 1 | 2 | 3 | 4 | 5 | 6;
 
-export interface DataDisplayRenderer<TData> {
-  card?: {
-    component: ComponentType<DataDisplayRendererProps<TData>>;
-  };
-  list?: {
-    component: ComponentType<DataDisplayRendererProps<TData>>;
-  };
-  tableRow?: {
-    component: ComponentType<DataDisplayTableRowRendererProps<TData>>;
-  };
-  cardColumns?: DataDisplayCardColumns;
-}
+type RendererContent<TData, TComponent> =
+  | {
+      component: TComponent;
+      columns?: never;
+    }
+  | {
+      component?: never;
+      columns: ColumnDef<TData>[];
+    };
+
+export type DataDisplayRenderer<TData> = RendererContent<
+  TData,
+  ComponentType<DataDisplayActionProps<TData>>
+> &
+  (
+    | {
+        variant: "card";
+        cardColumns?: DataDisplayCardColumns;
+      }
+    | {
+        variant: "list" | "table";
+        cardColumns?: never;
+      }
+  );
 
 export interface DataDisplayToolbarActionContext<TData> {
   openCreate: (type?: SurfaceType) => void;
