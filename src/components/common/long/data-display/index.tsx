@@ -11,6 +11,7 @@ import {
 import { useInfiniteSearch } from "@/hooks/use-infinite-search";
 import { usePagination } from "@/hooks/use-pagination";
 import { BasePaginationQuery } from "@/lib/data/schema/base";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
@@ -65,7 +66,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
   query,
   emptyText,
   rowKey,
-  loadMode = "infinite-scroll",
+  loadMode = "none",
   renderer,
   onRowClick,
   showFilter = false,
@@ -117,6 +118,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
 
   const isPagination = loadMode === "pagination";
   const isInfiniteScroll = loadMode === "infinite-scroll";
+  const isUnpaginated = loadMode === "none";
 
   const searchParam =
     query.searchKey && searchValue ? { [query.searchKey]: searchValue } : {};
@@ -129,13 +131,19 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
     {},
   );
 
-  const mergedParams = {
+  const paginationParams = {
     ...query.defaultParams,
     ...resolvedFilterParams,
     ...searchParam,
     limit: pageSize,
     ...(isPagination ? { page } : {}),
   } as TParams;
+  const unpaginatedParams = Object.fromEntries(
+    Object.entries(paginationParams).filter(
+      ([key]) => key !== "page" && key !== "limit",
+    ),
+  ) as TParams;
+  const mergedParams = isUnpaginated ? unpaginatedParams : paginationParams;
 
   function updateFilterValues(updater: React.SetStateAction<Partial<TParams>>) {
     setFilterValues(updater);
@@ -239,7 +247,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
     queryFn: query.queryFn,
     params: mergedParams,
     searchKey: query.searchKey,
-    enabled: (query.enabled ?? true) && !isPagination,
+    enabled: (query.enabled ?? true) && !isPagination && !isUnpaginated,
     initialLimit: pageSize,
   });
 
@@ -254,6 +262,17 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
     queryFn: query.queryFn,
     params: mergedParams,
     enabled: (query.enabled ?? true) && isPagination,
+  });
+
+  const unpaginated = useQuery({
+    queryKey: [
+      ...query.queryKey(mergedParams),
+      filterValues,
+      searchValue,
+      "unpaginated",
+    ],
+    queryFn: () => query.queryFn(mergedParams),
+    enabled: (query.enabled ?? true) && isUnpaginated,
   });
 
   useEffect(() => {
@@ -281,18 +300,31 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
     infinite,
   ]);
 
-  const rows = isPagination ? paginated.rows : infinite.data;
+  const rows = isPagination
+    ? paginated.rows
+    : isUnpaginated
+      ? (unpaginated.data?.data ?? [])
+      : infinite.data;
   const isLoading = isPagination
     ? paginated.isLoading
-    : infinite.isFetching && !infinite.isFetchingNextPage;
+    : isUnpaginated
+      ? unpaginated.isLoading
+      : infinite.isFetching && !infinite.isFetchingNextPage;
   const isRefetching =
-    isPagination && paginated.isFetching && !paginated.isLoading;
+    (isPagination && paginated.isFetching && !paginated.isLoading) ||
+    (isUnpaginated && unpaginated.isFetching && !unpaginated.isLoading);
   const isUpdating =
     (isPagination && isRefetching) ||
-    (!isPagination && infinite.isFetching && !infinite.isFetchingNextPage);
+    (isUnpaginated && isRefetching) ||
+    (!isPagination &&
+      !isUnpaginated &&
+      infinite.isFetching &&
+      !infinite.isFetchingNextPage);
   const total = isPagination
     ? paginated.meta?.totalItems
-    : infinite.meta?.totalItems;
+    : isUnpaginated
+      ? unpaginated.data?.meta?.totalItems
+      : infinite.meta?.totalItems;
 
   const globalActionCtx = getActionContext();
   function renderPresetItem(row: TData, index: number) {
@@ -347,7 +379,7 @@ export function DataDisplay<TData, TParams extends BasePaginationQuery>({
             />
           </div>
 
-          {showCount && (
+          {showCount && !isUnpaginated && (
             <Select
               value={String(pageSize)}
               onValueChange={(value) => {

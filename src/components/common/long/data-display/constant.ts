@@ -169,4 +169,5 @@ export type DataDisplayVariant = "table" | "list" | "card";
 export type DataDisplayLoadMode =
   | "infinite-scroll"
   | "load-more"
-  | "pagination";
+  | "pagination"
+  | "none";
