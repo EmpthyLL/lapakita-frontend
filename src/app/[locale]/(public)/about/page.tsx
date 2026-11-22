@@ -9,7 +9,7 @@ import { AboutTechFoundation } from "./AboutTechFoundation";
 export const metadata: Metadata = {
   title: "About Us — Lapakita",
   description:
-    "Lapakita is the digital operating system connecting business operators, stall owners, and B2B suppliers in one transparent, data-driven ecosystem.",
+    "Lapakita is the digital operating system connecting business ventures, stall owners, and B2B suppliers in one transparent, data-driven ecosystem.",
 };
 
 export default function AboutPage() {

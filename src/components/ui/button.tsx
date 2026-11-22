@@ -10,17 +10,17 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        /* Default Primary (Dynamic based on route: Tenant / Owner / Supplier) */
+        /* Default Primary (Dynamic based on route: Venture / Owner / Supplier) */
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         primary: "bg-primary text-primary-foreground hover:bg-primary/90",
         "primary-secondary":
           "bg-primary-secondary text-primary border border-primary/20 hover:bg-primary/10",
 
         /* Fixed Explicit Roles */
-        tenant:
-          "bg-tenant text-tenant-foreground hover:bg-tenant/90 focus-visible:ring-tenant/50",
-        "tenant-secondary":
-          "bg-tenant-secondary text-tenant border border-tenant/30 hover:bg-tenant/10",
+        venture:
+          "bg-venture text-venture-foreground hover:bg-venture/90 focus-visible:ring-venture/50",
+        "venture-secondary":
+          "bg-venture-secondary text-venture border border-venture/30 hover:bg-venture/10",
 
         owner:
           "bg-owner text-owner-foreground hover:bg-owner/90 font-semibold focus-visible:ring-owner/50",

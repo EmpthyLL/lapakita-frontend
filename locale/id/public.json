@@ -5,7 +5,7 @@
     "last_updated": "Terakhir diperbarui",
     "descriptions": {
       "all": "Pelajari ekosistem Lapakita, sistem satu akun multi-peran, dan paket harga.",
-      "tenant": "Panduan untuk penyewa bisnis yang menjalankan Kasir POS, mencari lapak, dan analisis keuangan.",
+      "venture": "Panduan untuk pelaku usaha yang menjalankan Kasir POS, mencari lapak, dan analisis keuangan.",
       "owner": "Informasi bagi pemilik tempat untuk mengelola listing, penyewa, dan deposit garansi.",
       "supplier": "Detail bagi grosir dan distributor yang terhubung dengan pembeli UMKM."
     },
@@ -30,12 +30,12 @@
       "terms": {
         "label": "Syarat & Ketentuan",
         "title": "Syarat dan Ketentuan",
-        "intro": "Ketentuan ini mengatur penggunaan Lapakita sebagai Penyewa, Pemilik Lapak, atau Supplier. Harap baca dengan cermat sebelum menggunakan platform."
+        "intro": "Ketentuan ini mengatur penggunaan Lapakita sebagai Usaha, Pemilik Lapak, atau Supplier. Harap baca dengan cermat sebelum menggunakan platform."
       },
       "privacy": {
         "label": "Kebijakan Privasi",
         "title": "Kebijakan Privasi",
-        "intro": "Kebijakan ini menjelaskan data apa yang dikumpulkan Lapakita, bagaimana data digunakan, dan perlindungan yang diterapkan untuk akun Penyewa, Pemilik, dan Supplier."
+        "intro": "Kebijakan ini menjelaskan data apa yang dikumpulkan Lapakita, bagaimana data digunakan, dan perlindungan yang diterapkan untuk akun Usaha, Pemilik, dan Supplier."
       },
       "cookies": {
         "label": "Kebijakan Cookie",

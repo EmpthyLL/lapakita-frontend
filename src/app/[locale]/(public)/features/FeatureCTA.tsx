@@ -19,7 +19,7 @@ export function FeaturesCta() {
             Ready to Transform Your SME Operations?
           </h2>
           <p className="relative mx-auto mt-4 max-w-xl text-white/85">
-            Join thousands of tenants, stall owners, and suppliers building a
+            Join thousands of ventures, stall owners, and suppliers building a
             fairer, data-driven local business ecosystem.
           </p>
           <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">

@@ -9,13 +9,13 @@ import { PricingFeatureTable } from "./PricingFeatureTable";
 export function PricingBreakdown() {
   const { activeRole } = useRoleContext("role", "all");
   const isAll = activeRole === "all";
-  const role: Role = isAll ? "tenant" : activeRole;
+  const role: Role = isAll ? "venture" : activeRole;
 
   const rawRows = isAll
     ? Array.from(
         new Map(
           [
-            ...PRICING_FEATURE_TABLES.tenant,
+            ...PRICING_FEATURE_TABLES.venture,
             ...PRICING_FEATURE_TABLES.owner,
             ...PRICING_FEATURE_TABLES.supplier,
           ].map((item) => [item.feature, item]),

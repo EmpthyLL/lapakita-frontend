@@ -17,7 +17,7 @@ const metadataMap: Record<DocType, { title: string; description: string }> = {
   terms: {
     title: "Terms and Conditions — Lapakita",
     description:
-      "Terms governing your use of Lapakita as a Tenant, Stall Owner, or Supplier.",
+      "Terms governing your use of Lapakita as a Business Venture, Stall Owner, or Supplier.",
   },
   privacy: {
     title: "Privacy Policy — Lapakita",

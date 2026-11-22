@@ -29,8 +29,8 @@ const CARDS: PricingCard[] = [
     description: "Core operations & basic features for anyone getting started.",
     features: [
       "Unlimited POS cashier & digital receipts",
-      "Multi-business profiles for Tenants",
-      "Portfolio & tenant vetting for Owners",
+      "Multi-business profiles for Ventures",
+      "Portfolio & venture vetting for Owners",
       "Catalog placement & order management for Suppliers",
     ],
     cta: "Start Free Now",
@@ -44,9 +44,9 @@ const CARDS: PricingCard[] = [
     priceAnnually: 495_000,
     savingsAnnually: "Save Rp 165,000",
     description:
-      "Full premium access for just one role — Tenant, Owner, or Supplier.",
+      "Full premium access for just one role — Venture, Owner, or Supplier.",
     features: [
-      "Tenant: Multi-Timeline Forecast & Co-Pilot",
+      "Venture: Multi-Timeline Forecast & Co-Pilot",
       "Owner: Vacancy Loss Tracker & Pricing Recommendations",
       "Supplier: Demand Signals & Opportunity Gaps",
       "Choose your role at checkout",
@@ -64,7 +64,7 @@ const CARDS: PricingCard[] = [
     savingsAnnually: "Save Rp 375,000",
     description: "Unlocks premium across all three roles under one account.",
     features: [
-      "Every Tenant, Owner & Supplier premium feature",
+      "Every Venture, Owner & Supplier premium feature",
       "Unified billing under one account",
       "Priority customer support",
       "Best value for multi-role entrepreneurs",

@@ -26,17 +26,17 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-secondary: var(--primary-secondary);
 
-  /* 1. Tenant (Business / Tenant Blue #0657BD) */
-  --color-tenant: var(--tenant);
-  --color-tenant-foreground: var(--tenant-foreground);
-  --color-tenant-secondary: var(--tenant-secondary);
+  /* 1. Venture (Venture Blue #0657BD) */
+  --color-venture: var(--venture);
+  --color-venture-foreground: var(--venture-foreground);
+  --color-venture-secondary: var(--venture-secondary);
 
-  /* 2. Owner (Stall Owner Green #2BE576) */
+  /* 2. Owner (Owner Green #2BE576) */
   --color-owner: var(--owner);
   --color-owner-foreground: var(--owner-foreground);
   --color-owner-secondary: var(--owner-secondary);
 
-  /* 3. Supplier (Inventory Supplier Teal #0D9488) */
+  /* 3. Supplier (Supplier Teal #0D9488) */
   --color-supplier: var(--supplier);
   --color-supplier-foreground: var(--supplier-foreground);
   --color-supplier-secondary: var(--supplier-secondary);
@@ -92,10 +92,10 @@
 }
 
 :root {
-  /* 1. TENANT COLORS (FIXED STATIC TOKEN) */
-  --tenant: oklch(0.48 0.18 250);
-  --tenant-foreground: oklch(0.985 0 0);
-  --tenant-secondary: oklch(0.95 0.03 250);
+  /* 1. VENTURE COLORS (FIXED STATIC TOKEN) */
+  --venture: oklch(0.48 0.18 250);
+  --venture-foreground: oklch(0.985 0 0);
+  --venture-secondary: oklch(0.95 0.03 250);
 
   /* 2. OWNER COLORS */
   --owner: oklch(0.78 0.2 142);
@@ -107,10 +107,10 @@
   --supplier-foreground: oklch(0.985 0 0);
   --supplier-secondary: oklch(0.94 0.04 185);
 
-  /* DYNAMIC PRIMARY (DEFAULT: TENANT) */
-  --primary: var(--tenant);
-  --primary-foreground: var(--tenant-foreground);
-  --primary-secondary: var(--tenant-secondary);
+  /* DYNAMIC PRIMARY (DEFAULT: VENTURE) */
+  --primary: var(--venture);
+  --primary-foreground: var(--venture-foreground);
+  --primary-secondary: var(--venture-secondary);
 
   /* STATUS COLORS */
   --success: oklch(0.68 0.19 145);
@@ -155,10 +155,10 @@
 }
 
 .dark {
-  /* TENANT COLORS */
-  --tenant: oklch(0.55 0.18 250);
-  --tenant-foreground: oklch(0.985 0 0);
-  --tenant-secondary: oklch(0.22 0.06 250);
+  /* VENTURE COLORS */
+  --venture: oklch(0.55 0.18 250);
+  --venture-foreground: oklch(0.985 0 0);
+  --venture-secondary: oklch(0.22 0.06 250);
 
   /* OWNER COLORS */
   --owner: oklch(0.78 0.2 142);
@@ -170,10 +170,10 @@
   --supplier-foreground: oklch(0.985 0 0);
   --supplier-secondary: oklch(0.22 0.05 185);
 
-  /* DYNAMIC PRIMARY (DEFAULT: TENANT) */
-  --primary: var(--tenant);
-  --primary-foreground: var(--tenant-foreground);
-  --primary-secondary: var(--tenant-secondary);
+  /* DYNAMIC PRIMARY (DEFAULT: VENTURE) */
+  --primary: var(--venture);
+  --primary-foreground: var(--venture-foreground);
+  --primary-secondary: var(--venture-secondary);
 
   /* STATUS COLORS */
   --success: oklch(0.58 0.17 145);
@@ -226,7 +226,7 @@
   .text-gradient-brand {
     background-image: linear-gradient(
       100deg,
-      var(--tenant) 0%,
+      var(--venture) 0%,
       var(--supplier) 55%,
       var(--owner) 100%
     );
@@ -238,7 +238,7 @@
   .bg-gradient-brand {
     background-image: linear-gradient(
       100deg,
-      var(--tenant) 0%,
+      var(--venture) 0%,
       var(--supplier) 55%,
       var(--owner) 100%
     );
@@ -247,7 +247,7 @@
   .bg-gradient-brand-light {
     background-image: linear-gradient(
       100deg,
-      color-mix(in oklch, var(--tenant), white 45%) 0%,
+      color-mix(in oklch, var(--venture), white 45%) 0%,
       color-mix(in oklch, var(--supplier), white 45%) 55%,
       color-mix(in oklch, var(--owner), white 45%) 100%
     );
@@ -262,7 +262,7 @@
       ),
       linear-gradient(
         120deg,
-        color-mix(in oklch, var(--tenant) 4%, var(--card)),
+        color-mix(in oklch, var(--venture) 4%, var(--card)),
         color-mix(in oklch, var(--supplier) 4%, var(--card)) 52%,
         color-mix(in oklch, var(--owner) 4%, var(--card))
       );
@@ -271,7 +271,7 @@
   .border-gradient-brand {
     border-image: linear-gradient(
         100deg,
-        var(--tenant) 0%,
+        var(--venture) 0%,
         var(--supplier) 55%,
         var(--owner) 100%
       )

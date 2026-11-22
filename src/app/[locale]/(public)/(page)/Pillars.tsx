@@ -15,7 +15,7 @@ interface Pillar {
 
 const PILLARS: Pillar[] = [
   {
-    role: "For Tenants",
+    role: "For Ventures",
     title: "Run Your Business — On or Off a Stall",
     description:
       "Manage POS, stock, and staff for every business you run — whether you rent a stall through Lapakita or sell from home.",
@@ -25,16 +25,16 @@ const PILLARS: Pillar[] = [
       "3-scenario financial forecast for existing or new businesses",
     ],
     icon: Store,
-    colorVar: "tenant",
-    href: "/features?role=tenant",
+    colorVar: "venture",
+    href: "/features?role=venture",
   },
   {
-    role: "For Stall Owners",
+    role: "For Owners",
     title: "Manage a Portfolio, Not Just Rent",
     description:
-      "Review tenant reputation before approving, lock in contract terms, and know exactly what a vacant day costs you.",
+      "Review venture reputation before approving, lock in contract terms, and know exactly what a vacant day costs you.",
     points: [
-      "Tenant vetting with price-locked digital contracts",
+      "Venture vetting with price-locked digital contracts",
       "Escrow-held deposits with photo-verified damage claims",
       "Daily vacancy loss calculation & pricing recommendations",
     ],
@@ -46,10 +46,10 @@ const PILLARS: Pillar[] = [
     role: "For Suppliers",
     title: "Get Matched With UMKM Ready to Order",
     description:
-      "Your catalog shows up directly inside relevant tenant dashboards — no ad spend needed to reach ready buyers.",
+      "Your catalog shows up directly inside relevant venture dashboards — no ad spend needed to reach ready buyers.",
     points: [
       "In-dashboard catalog placement, zero ad spend",
-      "Subscriber system with 1-click reorder from tenants",
+      "Subscriber system with 1-click reorder from ventures",
       "Order velocity analytics & subscriber demand signals",
     ],
     icon: Truck,

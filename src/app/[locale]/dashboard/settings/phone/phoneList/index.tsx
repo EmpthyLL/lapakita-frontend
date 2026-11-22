@@ -14,7 +14,7 @@ import { PhoneForm } from "../component/form";
 import { usePhoneColumns } from "./column";
 
 const ROLE_FILTER_OPTIONS = [
-  { label: "Tenant", value: "tenant" },
+  { label: "Venture", value: "venture" },
   { label: "Owner", value: "owner" },
   { label: "Supplier", value: "supplier" },
 ];

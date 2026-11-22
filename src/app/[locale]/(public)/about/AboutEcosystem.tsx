@@ -12,7 +12,7 @@ interface EcosystemCard {
 
 const CARDS: EcosystemCard[] = [
   {
-    role: "For Tenants",
+    role: "For Ventures",
     headline: "Operator-First Business OS",
     detail:
       "Integrated POS, multi-business ledgers, inventory control, and 3-scenario financial forecasting — whether running from a physical stall, home cloud kitchen, or online shop.",
@@ -25,7 +25,7 @@ const CARDS: EcosystemCard[] = [
     role: "For Stall Owners",
     headline: "Transparent Space Monetization",
     detail:
-      "Real-time occupancy tracking, tenant vetting, price-locked lease contracts, escrow-backed deposit protection, and daily vacancy loss analytics.",
+      "Real-time occupancy tracking, venture vetting, price-locked lease contracts, escrow-backed deposit protection, and daily vacancy loss analytics.",
     imageUrl:
       "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=700&h=500&fit=crop",
     imageAlt: "Portfolio dashboard on a desktop screen",
@@ -35,7 +35,7 @@ const CARDS: EcosystemCard[] = [
     role: "For B2B Suppliers",
     headline: "Direct Matchmaking & Recurring Orders",
     detail:
-      "Zero-ad-spend catalog placement directly inside tenant procurement dashboards, 1-click reordering, and subscriber demand signals.",
+      "Zero-ad-spend catalog placement directly inside venture procurement dashboards, 1-click reordering, and subscriber demand signals.",
     imageUrl:
       "https://images.unsplash.com/photo-1553413077-190dd305871c?w=700&h=500&fit=crop",
     imageAlt: "B2B wholesale catalog on a smartphone",

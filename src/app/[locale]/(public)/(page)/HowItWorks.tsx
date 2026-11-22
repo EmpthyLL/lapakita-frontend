@@ -30,9 +30,9 @@ interface RoleWorkflow {
 }
 
 const WORKFLOWS: Record<Role, RoleWorkflow> = {
-  tenant: {
-    role: "tenant",
-    label: "For Business Operators",
+  venture: {
+    role: "venture",
+    label: "For Business Ventures",
     steps: [
       {
         number: "01",
@@ -100,21 +100,21 @@ const WORKFLOWS: Record<Role, RoleWorkflow> = {
         icon: Handshake,
         title: "Automatic SME Matchmaking",
         description:
-          "Your items automatically appear inside procurement dashboards of matching active tenants — zero advertising budget required.",
+          "Your items automatically appear inside procurement dashboards of matching active ventures — zero advertising budget required.",
       },
       {
         number: "03",
         icon: TrendingUp,
         title: "Fulfill & Lock Recurring Demand",
         description:
-          "Process incoming orders, generate digital delivery notes, and get designated as 'Primary Supplier' for 1-click tenant reorders.",
+          "Process incoming orders, generate digital delivery notes, and get designated as 'Primary Supplier' for 1-click venture reorders.",
       },
     ],
   },
 };
 
 export function HowItWorks() {
-  const [activeRole, setActiveRole] = useState<Role>("tenant");
+  const [activeRole, setActiveRole] = useState<Role>("venture");
   const currentWorkflow = WORKFLOWS[activeRole];
 
   return (
@@ -133,8 +133,8 @@ export function HowItWorks() {
           </p>
 
           {/* Role Tab Switcher — active tab now takes the role's color, not just a flat white pill */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-border bg-muted/60 p-1.5">
-            {(["tenant", "owner", "supplier"] as Role[]).map((role) => {
+          <div className="mt-8 flex flex-wrap items-center m-auto justify-center gap-2 rounded-2xl border max-w-max border-border bg-muted/60 p-1.5">
+            {(["venture", "owner", "supplier"] as Role[]).map((role) => {
               const isActive = activeRole === role;
               const optionConfig = ROLES_CONFIG[role];
 

@@ -11,7 +11,7 @@ export interface PricingFeatureRow {
 }
 
 export const PRICING_FEATURE_TABLES: Record<Role, PricingFeatureRow[]> = {
-  tenant: [
+  venture: [
     { feature: "POS Cashier & Digital Receipts", free: true, premium: true },
     { feature: "Multi-Business Profiles", free: true, premium: true },
     { feature: "Staff Cashier Accounts", free: true, premium: true },
@@ -37,7 +37,7 @@ export const PRICING_FEATURE_TABLES: Record<Role, PricingFeatureRow[]> = {
   ],
   owner: [
     { feature: "Portfolio Occupancy Overview", free: true, premium: true },
-    { feature: "Tenant Vetting & Approval Queue", free: true, premium: true },
+    { feature: "Venture Vetting & Approval Queue", free: true, premium: true },
     { feature: "Price-Locked Lease Contracts", free: true, premium: true },
     {
       feature: "Escrow Security Deposit Protection",
@@ -100,7 +100,7 @@ export const PRICING_FEATURE_TABLES: Record<Role, PricingFeatureRow[]> = {
 };
 
 export const ROLE_LABELS: Record<Role, string> = {
-  tenant: "For Tenants",
+  venture: "For Business Ventures",
   owner: "For Stall Owners",
   supplier: "For B2B Suppliers",
 };
@@ -125,12 +125,12 @@ export const PRICING_FAQS: FaqItem[] = [
     question:
       "What is the difference between Single-Role and All-Access passes?",
     answer:
-      "The Single-Role Pass (Rp 55,000/month) unlocks advanced features specifically for one persona — either Tenant, Stall Owner, or B2B Supplier. The All-Access Bundle (Rp 125,000/month) unlocks all premium features across all three roles simultaneously under a single account.",
+      "The Single-Role Pass (Rp 55,000/month) unlocks advanced features specifically for one persona — either  Business Venture, Stall Owner, or B2B Supplier. The All-Access Bundle (Rp 125,000/month) unlocks all premium features across all three roles simultaneously under a single account.",
   },
   {
     question: "Are there any hidden transaction fees on the Free plan?",
     answer:
-      "No. Basic POS operations, stall browsing, tenant vetting, and catalog placements are completely free. Standard payment processing fees apply strictly to completed digital rent payments or wholesale orders via our secure payment gateway.",
+      "No. Basic POS operations, stall browsing, venture vetting, and catalog placements are completely free. Standard payment processing fees apply strictly to completed digital rent payments or wholesale orders via our secure payment gateway.",
   },
   {
     question: "Can I upgrade from Billed Monthly to Billed Annually?",

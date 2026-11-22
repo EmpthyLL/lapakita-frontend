@@ -11,13 +11,13 @@ const POINTS = [
     icon: EyeOff,
     title: "Privacy-First Data Isolation",
     description:
-      "Tenant sales revenues and margins remain strictly private to the business owner.",
+      "Venture sales revenues and margins remain strictly private to the business owner.",
   },
   {
     icon: Smartphone,
     title: "Single Account Architecture",
     description:
-      "Seamless role switching between Tenant, Owner, and Supplier with zero account clutter.",
+      "Seamless role switching between Venture, Owner, and Supplier with zero account clutter.",
   },
 ];
 
@@ -26,7 +26,7 @@ export function AboutTechFoundation() {
     <section className="py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="inline-flex items-center rounded-full bg-supplier-secondary px-3 py-1 text-xs font-semibold uppercase tracking-wider text-supplier">
+          <span className="text-sm font-semibold uppercase tracking-wider text-supplier">
             Enterprise-Grade Security
           </span>
           <h2 className="font-heading mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">

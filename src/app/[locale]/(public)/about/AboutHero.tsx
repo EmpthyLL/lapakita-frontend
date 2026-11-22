@@ -24,7 +24,7 @@ export function AboutHero() {
           <p className="mt-5 text-pretty text-muted-foreground sm:text-lg">
             Lapakita is built to replace speculation with data, informal
             friction with price-locked digital contracts, and fragmented tools
-            with a single operating system for business operators, stall owners,
+            with a single operating system for business ventures, stall owners,
             and B2B suppliers.
           </p>
         </div>
@@ -33,7 +33,7 @@ export function AboutHero() {
           <div className="relative overflow-hidden rounded-3xl border border-border shadow-lg shadow-primary/10">
             <Image
               src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&h=700&fit=crop"
-              alt="SME business operator using Lapakita POS on a smartphone"
+              alt="SME business venture using Lapakita POS on a smartphone"
               width={900}
               height={700}
               className="h-full w-full object-cover"

@@ -39,17 +39,17 @@ const ROLE_CONFIG: Record<
     description: string;
   }
 > = {
-  tenant: {
-    label: "Tenant Profile",
+  venture: {
+    label: "Venture Profile",
     icon: Home,
     description:
-      "Manage your display name, avatar, and contact details specifically for your tenant activities.",
+      "Manage your display name, avatar, and contact details specifically for your venture activities.",
   },
   owner: {
-    label: "Stall Owner Profile",
+    label: "Owner Profile",
     icon: Building2,
     description:
-      "Manage your display name, avatar, and contact details specifically for your stall owner activities.",
+      "Manage your display name, avatar, and contact details specifically for your owner activities.",
   },
   supplier: {
     label: "Supplier Profile",
@@ -59,7 +59,7 @@ const ROLE_CONFIG: Record<
   },
 };
 
-const VALID_ROLES: Role[] = ["tenant", "owner", "supplier"];
+const VALID_ROLES: Role[] = ["venture", "owner", "supplier"];
 
 export default function RoleProfilePage() {
   const queryClient = useQueryClient();
@@ -67,7 +67,7 @@ export default function RoleProfilePage() {
   const params = useParams();
 
   const rawRole = (params?.role as string)?.toLowerCase() as Role;
-  const currentRole: Role = VALID_ROLES.includes(rawRole) ? rawRole : "tenant";
+  const currentRole: Role = VALID_ROLES.includes(rawRole) ? rawRole : "venture";
 
   const config = ROLE_CONFIG[currentRole];
   const Icon = config.icon;
@@ -112,9 +112,9 @@ export default function RoleProfilePage() {
         return { text: "text-owner", bg: "bg-owner/10" };
       case "supplier":
         return { text: "text-supplier", bg: "bg-supplier/10" };
-      case "tenant":
+      case "venture":
       default:
-        return { text: "text-tenant", bg: "bg-tenant/10" };
+        return { text: "text-venture", bg: "bg-venture/10" };
     }
   };
 

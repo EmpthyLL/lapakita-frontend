@@ -20,7 +20,7 @@ export function useRoleContext(
 ): RoleContextValue<RoleAndAll>;
 export function useRoleContext(
   paramKey = "role",
-  defaultRole: RoleAndAll = "tenant",
+  defaultRole: RoleAndAll = "venture",
 ): RoleContextValue<RoleAndAll> {
   const pathname = usePathname();
   const searchParams = useSearchParams();

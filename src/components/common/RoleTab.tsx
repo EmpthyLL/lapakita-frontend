@@ -7,12 +7,12 @@ import { useTranslations } from "next-intl";
 
 interface RoleTabItem {
   value: RoleAndAll;
-  key: "all" | "tenant" | "owner" | "supplier";
+  key: "all" | "venture" | "owner" | "supplier";
 }
 
 const TABS: RoleTabItem[] = [
   { value: "all", key: "all" },
-  { value: "tenant", key: "tenant" },
+  { value: "venture", key: "venture" },
   { value: "owner", key: "owner" },
   { value: "supplier", key: "supplier" },
 ];

@@ -25,11 +25,11 @@ const ROLE_ACTIVE_STYLES: Record<
   Role,
   { border: string; ring: string; text: string; background: string }
 > = {
-  tenant: {
-    border: "border-tenant",
-    ring: "ring-tenant/20",
-    text: "text-tenant",
-    background: "bg-tenant/10",
+  venture: {
+    border: "border-venture",
+    ring: "ring-venture/20",
+    text: "text-venture",
+    background: "bg-venture/10",
   },
   owner: {
     border: "border-owner",
@@ -65,7 +65,7 @@ export function LanguageSwitcher({
   // Memakai hook general useRoleContext
   const { activeRole } = useRoleContext();
   const activeRoleStyle =
-    ROLE_ACTIVE_STYLES[activeRole] || ROLE_ACTIVE_STYLES.tenant;
+    ROLE_ACTIVE_STYLES[activeRole] || ROLE_ACTIVE_STYLES.venture;
 
   const [open, setOpen] = useState(false);
 

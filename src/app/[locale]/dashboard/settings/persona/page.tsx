@@ -35,7 +35,7 @@ const ROLES: {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
 }[] = [
-  { id: "tenant", label: "Tenant Persona", icon: Home },
+  { id: "venture", label: "Venture Persona", icon: Home },
   { id: "owner", label: "Owner Persona", icon: Building2 },
   { id: "supplier", label: "Supplier Persona", icon: Briefcase },
 ];
@@ -45,7 +45,7 @@ export default function PersonaProfilePage() {
   const { data: session, status, update: updateSession } = useSession();
 
   const [selectedTab, setSelectedTab] = useState<Role | null>(null);
-  const activeTab = selectedTab ?? session?.user?.activeRole ?? "tenant";
+  const activeTab = selectedTab ?? session?.user?.activeRole ?? "venture";
 
   // Fetch data persona berdasarkan role yang sedang aktif di tab
   const { data: persona, isLoading: isPersonaLoading } = useQuery({
@@ -97,12 +97,12 @@ export default function PersonaProfilePage() {
           bg: "bg-supplier/10",
           border: "border-supplier/40",
         };
-      case "tenant":
+      case "venture":
       default:
         return {
-          text: "text-tenant",
-          bg: "bg-tenant/10",
-          border: "border-tenant/40",
+          text: "text-venture",
+          bg: "bg-venture/10",
+          border: "border-venture/40",
         };
     }
   };

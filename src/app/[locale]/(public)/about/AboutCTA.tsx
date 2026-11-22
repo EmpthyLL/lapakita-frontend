@@ -16,11 +16,12 @@ export function AboutCta() {
             }}
           />
           <h2 className="font-heading relative text-3xl font-bold tracking-tight sm:text-4xl">
-            Ready to Experience the Future of SME Operations?
+            Help Shape the Future of Local Commerce
           </h2>
           <p className="relative mx-auto mt-4 max-w-xl text-white/85">
-            Join thousands of business operators, space owners, and suppliers
-            transforming local commerce today.
+            Lapakita is building a more connected way for business ventures,
+            stall owners, and suppliers to work together. Explore the platform
+            and see what we are creating.
           </p>
           <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button

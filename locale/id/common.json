@@ -35,7 +35,7 @@
   },
   "role_tab": {
     "all": "Semua",
-    "tenant": "Penyewa",
+    "venture": "Pengusaha",
     "owner": "Pemilik Lapak",
     "supplier": "Pemasok"
   },
@@ -225,7 +225,7 @@
     "open_menu": "Buka menu",
     "close_menu": "Tutup menu",
     "roles": {
-      "tenant": "Penyewa",
+      "venture": "Pengusaha",
       "owner": "Pemilik Lapak",
       "supplier": "Pemasok"
     },
@@ -233,30 +233,30 @@
     "view_profile": "Lihat profil"
   },
   "footer": {
-    "tagline": "Platform berbasis data yang menghubungkan penyewa, pemilik lapak, dan pemasok — dilengkapi analitik bisnis dan POS terintegrasi.",
+    "tagline": "Platform berbasis data yang menghubungkan usaha, pemilik lapak, dan pemasok — dilengkapi analitik bisnis dan POS terintegrasi.",
     "newsletter_title": "Tertarik bermitra dengan Lapakita?",
     "newsletter_desc": "Tinggalkan email Anda dan tim kami akan menghubungi Anda untuk mendiskusikan peluang kemitraan.",
     "newsletter_success": "Terima kasih! Kami telah menerima pertanyaan Anda dan akan segera menghubungi Anda.",
     "placeholder_email": "email@anda.com",
     "groups": {
-      "tenant": "Untuk Penyewa",
+      "venture": "Untuk Pengusaha",
       "owner": "Untuk Pemilik Lapak",
       "supplier": "Untuk Pemasok B2B",
       "company": "Perusahaan"
     },
     "links": {
       "discover_stalls": "Cari Lapak Ideal",
-      "tenant_capabilities": "Kemampuan Penyewa",
-      "business_pos": "POS Usaha",
-      "tenant_pricing": "Paket Harga Penyewa",
+      "venture_capabilities": "Kemampuan Pengusaha",
+      "business_pos": "POS Pengusaha",
+      "venture_plans": "Paket Harga Pengusaha",
       "rental_faq": "FAQ Sewa & POS",
       "owner_capabilities": "Kemampuan Pemilik",
       "manage_catalog": "Kelola Katalog",
-      "property_plans": "Lihat Paket Properti",
+      "owner_plans": "Paket Harga Pemilik",
       "stall_faq": "FAQ Pengelolaan Lapak",
       "supplier_capabilities": "Kemampuan Pemasok",
       "wholesale_hub": "Akses Pusat Grosir",
-      "supplier_plans": "Lihat Paket Pemasok",
+      "supplier_plans": "Paket Harga Pemasok",
       "supply_faq": "FAQ Rantai Pasok",
       "about_us": "Tentang Kami",
       "pricing_plans": "Harga & Paket",

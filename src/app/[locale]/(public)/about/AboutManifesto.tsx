@@ -17,7 +17,7 @@ const ISSUES = [
     icon: Network,
     title: "Direct Supply Chain Connectivity",
     description:
-      "Connecting a tenant's daily POS straight to supplier procurement — no middleman advertising costs involved.",
+      "Connecting a venture's daily POS straight to supplier procurement — no middleman advertising costs involved.",
   },
 ];
 
@@ -31,7 +31,7 @@ export function AboutManifesto() {
           </h2>
           <p className="mt-5 text-pretty text-muted-foreground">
             For decades, local brick-and-mortar SMEs have operated in fragmented
-            silos. Tenants struggle to evaluate rental locations realistically,
+            silos. Ventures struggle to evaluate rental locations realistically,
             stall owners face empty-space risk and payment friction, and
             suppliers waste budget trying to reach active buyers. Lapakita was
             founded to build a shared digital operating infrastructure where all

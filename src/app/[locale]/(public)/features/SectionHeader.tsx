@@ -11,7 +11,7 @@ export function SectionHeading({
   badge,
   title,
   description,
-  color = "tenant",
+  color = "venture",
 }: SectionHeadingProps) {
   return (
     <div className="mx-auto max-w-2xl text-center">

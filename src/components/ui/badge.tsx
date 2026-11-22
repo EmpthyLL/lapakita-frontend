@@ -21,8 +21,8 @@ const badgeVariants = cva(
           "border-warning bg-warning/10 text-warning [a]:hover:bg-warning/20",
         destructive:
           "border-destructive bg-destructive/10 text-destructive [a]:hover:bg-destructive/20",
-        tenant:
-          "border-tenant bg-tenant-secondary text-tenant [a]:hover:bg-tenant/10",
+        venture:
+          "border-venture bg-venture-secondary text-venture [a]:hover:bg-venture/10",
         owner:
           "border-owner bg-owner-secondary text-owner [a]:hover:bg-owner/10",
         supplier:

@@ -47,11 +47,11 @@ function getNotificationIcon(
 // Helper untuk menentukan warna strip dan background tint berdasarkan targetRole (Konsisten di semua tempat)
 export const getRoleThemeStyles = (targetRole: string, isUnread: boolean) => {
   switch (targetRole) {
-    case "tenant":
+    case "venture":
       return {
-        strip: "bg-[var(--tenant)]",
+        strip: "bg-[var(--venture)]",
         unreadBg: isUnread
-          ? "bg-[color-mix(in_oklch,var(--tenant),transparent_90%)] font-medium"
+          ? "bg-[color-mix(in_oklch,var(--venture),transparent_90%)] font-medium"
           : "",
       };
     case "owner":
@@ -85,8 +85,8 @@ export function getRoleFilterStyle(target: string, isActive: boolean) {
   }
 
   switch (target) {
-    case "tenant":
-      return "bg-[var(--tenant)] text-[var(--tenant-foreground)] shadow-md ring-2 ring-[var(--tenant)]/40 font-bold";
+    case "venture":
+      return "bg-[var(--venture)] text-[var(--venture-foreground)] shadow-md ring-2 ring-[var(--venture)]/40 font-bold";
     case "owner":
       return "bg-[var(--owner)] text-[var(--owner-foreground)] shadow-md ring-2 ring-[var(--owner)]/40 font-bold";
     case "supplier":
@@ -229,7 +229,7 @@ export default function RoleNotificationsPage() {
               [
                 { label: "All (No Filter)", value: undefined },
                 { label: "General (All Target)", value: "all" },
-                { label: "Tenant", value: "tenant" },
+                { label: "Venture", value: "venture" },
                 { label: "Owner", value: "owner" },
                 { label: "Supplier", value: "supplier" },
               ] as const

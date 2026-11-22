@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import * as React from "react";
 
-export type AppRole = "tenant" | "owner" | "supplier";
+export type AppRole = "venture" | "owner" | "supplier";
 
 interface RoleThemeContextType {
   role: AppRole;
@@ -13,10 +13,10 @@ interface RoleThemeContextType {
 }
 
 const RoleThemeContext = React.createContext<RoleThemeContextType>({
-  role: "tenant",
-  roleColor: "var(--tenant)",
-  roleForeground: "var(--tenant-foreground)",
-  roleSecondary: "var(--tenant-secondary)",
+  role: "venture",
+  roleColor: "var(--venture)",
+  roleForeground: "var(--venture-foreground)",
+  roleSecondary: "var(--venture-secondary)",
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -27,7 +27,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const dashboardIndex = segments.lastIndexOf("dashboard");
     const pathRole = segments[dashboardIndex + 1];
     if (pathRole === "owner" || pathRole === "supplier") return pathRole;
-    return "tenant";
+    return "venture";
   }, [pathname]);
 
   // Otomatis pasang style ke document.body agar Portaled UI (Popover, Modal, Dropdown) ikut berubah

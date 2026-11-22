@@ -36,7 +36,7 @@ export function StallReviewsSection({ stallId }: { stallId: string }) {
   return (
     <div id="reviews">
       <h2 className="text-lg font-semibold text-foreground">
-        Reviews from Tenants
+        Reviews from Ventures
       </h2>
 
       <div className="mt-4">

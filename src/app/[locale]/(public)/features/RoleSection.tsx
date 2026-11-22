@@ -39,8 +39,8 @@ function FeatureIcon({
   );
 }
 
-/** TENANT — Bento/Spotlight: first item is a large hero card, rest sit beside it. */
-function TenantGroup({ group, color }: { group: FeatureGroup; color: string }) {
+/** VENTURE — Bento/Spotlight: first item is a large hero card, rest sit beside it. */
+function VentureGroup({ group, color }: { group: FeatureGroup; color: string }) {
   const [spotlight, ...rest] = group.items;
 
   return (
@@ -181,7 +181,7 @@ function FeatureGroupLayout({
   group: FeatureGroup;
   color: Role;
 }) {
-  if (color === "tenant") return <TenantGroup group={group} color={color} />;
+  if (color === "venture") return <VentureGroup group={group} color={color} />;
   if (color === "owner") return <OwnerGroup group={group} color={color} />;
   return <SupplierGroup group={group} color={color} />;
 }

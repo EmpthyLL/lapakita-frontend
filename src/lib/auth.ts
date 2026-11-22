@@ -70,7 +70,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const refreshToken = (credentials.refreshToken as string) || "";
 
           const activeRole: Role =
-            (userPayload.active_role as Role) || "tenant";
+            (userPayload.active_role as Role) || "venture";
 
           return {
             id: userPayload.id,

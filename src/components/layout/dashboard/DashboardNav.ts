@@ -39,41 +39,41 @@ export interface NavItem {
 
 // ── 1. MAIN DASHBOARD NAV (DITAMBAHKAN NOTIFIKASI DI TIAP ROLE) ────────────────
 export const DASHBOARD_NAV: Record<Role, NavItem[]> = {
-  tenant: [
+  venture: [
     {
       label: "Overview",
       mobileLabel: "Overview",
-      href: "/dashboard/tenant",
+      href: "/dashboard/venture",
       icon: LayoutDashboard,
     },
     {
       label: "My Businesses",
       mobileLabel: "Businesses",
-      href: "/dashboard/tenant/businesses",
+      href: "/dashboard/venture/businesses",
       icon: Store,
     },
     {
       label: "My Stalls",
       mobileLabel: "Stalls",
-      href: "/dashboard/tenant/stalls",
+      href: "/dashboard/venture/stalls",
       icon: Building2,
     },
     {
       label: "My Leases",
       mobileLabel: "Leases",
-      href: "/dashboard/tenant/leases",
+      href: "/dashboard/venture/leases",
       icon: KeyRound,
     },
     {
       label: "Analytics & Reports",
       mobileLabel: "Analytics",
-      href: "/dashboard/tenant/analytics",
+      href: "/dashboard/venture/analytics",
       icon: BarChart3,
     },
     {
       label: "Notifications",
       mobileLabel: "Notifications",
-      href: "/dashboard/tenant/notifications",
+      href: "/dashboard/venture/notifications",
       icon: Bell,
     },
   ],

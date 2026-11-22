@@ -1,4 +1,4 @@
-export const ROLE_VALUES = ["tenant", "owner", "supplier"] as const;
+export const ROLE_VALUES = ["venture", "owner", "supplier"] as const;
 
 export type Role = (typeof ROLE_VALUES)[number];
 
@@ -21,14 +21,14 @@ export const ROLES_CONFIG: Record<
     bgSoftClass: "bg-secondary text-foreground",
     borderClass: "border-border hover:border-foreground/40",
   },
-  tenant: {
-    label: "Tenant",
-    colorClass: "bg-tenant text-tenant-foreground",
-    bgSoftClass: "bg-tenant/10 text-tenant",
-    borderClass: "border-tenant/30 hover:border-tenant",
+  venture: {
+    label: "Venture",
+    colorClass: "bg-venture text-venture-foreground",
+    bgSoftClass: "bg-venture/10 text-venture",
+    borderClass: "border-venture/30 hover:border-venture",
   },
   owner: {
-    label: "Stall Owner",
+    label: "Owner",
     colorClass: "bg-owner text-owner-foreground",
     bgSoftClass: "bg-owner/10 text-owner",
     borderClass: "border-owner/30 hover:border-owner",

@@ -62,9 +62,9 @@ const getRoleBadgeTheme = (role: Role) => {
       return "bg-owner/10 text-owner border-owner/20";
     case "supplier":
       return "bg-supplier/10 text-supplier border-supplier/20";
-    case "tenant":
+    case "venture":
     default:
-      return "bg-tenant/10 text-tenant border-tenant/20";
+      return "bg-venture/10 text-venture border-venture/20";
   }
 };
 

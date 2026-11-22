@@ -17,7 +17,7 @@ import {
 } from "../icon/SocialIcon";
 import { Logo } from "./Logo";
 
-type RoleVariant = "tenant" | "owner" | "supplier";
+type RoleVariant = "venture" | "owner" | "supplier";
 
 const SOCIALS = [
   {
@@ -51,18 +51,18 @@ export function SiteFooter() {
       links: Array<{ label: string; href: string }>;
     }
   > = {
-    tenant: {
-      label: t("groups.tenant"),
-      role: "tenant",
+    venture: {
+      label: t("groups.venture"),
+      role: "venture",
       links: [
         { label: t("links.discover_stalls"), href: "/stalls" },
         {
-          label: t("links.tenant_capabilities"),
-          href: "/features?role=tenant",
+          label: t("links.venture_capabilities"),
+          href: "/features?role=venture",
         },
-        { label: t("links.business_pos"), href: "/dashboard/tenant" },
-        { label: t("links.tenant_pricing"), href: "/pricing?role=tenant" },
-        { label: t("links.rental_faq"), href: "/faq?tab=tenant" },
+        { label: t("links.business_pos"), href: "/dashboard/venture" },
+        { label: t("links.venture_plans"), href: "/pricing?role=venture" },
+        { label: t("links.rental_faq"), href: "/faq?tab=venture" },
       ],
     },
     owner: {
@@ -71,7 +71,7 @@ export function SiteFooter() {
       links: [
         { label: t("links.owner_capabilities"), href: "/features?role=owner" },
         { label: t("links.manage_catalog"), href: "/dashboard/owner" },
-        { label: t("links.property_plans"), href: "/pricing?role=owner" },
+        { label: t("links.owner_plans"), href: "/pricing?role=owner" },
         { label: t("links.stall_faq"), href: "/faq?tab=owner" },
       ],
     },
@@ -171,7 +171,7 @@ export function SiteFooter() {
                   className={cn(
                     "mb-4 text-sm font-semibold uppercase tracking-wide",
                     {
-                      "text-tenant": group.role === "tenant",
+                      "text-venture": group.role === "venture",
                       "text-owner": group.role === "owner",
                       "text-supplier": group.role === "supplier",
                     },

@@ -37,7 +37,7 @@ import { useEffect, useRef, useState } from "react";
 import { LanguageSwitcher } from "../common/LanguageSwitcher";
 import { Logo } from "./Logo";
 
-type RoleVariant = "tenant" | "owner" | "supplier";
+type RoleVariant = "venture" | "owner" | "supplier";
 
 function isNavLinkActive(pathname: string, href: string) {
   if (href.startsWith("#")) return false;
@@ -60,12 +60,12 @@ const getRoleThemeClasses = (role: RoleVariant) => {
         bgSoft: "bg-supplier/10",
         border: "border-supplier/30",
       };
-    case "tenant":
+    case "venture":
     default:
       return {
-        text: "text-tenant",
-        bgSoft: "bg-tenant/10",
-        border: "border-tenant/30",
+        text: "text-venture",
+        bgSoft: "bg-venture/10",
+        border: "border-venture/30",
       };
   }
 };
@@ -131,9 +131,9 @@ export function SiteHeader() {
 
   const isLoggedIn = Boolean(session?.user);
 
-  // 1. Role Aktif (Default: tenant)
+  // 1. Role Aktif (Default: venture)
   const activeRole: RoleVariant =
-    (session?.user?.activeRole as RoleVariant) || "tenant";
+    (session?.user?.activeRole as RoleVariant) || "venture";
 
   const theme = getRoleThemeClasses(activeRole);
 
@@ -245,8 +245,8 @@ export function SiteHeader() {
                   <MenubarTrigger
                     className={cn(
                       "group relative flex cursor-pointer items-center gap-1 rounded-full border border-transparent p-0.5 outline-none transition-all duration-150 focus-visible:ring-2 focus-visible:ring-ring/50 data-[state=open]:bg-transparent data-[state=open]:text-foreground data-[state=open]:ring-2",
-                      activeRole === "tenant" &&
-                        "data-[state=open]:border-tenant data-[state=open]:ring-tenant/20",
+                      activeRole === "venture" &&
+                        "data-[state=open]:border-venture data-[state=open]:ring-venture/20",
                       activeRole === "owner" &&
                         "data-[state=open]:border-owner data-[state=open]:ring-owner/20",
                       activeRole === "supplier" &&
@@ -274,7 +274,7 @@ export function SiteHeader() {
                         className={cn(
                           "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-background",
                           {
-                            "bg-tenant": activeRole === "tenant",
+                            "bg-venture": activeRole === "venture",
                             "bg-owner": activeRole === "owner",
                             "bg-supplier": activeRole === "supplier",
                           },
@@ -428,7 +428,7 @@ export function SiteHeader() {
                             className={cn(
                               "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-background",
                               {
-                                "bg-tenant": activeRole === "tenant",
+                                "bg-venture": activeRole === "venture",
                                 "bg-owner": activeRole === "owner",
                                 "bg-supplier": activeRole === "supplier",
                               },

@@ -30,9 +30,9 @@ export function Hero() {
         </h1>
 
         <p className="mt-5 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
-          Lapakita connects tenants, stall owners, and suppliers on one platform
-          — backed by footfall data, turnover forecasts, and built-in
-          point-of-sale.
+          Lapakita connects business ventures, stall owners, and suppliers on
+          one platform — backed by footfall data, turnover forecasts, and
+          built-in point-of-sale.
         </p>
 
         <div className="mt-10 w-full max-w-3xl">

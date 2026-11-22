@@ -23,7 +23,7 @@ const TESTIMONIALS: Testimonial[] = [
   {
     id: "1",
     name: "Rina Kartika",
-    role: "Tenant — Kios Nasi Goreng Bu Sari",
+    role: "Venture — Kios Nasi Goreng Bu Sari",
     roleType: "primary",
     avatarUrl:
       "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=256&auto=format&fit=crop",
@@ -53,7 +53,7 @@ const TESTIMONIALS: Testimonial[] = [
   {
     id: "4",
     name: "Siti Nurhaliza",
-    role: "Tenant — Lapak Fashion Kemeja",
+    role: "Venture — Lapak Fashion Kemeja",
     roleType: "primary",
     avatarUrl:
       "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=256&auto=format&fit=crop",
@@ -93,8 +93,8 @@ export function TestimonialsCarousel() {
             Trusted Across the Ecosystem
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Hear from tenants, stall owners, and suppliers already growing with
-            Lapakita.
+            Hear from business ventures, stall owners, and suppliers already
+            growing with Lapakita.
           </p>
         </div>
 

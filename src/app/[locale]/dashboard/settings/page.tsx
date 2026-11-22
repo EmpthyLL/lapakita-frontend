@@ -47,7 +47,7 @@ export default function GeneralProfilePage() {
       name: "",
       default_avatar_url: "",
       phone_number_index: 0,
-      active_role: "tenant",
+      active_role: "venture",
     },
   });
 
@@ -57,7 +57,7 @@ export default function GeneralProfilePage() {
         name: profile.name ?? "",
         default_avatar_url: profile.default_avatar_url ?? "",
         phone_number_index: profile.phone.index ?? 0,
-        active_role: profile.active_role ?? "tenant",
+        active_role: profile.active_role ?? "venture",
       });
       isInitializedRef.current = true;
     }
@@ -72,9 +72,9 @@ export default function GeneralProfilePage() {
         return "text-owner bg-owner/10";
       case "supplier":
         return "text-supplier bg-supplier/10";
-      case "tenant":
+      case "venture":
       default:
-        return "text-tenant bg-tenant/10";
+        return "text-venture bg-venture/10";
     }
   };
 
@@ -200,7 +200,7 @@ export default function GeneralProfilePage() {
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                   <AtSign
-                    className={`h-3.5 w-3.5 transition-colors ${activeRole === "owner" ? "text-owner" : activeRole === "supplier" ? "text-supplier" : "text-tenant"}`}
+                    className={`h-3.5 w-3.5 transition-colors ${activeRole === "owner" ? "text-owner" : activeRole === "supplier" ? "text-supplier" : "text-venture"}`}
                   />{" "}
                   Email Address
                 </span>

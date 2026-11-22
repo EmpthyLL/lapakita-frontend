@@ -78,12 +78,12 @@ const SUPPLIER_STEPS: LifecycleStep[] = [
   {
     label: "Automatic Matchmaking",
     description:
-      "Products automatically surface inside procurement dashboards of matching active UMKM tenants without ad spend.",
+      "Products automatically surface inside procurement dashboards of matching active UMKM ventures without ad spend.",
   },
   {
     label: "1-Click Reorder",
     description:
-      "Tenants designate primary suppliers to trigger instant 1-click inventory restocks directly from POS low-stock alerts.",
+      "Ventures designate primary suppliers to trigger instant 1-click inventory restocks directly from POS low-stock alerts.",
   },
   {
     label: "Digital Fulfillment",
@@ -93,7 +93,7 @@ const SUPPLIER_STEPS: LifecycleStep[] = [
   {
     label: "Escrow Payout",
     description:
-      "Upon tenant delivery confirmation, funds held in the payment gateway are automatically disbursed to the supplier's bank account.",
+      "Upon venture delivery confirmation, funds held in the payment gateway are automatically disbursed to the supplier's bank account.",
   },
 ];
 
@@ -145,21 +145,21 @@ const FLOWS: Record<"owner" | "supplier", LifecycleFlow> = {
     badge: "3 · Supply Chain & Fulfillment",
     title: "Direct B2B Matchmaking & Fulfillment Engine",
     description:
-      "Connecting suppliers directly with matched SME tenants — from catalog setup to escrow-protected payout, with zero advertising spend.",
+      "Connecting suppliers directly with matched SME ventures — from catalog setup to escrow-protected payout, with zero advertising spend.",
     steps: SUPPLIER_STEPS,
     featureCards: [
       {
         icon: Handshake,
         title: "Direct SME Matchmaking",
         description:
-          "Zero ad-spend catalog placement directly targeted at active tenant business categories.",
+          "Zero ad-spend catalog placement directly targeted at active venture business categories.",
         roles: "supplier",
       },
       {
         icon: Repeat,
         title: "Primary Supplier Designation",
         description:
-          "Tenants tag your catalog for automated 1-click reordering whenever POS stock runs low.",
+          "Ventures tag your catalog for automated 1-click reordering whenever POS stock runs low.",
         roles: "supplier",
       },
       {
@@ -173,7 +173,7 @@ const FLOWS: Record<"owner" | "supplier", LifecycleFlow> = {
         icon: Radar,
         title: "Subscriber Demand Signals",
         description:
-          "Aggregated, privacy-safe consumption forecasts across your tenant buyer network.",
+          "Aggregated, privacy-safe consumption forecasts across your venture buyer network.",
         roles: "supplier",
       },
     ],
@@ -210,7 +210,7 @@ export function LifecycleSection() {
           badge={flow.badge}
           title={flow.title}
           description={flow.description}
-          color="tenant"
+          color="venture"
         />
 
         {/* Flow tab switcher */}

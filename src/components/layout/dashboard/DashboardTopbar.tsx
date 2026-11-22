@@ -51,13 +51,13 @@ const getRoleThemeClasses = (role: Role) => {
         border: "data-[state=open]:border-supplier",
         ring: "data-[state=open]:ring-supplier/20",
       };
-    case "tenant":
+    case "venture":
     default:
       return {
-        text: "text-tenant",
-        bgSoft: "bg-tenant/10",
-        border: "data-[state=open]:border-tenant",
-        ring: "data-[state=open]:ring-tenant/20",
+        text: "text-venture",
+        bgSoft: "bg-venture/10",
+        border: "data-[state=open]:border-venture",
+        ring: "data-[state=open]:ring-venture/20",
       };
   }
 };
@@ -105,7 +105,7 @@ export function DashboardTopbar({
 
   const displayRole: Role =
     activeRole === "all"
-      ? (session?.user?.activeRole as Role) || "tenant"
+      ? (session?.user?.activeRole as Role) || "venture"
       : currentRole;
 
   const profileRoutePath = `/dashboard/${currentRole}/profile`;
@@ -239,7 +239,7 @@ export function DashboardTopbar({
                   className={cn(
                     "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-background",
                     {
-                      "bg-tenant": displayRole === "tenant",
+                      "bg-venture": displayRole === "venture",
                       "bg-owner": displayRole === "owner",
                       "bg-supplier": displayRole === "supplier",
                     },

@@ -62,13 +62,13 @@ export interface RoleContent {
 }
 
 export const ROLE_CONTENT: Record<Role, RoleContent> = {
-  tenant: {
-    label: "Tenant",
-    badge: "For Business Operators & Tenants",
+  venture: {
+    label: "Venture",
+    badge: "For Business Ventures & Entrepreneurs",
     headline: "From Business Idea to Daily Retail Operations",
-    color: "tenant",
+    color: "venture",
     description:
-      "Tenants are business operators first, stall renters second. Whether you're running a physical stall, market booth, pop-up event, or home-based business, you get the same powerful tools.",
+      "Ventures are business ventures first, stall renters second. Whether you're running a physical stall, market booth, pop-up event, or home-based business, you get the same powerful tools.",
     groups: [
       {
         title: "Multi-Business & POS Hub",
@@ -204,7 +204,7 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: CalendarClock,
             title: "Lease Expiry Tracking",
             description:
-              "Get a heads-up as a tenant's lease approaches its end date, so nothing lapses unnoticed.",
+              "Get a heads-up as a venture's lease approaches its end date, so nothing lapses unnoticed.",
           },
           {
             icon: EyeOff,
@@ -215,13 +215,13 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
         ],
       },
       {
-        title: "Tenant Vetting & Flexible Leasing",
+        title: "Venture Vetting & Flexible Leasing",
         items: [
           {
             icon: UserCheck,
-            title: "Tenant Profile & Rating Review",
+            title: "Venture Profile & Rating Review",
             description:
-              "Check a prospective tenant's rental history, business type, and rating before approving their application.",
+              "Check a prospective venture's rental history, business type, and rating before approving their application.",
           },
           {
             icon: ClipboardCheck,
@@ -256,7 +256,7 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: Vault,
             title: "Escrow-Held Security Deposit",
             description:
-              "Deposits sit safely in a neutral escrow account for the length of the lease — protecting both owner and tenant.",
+              "Deposits sit safely in a neutral escrow account for the length of the lease — protecting both owner and venture.",
           },
           {
             icon: ScanSearch,
@@ -301,7 +301,7 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
     headline: "Direct SME Matchmaking & Predictable Recurring Orders",
     color: "supplier",
     description:
-      "Suppliers are positioned as supply chain partners, matched directly with UMKM tenants ready to become loyal, recurring buyers.",
+      "Suppliers are positioned as supply chain partners, matched directly with UMKM ventures ready to become loyal, recurring buyers.",
     groups: [
       {
         title: "Direct SME Matchmaking",
@@ -310,13 +310,13 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: Handshake,
             title: "In-Dashboard Catalog Placement",
             description:
-              "Your catalog shows up automatically on the purchasing page of tenants operating within your target business categories.",
+              "Your catalog shows up automatically on the purchasing page of ventures operating within your target business categories.",
           },
           {
             icon: Megaphone,
             title: "Zero Advertising Spend",
             description:
-              "Reach active business operators who need your raw materials — no ad budget required to be seen.",
+              "Reach active business ventures who need your raw materials — no ad budget required to be seen.",
           },
         ],
       },
@@ -327,13 +327,13 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: Repeat,
             title: "Primary Supplier Designation",
             description:
-              'Tenants can set you as their "Primary Supplier" for specific ingredients or inventory items.',
+              'Ventures can set you as their "Primary Supplier" for specific ingredients or inventory items.',
           },
           {
             icon: Zap,
             title: "1-Click Inventory Reorder",
             description:
-              "When a tenant's stock runs low, restocking from your catalog takes a single click from their cashier dashboard.",
+              "When a venture's stock runs low, restocking from your catalog takes a single click from their cashier dashboard.",
           },
         ],
       },
@@ -381,7 +381,7 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
             icon: Sparkle,
             title: "Market Opportunity Gap Analysis",
             description:
-              "Spot raw material categories in high local tenant demand that are under-supplied in your catalog.",
+              "Spot raw material categories in high local venture demand that are under-supplied in your catalog.",
             tier: "premium",
           },
           {
@@ -397,4 +397,4 @@ export const ROLE_CONTENT: Record<Role, RoleContent> = {
   },
 };
 
-export const ROLE_ORDER: Role[] = ["tenant", "owner", "supplier"];
+export const ROLE_ORDER: Role[] = ["venture", "owner", "supplier"];

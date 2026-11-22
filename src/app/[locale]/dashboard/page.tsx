@@ -17,7 +17,7 @@ export default function VectorPage() {
       return;
     }
 
-    const role = (session.user.activeRole as Role) ?? "tenant";
+    const role = (session.user.activeRole as Role) ?? "venture";
     router.replace(`/dashboard/${role}`);
   }, [session, status, router]);
 

@@ -38,8 +38,8 @@ const TIERS: PricingTeaserTier[] = [
     description: "Full premium analytics pass for one role of your choice.",
     features: [
       "Everything in Free Forever tier",
-      "Tenant: Multi-Timeline Business Forecast (3 Scenarios)",
-      "Tenant: Prescriptive Operational Co-Pilot",
+      "Venture: Multi-Timeline Business Forecast (3 Scenarios)",
+      "Venture: Prescriptive Operational Co-Pilot",
       "Owner: Daily Vacancy Loss Tracker & Pricing Strategy",
       "Supplier: Subscriber Demand Signals & Opportunity Gaps",
     ],
@@ -55,7 +55,7 @@ const TIERS: PricingTeaserTier[] = [
       "Unlocks every premium feature across all 3 roles simultaneously.",
     features: [
       "Everything in Single Role plan",
-      "Tenant + Owner + Supplier Premium Passes Included",
+      "Venture + Owner + Supplier Premium Passes Included",
       "Unified Dashboard Role Switcher",
       "Priority Customer Support Access",
       "Prepaid Active Pass (No Auto-Debit Traps)",

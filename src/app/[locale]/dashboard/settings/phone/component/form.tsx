@@ -39,9 +39,9 @@ interface RoleOption {
 
 const AVAILABLE_ROLES: readonly RoleOption[] = [
   {
-    label: "Tenant",
-    value: "tenant",
-    activeClass: "border-tenant bg-tenant/10 text-tenant",
+    label: "Venture",
+    value: "venture",
+    activeClass: "border-venture bg-venture/10 text-venture",
   },
   {
     label: "Owner",

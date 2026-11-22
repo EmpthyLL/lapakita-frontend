@@ -46,7 +46,7 @@ export function AboutSummary() {
             <p className="mt-5 text-pretty text-muted-foreground">
               Lapakita is built to replace speculation with data, informal
               friction with price-locked digital contracts, and fragmented tools
-              with a single operating system for business operators, stall
+              with a single operating system for business ventures, stall
               owners, and B2B suppliers.
             </p>
 

@@ -36,7 +36,7 @@ export const CONTACT_INFO: ContactInfoItem[] = [
   },
 ];
 
-export type PersonaValue = "tenant" | "owner" | "supplier" | "general";
+export type PersonaValue = "venture" | "owner" | "supplier" | "general";
 
 export const PERSONA_OPTIONS: {
   value: PersonaValue;
@@ -45,15 +45,15 @@ export const PERSONA_OPTIONS: {
   icon: LucideIcon;
 }[] = [
   {
-    value: "tenant",
-    label: "Tenant / Business",
+    value: "venture",
+    label: "Venture / Tenant",
     description: "Stall leasing, POS systems, cashier, & transactions",
     icon: HelpCircle,
   },
   {
     value: "owner",
     label: "Stall Owner",
-    description: "Property listings, tenant vetting, & deposits",
+    description: "Property listings, venture vetting, & deposits",
     icon: Building2,
   },
   {
@@ -78,7 +78,7 @@ export interface InquiryOption {
 
 export const INQUIRY_OPTIONS_BY_PERSONA: Record<PersonaValue, InquiryOption[]> =
   {
-    tenant: [
+    venture: [
       { value: "rental_inquiry", label: "Stall Search & Rental Application" },
       { value: "bazaar_event", label: "Bazaar / Pop-up Event Registration" },
       {
@@ -92,7 +92,7 @@ export const INQUIRY_OPTIONS_BY_PERSONA: Record<PersonaValue, InquiryOption[]> =
       { value: "deposit_refund", label: "Escrow Deposit Refund" },
       { value: "billing_subscription", label: "Pro Subscription Billing" },
       { value: "supplier_order", label: "Supplier Raw Material Order Issues" },
-      { value: "other_tenant", label: "Other (Tenant Issues)" },
+      { value: "other_venture", label: "Other (Venture Issues)" },
     ],
     owner: [
       {
@@ -104,8 +104,8 @@ export const INQUIRY_OPTIONS_BY_PERSONA: Record<PersonaValue, InquiryOption[]> =
         label: "Bazaar / Festival Event Slot Creation",
       },
       {
-        value: "tenant_vetting",
-        label: "Tenant Approval / Rejection",
+        value: "venture_vetting",
+        label: "Venture Approval / Rejection",
       },
       {
         value: "deposit_claim",

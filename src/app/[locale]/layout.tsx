@@ -9,7 +9,7 @@ import { notFound } from "next/navigation";
 export const metadata: Metadata = {
   title: "Lapakita — Find Stalls, Run Your POS, Scale Your Business",
   description:
-    "Lapakita connects tenants, stall owners, and suppliers on one platform with footfall analytics and built-in POS.",
+    "Lapakita connects ventures, stall owners, and suppliers on one platform with footfall analytics and built-in POS.",
 };
 
 export default async function LocaleLayout({

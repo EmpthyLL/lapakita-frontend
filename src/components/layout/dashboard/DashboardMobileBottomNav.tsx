@@ -15,7 +15,7 @@ export function DashboardMobileBottomNav() {
   const pathname = usePathname();
   const { activeRole, isWalletPage, isSettingsPage } = useRoleContext();
 
-  let items: NavItem[] = DASHBOARD_NAV[activeRole] || DASHBOARD_NAV.tenant;
+  let items: NavItem[] = DASHBOARD_NAV[activeRole] || DASHBOARD_NAV.venture;
 
   if (isWalletPage) {
     items = WALLET_NAV;

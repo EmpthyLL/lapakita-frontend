@@ -59,12 +59,12 @@ export function RoleSelectPopover({
     [],
   );
 
-  const currentConfig = ROLES_CONFIG[value] ?? ROLES_CONFIG.tenant;
+  const currentConfig = ROLES_CONFIG[value] ?? ROLES_CONFIG.venture;
   const isGeneral = value === "all";
 
   const roles: RoleAndAll[] = showGeneral
-    ? ["all", "tenant", "owner", "supplier"]
-    : ["tenant", "owner", "supplier"];
+    ? ["all", "venture", "owner", "supplier"]
+    : ["venture", "owner", "supplier"];
 
   if (mode === "toggle") {
     return (

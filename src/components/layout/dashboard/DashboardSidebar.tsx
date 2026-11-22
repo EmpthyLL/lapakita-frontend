@@ -36,9 +36,9 @@ function isFooterActive(pathname: string, href: string) {
 
 // Styling khusus hover & active per role agar selaras
 const ROLE_THEME_CLASSES: Record<Role, { active: string; hover: string }> = {
-  tenant: {
-    active: "bg-tenant-secondary text-tenant font-semibold shadow-xs",
-    hover: "hover:bg-tenant-secondary hover:text-tenant",
+  venture: {
+    active: "bg-venture-secondary text-venture font-semibold shadow-xs",
+    hover: "hover:bg-venture-secondary hover:text-venture",
   },
   owner: {
     active: "bg-owner-secondary text-owner font-semibold shadow-xs",
@@ -67,16 +67,16 @@ export function DashboardSidebar({
     useRoleContext();
 
   const sessionActiveRole =
-    (session?.user?.activeRole as Role) || activeRole || "tenant";
+    (session?.user?.activeRole as Role) || activeRole || "venture";
 
   const isGeneralPage = isWalletPage || isSettingsPage;
 
-  let rawNavItems = DASHBOARD_NAV[activeRole] ?? DASHBOARD_NAV.tenant;
+  let rawNavItems = DASHBOARD_NAV[activeRole] ?? DASHBOARD_NAV.venture;
   let sectionLabel =
-    activeRole === "tenant"
-      ? "Tenant Mode"
+    activeRole === "venture"
+      ? "Venture Mode"
       : activeRole === "owner"
-        ? "Stall Owner Mode"
+        ? "Owner Mode"
         : "Supplier Mode";
 
   if (isWalletPage) {
@@ -135,10 +135,10 @@ export function DashboardSidebar({
             {(() => {
               const workspaceHref = `/dashboard/${sessionActiveRole}`;
               const label =
-                sessionActiveRole === "tenant"
-                  ? "Tenant Workspace"
+                sessionActiveRole === "venture"
+                  ? "Venture Workspace"
                   : sessionActiveRole === "owner"
-                    ? "Stall Owner Workspace"
+                    ? "Owner Workspace"
                     : "Supplier Workspace";
 
               const shortcutEl = (

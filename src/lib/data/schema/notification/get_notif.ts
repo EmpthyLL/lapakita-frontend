@@ -30,7 +30,7 @@ const getRandomDate = (seedOffset: number) => {
 
 export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
   // ===========================================================================
-  // 1. OPERATIONAL: TENANT
+  // 1. OPERATIONAL: VENTURE
   // ===========================================================================
   {
     id: "t-op-1",
@@ -40,9 +40,9 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Your application for Kiosk A-12 (Plaza Margonda) has been approved by the owner. Please proceed with payment.",
     read: false,
     category: "operational",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "success",
-    actionUrl: "/dashboard/tenant/leases/lc-001",
+    actionUrl: "/dashboard/venture/leases/lc-001",
     createdAt: getRandomDate(1),
   },
   {
@@ -53,9 +53,9 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Your rental proposal for Stall C-09 was declined by the owner due to space availability conflicts.",
     read: true,
     category: "operational",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "destructive",
-    actionUrl: "/dashboard/tenant/leases",
+    actionUrl: "/dashboard/venture/leases",
     createdAt: getRandomDate(2),
   },
   {
@@ -66,9 +66,9 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Your lease for Stall B-04 is officially active! You can now move in and start operation.",
     read: true,
     category: "operational",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "info",
-    actionUrl: "/dashboard/tenant/leases/lc-002",
+    actionUrl: "/dashboard/venture/leases/lc-002",
     createdAt: getRandomDate(3),
   },
   {
@@ -79,9 +79,9 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Your lease contract for Kiosk A-12 will end in 14 days. Click here to extend or apply for renewal.",
     read: true,
     category: "operational",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "warning",
-    actionUrl: "/dashboard/tenant/leases/lc-001",
+    actionUrl: "/dashboard/venture/leases/lc-001",
     createdAt: getRandomDate(4),
   },
   {
@@ -92,9 +92,9 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "The owner uploaded initial inspection records and photo documentation for Kiosk A-12.",
     read: true,
     category: "operational",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "info",
-    actionUrl: "/dashboard/tenant/leases/lc-001/inspection",
+    actionUrl: "/dashboard/venture/leases/lc-001/inspection",
     createdAt: getRandomDate(5),
   },
   {
@@ -105,9 +105,9 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Owner submitted a claim of Rp 350,000 for electrical fixture damage on lease #LC-881.",
     read: false,
     category: "operational",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "warning",
-    actionUrl: "/dashboard/tenant/leases/lc-881/claims",
+    actionUrl: "/dashboard/venture/leases/lc-881/claims",
     createdAt: getRandomDate(6),
   },
   {
@@ -118,9 +118,9 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Agreed settlement of Rp 200,000 for claim #DC-102 has been processed against deposit.",
     read: true,
     category: "operational",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "success",
-    actionUrl: "/dashboard/tenant/leases/lc-881/claims",
+    actionUrl: "/dashboard/venture/leases/lc-881/claims",
     createdAt: getRandomDate(7),
   },
   {
@@ -131,7 +131,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Your request for a spare duplicate key has been approved by the stall owner.",
     read: true,
     category: "operational",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "info",
     createdAt: getRandomDate(8),
   },
@@ -143,7 +143,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Biteship courier (GoSend Instant) is delivering 50kg Coffee Beans from Rian Supply Hub.",
     read: false,
     category: "operational",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "info",
     actionUrl: "/dashboard/business/biz-01/marketplace/orders/sup-9921",
     createdAt: getRandomDate(9),
@@ -156,7 +156,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Order #SUP-9921 has arrived safely at your business stall location.",
     read: true,
     category: "operational",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "success",
     actionUrl: "/dashboard/business/biz-01/marketplace/orders/sup-9921",
     createdAt: getRandomDate(10),
@@ -183,7 +183,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
     typeCode: "op_lease_ghosting_cancelled",
     title: "Application Cancelled (Ghosting)",
     description:
-      "Application #LC-102 was auto-cancelled because the prospective tenant failed to pay within 24 hours.",
+      "Application #LC-102 was auto-cancelled because the prospective venture failed to pay within 24 hours.",
     read: true,
     category: "operational",
     targetRole: "owner",
@@ -193,7 +193,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
   },
   {
     id: "o-op-3",
-    typeCode: "op_tenant_move_in",
+    typeCode: "op_venture_move_in",
     title: "Tenant Move-In Confirmed",
     description:
       "Tenant confirmed key receipt and officially started occupancy at Stall B-04.",
@@ -206,7 +206,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
   },
   {
     id: "o-op-4",
-    typeCode: "op_tenant_move_out",
+    typeCode: "op_venture_move_out",
     title: "Tenant Move-Out Completed",
     description:
       "Tenant vacated Stall A-01. Listing is now ready for re-publishing.",
@@ -277,7 +277,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
     typeCode: "op_new_b2b_order",
     title: "New B2B Order #SUP-3012",
     description:
-      "Tenant 'Kopi Susu Abadi' ordered 20kg Arabica Beans + 50L UHT Milk (Rp 2,450,000).",
+      "Venture 'Kopi Susu Abadi' ordered 20kg Arabica Beans + 50L UHT Milk (Rp 2,450,000).",
     read: false,
     category: "operational",
     targetRole: "supplier",
@@ -315,7 +315,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
     typeCode: "op_new_regular_subscriber",
     title: "New Regular Buyer Added",
     description:
-      "Tenant 'Martabak Bandung 88' added your hub to their Regular Suppliers list.",
+      "Venture 'Martabak Bandung 88' added your hub to their Regular Suppliers list.",
     read: true,
     category: "operational",
     targetRole: "supplier",
@@ -412,7 +412,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
   },
 
   // ===========================================================================
-  // 6. FINANCE: TENANT
+  // 6. FINANCE: VENTURE
   // ===========================================================================
   {
     id: "t-fin-1",
@@ -422,9 +422,9 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Rent payment of Rp 3,500,000 for Kiosk A-12 is due in 3 days to avoid lease suspension.",
     read: false,
     category: "finance",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "warning",
-    actionUrl: "/dashboard/tenant/leases/lc-001",
+    actionUrl: "/dashboard/venture/leases/lc-001",
     metadata: { amount: 3500000, contractId: "lc-001" },
     createdAt: getRandomDate(29),
   },
@@ -436,7 +436,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Remittance of Rp 3,500,000 for contract #LC-001 has been verified and held in escrow.",
     read: true,
     category: "finance",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "success",
     actionUrl: "/dashboard/wallet/history",
     metadata: { amount: 3500000 },
@@ -450,7 +450,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Lease application #LC-990 was cancelled because the 24-hour payment window elapsed.",
     read: true,
     category: "finance",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "destructive",
     createdAt: getRandomDate(31),
   },
@@ -462,7 +462,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Security deposit of Rp 1,500,000 for ended contract #LC-771 was fully refunded to your Bank BCA account.",
     read: true,
     category: "finance",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "success",
     actionUrl: "/dashboard/wallet/history",
     metadata: { amount: 1500000 },
@@ -476,7 +476,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Rp 300,000 was deducted from deposit #LC-881 for unpaid utility arrears as agreed.",
     read: true,
     category: "finance",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "warning",
     actionUrl: "/dashboard/wallet/history",
     metadata: { amount: 300000 },
@@ -490,7 +490,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "You have 2 cancelled unpaid applications. Future applications require a 35% refundable commitment deposit.",
     read: false,
     category: "finance",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "destructive",
     actionUrl: "/dashboard/wallet/notifications",
     createdAt: getRandomDate(34),
@@ -503,7 +503,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Payment of Rp 1,250,000 for order #SUP-9921 has been settled via Midtrans QRIS.",
     read: true,
     category: "finance",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "success",
     actionUrl: "/dashboard/wallet/history",
     metadata: { amount: 1250000 },
@@ -517,7 +517,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
       "Your commitment deposit of Rp 1,225,000 has been credited back following lease activation.",
     read: true,
     category: "finance",
-    targetRole: "tenant",
+    targetRole: "venture",
     variant: "success",
     actionUrl: "/dashboard/wallet/history",
     metadata: { amount: 1225000 },
@@ -661,7 +661,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
     typeCode: "finance_order_refund_processed",
     title: "Cancelled Order Refunded to Buyer",
     description:
-      "Order #SUP-2991 (Rp 650,000) was cancelled before pickup and refunded to the tenant.",
+      "Order #SUP-2991 (Rp 650,000) was cancelled before pickup and refunded to the venture.",
     read: true,
     category: "finance",
     targetRole: "supplier",
@@ -679,7 +679,7 @@ export const DUMMY_NOTIFICATIONS: NotificationItem[] = [
     typeCode: "sys_subscription_renewed",
     title: "All-Access Subscription Active",
     description:
-      "Your All-Access multi-role plan is active until December 15, 2026 across Tenant, Owner, and Supplier.",
+      "Your All-Access multi-role plan is active until December 15, 2026 across Venture, Owner, and Supplier.",
     read: false,
     category: "system",
     targetRole: "all",

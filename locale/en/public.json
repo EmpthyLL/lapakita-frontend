@@ -5,7 +5,7 @@
     "last_updated": "Last updated",
     "descriptions": {
       "all": "Learn about Lapakita's ecosystem, single account multi-role, and pricing plans.",
-      "tenant": "Guides for business operators running POS, finding stalls, and analyzing finances.",
+      "venture": "Guides for business ventures running POS, finding stalls, and analyzing finances.",
       "owner": "Information for property owners managing listings, tenants, and escrow deposits.",
       "supplier": "Details for wholesalers and distributors connecting with SME buyers."
     },
@@ -30,12 +30,12 @@
       "terms": {
         "label": "Terms & Conditions",
         "title": "Terms and Conditions",
-        "intro": "These terms govern your use of Lapakita as a Tenant, Stall Owner, or Supplier. Please read them carefully before using the platform."
+        "intro": "These terms govern your use of Lapakita as a Business Venture, Stall Owner, or Supplier. Please read them carefully before using the platform."
       },
       "privacy": {
         "label": "Privacy Policy",
         "title": "Privacy Policy",
-        "intro": "This policy explains what data Lapakita collects, how it's used, and the protections in place across Tenant, Owner, and Supplier accounts."
+        "intro": "This policy explains what data Lapakita collects, how it's used, and the protections in place across Venture, Owner, and Supplier accounts."
       },
       "cookies": {
         "label": "Cookies Policy",
