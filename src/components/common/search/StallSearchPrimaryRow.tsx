@@ -63,7 +63,7 @@ export function StallSearchPrimaryRow({
           groupKey="group_name"
           placeholder={t("business_type_placeholder")}
           mode="solid"
-          className="lg:w-60 lg:shrink-0"
+          className="lg:w-80 lg:shrink-0"
         />
 
         <Button
