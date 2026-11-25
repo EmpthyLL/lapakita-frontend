@@ -1,5 +1,14 @@
 import { z } from "zod";
 import { basePaginationQuerySchema, PaginatedResponse } from "../base";
+import { BusinessFrontPlatform } from "./business_front";
+
+export interface BusinessFrontItem {
+  id: string;
+  platform: BusinessFrontPlatform | string;
+  store_name: string;
+  store_url?: string | null;
+  is_active: boolean;
+}
 
 export const listBusinessQuerySchema = basePaginationQuerySchema.extend({
   business_type_id: z.string().optional(),
@@ -13,6 +22,8 @@ export interface Business {
   name: string;
   logo_url?: string | null;
   business_type_name: string;
+  fronts?: BusinessFrontItem[];
+  total_fronts?: number;
   created_at: string;
 }
 
